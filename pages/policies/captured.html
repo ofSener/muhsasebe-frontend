@@ -234,61 +234,10 @@
             </div>
           </div>
 
-          <!-- ═══════════════════════════════════════════════════════════════
-               TODO: KPI İSTATİSTİKLERİ - BACKEND'DEN ALINACAK
-               ═══════════════════════════════════════════════════════════════
-               API Endpoint: GET /api/policies/captured/stats
-               Query Parameters:
-                 - startDate: '2026-01-19'
-                 - endDate: '2026-01-19'
-
-               Beklenen Response:
-               {
-                 "pendingCount": 12,
-                 "pendingTrend": "+3",
-                 "pendingTrendDirection": "up",
-                 "totalPremium": 156640,
-                 "premiumTrend": "%12",
-                 "premiumTrendDirection": "up",
-                 "monthlyTarget": 217000,
-                 "targetPercentage": 72,
-                 "producerCount": 4,
-                 "activeProducers": [
-                   { "initials": "ZA", "color": "emerald", "name": "Zeynep Arslan" },
-                   { "initials": "MK", "color": "cyan", "name": "Mehmet Kaya" },
-                   { "initials": "AD", "color": "violet", "name": "Ayşe Demir" },
-                   { "initials": "CÖ", "color": "amber", "name": "Can Özkan" }
-                 ],
-                 "sentCount": 847,
-                 "sentTrend": "+24",
-                 "sentTrendDirection": "up"
-               }
-
-               JavaScript Kullanım:
-               async function loadKPIStats() {
-                 const params = new URLSearchParams({
-                   startDate: currentDateRange.start,
-                   endDate: currentDateRange.end
-                 });
-                 const response = await fetch(`/api/policies/captured/stats?${params}`);
-                 const stats = await response.json();
-
-                 document.getElementById('statPending').textContent = stats.pendingCount;
-                 document.getElementById('statPremium').textContent = '₺' + stats.totalPremium.toLocaleString('tr-TR');
-                 document.getElementById('statProducers').textContent = stats.producerCount;
-                 document.getElementById('statSent').textContent = stats.sentCount;
-
-                 // Progress bar güncelle
-                 document.querySelector('.kpi-progress-bar').style.width = stats.targetPercentage + '%';
-
-                 // Prodüktör avatarlarını güncelle
-                 updateKPIAvatars(stats.activeProducers);
-               }
-               ═══════════════════════════════════════════════════════════════ -->
           <!-- KPI Stats - Modern Design -->
+          <!-- KPI değerleri loadKPIStats() ile API'den yüklenir -->
           <div class="kpi-grid mb-4">
             <!-- Bekleyen Poliçe -->
-            <!-- TODO: statPending değeri API'den alınacak -->
             <div class="kpi-card kpi-amber">
               <div class="kpi-card-bg"></div>
               <div class="kpi-header">
@@ -372,13 +321,8 @@
                 <div class="kpi-label">Prodüktör</div>
               </div>
               <div class="kpi-footer">
-                <!-- TODO: Avatarlar dinamik olarak producersList'ten veya API'den oluşturulacak -->
-                <!-- updateKPIAvatars(stats.activeProducers) fonksiyonu ile güncellenecek -->
                 <div class="kpi-avatars" id="kpiAvatars">
-                  <span class="kpi-avatar" style="background: linear-gradient(135deg, #10b981, #059669);">ZA</span>
-                  <span class="kpi-avatar" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">MK</span>
-                  <span class="kpi-avatar" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">AD</span>
-                  <span class="kpi-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">CÖ</span>
+                  <!-- Dinamik olarak updateKPIAvatars() ile doldurulacak -->
                 </div>
               </div>
             </div>
@@ -453,24 +397,9 @@
                   </svg>
                   <input type="text" id="searchInput" placeholder="Ara..." onkeyup="filterTable()">
                 </div>
-                <!-- TODO: Prodüktör seçenekleri dinamik olarak API'den doldurulacak -->
-                <!-- populateProducerFilter() fonksiyonu ile producersList'ten oluşturulacak -->
-                <!-- Örnek:
-                function populateProducerFilter() {
-                  const select = document.getElementById('producerFilter');
-                  select.innerHTML = '<option value="">Tüm Prodüktörler</option>';
-                  producersList.forEach(p => {
-                    select.innerHTML += `<option value="${p.name}">${p.name}</option>`;
-                  });
-                }
-                -->
                 <select id="producerFilter" class="form-select form-select-sm" onchange="filterTable()">
                   <option value="">Tüm Prodüktörler</option>
-                  <!-- TODO: Aşağıdaki statik optionlar kaldırılacak, dinamik olarak doldurulacak -->
-                  <option value="Zeynep Arslan">Zeynep Arslan</option>
-                  <option value="Mehmet Kaya">Mehmet Kaya</option>
-                  <option value="Ayşe Demir">Ayşe Demir</option>
-                  <option value="Can Özkan">Can Özkan</option>
+                  <!-- Dinamik olarak populateProducerFilter() ile doldurulacak -->
                 </select>
               </div>
             </div>
@@ -2528,231 +2457,244 @@
     };
 
     // ═══════════════════════════════════════════════════════════════
-    // TODO: KULLANICI YETKİSİ - AUTHENTICATION SİSTEMİNDEN ALINACAK
+    // STATE VARIABLES
     // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: GET /api/auth/me veya JWT token decode
-    // Beklenen Response:
-    // {
-    //   "id": 1,
-    //   "name": "Ahmet Yılmaz",
-    //   "email": "ahmet@example.com",
-    //   "role": "admin" | "editor" | "viewer",
-    //   "permissions": ["policies.read", "policies.write", "policies.delete"]
-    // }
-    //
-    // Kullanım:
-    // const userResponse = await fetch('/api/auth/me', {
-    //   headers: { 'Authorization': 'Bearer ' + getToken() }
-    // });
-    // const userData = await userResponse.json();
-    // currentUserRole = userData.role;
-    // ═══════════════════════════════════════════════════════════════
-    let currentUserRole = 'admin'; // TODO: Backend'den alınacak
+    let currentUserRole = 'admin';
     let isEditMode = false;
-    let pendingChanges = new Map(); // Map<policyId, { field: newValue, ... }>
+    let pendingChanges = new Map();
 
-    // ═══════════════════════════════════════════════════════════════
-    // TODO: POLİÇE TİPLERİ - BACKEND'DEN ALINACAK (veya statik kalabilir)
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: GET /api/policy-types
-    // Beklenen Response:
-    // [
-    //   { "id": 1, "value": "Kasko", "class": "kasko", "color": "#6366f1" },
-    //   { "id": 2, "value": "Trafik", "class": "trafik", "color": "#10b981" },
-    //   { "id": 3, "value": "DASK", "class": "dask", "color": "#f59e0b" },
-    //   { "id": 4, "value": "Sağlık", "class": "saglik", "color": "#ec4899" },
-    //   { "id": 5, "value": "Konut", "class": "konut", "color": "#3b82f6" }
-    // ]
-    //
-    // Kullanım:
-    // async function loadPolicyTypes() {
-    //   const response = await fetch('/api/policy-types');
-    //   policyTypes = await response.json();
-    // }
-    // ═══════════════════════════════════════════════════════════════
-    let policyTypes = [
-      { value: 'Kasko', class: 'kasko' },
-      { value: 'Trafik', class: 'trafik' },
-      { value: 'DASK', class: 'dask' },
-      { value: 'Sağlık', class: 'saglik' },
-      { value: 'Konut', class: 'konut' }
-    ]; // TODO: Backend'den alınacak veya statik kalacak
+    // Data arrays - API'den doldurulacak
+    let policyTypes = [];
+    let producersList = [];
+    let branchesList = [];
+    let policies = [];
+    let filteredPolicies = [];
 
-    // ═══════════════════════════════════════════════════════════════
-    // TODO: PRODÜKTÖR LİSTESİ - BACKEND'DEN ALINACAK
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: GET /api/producers
-    // Query Parameters: ?active=true (sadece aktif prodüktörler)
-    // Beklenen Response:
-    // [
-    //   {
-    //     "id": 1,
-    //     "name": "Zeynep Arslan",
-    //     "initials": "ZA",
-    //     "color": "emerald",
-    //     "branchId": 1,
-    //     "branchName": "Merkez",
-    //     "role": "Kıdemli Prodüktör",
-    //     "isActive": true
-    //   },
-    //   ...
-    // ]
-    //
-    // Kullanım:
-    // async function loadProducers() {
-    //   const response = await fetch('/api/producers?active=true');
-    //   producersList = await response.json();
-    //   populateProducerFilter(); // Dropdown'u doldur
-    //   updateKPIAvatars(); // KPI kartındaki avatarları güncelle
-    // }
-    // ═══════════════════════════════════════════════════════════════
-    let producersList = [
-      { name: 'Zeynep Arslan', initials: 'ZA', color: 'emerald', branch: 'Merkez' },
-      { name: 'Mehmet Kaya', initials: 'MK', color: 'cyan', branch: 'Kadıköy' },
-      { name: 'Ayşe Demir', initials: 'AD', color: 'violet', branch: 'Beşiktaş' },
-      { name: 'Can Özkan', initials: 'CÖ', color: 'amber', branch: 'Şişli' }
-    ]; // TODO: Backend'den alınacak
-
-    // ═══════════════════════════════════════════════════════════════
-    // TODO: ŞUBE LİSTESİ - BACKEND'DEN ALINACAK
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: GET /api/branches
-    // Beklenen Response:
-    // [
-    //   { "id": 1, "name": "Merkez", "code": "MRK", "isActive": true },
-    //   { "id": 2, "name": "Kadıköy", "code": "KDK", "isActive": true },
-    //   { "id": 3, "name": "Beşiktaş", "code": "BSK", "isActive": true },
-    //   { "id": 4, "name": "Şişli", "code": "SSL", "isActive": true }
-    // ]
-    //
-    // Kullanım:
-    // async function loadBranches() {
-    //   const response = await fetch('/api/branches');
-    //   const data = await response.json();
-    //   branchesList = data.map(b => b.name);
-    // }
-    // ═══════════════════════════════════════════════════════════════
-    let branchesList = ['Merkez', 'Kadıköy', 'Beşiktaş', 'Şişli']; // TODO: Backend'den alınacak
-
-    // ═══════════════════════════════════════════════════════════════
-    // TODO: YAKALANAN POLİÇE VERİLERİ - BACKEND'DEN ALINACAK
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: GET /api/policies/captured
-    // Query Parameters:
-    //   - startDate: '2026-01-19' (tarih filtresi başlangıç)
-    //   - endDate: '2026-01-19' (tarih filtresi bitiş)
-    //   - producer: 'Zeynep Arslan' (prodüktör filtresi, opsiyonel)
-    //   - search: 'arama terimi' (arama filtresi, opsiyonel)
-    //   - sortBy: 'date' | 'policyNo' | 'customer' | 'netPremium' | 'grossPremium' | 'producer'
-    //   - sortDir: 'asc' | 'desc'
-    //   - page: 1 (sayfalama)
-    //   - limit: 50 (sayfa başına kayıt)
-    //
-    // Beklenen Response:
-    // {
-    //   "data": [
-    //     {
-    //       "id": 1,
-    //       "policyNo": "1045782/1/2",
-    //       "customer": "Kemal Yıldırım",
-    //       "customerId": 101,
-    //       "type": "Kasko",
-    //       "typeClass": "kasko",
-    //       "netPremium": 15890,
-    //       "grossPremium": 18750,
-    //       "producer": "Zeynep Arslan",
-    //       "producerId": 1,
-    //       "producerInitials": "ZA",
-    //       "producerColor": "emerald",
-    //       "branch": "Merkez",
-    //       "branchId": 1,
-    //       "date": "2026-01-19",
-    //       "dateFormatted": "19.01.2026",
-    //       "driveUrl": "https://drive.google.com/...",
-    //       "status": "pending",
-    //       "createdAt": "2026-01-19T10:30:00Z"
-    //     },
-    //     ...
-    //   ],
-    //   "pagination": {
-    //     "total": 127,
-    //     "page": 1,
-    //     "limit": 50,
-    //     "totalPages": 3
-    //   }
-    // }
-    //
-    // Kullanım:
-    // async function loadCapturedPolicies(filters = {}) {
-    //   const params = new URLSearchParams({
-    //     startDate: filters.startDate || getTodayDate(),
-    //     endDate: filters.endDate || getTodayDate(),
-    //     ...(filters.producer && { producer: filters.producer }),
-    //     ...(filters.search && { search: filters.search }),
-    //     sortBy: currentSort.field,
-    //     sortDir: currentSort.direction
-    //   });
-    //
-    //   const response = await fetch(`/api/policies/captured?${params}`);
-    //   const result = await response.json();
-    //   policies = result.data;
-    //   filteredPolicies = [...policies];
-    //   renderTable();
-    //   updateStats();
-    // }
-    // ═══════════════════════════════════════════════════════════════
-    let policies = [
-      { id: 1, policyNo: '1045782/1/2', customer: 'Kemal Yıldırım', type: 'Kasko', typeClass: 'kasko', netPremium: 15890, grossPremium: 18750, producer: 'Zeynep Arslan', producerInitials: 'ZA', producerColor: 'emerald', branch: 'Merkez', date: '2026-01-19', dateFormatted: '19.01.2026' },
-      { id: 2, policyNo: '1045781/3/1', customer: 'Seda Korkmaz', type: 'Trafik', typeClass: 'trafik', netPremium: 3560, grossPremium: 4200, producer: 'Zeynep Arslan', producerInitials: 'ZA', producerColor: 'emerald', branch: 'Merkez', date: '2026-01-19', dateFormatted: '19.01.2026' },
-      { id: 3, policyNo: '1045780/2/1', customer: 'Burak Şahin', type: 'DASK', typeClass: 'dask', netPremium: 780, grossPremium: 920, producer: 'Mehmet Kaya', producerInitials: 'MK', producerColor: 'cyan', branch: 'Kadıköy', date: '2026-01-19', dateFormatted: '19.01.2026' },
-      { id: 4, policyNo: '1045779/1/1', customer: 'Elif Demirtaş', type: 'Sağlık', typeClass: 'saglik', netPremium: 10508, grossPremium: 12400, producer: 'Ayşe Demir', producerInitials: 'AD', producerColor: 'violet', branch: 'Beşiktaş', date: '2026-01-19', dateFormatted: '19.01.2026' },
-      { id: 5, policyNo: '1045778/2/3', customer: 'Oğuz Karaca', type: 'Kasko', typeClass: 'kasko', netPremium: 18729, grossPremium: 22100, producer: 'Can Özkan', producerInitials: 'CÖ', producerColor: 'amber', branch: 'Şişli', date: '2026-01-19', dateFormatted: '19.01.2026' },
-      { id: 6, policyNo: '1045777/1/1', customer: 'Ali Vural', type: 'DASK', typeClass: 'dask', netPremium: 780, grossPremium: 920, producer: 'Zeynep Arslan', producerInitials: 'ZA', producerColor: 'emerald', branch: 'Merkez', date: '2026-01-18', dateFormatted: '18.01.2026' },
-      { id: 7, policyNo: '1045776/1/2', customer: 'Canan Demir', type: 'Kasko', typeClass: 'kasko', netPremium: 12966, grossPremium: 15300, producer: 'Mehmet Kaya', producerInitials: 'MK', producerColor: 'cyan', branch: 'Kadıköy', date: '2026-01-18', dateFormatted: '18.01.2026' },
-      { id: 8, policyNo: '1045775/2/1', customer: 'Deniz Acar', type: 'Sağlık', typeClass: 'saglik', netPremium: 10508, grossPremium: 12400, producer: 'Zeynep Arslan', producerInitials: 'ZA', producerColor: 'emerald', branch: 'Merkez', date: '2026-01-18', dateFormatted: '18.01.2026' },
-      { id: 9, policyNo: '1045774/1/1', customer: 'Murat Özkan', type: 'Trafik', typeClass: 'trafik', netPremium: 3220, grossPremium: 3800, producer: 'Ayşe Demir', producerInitials: 'AD', producerColor: 'violet', branch: 'Beşiktaş', date: '2026-01-17', dateFormatted: '17.01.2026' },
-      { id: 10, policyNo: '1045773/3/2', customer: 'Hakan Yılmaz', type: 'Konut', typeClass: 'konut', netPremium: 2415, grossPremium: 2850, producer: 'Mehmet Kaya', producerInitials: 'MK', producerColor: 'cyan', branch: 'Kadıköy', date: '2026-01-17', dateFormatted: '17.01.2026' },
-      { id: 11, policyNo: '1045772/1/1', customer: 'Zehra Kurt', type: 'Kasko', typeClass: 'kasko', netPremium: 18220, grossPremium: 21500, producer: 'Ayşe Demir', producerInitials: 'AD', producerColor: 'violet', branch: 'Beşiktaş', date: '2026-01-16', dateFormatted: '16.01.2026' },
-      { id: 12, policyNo: '1045771/2/1', customer: 'Selin Ak', type: 'Trafik', typeClass: 'trafik', netPremium: 3813, grossPremium: 4500, producer: 'Can Özkan', producerInitials: 'CÖ', producerColor: 'amber', branch: 'Şişli', date: '2026-01-16', dateFormatted: '16.01.2026' }
-    ]; // TODO: Backend'den alınacak - loadCapturedPolicies() fonksiyonu ile
-
+    // Selection & sorting state
     let selectedPolicies = new Set();
     let currentSort = { field: 'date', direction: 'desc' };
-    let filteredPolicies = [...policies];
 
     // Pagination state
     let currentPage = 1;
     let pageSize = 20;
     let totalFilteredItems = 0;
 
+    // Date range state
+    let currentDateRange = {
+      startDate: new Date(),
+      endDate: new Date()
+    };
+
+    // ═══════════════════════════════════════════════════════════════
+    // API LOADING FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    // Kullanıcı bilgisi yükle
+    async function loadCurrentUser() {
+      try {
+        const data = await apiGet('auth/me');
+        currentUserRole = data.role || 'viewer';
+        APP_CONFIG.AUTH.setUser(data);
+        return data;
+      } catch (error) {
+        console.error('Kullanıcı bilgisi alınamadı:', error);
+        currentUserRole = 'viewer';
+        return null;
+      }
+    }
+
+    // Poliçe tipleri yükle
+    async function loadPolicyTypes() {
+      try {
+        const data = await apiGet('policy-types');
+        policyTypes = data || [];
+        return data;
+      } catch (error) {
+        console.error('Poliçe tipleri alınamadı:', error);
+        // Fallback statik veri
+        policyTypes = [
+          { value: 'Kasko', class: 'kasko' },
+          { value: 'Trafik', class: 'trafik' },
+          { value: 'DASK', class: 'dask' },
+          { value: 'Sağlık', class: 'saglik' },
+          { value: 'Konut', class: 'konut' }
+        ];
+        return policyTypes;
+      }
+    }
+
+    // Prodüktör listesi yükle
+    async function loadProducers() {
+      try {
+        const data = await apiGet('producers', { active: true });
+        producersList = data || [];
+        populateProducerFilter();
+        return data;
+      } catch (error) {
+        console.error('Prodüktör listesi alınamadı:', error);
+        producersList = [];
+        return [];
+      }
+    }
+
+    // Şube listesi yükle
+    async function loadBranches() {
+      try {
+        const data = await apiGet('branches');
+        branchesList = (data || []).map(b => b.name);
+        return data;
+      } catch (error) {
+        console.error('Şube listesi alınamadı:', error);
+        branchesList = [];
+        return [];
+      }
+    }
+
+    // Yakalanan poliçeler yükle
+    async function loadCapturedPolicies() {
+      try {
+        const params = {
+          startDate: formatDateISO(currentDateRange.startDate),
+          endDate: formatDateISO(currentDateRange.endDate),
+          sortBy: currentSort.field,
+          sortDir: currentSort.direction
+        };
+
+        const result = await apiGet('policies/captured', params);
+
+        if (result.data) {
+          policies = result.data;
+          filteredPolicies = [...policies];
+        } else if (Array.isArray(result)) {
+          policies = result;
+          filteredPolicies = [...policies];
+        }
+
+        renderTable();
+        updateStats();
+        return policies;
+      } catch (error) {
+        console.error('Poliçeler alınamadı:', error);
+        showToast('Poliçeler yüklenirken hata oluştu', 'error');
+        policies = [];
+        filteredPolicies = [];
+        renderTable();
+        return [];
+      }
+    }
+
+    // KPI istatistikleri yükle
+    async function loadKPIStats() {
+      try {
+        const params = {
+          startDate: formatDateISO(currentDateRange.startDate),
+          endDate: formatDateISO(currentDateRange.endDate)
+        };
+
+        const stats = await apiGet('policies/captured/stats', params);
+
+        // KPI kartlarını güncelle
+        if (stats.pendingCount !== undefined) {
+          document.getElementById('statPending').textContent = stats.pendingCount;
+        }
+        if (stats.totalGrossPremium !== undefined) {
+          document.getElementById('statPremium').textContent = APP_CONFIG.CURRENCY.format(stats.totalGrossPremium);
+        }
+        if (stats.activeProducerCount !== undefined) {
+          document.getElementById('statProducers').textContent = stats.activeProducerCount;
+        }
+        if (stats.sentCount !== undefined) {
+          const sentEl = document.getElementById('statSent');
+          if (sentEl) sentEl.textContent = stats.sentCount;
+        }
+
+        // Avatarları güncelle
+        if (stats.activeProducers && stats.activeProducers.length > 0) {
+          updateKPIAvatars(stats.activeProducers);
+        }
+
+        return stats;
+      } catch (error) {
+        console.error('KPI istatistikleri alınamadı:', error);
+        return null;
+      }
+    }
+
+    // Prodüktör dropdown'unu doldur
+    function populateProducerFilter() {
+      const select = document.getElementById('producerFilter');
+      if (!select) return;
+
+      select.innerHTML = '<option value="">Tüm Prodüktörler</option>';
+      producersList.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.name;
+        option.textContent = p.name;
+        select.appendChild(option);
+      });
+    }
+
+    // KPI kartındaki avatarları güncelle
+    function updateKPIAvatars(producers) {
+      const container = document.getElementById('kpiAvatars');
+      if (!container || !producers) return;
+
+      const colors = {
+        emerald: 'linear-gradient(135deg, #10b981, #059669)',
+        cyan: 'linear-gradient(135deg, #06b6d4, #0891b2)',
+        violet: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        amber: 'linear-gradient(135deg, #f59e0b, #d97706)',
+        rose: 'linear-gradient(135deg, #f43f5e, #e11d48)',
+        blue: 'linear-gradient(135deg, #3b82f6, #2563eb)'
+      };
+
+      container.innerHTML = producers.slice(0, 4).map(p =>
+        `<span class="kpi-avatar" style="background: ${colors[p.color] || colors.emerald};" title="${p.name}">${p.initials}</span>`
+      ).join('');
+    }
+
+    // Tarih formatla (ISO)
+    function formatDateISO(date) {
+      if (!date) return '';
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // SAYFA BAŞLATMA - Initialize page
     // ═══════════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', async function() {
-      // TODO: Sayfa yüklendiğinde sırasıyla aşağıdaki verileri backend'den çek:
-      //
-      // 1. Kullanıcı bilgisi ve yetkisi
-      // await loadCurrentUser();
-      //
-      // 2. Dropdown verileri (paralel çekilebilir)
-      // await Promise.all([
-      //   loadProducers(),    // Prodüktör listesi
-      //   loadBranches(),     // Şube listesi
-      //   loadPolicyTypes()   // Poliçe tipleri (opsiyonel)
-      // ]);
-      //
-      // 3. Ana veri ve istatistikler
-      // await loadCapturedPolicies(); // Yakalanan poliçeler
-      // await loadKPIStats();         // KPI istatistikleri
-      //
-      // 4. UI bileşenlerini hazırla
-      // populateProducerFilter();     // Prodüktör dropdown'unu doldur
-      // updateKPIAvatars();           // KPI kartındaki avatarları güncelle
+      showLoading(true);
 
-      initDatePicker();
-      updatePermissionUI();
-      renderTable();
-      updateStats();
+      try {
+        // 1. Kullanıcı bilgisi ve yetkisi
+        await loadCurrentUser();
+
+        // 2. Dropdown verileri (paralel)
+        await Promise.all([
+          loadProducers(),
+          loadBranches(),
+          loadPolicyTypes()
+        ]);
+
+        // 3. Date picker başlat
+        initDatePicker();
+
+        // 4. Ana veri ve istatistikler
+        await Promise.all([
+          loadCapturedPolicies(),
+          loadKPIStats()
+        ]);
+
+        // 5. UI bileşenlerini hazırla
+        updatePermissionUI();
+
+      } catch (error) {
+        console.error('Sayfa yüklenirken hata:', error);
+        showToast('Sayfa yüklenirken hata oluştu', 'error');
+      } finally {
+        showLoading(false);
+      }
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -2958,40 +2900,7 @@
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // TODO: POLİÇE DEĞİŞİKLİKLERİNİ KAYDET - BACKEND'E GÖNDER
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: PUT /api/policies/batch-update
-    // veya tek tek: PUT /api/policies/{policyId}
-    //
-    // Request Body (batch):
-    // {
-    //   "updates": [
-    //     {
-    //       "policyId": 1,
-    //       "changes": {
-    //         "customer": "Yeni Müşteri Adı",
-    //         "netPremium": 16000,
-    //         "grossPremium": 19000
-    //       }
-    //     },
-    //     ...
-    //   ]
-    // }
-    //
-    // Response:
-    // {
-    //   "success": true,
-    //   "updatedCount": 3,
-    //   "errors": []
-    // }
-    //
-    // Hata durumunda:
-    // {
-    //   "success": false,
-    //   "errors": [
-    //     { "policyId": 1, "message": "Poliçe bulunamadı" }
-    //   ]
-    // }
+    // POLİÇE DEĞİŞİKLİKLERİNİ KAYDET
     // ═══════════════════════════════════════════════════════════════
     async function saveAllChanges() {
       const changesArray = [];
@@ -2999,51 +2908,49 @@
         changesArray.push({ policyId, changes });
       });
 
-      // TODO: Backend API çağrısı yapılacak
-      // try {
-      //   const response = await fetch('/api/policies/batch-update', {
-      //     method: 'PUT',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       'Authorization': 'Bearer ' + getToken()
-      //     },
-      //     body: JSON.stringify({ updates: changesArray })
-      //   });
-      //
-      //   const result = await response.json();
-      //
-      //   if (result.success) {
-      //     pendingChanges.clear();
-      //     updateChangesBar();
-      //     alert(`${result.updatedCount} poliçede yapılan değişiklikler kaydedildi.`);
-      //   } else {
-      //     alert('Bazı değişiklikler kaydedilemedi: ' + result.errors.map(e => e.message).join(', '));
-      //   }
-      // } catch (error) {
-      //   console.error('Kaydetme hatası:', error);
-      //   alert('Değişiklikler kaydedilirken hata oluştu.');
-      // }
+      if (changesArray.length === 0) {
+        showToast('Kaydedilecek değişiklik yok', 'info');
+        return;
+      }
 
-      console.log('Saving changes:', changesArray); // TODO: Kaldırılacak
+      showLoading(true);
 
-      // Clear pending changes
-      pendingChanges.clear();
-      updateChangesBar();
+      try {
+        const result = await apiPut('policies/batch-update', { updates: changesArray });
 
-      // Show success message
-      alert(`${changesArray.length} poliçede yapılan değişiklikler kaydedildi.`);
+        if (result.success) {
+          pendingChanges.clear();
+          updateChangesBar();
+          showToast(`${result.updatedCount || changesArray.length} poliçede değişiklikler kaydedildi`, 'success');
+
+          // Verileri yenile
+          await loadCapturedPolicies();
+        } else {
+          const errorMsg = result.errors ? result.errors.map(e => e.message).join(', ') : 'Bilinmeyen hata';
+          showToast('Bazı değişiklikler kaydedilemedi: ' + errorMsg, 'error');
+        }
+      } catch (error) {
+        console.error('Kaydetme hatası:', error);
+        showToast('Değişiklikler kaydedilirken hata oluştu', 'error');
+      } finally {
+        showLoading(false);
+      }
     }
 
-    function discardAllChanges() {
+    async function discardAllChanges() {
       if (!confirm('Tüm değişiklikler iptal edilecek. Emin misiniz?')) return;
 
-      // TODO: Verileri backend'den tekrar çek
-      // await loadCapturedPolicies();
       pendingChanges.clear();
       updateChangesBar();
 
-      // Reload to get original data
-      location.reload();
+      // Verileri backend'den tekrar çek
+      showLoading(true);
+      try {
+        await loadCapturedPolicies();
+        showToast('Değişiklikler iptal edildi', 'info');
+      } finally {
+        showLoading(false);
+      }
     }
 
     // Initialize Flatpickr
@@ -3139,19 +3046,31 @@
     }
 
     // Filter by date range
-    function filterByDateRange(startDate, endDate) {
+    async function filterByDateRange(startDate, endDate) {
       const start = new Date(startDate);
       start.setHours(0, 0, 0, 0);
       const end = new Date(endDate);
       end.setHours(23, 59, 59, 999);
 
-      filteredPolicies = policies.filter(p => {
-        const policyDate = new Date(p.date);
-        return policyDate >= start && policyDate <= end;
-      });
+      // Update currentDateRange for API calls
+      currentDateRange.startDate = start;
+      currentDateRange.endDate = end;
 
       currentPage = 1; // Reset to first page when filtering
-      applyFilters();
+
+      // Load data from API with new date range
+      showLoading(true);
+      try {
+        await Promise.all([
+          loadCapturedPolicies(),
+          loadKPIStats()
+        ]);
+      } catch (error) {
+        console.error('Date filter error:', error);
+        showToast('Tarih filtreleme hatası', 'error');
+      } finally {
+        showLoading(false);
+      }
     }
 
     // Apply all filters
@@ -3603,155 +3522,128 @@
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // TODO: POLİÇEYİ HAVUZA GÖNDER - BACKEND'E GÖNDER
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: POST /api/policies/{policyId}/send-to-pool
-    //
-    // Request Body: (opsiyonel notlar eklenebilir)
-    // {
-    //   "note": "Müşteri onayı alındı"
-    // }
-    //
-    // Response:
-    // {
-    //   "success": true,
-    //   "message": "Poliçe havuza gönderildi",
-    //   "poolId": 456
-    // }
+    // POLİÇEYİ HAVUZA GÖNDER
     // ═══════════════════════════════════════════════════════════════
     async function sendToPool(id) {
       const policy = policies.find(p => p.id === id);
-      if (policy) {
-        if (confirm(`#${policy.policyNo} numaralı poliçe havuza gönderilecek. Onaylıyor musunuz?`)) {
-          // TODO: Backend API çağrısı yapılacak
-          // try {
-          //   const response = await fetch(`/api/policies/${id}/send-to-pool`, {
-          //     method: 'POST',
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //       'Authorization': 'Bearer ' + getToken()
-          //     }
-          //   });
-          //
-          //   const result = await response.json();
-          //
-          //   if (result.success) {
-          //     policies = policies.filter(p => p.id !== id);
-          //     filteredPolicies = filteredPolicies.filter(p => p.id !== id);
-          //     selectedPolicies.delete(id);
-          //     applyFilters();
-          //     updateStats();
-          //     alert('Poliçe başarıyla havuza gönderildi.');
-          //   } else {
-          //     alert('Hata: ' + result.message);
-          //   }
-          // } catch (error) {
-          //   console.error('Havuza gönderme hatası:', error);
-          //   alert('Poliçe havuza gönderilirken hata oluştu.');
-          // }
+      if (!policy) return;
 
+      if (!confirm(`#${policy.policyNo} numaralı poliçe havuza gönderilecek. Onaylıyor musunuz?`)) return;
+
+      showLoading(true);
+
+      try {
+        const result = await apiPost(`policies/${id}/send-to-pool`, {});
+
+        if (result.success) {
           policies = policies.filter(p => p.id !== id);
           filteredPolicies = filteredPolicies.filter(p => p.id !== id);
           selectedPolicies.delete(id);
           applyFilters();
-          alert('Poliçe başarıyla havuza gönderildi.');
+          updateStats();
+          await loadKPIStats();
+          showToast('Poliçe başarıyla havuza gönderildi', 'success');
+        } else {
+          showToast('Hata: ' + (result.message || 'Bilinmeyen hata'), 'error');
         }
+      } catch (error) {
+        console.error('Havuza gönderme hatası:', error);
+        showToast('Poliçe havuza gönderilirken hata oluştu', 'error');
+      } finally {
+        showLoading(false);
       }
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // TODO: SEÇİLİ POLİÇELERİ TOPLU HAVUZA GÖNDER - BACKEND'E GÖNDER
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: POST /api/policies/batch-send-to-pool
-    //
-    // Request Body:
-    // {
-    //   "policyIds": [1, 2, 3, 4, 5]
-    // }
-    //
-    // Response:
-    // {
-    //   "success": true,
-    //   "sentCount": 5,
-    //   "errors": []
-    // }
+    // SEÇİLİ POLİÇELERİ TOPLU HAVUZA GÖNDER
     // ═══════════════════════════════════════════════════════════════
     async function sendSelectedToPool() {
       if (selectedPolicies.size === 0) return;
 
-      if (confirm(`${selectedPolicies.size} poliçe havuza gönderilecek. Onaylıyor musunuz?`)) {
-        // TODO: Backend API çağrısı yapılacak
-        // try {
-        //   const policyIds = Array.from(selectedPolicies);
-        //   const response = await fetch('/api/policies/batch-send-to-pool', {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //       'Authorization': 'Bearer ' + getToken()
-        //     },
-        //     body: JSON.stringify({ policyIds })
-        //   });
-        //
-        //   const result = await response.json();
-        //
-        //   if (result.success) {
-        //     selectedPolicies.forEach(id => {
-        //       policies = policies.filter(p => p.id !== id);
-        //       filteredPolicies = filteredPolicies.filter(p => p.id !== id);
-        //     });
-        //     selectedPolicies.clear();
-        //     applyFilters();
-        //     updateStats();
-        //     alert(`${result.sentCount} poliçe başarıyla havuza gönderildi.`);
-        //   } else {
-        //     alert('Bazı poliçeler gönderilemedi: ' + result.errors.map(e => e.message).join(', '));
-        //   }
-        // } catch (error) {
-        //   console.error('Toplu havuza gönderme hatası:', error);
-        //   alert('Poliçeler havuza gönderilirken hata oluştu.');
-        // }
+      if (!confirm(`${selectedPolicies.size} poliçe havuza gönderilecek. Onaylıyor musunuz?`)) return;
 
-        selectedPolicies.forEach(id => {
-          policies = policies.filter(p => p.id !== id);
-          filteredPolicies = filteredPolicies.filter(p => p.id !== id);
-        });
-        selectedPolicies.clear();
-        applyFilters();
-        alert('Seçili poliçeler başarıyla havuza gönderildi.');
+      showLoading(true);
+
+      try {
+        const policyIds = Array.from(selectedPolicies);
+        const result = await apiPost('policies/batch-send-to-pool', { policyIds });
+
+        if (result.success) {
+          policyIds.forEach(id => {
+            policies = policies.filter(p => p.id !== id);
+            filteredPolicies = filteredPolicies.filter(p => p.id !== id);
+          });
+          selectedPolicies.clear();
+          applyFilters();
+          updateStats();
+          await loadKPIStats();
+          showToast(`${result.sentCount || policyIds.length} poliçe başarıyla havuza gönderildi`, 'success');
+        } else {
+          const errorMsg = result.errors ? result.errors.map(e => e.message).join(', ') : 'Bilinmeyen hata';
+          showToast('Bazı poliçeler gönderilemedi: ' + errorMsg, 'error');
+        }
+      } catch (error) {
+        console.error('Toplu havuza gönderme hatası:', error);
+        showToast('Poliçeler havuza gönderilirken hata oluştu', 'error');
+      } finally {
+        showLoading(false);
       }
     }
 
     async function sendAllToPool() {
       const visiblePolicies = document.querySelectorAll('#policyTableBody tr[data-id]');
       if (visiblePolicies.length === 0) {
-        alert('Gönderilecek poliçe bulunamadı.');
+        showToast('Gönderilecek poliçe bulunamadı', 'warning');
         return;
       }
 
-      if (confirm(`${visiblePolicies.length} poliçe havuza gönderilecek. Onaylıyor musunuz?`)) {
-        // TODO: sendSelectedToPool ile aynı API kullanılacak
-        // const policyIds = Array.from(visiblePolicies).map(row => parseInt(row.dataset.id));
-        // await batchSendToPool(policyIds);
+      if (!confirm(`${visiblePolicies.length} poliçe havuza gönderilecek. Onaylıyor musunuz?`)) return;
 
-        visiblePolicies.forEach(row => {
-          const id = parseInt(row.dataset.id);
-          policies = policies.filter(p => p.id !== id);
-          filteredPolicies = filteredPolicies.filter(p => p.id !== id);
-        });
-        selectedPolicies.clear();
-        applyFilters();
-        alert('Tüm poliçeler başarıyla havuza gönderildi.');
+      showLoading(true);
+
+      try {
+        const policyIds = Array.from(visiblePolicies).map(row => parseInt(row.dataset.id));
+        const result = await apiPost('policies/batch-send-to-pool', { policyIds });
+
+        if (result.success) {
+          policyIds.forEach(id => {
+            policies = policies.filter(p => p.id !== id);
+            filteredPolicies = filteredPolicies.filter(p => p.id !== id);
+          });
+          selectedPolicies.clear();
+          applyFilters();
+          updateStats();
+          await loadKPIStats();
+          showToast(`${result.sentCount || policyIds.length} poliçe başarıyla havuza gönderildi`, 'success');
+        } else {
+          showToast('Poliçeler gönderilemedi', 'error');
+        }
+      } catch (error) {
+        console.error('Tüm poliçeleri gönderme hatası:', error);
+        showToast('Poliçeler havuza gönderilirken hata oluştu', 'error');
+      } finally {
+        showLoading(false);
       }
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // TODO: VERİLERİ YENİLE - BACKEND'DEN TEKRAR ÇEK
+    // VERİLERİ YENİLE
     // ═══════════════════════════════════════════════════════════════
     async function refreshData() {
-      // TODO: Backend'den verileri tekrar çek
-      // await loadCapturedPolicies();
-      // await loadKPIStats();
-      location.reload(); // TODO: Sayfa yenilemek yerine sadece verileri çek
+      showLoading(true);
+
+      try {
+        await Promise.all([
+          loadCapturedPolicies(),
+          loadKPIStats()
+        ]);
+        showToast('Veriler yenilendi', 'success');
+      } catch (error) {
+        console.error('Yenileme hatası:', error);
+        showToast('Veriler yenilenirken hata oluştu', 'error');
+      } finally {
+        showLoading(false);
+      }
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -3773,108 +3665,111 @@
     // CUSTOMER MODAL
     // ═══════════════════════════════════════════════════════════════
 
-    // ═══════════════════════════════════════════════════════════════
-    // TODO: MÜŞTERİ BİLGİSİ - BACKEND'DEN ALINACAK
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: GET /api/customers/search?name={customerName}
-    // veya: GET /api/customers/{customerId}
-    //
-    // Beklenen Response:
-    // {
-    //   "id": 101,
-    //   "name": "Kemal Yıldırım",
-    //   "tc": "12345678901",
-    //   "email": "kemal@example.com",
-    //   "phone": "0532 123 4567",
-    //   "address": "İstanbul, Türkiye",
-    //   "policyCount": 5,
-    //   "totalPremium": 45200,
-    //   "collectionRate": 92,
-    //   "hasCard": true,
-    //   "createdAt": "2024-01-15T10:00:00Z"
-    // }
-    //
-    // Eğer müşteri bulunamazsa 404 döner
-    //
-    // Kullanım (openCustomerModal fonksiyonunda):
-    // async function openCustomerModal(customerName, policyId) {
-    //   try {
-    //     const response = await fetch(`/api/customers/search?name=${encodeURIComponent(customerName)}`);
-    //     if (response.ok) {
-    //       const customer = await response.json();
-    //       // Modal içeriğini customer verisiyle doldur
-    //     } else if (response.status === 404) {
-    //       // Müşteri kartı yok - yeni oluşturma seçeneği sun
-    //     }
-    //   } catch (error) {
-    //     console.error('Müşteri bilgisi alınamadı:', error);
-    //   }
-    // }
-    // ═══════════════════════════════════════════════════════════════
-    // Mock müşteri veritabanı - TODO: Kaldırılacak, API'den çekilecek
-    const customerDatabase = {
-      'Kemal Yıldırım': { tc: '12345678901', policyCount: 5, totalPremium: 45200, hasCard: true },
-      'Seda Korkmaz': { tc: '23456789012', policyCount: 3, totalPremium: 12400, hasCard: true },
-      'Burak Şahin': { tc: '34567890123', policyCount: 2, totalPremium: 8500, hasCard: false },
-      'Elif Demirtaş': { tc: '45678901234', policyCount: 1, totalPremium: 12400, hasCard: true },
-      'Oğuz Karaca': { tc: '56789012345', policyCount: 4, totalPremium: 56000, hasCard: false },
-      'Ali Vural': { tc: '67890123456', policyCount: 1, totalPremium: 920, hasCard: true },
-      'Canan Demir': { tc: '78901234567', policyCount: 2, totalPremium: 28600, hasCard: true },
-      'Deniz Acar': { tc: '89012345678', policyCount: 1, totalPremium: 12400, hasCard: false },
-      'Murat Özkan': { tc: '90123456789', policyCount: 3, totalPremium: 18500, hasCard: true },
-      'Hakan Yılmaz': { tc: '01234567890', policyCount: 2, totalPremium: 15200, hasCard: true },
-      'Zehra Kurt': { tc: '11223344556', policyCount: 1, totalPremium: 21500, hasCard: false },
-      'Selin Ak': { tc: '22334455667', policyCount: 2, totalPremium: 9800, hasCard: true }
-    }; // TODO: Kaldırılacak
-
-    function openCustomerModal(customerName, policyId) {
-      // TODO: Aşağıdaki mock veri yerine API çağrısı yapılacak
-      // const response = await fetch(`/api/customers/search?name=${encodeURIComponent(customerName)}`);
+    async function openCustomerModal(customerName, policyId) {
       const modal = document.getElementById('customerModal');
       const modalBody = document.getElementById('customerModalBody');
-      const customer = customerDatabase[customerName]; // TODO: API'den alınacak
 
-      if (customer && customer.hasCard) {
-        // Müşteri kartı mevcut
-        const initials = customerName.split(' ').map(n => n[0]).join('');
-        modalBody.innerHTML = `
-          <div class="customer-card-found">
-            <div class="customer-avatar-large">${initials}</div>
-            <h4>${customerName}</h4>
-            <div class="customer-tc">${customer.tc}</div>
-            <span class="badge badge-success">Müşteri Kartı Mevcut</span>
+      // Loading state
+      modalBody.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <div class="loading-spinner" style="display: inline-block;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+          </div>
+          <p style="margin-top: 1rem; opacity: 0.7;">Müşteri bilgisi yükleniyor...</p>
+        </div>
+      `;
+      modal.classList.add('active');
 
-            <div class="customer-stats">
-              <div class="customer-stat">
-                <div class="customer-stat-value">${customer.policyCount}</div>
-                <div class="customer-stat-label">Poliçe</div>
+      try {
+        const customer = await apiGet('customers/search', { name: customerName });
+
+        if (customer && customer.hasCard) {
+          // Müşteri kartı mevcut
+          const initials = customerName.split(' ').map(n => n[0]).join('');
+          const collectionRate = customer.collectionRate || 0;
+          modalBody.innerHTML = `
+            <div class="customer-card-found">
+              <div class="customer-avatar-large">${initials}</div>
+              <h4>${customer.name || customerName}</h4>
+              <div class="customer-tc">${customer.tc || ''}</div>
+              <span class="badge badge-success">Müşteri Kartı Mevcut</span>
+
+              <div class="customer-stats">
+                <div class="customer-stat">
+                  <div class="customer-stat-value">${customer.policies?.count || customer.policyCount || 0}</div>
+                  <div class="customer-stat-label">Poliçe</div>
+                </div>
+                <div class="customer-stat">
+                  <div class="customer-stat-value">${APP_CONFIG.CURRENCY.format(customer.policies?.totalPremium || customer.totalPremium || 0)}</div>
+                  <div class="customer-stat-label">Toplam Prim</div>
+                </div>
+                <div class="customer-stat">
+                  <div class="customer-stat-value">%${collectionRate}</div>
+                  <div class="customer-stat-label">Tahsilat</div>
+                </div>
               </div>
-              <div class="customer-stat">
-                <div class="customer-stat-value">₺${customer.totalPremium.toLocaleString('tr-TR')}</div>
-                <div class="customer-stat-label">Toplam Prim</div>
-              </div>
-              <div class="customer-stat">
-                <div class="customer-stat-value">%92</div>
-                <div class="customer-stat-label">Tahsilat</div>
+
+              <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeCustomerModal()">Kapat</button>
+                <button class="btn btn-primary" onclick="goToCustomerCard(${customer.id || 0})">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  Müşteri Kartına Git
+                </button>
               </div>
             </div>
-
-            <div class="modal-actions">
-              <button class="btn btn-secondary" onclick="closeCustomerModal()">Kapat</button>
-              <button class="btn btn-primary" onclick="goToCustomerCard('${customerName}')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          `;
+        } else {
+          // Müşteri kartı yok
+          const initials = customerName.split(' ').map(n => n[0]).join('');
+          const tc = customer?.tc || '';
+          modalBody.innerHTML = `
+            <div class="customer-not-found">
+              <div class="empty-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
                   <circle cx="12" cy="7" r="4"/>
+                  <line x1="12" y1="11" x2="12" y2="17"/>
+                  <line x1="9" y1="14" x2="15" y2="14"/>
                 </svg>
-                Müşteri Kartına Git
-              </button>
+              </div>
+              <h4>Müşteri Kartı Bulunamadı</h4>
+              <p><strong>${customerName}</strong> için sistemde kayıtlı müşteri kartı bulunmuyor.</p>
+
+              <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 14px; margin-bottom: 1rem; text-align: left; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;">Müşteri Adı:</span>
+                  <span style="font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">${customerName}</span>
+                </div>
+                ${tc ? `<div style="display: flex; justify-content: space-between;">
+                  <span style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;">TC/VKN:</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">${tc}</span>
+                </div>` : ''}
+              </div>
+
+              <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeCustomerModal()">Kapat</button>
+                <button class="btn btn-primary" onclick="createCustomerCard('${customerName}', '${tc}', ${policyId})">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="8.5" cy="7" r="4"/>
+                    <line x1="20" y1="8" x2="20" y2="14"/>
+                    <line x1="23" y1="11" x2="17" y2="11"/>
+                  </svg>
+                  Yeni Kart Oluştur
+                </button>
+              </div>
             </div>
-          </div>
-        `;
-      } else {
-        // Müşteri kartı yok
+          `;
+        }
+      } catch (error) {
+        console.error('Müşteri bilgisi alınamadı:', error);
+        // Müşteri bulunamadı - oluşturma seçeneği sun
         const initials = customerName.split(' ').map(n => n[0]).join('');
-        const tc = customer ? customer.tc : 'Bilinmiyor';
         modalBody.innerHTML = `
           <div class="customer-not-found">
             <div class="empty-icon">
@@ -3888,20 +3783,9 @@
             <h4>Müşteri Kartı Bulunamadı</h4>
             <p><strong>${customerName}</strong> için sistemde kayıtlı müşteri kartı bulunmuyor.</p>
 
-            <div style="background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 14px; margin-bottom: 1rem; text-align: left; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                <span style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;">Müşteri Adı:</span>
-                <span style="font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">${customerName}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;">TC/VKN:</span>
-                <span style="font-family: 'JetBrains Mono', monospace; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">${tc}</span>
-              </div>
-            </div>
-
             <div class="modal-actions">
               <button class="btn btn-secondary" onclick="closeCustomerModal()">Kapat</button>
-              <button class="btn btn-primary" onclick="createCustomerCard('${customerName}', '${tc}')">
+              <button class="btn btn-primary" onclick="createCustomerCard('${customerName}', '', ${policyId})">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
                   <circle cx="8.5" cy="7" r="4"/>
@@ -3914,289 +3798,259 @@
           </div>
         `;
       }
-
-      modal.classList.add('active');
     }
 
     function closeCustomerModal() {
       document.getElementById('customerModal').classList.remove('active');
     }
 
-    function goToCustomerCard(customerName) {
+    function goToCustomerCard(customerId) {
       closeCustomerModal();
       // Müşteri kartı sayfasına yönlendir
-      window.location.href = `../customers/list.html?customer=${encodeURIComponent(customerName)}`;
+      window.location.href = `../customers/list.html?id=${customerId}`;
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // TODO: YENİ MÜŞTERİ KARTI OLUŞTUR - BACKEND'E GÖNDER
+    // YENİ MÜŞTERİ KARTI OLUŞTUR
     // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: POST /api/customers
-    //
-    // Request Body:
-    // {
-    //   "name": "Burak Şahin",
-    //   "tc": "34567890123",
-    //   "email": "",
-    //   "phone": "",
-    //   "address": "",
-    //   "policyId": 3  // İlişkili poliçe ID (opsiyonel)
-    // }
-    //
-    // Response:
-    // {
-    //   "success": true,
-    //   "customer": {
-    //     "id": 105,
-    //     "name": "Burak Şahin",
-    //     "tc": "34567890123",
-    //     "hasCard": true,
-    //     "createdAt": "2026-01-19T15:30:00Z"
-    //   }
-    // }
-    //
-    // Alternatif: Müşteri kartı sayfasına yönlendirme (mevcut implementasyon)
-    // ═══════════════════════════════════════════════════════════════
-    function createCustomerCard(customerName, tc) {
+    async function createCustomerCard(customerName, tc, linkedPolicyId) {
       closeCustomerModal();
-      // TODO: API ile müşteri oluşturma veya müşteri sayfasına yönlendirme
-      // Option 1: API ile doğrudan oluştur
-      // const response = await fetch('/api/customers', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() },
-      //   body: JSON.stringify({ name: customerName, tc: tc })
-      // });
-      //
-      // Option 2: Müşteri sayfasına yönlendir (mevcut)
-      window.location.href = `../customers/list.html?action=new&name=${encodeURIComponent(customerName)}&tc=${encodeURIComponent(tc)}`;
+
+      // API ile müşteri oluşturmayı dene
+      try {
+        const result = await apiPost('customers', {
+          name: customerName,
+          tc: tc || '',
+          linkedPolicyId: linkedPolicyId
+        });
+
+        if (result.success && result.customerId) {
+          showToast('Müşteri kartı oluşturuldu', 'success');
+          // Müşteri sayfasına yönlendir
+          window.location.href = `../customers/list.html?id=${result.customerId}`;
+        } else {
+          // Manuel oluşturma için yönlendir
+          window.location.href = `../customers/list.html?action=new&name=${encodeURIComponent(customerName)}&tc=${encodeURIComponent(tc || '')}`;
+        }
+      } catch (error) {
+        console.error('Müşteri oluşturulamadı:', error);
+        // Fallback: Müşteri sayfasına yönlendir
+        window.location.href = `../customers/list.html?action=new&name=${encodeURIComponent(customerName)}&tc=${encodeURIComponent(tc || '')}`;
+      }
     }
 
     // ═══════════════════════════════════════════════════════════════
     // PRODUCER MODAL
     // ═══════════════════════════════════════════════════════════════
 
-    // ═══════════════════════════════════════════════════════════════
-    // TODO: PRODÜKTÖR DETAY BİLGİSİ - BACKEND'DEN ALINACAK
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: GET /api/producers/{producerId}
-    // veya: GET /api/producers/search?name={producerName}
-    //
-    // Beklenen Response:
-    // {
-    //   "id": 1,
-    //   "name": "Zeynep Arslan",
-    //   "initials": "ZA",
-    //   "color": "emerald",
-    //   "role": "Kıdemli Prodüktör",
-    //   "branchId": 1,
-    //   "branchName": "Merkez",
-    //   "email": "zeynep@example.com",
-    //   "phone": "0532 111 2233",
-    //   "stats": {
-    //     "policyCount": 87,
-    //     "totalPremium": 245000,
-    //     "performance": 92,
-    //     "commissionRate": 7.6,
-    //     "monthlyTarget": 300000
-    //   },
-    //   "isActive": true
-    // }
-    //
-    // Kullanım (openProducerModal fonksiyonunda):
-    // async function openProducerModal(producerName, initials, color) {
-    //   const response = await fetch(`/api/producers/search?name=${encodeURIComponent(producerName)}`);
-    //   const producer = await response.json();
-    //   // Modal içeriğini producer verisiyle doldur
-    // }
-    // ═══════════════════════════════════════════════════════════════
-    // Mock prodüktör veritabanı - TODO: Kaldırılacak, API'den çekilecek
-    const producerDatabase = {
-      'Zeynep Arslan': { role: 'Kıdemli Prodüktör', branch: 'Merkez', policyCount: 87, totalPremium: 245000, performance: 92 },
-      'Mehmet Kaya': { role: 'Prodüktör', branch: 'Kadıköy', policyCount: 72, totalPremium: 198000, performance: 85 },
-      'Ayşe Demir': { role: 'Prodüktör', branch: 'Beşiktaş', policyCount: 68, totalPremium: 175000, performance: 78 },
-      'Can Özkan': { role: 'Jr. Prodüktör', branch: 'Şişli', policyCount: 45, totalPremium: 112000, performance: 65 }
-    }; // TODO: Kaldırılacak
-
-    function openProducerModal(producerName, initials, color) {
-      // TODO: Aşağıdaki mock veri yerine API çağrısı yapılacak
-      // const response = await fetch(`/api/producers/search?name=${encodeURIComponent(producerName)}`);
+    async function openProducerModal(producerName, initials, color) {
       const modal = document.getElementById('producerModal');
       const modalBody = document.getElementById('producerModalBody');
-      const producer = producerDatabase[producerName]; // TODO: API'den alınacak
 
-      if (producer) {
-        modalBody.innerHTML = `
-          <div class="info-card">
-            <div class="info-card-header">
-              <div class="info-card-avatar" style="background: linear-gradient(135deg, ${getColorGradient(color)});">${initials}</div>
-              <div class="info-card-details">
-                <h4>${producerName}</h4>
-                <p>${producer.role} • ${producer.branch} Şubesi</p>
+      // Loading state
+      modalBody.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <div class="loading-spinner" style="display: inline-block;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+          </div>
+          <p style="margin-top: 1rem; opacity: 0.7;">Prodüktör bilgisi yükleniyor...</p>
+        </div>
+      `;
+      modal.classList.add('active');
+
+      try {
+        const producer = await apiGet('producers/search', { name: producerName });
+
+        if (producer) {
+          const pColor = producer.color || color;
+          const pInitials = producer.initials || initials;
+          const stats = producer.stats || {};
+          const policyCount = stats.policyCount || 0;
+          const totalPremium = stats.totalPremium || 0;
+          const performance = stats.performance || 0;
+
+          modalBody.innerHTML = `
+            <div class="info-card">
+              <div class="info-card-header">
+                <div class="info-card-avatar" style="background: linear-gradient(135deg, ${getColorGradient(pColor)});">${pInitials}</div>
+                <div class="info-card-details">
+                  <h4>${producer.name || producerName}</h4>
+                  <p>${producer.role || 'Prodüktör'} • ${producer.branchName || ''} Şubesi</p>
+                </div>
+              </div>
+
+              <div class="info-card-stats">
+                <div class="info-stat-item">
+                  <div class="info-stat-value">${policyCount}</div>
+                  <div class="info-stat-label">Poliçe (Bu Ay)</div>
+                </div>
+                <div class="info-stat-item">
+                  <div class="info-stat-value">${APP_CONFIG.CURRENCY.format(totalPremium)}</div>
+                  <div class="info-stat-label">Prim (Bu Ay)</div>
+                </div>
+                <div class="info-stat-item">
+                  <div class="info-stat-value">${performance}%</div>
+                  <div class="info-stat-label">Hedef</div>
+                </div>
+                <div class="info-stat-item">
+                  <div class="info-stat-value">${APP_CONFIG.CURRENCY.format(totalPremium * 0.076)}</div>
+                  <div class="info-stat-label">Komisyon</div>
+                </div>
+              </div>
+
+              <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeProducerModal()">Kapat</button>
+                <button class="btn btn-primary" onclick="goToProducerPage(${producer.id || 0})">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                  </svg>
+                  Prodüktör Sayfası
+                </button>
               </div>
             </div>
-
-            <div class="info-card-stats">
-              <div class="info-stat-item">
-                <div class="info-stat-value">${producer.policyCount}</div>
-                <div class="info-stat-label">Poliçe (Bu Ay)</div>
-              </div>
-              <div class="info-stat-item">
-                <div class="info-stat-value">₺${(producer.totalPremium/1000).toFixed(0)}K</div>
-                <div class="info-stat-label">Prim (Bu Ay)</div>
-              </div>
-              <div class="info-stat-item">
-                <div class="info-stat-value">${producer.performance}%</div>
-                <div class="info-stat-label">Hedef</div>
-              </div>
-              <div class="info-stat-item">
-                <div class="info-stat-value">₺${((producer.totalPremium * 0.076)/1000).toFixed(1)}K</div>
-                <div class="info-stat-label">Komisyon</div>
-              </div>
-            </div>
-
-            <div class="modal-actions">
+          `;
+        } else {
+          modalBody.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+              <p>Prodüktör bilgisi bulunamadı.</p>
               <button class="btn btn-secondary" onclick="closeProducerModal()">Kapat</button>
-              <button class="btn btn-primary" onclick="goToProducerPage('${producerName}')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/>
-                </svg>
-                Prodüktör Sayfası
-              </button>
             </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Prodüktör bilgisi alınamadı:', error);
+        modalBody.innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <p>Prodüktör bilgisi yüklenirken hata oluştu.</p>
+            <button class="btn btn-secondary" onclick="closeProducerModal()">Kapat</button>
           </div>
         `;
       }
-
-      modal.classList.add('active');
     }
 
     function closeProducerModal() {
       document.getElementById('producerModal').classList.remove('active');
     }
 
-    function goToProducerPage(producerName) {
+    function goToProducerPage(producerId) {
       closeProducerModal();
-      window.location.href = `../employees/list.html?employee=${encodeURIComponent(producerName)}`;
+      window.location.href = `../employees/list.html?id=${producerId}`;
     }
 
     // ═══════════════════════════════════════════════════════════════
     // BRANCH MODAL
     // ═══════════════════════════════════════════════════════════════
 
-    // ═══════════════════════════════════════════════════════════════
-    // TODO: ŞUBE DETAY BİLGİSİ - BACKEND'DEN ALINACAK
-    // ═══════════════════════════════════════════════════════════════
-    // API Endpoint: GET /api/branches/{branchId}
-    // veya: GET /api/branches/search?name={branchName}
-    //
-    // Beklenen Response:
-    // {
-    //   "id": 1,
-    //   "name": "Merkez",
-    //   "code": "MRK",
-    //   "manager": "Ahmet Yılmaz",
-    //   "managerId": 10,
-    //   "address": "Levent, İstanbul",
-    //   "phone": "0212 123 4567",
-    //   "stats": {
-    //     "employeeCount": 12,
-    //     "policyCount": 320,
-    //     "totalPremium": 890000,
-    //     "avgPremium": 2781,
-    //     "monthlyTarget": 1000000,
-    //     "performance": 89
-    //   },
-    //   "isActive": true
-    // }
-    //
-    // Kullanım (openBranchModal fonksiyonunda):
-    // async function openBranchModal(branchName) {
-    //   const response = await fetch(`/api/branches/search?name=${encodeURIComponent(branchName)}`);
-    //   const branch = await response.json();
-    //   // Modal içeriğini branch verisiyle doldur
-    // }
-    // ═══════════════════════════════════════════════════════════════
-    // Mock şube veritabanı - TODO: Kaldırılacak, API'den çekilecek
-    const branchDatabase = {
-      'Merkez': { manager: 'Ahmet Yılmaz', employeeCount: 12, policyCount: 320, totalPremium: 890000, address: 'Levent, İstanbul' },
-      'Kadıköy': { manager: 'Fatma Demir', employeeCount: 8, policyCount: 210, totalPremium: 580000, address: 'Kadıköy, İstanbul' },
-      'Beşiktaş': { manager: 'Ali Korkmaz', employeeCount: 6, policyCount: 180, totalPremium: 450000, address: 'Beşiktaş, İstanbul' },
-      'Şişli': { manager: 'Zeynep Kaya', employeeCount: 5, policyCount: 150, totalPremium: 380000, address: 'Şişli, İstanbul' }
-    }; // TODO: Kaldırılacak
-
-    function openBranchModal(branchName) {
-      // TODO: Aşağıdaki mock veri yerine API çağrısı yapılacak
-      // const response = await fetch(`/api/branches/search?name=${encodeURIComponent(branchName)}`);
+    async function openBranchModal(branchName) {
       const modal = document.getElementById('branchModal');
       const modalBody = document.getElementById('branchModalBody');
-      const branch = branchDatabase[branchName]; // TODO: API'den alınacak
 
-      if (branch) {
-        const initials = branchName.substring(0, 2).toUpperCase();
-        modalBody.innerHTML = `
-          <div class="info-card">
-            <div class="info-card-header">
-              <div class="info-card-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">${initials}</div>
-              <div class="info-card-details">
-                <h4>${branchName} Şubesi</h4>
-                <p>Şube Müdürü: ${branch.manager}</p>
+      // Loading state
+      modalBody.innerHTML = `
+        <div style="text-align: center; padding: 2rem;">
+          <div class="loading-spinner" style="display: inline-block;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 11-6.219-8.56"/>
+            </svg>
+          </div>
+          <p style="margin-top: 1rem; opacity: 0.7;">Şube bilgisi yükleniyor...</p>
+        </div>
+      `;
+      modal.classList.add('active');
+
+      try {
+        const branch = await apiGet('branches/search', { name: branchName });
+
+        if (branch) {
+          const initials = (branch.name || branchName).substring(0, 2).toUpperCase();
+          const stats = branch.stats || {};
+          const employeeCount = stats.employeeCount || 0;
+          const policyCount = stats.policyCount || 0;
+          const totalPremium = stats.totalPremium || 0;
+          const avgPremium = policyCount > 0 ? Math.round(totalPremium / policyCount) : 0;
+
+          modalBody.innerHTML = `
+            <div class="info-card">
+              <div class="info-card-header">
+                <div class="info-card-avatar" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8);">${initials}</div>
+                <div class="info-card-details">
+                  <h4>${branch.name || branchName} Şubesi</h4>
+                  <p>Şube Müdürü: ${branch.manager || 'Belirtilmemiş'}</p>
+                </div>
+              </div>
+
+              ${branch.address ? `
+              <div style="background: rgba(255, 255, 255, 0.1); padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);">
+                <div style="display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); font-size: 0.85rem;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.7;">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  ${branch.address}
+                </div>
+              </div>
+              ` : ''}
+
+              <div class="info-card-stats">
+                <div class="info-stat-item">
+                  <div class="info-stat-value">${employeeCount}</div>
+                  <div class="info-stat-label">Çalışan</div>
+                </div>
+                <div class="info-stat-item">
+                  <div class="info-stat-value">${policyCount}</div>
+                  <div class="info-stat-label">Poliçe (Bu Ay)</div>
+                </div>
+                <div class="info-stat-item">
+                  <div class="info-stat-value">${APP_CONFIG.CURRENCY.format(totalPremium)}</div>
+                  <div class="info-stat-label">Prim (Bu Ay)</div>
+                </div>
+                <div class="info-stat-item">
+                  <div class="info-stat-value">${APP_CONFIG.CURRENCY.format(avgPremium)}</div>
+                  <div class="info-stat-label">Ort. Prim</div>
+                </div>
+              </div>
+
+              <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeBranchModal()">Kapat</button>
+                <button class="btn btn-primary" onclick="goToBranchPage(${branch.id || 0})">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9,22 9,12 15,12 15,22"/>
+                  </svg>
+                  Şube Sayfası
+                </button>
               </div>
             </div>
-
-            <div style="background: rgba(255, 255, 255, 0.1); padding: 0.75rem 1rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px);">
-              <div style="display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); font-size: 0.85rem;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.7;">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
-                  <circle cx="12" cy="10" r="3"/>
-                </svg>
-                ${branch.address}
-              </div>
-            </div>
-
-            <div class="info-card-stats">
-              <div class="info-stat-item">
-                <div class="info-stat-value">${branch.employeeCount}</div>
-                <div class="info-stat-label">Çalışan</div>
-              </div>
-              <div class="info-stat-item">
-                <div class="info-stat-value">${branch.policyCount}</div>
-                <div class="info-stat-label">Poliçe (Bu Ay)</div>
-              </div>
-              <div class="info-stat-item">
-                <div class="info-stat-value">₺${(branch.totalPremium/1000).toFixed(0)}K</div>
-                <div class="info-stat-label">Prim (Bu Ay)</div>
-              </div>
-              <div class="info-stat-item">
-                <div class="info-stat-value">₺${((branch.totalPremium/branch.policyCount)).toFixed(0)}</div>
-                <div class="info-stat-label">Ort. Prim</div>
-              </div>
-            </div>
-
-            <div class="modal-actions">
+          `;
+        } else {
+          modalBody.innerHTML = `
+            <div style="text-align: center; padding: 2rem;">
+              <p>Şube bilgisi bulunamadı.</p>
               <button class="btn btn-secondary" onclick="closeBranchModal()">Kapat</button>
-              <button class="btn btn-primary" onclick="goToBranchPage('${branchName}')">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                  <polyline points="9,22 9,12 15,12 15,22"/>
-                </svg>
-                Şube Sayfası
-              </button>
             </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Şube bilgisi alınamadı:', error);
+        modalBody.innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <p>Şube bilgisi yüklenirken hata oluştu.</p>
+            <button class="btn btn-secondary" onclick="closeBranchModal()">Kapat</button>
           </div>
         `;
       }
-
-      modal.classList.add('active');
     }
 
     function closeBranchModal() {
       document.getElementById('branchModal').classList.remove('active');
     }
 
-    function goToBranchPage(branchName) {
+    function goToBranchPage(branchId) {
       closeBranchModal();
-      window.location.href = `../employees/list.html?branch=${encodeURIComponent(branchName)}`;
+      window.location.href = `../employees/list.html?branchId=${branchId}`;
     }
 
     // Helper function for color gradients

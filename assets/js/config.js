@@ -25,6 +25,7 @@ const APP_CONFIG = {
     TOKEN_KEY: 'auth_token',
     REFRESH_TOKEN_KEY: 'refresh_token',
     USER_KEY: 'current_user',
+    LOGIN_PAGE: '/frontend/pages/login.html',
 
     // Token'ı localStorage'dan al
     getToken: function() {
@@ -52,6 +53,19 @@ const APP_CONFIG = {
     // Kullanıcı bilgisini kaydet
     setUser: function(user) {
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+    },
+
+    // Giriş yapılmış mı kontrol et
+    isLoggedIn: function() {
+      return !!this.getToken();
+    },
+
+    // Login sayfasına yönlendir
+    redirectToLogin: function() {
+      const currentPath = window.location.pathname;
+      // Login sayfasındaysak yönlendirme yapma
+      if (currentPath.includes('login.html')) return;
+      window.location.href = this.LOGIN_PAGE;
     }
   },
 
@@ -131,7 +145,7 @@ async function apiRequest(endpoint, options = {}) {
     // 401 Unauthorized - Token geçersiz
     if (response.status === 401) {
       APP_CONFIG.AUTH.clearToken();
-      window.location.href = '/login.html';
+      APP_CONFIG.AUTH.redirectToLogin();
       throw new Error('Oturum süresi doldu');
     }
 
@@ -260,6 +274,58 @@ function showLoading(show = true) {
   } else if (overlay) {
     overlay.classList.remove('show');
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AUTHENTICATION HELPER FONKSİYONLARI
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Sayfa için authentication gerekli mi kontrol et
+ * Korumalı sayfalarda DOMContentLoaded'da çağrılmalı
+ */
+function requireAuth() {
+  if (!APP_CONFIG.AUTH.isLoggedIn()) {
+    APP_CONFIG.AUTH.redirectToLogin();
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Çıkış yap
+ */
+async function logout() {
+  try {
+    // Backend'e logout isteği gönder (opsiyonel)
+    await apiPost('auth/logout', {});
+  } catch (error) {
+    // Hata olsa bile devam et
+    console.warn('Logout API error:', error);
+  } finally {
+    APP_CONFIG.AUTH.clearToken();
+    APP_CONFIG.AUTH.redirectToLogin();
+  }
+}
+
+/**
+ * Kullanıcının belirli bir yetkisi var mı kontrol et
+ * @param {string} permission - Yetki adı (örn: 'policeDuzenleyebilsin')
+ * @returns {boolean}
+ */
+function hasPermission(permission) {
+  const user = APP_CONFIG.AUTH.getUser();
+  if (!user || !user.permissions) return false;
+  return user.permissions[permission] === '1' || user.permissions[permission] === 1;
+}
+
+/**
+ * Kullanıcı rolünü al
+ * @returns {string} - 'admin', 'editor', 'viewer', 'restricted'
+ */
+function getUserRole() {
+  const user = APP_CONFIG.AUTH.getUser();
+  return user?.role || 'viewer';
 }
 
 // ═══════════════════════════════════════════════════════════════

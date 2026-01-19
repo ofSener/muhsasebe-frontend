@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giriş Yap - Muhasebe Sistemi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="../assets/js/config.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bg-animation::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+      animation: bgPulse 15s ease-in-out infinite;
+    }
+
+    @keyframes bgPulse {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-5%, -5%) scale(1.1); }
+    }
+
+    /* Left side - Branding */
+    .login-branding {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem;
+      padding-right: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .branding-content {
+      max-width: 480px;
+      text-align: center;
+    }
+
+    .brand-logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 2rem;
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+    }
+
+    .brand-logo svg {
+      width: 44px;
+      height: 44px;
+      color: white;
+    }
+
+    .brand-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-subtitle {
+      font-size: 1.125rem;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.6;
+      margin-bottom: 3rem;
+    }
+
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: left;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .feature-icon svg {
+      width: 20px;
+      height: 20px;
+      color: #3b82f6;
+    }
+
+    /* Right side - Login form */
+    .login-form-container {
+      flex: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 3rem;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+      color: #64748b;
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-input-wrapper {
+      position: relative;
+    }
+
+    .form-input-wrapper svg {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      color: #94a3b8;
+      pointer-events: none;
+      transition: color 0.2s;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.875rem 1rem 0.875rem 3rem;
+      font-size: 1rem;
+      font-family: inherit;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #0f172a;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: #3b82f6;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-input:focus + svg,
+    .form-input:focus ~ svg {
+      color: #3b82f6;
+    }
+
+    .form-input::placeholder {
+      color: #94a3b8;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      color: #94a3b8;
+      transition: color 0.2s;
+    }
+
+    .password-toggle:hover {
+      color: #64748b;
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+    }
+
+    .remember-me input {
+      width: 18px;
+      height: 18px;
+      accent-color: #3b82f6;
+      cursor: pointer;
+    }
+
+    .remember-me span {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+
+    .forgot-password {
+      font-size: 0.875rem;
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .forgot-password:hover {
+      color: #2563eb;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: white;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .login-button:active {
+      transform: translateY(0);
+    }
+
+    .login-button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-button .btn-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: opacity 0.2s;
+    }
+
+    .login-button .btn-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    .login-button.loading .btn-text {
+      opacity: 0;
+    }
+
+    .login-button.loading .btn-loading {
+      display: block;
+    }
+
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Error message */
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #dc2626;
+      padding: 0.875rem 1rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .error-message.show {
+      display: flex;
+    }
+
+    .error-message svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    /* Footer */
+    .login-footer {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .login-footer p {
+      font-size: 0.875rem;
+      color: #64748b;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .login-branding {
+        display: none;
+      }
+
+      .login-form-container {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .login-form-container {
+        padding: 1rem;
+      }
+
+      .login-card {
+        padding: 2rem 1.5rem;
+        border-radius: 20px;
+      }
+
+      .brand-title {
+        font-size: 2rem;
+      }
+    }
+
+    /* Toast notification styles */
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      background: #1e293b;
+      color: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .toast-notification.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-notification.toast-error {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+
+    .toast-notification.toast-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .toast-content {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .toast-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animation"></div>
+
+  <!-- Left Side - Branding -->
+  <div class="login-branding">
+    <div class="branding-content">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <h1 class="brand-title">Muhasebe Sistemi</h1>
+      <p class="brand-subtitle">
+        Sigorta acenteniz için profesyonel muhasebe ve poliçe yönetim platformu
+      </p>
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <span>Otomatik poliçe yakalama ve takip</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <span>Komisyon ve tahsilat yönetimi</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <span>Detaylı raporlama ve analiz</span>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </div>
+          <span>Güvenli ve yetki bazlı erişim</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side - Login Form -->
+  <div class="login-form-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h1>Hoş Geldiniz</h1>
+        <p>Devam etmek için giriş yapın</p>
+      </div>
+
+      <div class="error-message" id="errorMessage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+        <span id="errorText">Hata mesajı</span>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="email">E-posta Adresi</label>
+          <div class="form-input-wrapper">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-input"
+              placeholder="ornek@sirket.com"
+              required
+              autocomplete="email"
+            >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Parola</label>
+          <div class="form-input-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="form-input"
+              placeholder="Parolanızı girin"
+              required
+              autocomplete="current-password"
+            >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0110 0v4"/>
+            </svg>
+            <button type="button" class="password-toggle" onclick="togglePassword()">
+              <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-options">
+          <label class="remember-me">
+            <input type="checkbox" id="rememberMe">
+            <span>Beni hatırla</span>
+          </label>
+          <a href="#" class="forgot-password">Parolamı unuttum</a>
+        </div>
+
+        <button type="submit" class="login-button" id="loginButton">
+          <span class="btn-text">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Giriş Yap
+          </span>
+          <span class="btn-loading">
+            <div class="spinner"></div>
+          </span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        <p>&copy; 2026 Muhasebe Sistemi. Tüm hakları saklıdır.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // LOGIN İŞLEMLERİ
+    // ═══════════════════════════════════════════════════════════════
+
+    // Sayfa yüklendiğinde token kontrolü
+    document.addEventListener('DOMContentLoaded', function() {
+      const token = APP_CONFIG.AUTH.getToken();
+      if (token) {
+        // Token varsa doğrula ve yönlendir
+        validateTokenAndRedirect();
+      }
+
+      // Remember me kontrolü
+      const rememberedEmail = localStorage.getItem('remembered_email');
+      if (rememberedEmail) {
+        document.getElementById('email').value = rememberedEmail;
+        document.getElementById('rememberMe').checked = true;
+      }
+    });
+
+    // Token doğrula ve yönlendir
+    async function validateTokenAndRedirect() {
+      try {
+        const response = await apiGet('auth/me');
+        if (response && response.id) {
+          // Token geçerli, dashboard'a yönlendir
+          window.location.href = '../index.html';
+        }
+      } catch (error) {
+        // Token geçersiz, temizle
+        APP_CONFIG.AUTH.clearToken();
+      }
+    }
+
+    // Parola göster/gizle
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.innerHTML = `
+          <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>
+        `;
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.innerHTML = `
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        `;
+      }
+    }
+
+    // Hata mesajı göster
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      errorText.textContent = message;
+      errorDiv.classList.add('show');
+    }
+
+    // Hata mesajı gizle
+    function hideError() {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.classList.remove('show');
+    }
+
+    // Login işlemi
+    async function handleLogin(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      const loginButton = document.getElementById('loginButton');
+
+      // Validasyon
+      if (!email || !password) {
+        showError('E-posta ve parola gereklidir');
+        return;
+      }
+
+      // Loading state
+      loginButton.classList.add('loading');
+      loginButton.disabled = true;
+      hideError();
+
+      try {
+        // API'ye login isteği
+        const response = await apiPost('auth/login', {
+          email: email,
+          password: password
+        });
+
+        if (response.success && response.token) {
+          // Token ve kullanıcı bilgilerini kaydet
+          APP_CONFIG.AUTH.setToken(response.token);
+
+          if (response.refreshToken) {
+            localStorage.setItem(APP_CONFIG.AUTH.REFRESH_TOKEN_KEY, response.refreshToken);
+          }
+
+          // Kullanıcı bilgilerini kaydet
+          APP_CONFIG.AUTH.setUser({
+            id: response.user.id,
+            name: response.user.name,
+            email: response.user.email,
+            role: response.user.role,
+            firmaId: response.user.firmaId,
+            subeId: response.user.subeId,
+            permissions: response.user.permissions
+          });
+
+          // Beni hatırla
+          if (rememberMe) {
+            localStorage.setItem('remembered_email', email);
+          } else {
+            localStorage.removeItem('remembered_email');
+          }
+
+          // Başarılı toast
+          showToast('Giriş başarılı, yönlendiriliyorsunuz...', 'success');
+
+          // Dashboard'a yönlendir
+          setTimeout(() => {
+            window.location.href = '../index.html';
+          }, 1000);
+
+        } else {
+          showError(response.message || 'Giriş başarısız');
+        }
+
+      } catch (error) {
+        console.error('Login error:', error);
+
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          showError('E-posta veya parola hatalı');
+        } else if (error.message.includes('zaman aşımı') || error.message.includes('timeout')) {
+          showError('Sunucuya bağlanılamadı. Lütfen tekrar deneyin.');
+        } else {
+          showError(error.message || 'Giriş sırasında bir hata oluştu');
+        }
+      } finally {
+        loginButton.classList.remove('loading');
+        loginButton.disabled = false;
+      }
+    }
+
+    // Enter tuşu ile submit
+    document.getElementById('password').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+      }
+    });
+  </script>
+</body>
+</html>
