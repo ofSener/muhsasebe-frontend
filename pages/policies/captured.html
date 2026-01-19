@@ -429,6 +429,7 @@
                   <option value="viewer">İzleyici</option>
                 </select>
                 <button class="edit-mode-toggle" id="editModeToggle" onclick="toggleEditMode()">
+                  <span class="toggle-indicator"></span>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
                     <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -470,6 +471,15 @@
                   <option value="Can Özkan">Can Özkan</option>
                 </select>
               </div>
+            </div>
+            <div class="edit-mode-banner" id="editModeBanner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              <span>Düzenleme Modu Aktif — Hücrelere tıklayarak düzenleyin</span>
+              <kbd style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">ESC</kbd>
+              <span style="font-weight: 400; opacity: 0.9;">ile çıkın</span>
             </div>
             <div class="card-body" style="padding: 0;">
               <div class="table-container">
@@ -542,7 +552,31 @@
                 </button>
               </div>
               <div class="table-footer-right">
-                <span class="table-info" id="tableInfo">1-12 / 12 poliçe</span>
+                <div class="pagination-controls">
+                  <div class="page-size-selector">
+                    <label>Sayfa başına:</label>
+                    <select id="pageSizeSelect" onchange="changePageSize(this.value)">
+                      <option value="10">10</option>
+                      <option value="20" selected>20</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </div>
+                  <span class="table-info" id="tableInfo">1-20 / 20 poliçe</span>
+                  <div class="page-navigation">
+                    <button class="page-btn" id="prevPageBtn" onclick="prevPage()" disabled>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                      </svg>
+                    </button>
+                    <span class="page-numbers" id="pageNumbers"></span>
+                    <button class="page-btn" id="nextPageBtn" onclick="nextPage()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1068,6 +1102,121 @@
     .table-info {
       font-size: 0.8rem;
       color: var(--text-muted);
+    }
+
+    /* Pagination Controls */
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .page-size-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-size-selector label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .page-size-selector select {
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .page-size-selector select:hover {
+      border-color: var(--primary);
+    }
+
+    .page-size-selector select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .page-navigation {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .page-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .page-numbers {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .page-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 0.5rem;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .page-number:hover {
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--primary);
+    }
+
+    .page-number.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .page-ellipsis {
+      color: var(--text-muted);
+      padding: 0 0.25rem;
     }
 
     /* Clickable Links in Table */
@@ -2027,30 +2176,92 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 0.875rem;
+      padding: 0.5rem 1rem;
       background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
       color: var(--text-muted);
       font-size: 0.8rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .edit-mode-toggle:hover {
       border-color: var(--primary);
-      color: var(--text-primary);
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+      transform: translateY(-1px);
     }
 
     .edit-mode-toggle.active {
-      background: var(--primary-glow);
-      border-color: var(--primary);
-      color: var(--primary);
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      border-color: transparent;
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .edit-mode-toggle.active:hover {
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+      transform: translateY(-2px);
     }
 
     .edit-mode-toggle svg {
       width: 16px;
       height: 16px;
+    }
+
+    .edit-mode-toggle .toggle-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #9ca3af;
+      transition: all 0.25s ease;
+    }
+
+    .edit-mode-toggle.active .toggle-indicator {
+      background: #34d399;
+      box-shadow: 0 0 8px #34d399;
+      animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 8px #34d399; }
+      50% { box-shadow: 0 0 16px #34d399, 0 0 24px rgba(52, 211, 153, 0.4); }
+    }
+
+    /* Edit mode active state for the whole card */
+    .edit-mode .permission-bar {
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+      border-bottom-color: rgba(99, 102, 241, 0.2);
+    }
+
+    /* Edit mode banner */
+    .edit-mode-banner {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .edit-mode-banner svg {
+      width: 18px;
+      height: 18px;
+      animation: bounce-edit 1s infinite;
+    }
+
+    @keyframes bounce-edit {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .edit-mode .edit-mode-banner {
+      display: flex;
     }
 
     /* Editable Cell Styles */
@@ -2507,6 +2718,11 @@
     let currentSort = { field: 'date', direction: 'desc' };
     let filteredPolicies = [...policies];
 
+    // Pagination state
+    let currentPage = 1;
+    let pageSize = 20;
+    let totalFilteredItems = 0;
+
     // ═══════════════════════════════════════════════════════════════
     // SAYFA BAŞLATMA - Initialize page
     // ═══════════════════════════════════════════════════════════════
@@ -2932,6 +3148,7 @@
         return policyDate >= start && policyDate <= end;
       });
 
+      currentPage = 1; // Reset to first page when filtering
       applyFilters();
     }
 
@@ -2946,7 +3163,12 @@
         result = result.filter(p =>
           p.policyNo.toLowerCase().includes(searchTerm) ||
           p.customer.toLowerCase().includes(searchTerm) ||
-          p.type.toLowerCase().includes(searchTerm)
+          p.type.toLowerCase().includes(searchTerm) ||
+          p.producer.toLowerCase().includes(searchTerm) ||
+          p.branch.toLowerCase().includes(searchTerm) ||
+          p.dateFormatted.toLowerCase().includes(searchTerm) ||
+          p.netPremium.toString().includes(searchTerm) ||
+          p.grossPremium.toString().includes(searchTerm)
         );
       }
 
@@ -2977,6 +3199,7 @@
 
     // Filter table
     function filterTable() {
+      currentPage = 1; // Reset to first page when filtering
       applyFilters();
     }
 
@@ -3009,6 +3232,9 @@
     function renderTableWithData(data) {
       const tbody = document.getElementById('policyTableBody');
 
+      // Store total filtered items for pagination
+      totalFilteredItems = data.length;
+
       if (data.length === 0) {
         tbody.innerHTML = `
           <tr>
@@ -3022,8 +3248,24 @@
           </tr>
         `;
         document.getElementById('tableInfo').textContent = '0 poliçe';
+        updatePaginationControls(0, 0, 0);
         return;
       }
+
+      // Calculate pagination
+      const totalPages = Math.ceil(data.length / pageSize);
+
+      // Ensure current page is valid
+      if (currentPage > totalPages) {
+        currentPage = totalPages;
+      }
+      if (currentPage < 1) {
+        currentPage = 1;
+      }
+
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, data.length);
+      const paginatedData = data.slice(startIndex, endIndex);
 
       // Helper function to generate editable cell HTML
       function editableCell(policyId, field, displayContent, rawValue, extraClass = '') {
@@ -3036,7 +3278,7 @@
         return `<span class="${cellClass} ${extraClass}" ${clickHandler}>${displayContent}</span>`;
       }
 
-      tbody.innerHTML = data.map(p => {
+      tbody.innerHTML = paginatedData.map(p => {
         // Check which fields have pending changes
         const policyChanges = pendingChanges.get(p.id) || {};
         const hasChanges = Object.keys(policyChanges).length > 0;
@@ -3127,7 +3369,11 @@
         </tr>
       `}).join('');
 
-      document.getElementById('tableInfo').textContent = `1-${data.length} / ${data.length} poliçe`;
+      // Update table info text
+      document.getElementById('tableInfo').textContent = `${startIndex + 1}-${endIndex} / ${data.length} poliçe`;
+
+      // Update pagination controls
+      updatePaginationControls(currentPage, totalPages, data.length);
     }
 
     // Update stats
@@ -3138,6 +3384,84 @@
       document.getElementById('statPending').textContent = data.length;
       document.getElementById('statPremium').textContent = '₺' + totalGrossPremium.toLocaleString('tr-TR');
       document.getElementById('statProducers').textContent = producers.length;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // PAGINATION FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    function updatePaginationControls(current, total, itemCount) {
+      const prevBtn = document.getElementById('prevPageBtn');
+      const nextBtn = document.getElementById('nextPageBtn');
+      const pageNumbersContainer = document.getElementById('pageNumbers');
+
+      // Update prev/next button states
+      prevBtn.disabled = current <= 1;
+      nextBtn.disabled = current >= total;
+
+      // Generate page numbers
+      if (total <= 1) {
+        pageNumbersContainer.innerHTML = '';
+        return;
+      }
+
+      let pageNumbersHTML = '';
+
+      // Always show first page
+      pageNumbersHTML += generatePageNumber(1, current);
+
+      // Show ellipsis if there's a gap after first page
+      if (current > 3) {
+        pageNumbersHTML += '<span class="page-ellipsis">...</span>';
+      }
+
+      // Show pages around current page
+      for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+        pageNumbersHTML += generatePageNumber(i, current);
+      }
+
+      // Show ellipsis if there's a gap before last page
+      if (current < total - 2) {
+        pageNumbersHTML += '<span class="page-ellipsis">...</span>';
+      }
+
+      // Always show last page (if more than 1 page)
+      if (total > 1) {
+        pageNumbersHTML += generatePageNumber(total, current);
+      }
+
+      pageNumbersContainer.innerHTML = pageNumbersHTML;
+    }
+
+    function generatePageNumber(page, currentPage) {
+      const isActive = page === currentPage;
+      return `<button class="page-number ${isActive ? 'active' : ''}" onclick="goToPage(${page})">${page}</button>`;
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      applyFilters();
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        applyFilters();
+      }
+    }
+
+    function nextPage() {
+      const totalPages = Math.ceil(totalFilteredItems / pageSize);
+      if (currentPage < totalPages) {
+        currentPage++;
+        applyFilters();
+      }
+    }
+
+    function changePageSize(newSize) {
+      pageSize = parseInt(newSize);
+      currentPage = 1; // Reset to first page when changing page size
+      applyFilters();
     }
 
     // Selection functions
