@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Komisyon Ayarları - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Poliçelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Poliçeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Poliçe Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="list.html" class="nav-link"><span class="nav-text">Çalışan Listesi</span></a>
+              <a href="performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="tracking.html" class="nav-link"><span class="nav-text">Takip / Hakediş</span></a>
+              <a href="commission.html" class="nav-link active"><span class="nav-text">Komisyon Ayarları</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link"><span class="nav-text">Müşteri Listesi</span></a>
+              <a href="../customers/detail.html" class="nav-link"><span class="nav-text">Müşteri Detay</span></a>
+              <a href="../customers/renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link"><span class="nav-text">Finansal Özet</span></a>
+              <a href="../finance/policies.html" class="nav-link"><span class="nav-text">Poliçe Bazlı</span></a>
+              <a href="../finance/collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span></a>
+              <a href="../finance/reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link"><span class="nav-text">Yetki Yönetimi</span></a>
+              <a href="../settings/agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodları</span></a>
+              <a href="../settings/report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarları</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11,17 6,12 11,7"/>
+            <polyline points="18,17 13,12 18,7"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Yönetim</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Komisyon Ayarları</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Ana Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Komisyon Ayarları</h1>
+            <p class="page-subtitle">Poliçe tipine göre komisyon oranlarını belirleyin.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17,21 17,13 7,13 7,21"/>
+                <polyline points="7,3 7,8 15,8"/>
+              </svg>
+              Değişiklikleri Kaydet
+            </button>
+          </div>
+        </div>
+
+        <!-- Default Rates -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <h3 class="card-title">Varsayılan Komisyon Oranları</h3>
+            <span class="text-muted" style="font-size: 0.85rem;">Tüm çalışanlar için geçerli</span>
+          </div>
+          <div class="card-body">
+            <div class="commission-rates-row">
+              <!-- Kasko -->
+              <div class="commission-rate-item">
+                <div class="rate-label">
+                  <div class="color-dot" style="background: #00d4ff;"></div>
+                  <span>Kasko</span>
+                </div>
+                <div class="rate-input">
+                  <input type="number" value="12" min="0" max="100">
+                  <span>%</span>
+                </div>
+              </div>
+
+              <!-- Trafik -->
+              <div class="commission-rate-item">
+                <div class="rate-label">
+                  <div class="color-dot" style="background: #10b981;"></div>
+                  <span>Trafik</span>
+                </div>
+                <div class="rate-input">
+                  <input type="number" value="8" min="0" max="100">
+                  <span>%</span>
+                </div>
+              </div>
+
+              <!-- DASK -->
+              <div class="commission-rate-item">
+                <div class="rate-label">
+                  <div class="color-dot" style="background: #f59e0b;"></div>
+                  <span>DASK</span>
+                </div>
+                <div class="rate-input">
+                  <input type="number" value="5" min="0" max="100">
+                  <span>%</span>
+                </div>
+              </div>
+
+              <!-- Sağlık -->
+              <div class="commission-rate-item">
+                <div class="rate-label">
+                  <div class="color-dot" style="background: #ec4899;"></div>
+                  <span>Sağlık</span>
+                </div>
+                <div class="rate-input">
+                  <input type="number" value="10" min="0" max="100">
+                  <span>%</span>
+                </div>
+              </div>
+
+              <!-- Konut -->
+              <div class="commission-rate-item">
+                <div class="rate-label">
+                  <div class="color-dot" style="background: #6366f1;"></div>
+                  <span>Konut</span>
+                </div>
+                <div class="rate-input">
+                  <input type="number" value="8" min="0" max="100">
+                  <span>%</span>
+                </div>
+              </div>
+
+              <!-- İşyeri -->
+              <div class="commission-rate-item">
+                <div class="rate-label">
+                  <div class="color-dot" style="background: #06b6d4;"></div>
+                  <span>İşyeri</span>
+                </div>
+                <div class="rate-input">
+                  <input type="number" value="10" min="0" max="100">
+                  <span>%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Specific Rates -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Çalışan Özel Oranları</h3>
+            <button class="btn btn-secondary btn-sm">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Özel Oran Ekle
+            </button>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Çalışan</th>
+                    <th style="text-align: center;">Kasko</th>
+                    <th style="text-align: center;">Trafik</th>
+                    <th style="text-align: center;">DASK</th>
+                    <th style="text-align: center;">Sağlık</th>
+                    <th style="text-align: center;">Konut</th>
+                    <th style="text-align: center;">İşyeri</th>
+                    <th style="text-align: center;">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-emerald">ZA</div>
+                        <div>
+                          <div class="font-semibold">Zeynep Arslan</div>
+                          <div class="text-muted text-sm">Kıdemli Acente</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="14">
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="10">
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="6">
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="12">
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="10">
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="12">
+                    </td>
+                    <td style="text-align: center;">
+                      <button class="btn-icon btn-icon-danger" title="Özel Oranları Kaldır">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3,6 5,6 21,6"/>
+                          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-cyan">MK</div>
+                        <div>
+                          <div class="font-semibold">Mehmet Kaya</div>
+                          <div class="text-muted text-sm">Acente</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="13">
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="9">
+                    </td>
+                    <td style="text-align: center;">
+                      <span class="text-muted">Vars.</span>
+                    </td>
+                    <td style="text-align: center;">
+                      <input type="number" class="form-input commission-input" value="11">
+                    </td>
+                    <td style="text-align: center;">
+                      <span class="text-muted">Vars.</span>
+                    </td>
+                    <td style="text-align: center;">
+                      <span class="text-muted">Vars.</span>
+                    </td>
+                    <td style="text-align: center;">
+                      <button class="btn-icon btn-icon-danger" title="Özel Oranları Kaldır">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3,6 5,6 21,6"/>
+                          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr class="row-inactive">
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-violet">AD</div>
+                        <div>
+                          <div class="font-semibold">Ayşe Demir</div>
+                          <div class="text-muted text-sm">Varsayılan oranları kullanıyor</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align: center;" class="text-muted font-mono">12%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">5%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
+                    <td style="text-align: center;">
+                      <button class="btn btn-secondary btn-sm">Özelleştir</button>
+                    </td>
+                  </tr>
+                  <tr class="row-inactive">
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-amber">CÖ</div>
+                        <div>
+                          <div class="font-semibold">Can Özkan</div>
+                          <div class="text-muted text-sm">Varsayılan oranları kullanıyor</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align: center;" class="text-muted font-mono">12%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">5%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
+                    <td style="text-align: center;">
+                      <button class="btn btn-secondary btn-sm">Özelleştir</button>
+                    </td>
+                  </tr>
+                  <tr class="row-inactive">
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-rose">EK</div>
+                        <div>
+                          <div class="font-semibold">Elif Koç</div>
+                          <div class="text-muted text-sm">Varsayılan oranları kullanıyor</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style="text-align: center;" class="text-muted font-mono">12%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">5%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
+                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
+                    <td style="text-align: center;">
+                      <button class="btn btn-secondary btn-sm">Özelleştir</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Alert -->
+        <div class="alert alert-info" style="margin-top: 1.5rem;">
+          <div class="alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </div>
+          <div class="alert-content">
+            <div class="alert-title">Komisyon Hesaplama</div>
+            <div class="alert-text">Komisyonlar poliçe prim tutarı üzerinden hesaplanır. Çalışan özel oranı tanımlanmadıysa varsayılan oran kullanılır.</div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <style>
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .commission-rates-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .commission-rate-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      min-width: 100px;
+      flex: 1;
+    }
+
+    .rate-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+    }
+
+    .rate-input {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .rate-input input {
+      width: 56px;
+      padding: 0.5rem;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+    }
+
+    .rate-input input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .rate-input span {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .commission-input {
+      width: 70px;
+      text-align: center;
+      padding: 0.5rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* btn-icon-danger artık main.css'de tanımlı */
+
+    .mb-3 {
+      margin-bottom: 0.75rem;
+    }
+  </style>
+</body>
+</html>

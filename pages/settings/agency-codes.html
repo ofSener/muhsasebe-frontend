@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acente Kodları - IHSAN AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetim</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Poliçelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Poliçeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Poliçe Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Poliçe Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link"><span class="nav-text">Çalışan Listesi</span></a>
+              <a href="../employees/performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="../employees/tracking.html" class="nav-link"><span class="nav-text">Takip/Hakediş</span></a>
+              <a href="../employees/commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarları</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link"><span class="nav-text">Müşteri Listesi</span></a>
+              <a href="../customers/detail.html" class="nav-link"><span class="nav-text">Müşteri Detay</span></a>
+              <a href="../customers/renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link"><span class="nav-text">Finans Dashboard</span></a>
+              <a href="../finance/policies.html" class="nav-link"><span class="nav-text">Poliçe Bazlı</span></a>
+              <a href="../finance/collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span></a>
+              <a href="../finance/reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="permissions.html" class="nav-link"><span class="nav-text">Yetki Yönetimi</span></a>
+              <a href="agency-codes.html" class="nav-link active"><span class="nav-text">Acente Kodları</span></a>
+              <a href="report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarları</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11,17 6,12 11,7"/>
+            <polyline points="18,17 13,12 18,7"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Ayarlar</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Acente Kodları</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Ana Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Acente Kodları</h1>
+            <p class="page-subtitle">Poliçe yakalama için kullanılan acente kodlarını yönetin.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" data-modal-open="addAgencyModal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Yeni Acente Kodu
+            </button>
+          </div>
+        </div>
+
+        <!-- Info Alert -->
+        <div class="info-alert info-alert-amber">
+          <div class="info-alert-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="info-alert-content">
+            <p class="info-alert-title">Önemli Bilgi</p>
+            <p class="info-alert-desc">Acente kodları, sigorta şirketlerinden gelen poliçelerin otomatik olarak yakalanması için kullanılır. Doğru kodların girildiğinden emin olun.</p>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card stat-card-mini stat-cyan">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 7h-7m7 10h-7m4-5h-4M6 18l4-8-4-8"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Toplam Kod</p>
+              <h4 class="stat-value">8</h4>
+            </div>
+          </div>
+          <div class="stat-card stat-card-mini stat-emerald">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                <polyline points="22,4 12,14.01 9,11.01"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Aktif Kod</p>
+              <h4 class="stat-value">6</h4>
+            </div>
+          </div>
+          <div class="stat-card stat-card-mini stat-amber">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Pasif Kod</p>
+              <h4 class="stat-value">2</h4>
+            </div>
+          </div>
+          <div class="stat-card stat-card-mini stat-violet">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Yakalanan Poliçe</p>
+              <h4 class="stat-value">1,247</h4>
+            </div>
+          </div>
+        </div>
+
+        <!-- Agency Codes Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Kayıtlı Acente Kodları</h3>
+            <div class="card-actions">
+              <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" placeholder="Kod veya şirket ara...">
+              </div>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Acente Kodu</th>
+                    <th>Sigorta Şirketi</th>
+                    <th>Tanım</th>
+                    <th style="text-align: right;">Yakalanan</th>
+                    <th>Son Aktivite</th>
+                    <th>Durum</th>
+                    <th style="text-align: center;">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <span class="agency-code agency-code-cyan">AXA-001</span>
+                    </td>
+                    <td>
+                      <div class="company-cell">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #005ca9, #0073cf);">AXA</div>
+                        <span class="company-name">AXA Sigorta</span>
+                      </div>
+                    </td>
+                    <td><span class="text-muted">Ana acente kodu</span></td>
+                    <td style="text-align: right;"><span class="mono-value">324</span></td>
+                    <td><span class="text-muted">13.01.2026 14:30</span></td>
+                    <td><span class="status-badge status-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-warning" title="Pasif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-danger" title="Sil">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="agency-code agency-code-emerald">ALLIANZ-002</span>
+                    </td>
+                    <td>
+                      <div class="company-cell">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #003781, #0066b3);">ALZ</div>
+                        <span class="company-name">Allianz Sigorta</span>
+                      </div>
+                    </td>
+                    <td><span class="text-muted">Birincil kod</span></td>
+                    <td style="text-align: right;"><span class="mono-value">287</span></td>
+                    <td><span class="text-muted">13.01.2026 12:15</span></td>
+                    <td><span class="status-badge status-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-warning" title="Pasif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-danger" title="Sil">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="agency-code agency-code-rose">ANADOLU-003</span>
+                    </td>
+                    <td>
+                      <div class="company-cell">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #e31e24, #ff4444);">ANA</div>
+                        <span class="company-name">Anadolu Sigorta</span>
+                      </div>
+                    </td>
+                    <td><span class="text-muted">Merkez acente</span></td>
+                    <td style="text-align: right;"><span class="mono-value">256</span></td>
+                    <td><span class="text-muted">12.01.2026 18:45</span></td>
+                    <td><span class="status-badge status-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-warning" title="Pasif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-danger" title="Sil">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="agency-code agency-code-amber">MAPFRE-004</span>
+                    </td>
+                    <td>
+                      <div class="company-cell">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #cc0000, #ff0000);">MAP</div>
+                        <span class="company-name">Mapfre Sigorta</span>
+                      </div>
+                    </td>
+                    <td><span class="text-muted">Ana kanal</span></td>
+                    <td style="text-align: right;"><span class="mono-value">198</span></td>
+                    <td><span class="text-muted">11.01.2026 09:30</span></td>
+                    <td><span class="status-badge status-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-warning" title="Pasif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-danger" title="Sil">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="agency-code agency-code-violet">SOMPO-005</span>
+                    </td>
+                    <td>
+                      <div class="company-cell">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #003399, #0055cc);">SMP</div>
+                        <span class="company-name">Sompo Japan Sigorta</span>
+                      </div>
+                    </td>
+                    <td><span class="text-muted">Kasko acente</span></td>
+                    <td style="text-align: right;"><span class="mono-value">112</span></td>
+                    <td><span class="text-muted">10.01.2026 16:20</span></td>
+                    <td><span class="status-badge status-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-warning" title="Pasif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-danger" title="Sil">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span class="agency-code agency-code-pink">HDI-006</span>
+                    </td>
+                    <td>
+                      <div class="company-cell">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #003366, #004488);">HDI</div>
+                        <span class="company-name">HDI Sigorta</span>
+                      </div>
+                    </td>
+                    <td><span class="text-muted">Sağlık acente</span></td>
+                    <td style="text-align: right;"><span class="mono-value">70</span></td>
+                    <td><span class="text-muted">08.01.2026 11:00</span></td>
+                    <td><span class="status-badge status-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-warning" title="Pasif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-danger" title="Sil">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="row-inactive">
+                    <td>
+                      <span class="agency-code agency-code-muted">ZURICH-007</span>
+                    </td>
+                    <td>
+                      <div class="company-cell">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #666, #888);">ZUR</div>
+                        <span class="company-name">Zurich Sigorta</span>
+                      </div>
+                    </td>
+                    <td><span class="text-muted">Eski kod</span></td>
+                    <td style="text-align: right;"><span class="mono-value">0</span></td>
+                    <td><span class="text-muted">01.12.2025 10:00</span></td>
+                    <td><span class="status-badge status-default">Pasif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-success" title="Aktif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-danger" title="Sil">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="row-inactive">
+                    <td>
+                      <span class="agency-code agency-code-muted">TURK-008</span>
+                    </td>
+                    <td>
+                      <div class="company-cell">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #666, #888);">TRK</div>
+                        <span class="company-name">Türk Sigorta</span>
+                      </div>
+                    </td>
+                    <td><span class="text-muted">Test kod</span></td>
+                    <td style="text-align: right;"><span class="mono-value">0</span></td>
+                    <td><span class="text-muted">15.11.2025 14:30</span></td>
+                    <td><span class="status-badge status-default">Pasif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-success" title="Aktif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                            <polyline points="22,4 12,14.01 9,11.01"/>
+                          </svg>
+                        </button>
+                        <button class="action-btn action-danger" title="Sil">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3,6 5,6 21,6"/>
+                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Agency Modal -->
+  <div class="modal-overlay" id="addAgencyModal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Yeni Acente Kodu Ekle</h3>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Acente Kodu *</label>
+          <input type="text" class="form-input" placeholder="ÖRN: SIRKET-001">
+          <span class="form-hint">Benzersiz bir kod girin (örn: AXA-001)</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sigorta Şirketi *</label>
+          <select class="form-select">
+            <option value="">Şirket seçin...</option>
+            <option>AXA Sigorta</option>
+            <option>Allianz Sigorta</option>
+            <option>Anadolu Sigorta</option>
+            <option>Mapfre Sigorta</option>
+            <option>Sompo Japan Sigorta</option>
+            <option>HDI Sigorta</option>
+            <option>Zurich Sigorta</option>
+            <option>Türk Sigorta</option>
+            <option>Diğer</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanım</label>
+          <input type="text" class="form-input" placeholder="Bu kodun kullanım amacı...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Durum</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="status" value="active" checked>
+              <span>Aktif</span>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="status" value="passive">
+              <span>Pasif</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal-close>İptal</button>
+        <button class="btn btn-primary">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+
+  <style>
+    .info-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .info-alert-amber {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+    .info-alert-amber .info-alert-icon { color: #f59e0b; }
+    .info-alert-amber .info-alert-title { color: #d97706; }
+    .info-alert-icon { flex-shrink: 0; }
+    .info-alert-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .info-alert-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card-mini {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.75rem;
+    }
+    .stat-card-mini .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 0.625rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-card-mini .stat-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+    .stat-card-mini.stat-cyan .stat-icon { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+    .stat-card-mini.stat-emerald .stat-icon { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .stat-card-mini.stat-amber .stat-icon { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+    .stat-card-mini.stat-violet .stat-icon { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+    .stat-card-mini .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.125rem;
+    }
+    .stat-card-mini .stat-value {
+      font-size: 1.375rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+    }
+
+    .search-box {
+      position: relative;
+      width: 280px;
+    }
+    .search-box .search-icon {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
+    }
+    .search-box input {
+      width: 100%;
+      padding: 0.625rem 1rem 0.625rem 2.5rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 0.5rem;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+    .search-box input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .search-box input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .company-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .company-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.625rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .company-name {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .agency-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.8125rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+    }
+    .agency-code-cyan { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+    .agency-code-emerald { background: rgba(16, 185, 129, 0.1); color: #059669; }
+    .agency-code-rose { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .agency-code-amber { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+    .agency-code-violet { background: rgba(99, 102, 241, 0.1); color: #4f46e5; }
+    .agency-code-pink { background: rgba(168, 85, 247, 0.1); color: #9333ea; }
+    .agency-code-muted { background: var(--bg-elevated); color: var(--text-muted); }
+
+    .mono-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .row-inactive {
+      opacity: 0.6;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .action-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--primary);
+    }
+    .action-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+    .action-btn.action-success:hover { color: #10b981; }
+    .action-btn.action-warning:hover { color: #f59e0b; }
+    .action-btn.action-danger:hover { color: #ef4444; }
+
+    .table-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .status-badge.status-default {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+
+    @media (max-width: 1200px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>

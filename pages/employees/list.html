@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çalışan Listesi - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Poliçelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Poliçeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Poliçe Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="list.html" class="nav-link active"><span class="nav-text">Çalışan Listesi</span></a>
+              <a href="performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="tracking.html" class="nav-link"><span class="nav-text">Takip / Hakediş</span></a>
+              <a href="commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarları</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link"><span class="nav-text">Müşteri Listesi</span></a>
+              <a href="../customers/detail.html" class="nav-link"><span class="nav-text">Müşteri Detay</span></a>
+              <a href="../customers/renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link"><span class="nav-text">Finansal Özet</span></a>
+              <a href="../finance/policies.html" class="nav-link"><span class="nav-text">Poliçe Bazlı</span></a>
+              <a href="../finance/collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span></a>
+              <a href="../finance/reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link"><span class="nav-text">Yetki Yönetimi</span></a>
+              <a href="../settings/agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodları</span></a>
+              <a href="../settings/report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarları</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11,17 6,12 11,7"/>
+            <polyline points="18,17 13,12 18,7"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Yönetim</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Çalışan Listesi</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Ana Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Çalışan Listesi</h1>
+            <p class="page-subtitle">Ekibinizdeki tüm çalışanları yönetin ve takip edin.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Dışa Aktar
+            </button>
+            <button class="btn btn-primary" onclick="openAddEmployeeModal()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Yeni Çalışan
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card stat-cyan">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">8</div>
+              <div class="stat-label">Toplam Çalışan</div>
+            </div>
+            <div class="stat-trend trend-up">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+              </svg>
+              +2 bu ay
+            </div>
+          </div>
+
+          <div class="stat-card stat-emerald">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                <polyline points="22,4 12,14.01 9,11.01"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">6</div>
+              <div class="stat-label">Aktif Çalışan</div>
+            </div>
+          </div>
+
+          <div class="stat-card stat-amber">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">2</div>
+              <div class="stat-label">Pasif Çalışan</div>
+            </div>
+          </div>
+
+          <div class="stat-card stat-violet">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">92%</div>
+              <div class="stat-label">Ort. Performans</div>
+            </div>
+            <div class="stat-trend trend-up">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+              </svg>
+              +5%
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-body">
+            <div class="filters-row">
+              <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" class="form-input" placeholder="Çalışan ara (isim, e-posta, telefon)..." style="padding-left: 2.5rem;">
+              </div>
+              <select class="form-select" style="width: auto;">
+                <option value="">Tüm Durumlar</option>
+                <option value="active">Aktif</option>
+                <option value="inactive">Pasif</option>
+              </select>
+              <select class="form-select" style="width: auto;">
+                <option value="">Tüm Roller</option>
+                <option value="admin">Yönetici</option>
+                <option value="agent">Acente</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Çalışanlar</h3>
+            <div class="card-actions">
+              <span class="text-muted">8 çalışan listeleniyor</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Çalışan</th>
+                    <th>E-posta</th>
+                    <th>Telefon</th>
+                    <th>Rol</th>
+                    <th>Durum</th>
+                    <th>Poliçe</th>
+                    <th>Performans</th>
+                    <th>Kayıt Tarihi</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-md avatar-emerald">ZA</div>
+                        <div>
+                          <div class="font-semibold">Zeynep Arslan</div>
+                          <div class="text-muted text-sm">Kıdemli Acente</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>zeynep@ihsanai.com</td>
+                    <td class="font-mono">0532 111 2233</td>
+                    <td><span class="badge badge-info">Acente</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td class="font-semibold font-mono">87</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar emerald" style="width: 100%"></div>
+                        </div>
+                        <span class="text-success font-mono">115%</span>
+                      </div>
+                    </td>
+                    <td class="text-muted">15.01.2023</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="btn-icon" title="Yetkileri Yönet">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-md avatar-cyan">MK</div>
+                        <div>
+                          <div class="font-semibold">Mehmet Kaya</div>
+                          <div class="text-muted text-sm">Acente</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>mehmet@ihsanai.com</td>
+                    <td class="font-mono">0533 222 3344</td>
+                    <td><span class="badge badge-info">Acente</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td class="font-semibold font-mono">72</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar cyan" style="width: 98%"></div>
+                        </div>
+                        <span class="font-mono">98%</span>
+                      </div>
+                    </td>
+                    <td class="text-muted">22.03.2023</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="btn-icon" title="Yetkileri Yönet">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-md avatar-violet">AD</div>
+                        <div>
+                          <div class="font-semibold">Ayşe Demir</div>
+                          <div class="text-muted text-sm">Acente</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>ayse@ihsanai.com</td>
+                    <td class="font-mono">0534 333 4455</td>
+                    <td><span class="badge badge-info">Acente</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td class="font-semibold font-mono">68</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar violet" style="width: 92%"></div>
+                        </div>
+                        <span class="font-mono">92%</span>
+                      </div>
+                    </td>
+                    <td class="text-muted">08.05.2023</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="btn-icon" title="Yetkileri Yönet">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-md avatar-amber">CÖ</div>
+                        <div>
+                          <div class="font-semibold">Can Özkan</div>
+                          <div class="text-muted text-sm">Jr. Acente</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>can@ihsanai.com</td>
+                    <td class="font-mono">0535 444 5566</td>
+                    <td><span class="badge badge-info">Acente</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td class="font-semibold font-mono">45</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar amber" style="width: 75%"></div>
+                        </div>
+                        <span class="text-warning font-mono">75%</span>
+                      </div>
+                    </td>
+                    <td class="text-muted">12.07.2023</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="btn-icon" title="Yetkileri Yönet">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-md avatar-rose">EK</div>
+                        <div>
+                          <div class="font-semibold">Elif Koç</div>
+                          <div class="text-muted text-sm">Jr. Acente</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>elif@ihsanai.com</td>
+                    <td class="font-mono">0536 555 6677</td>
+                    <td><span class="badge badge-info">Acente</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td class="font-semibold font-mono">38</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar rose" style="width: 63%"></div>
+                        </div>
+                        <span class="text-danger font-mono">63%</span>
+                      </div>
+                    </td>
+                    <td class="text-muted">28.09.2023</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="btn-icon" title="Yetkileri Yönet">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-md avatar-cyan">BY</div>
+                        <div>
+                          <div class="font-semibold">Burak Yıldız</div>
+                          <div class="text-muted text-sm">Stajyer</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>burak@ihsanai.com</td>
+                    <td class="font-mono">0537 666 7788</td>
+                    <td><span class="badge badge-secondary">Stajyer</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td class="font-semibold font-mono">12</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar" style="width: 40%"></div>
+                        </div>
+                        <span class="text-danger font-mono">40%</span>
+                      </div>
+                    </td>
+                    <td class="text-muted">05.11.2023</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Düzenle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                          </svg>
+                        </button>
+                        <button class="btn-icon" title="Yetkileri Yönet">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="row-inactive">
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-md" style="background: var(--bg-elevated); color: var(--text-muted);">HT</div>
+                        <div>
+                          <div class="font-semibold text-muted">Hakan Tekin</div>
+                          <div class="text-muted text-sm">Eski Çalışan</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-muted">hakan@ihsanai.com</td>
+                    <td class="font-mono text-muted">0538 777 8899</td>
+                    <td><span class="badge badge-secondary">Acente</span></td>
+                    <td><span class="badge badge-secondary">Pasif</span></td>
+                    <td class="text-muted font-mono">156</td>
+                    <td><span class="text-muted">-</span></td>
+                    <td class="text-muted">10.06.2022</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Aktif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="row-inactive">
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-md" style="background: var(--bg-elevated); color: var(--text-muted);">SA</div>
+                        <div>
+                          <div class="font-semibold text-muted">Seda Aktaş</div>
+                          <div class="text-muted text-sm">Eski Çalışan</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-muted">seda@ihsanai.com</td>
+                    <td class="font-mono text-muted">0539 888 9900</td>
+                    <td><span class="badge badge-secondary">Acente</span></td>
+                    <td><span class="badge badge-secondary">Pasif</span></td>
+                    <td class="text-muted font-mono">89</td>
+                    <td><span class="text-muted">-</span></td>
+                    <td class="text-muted">18.02.2022</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="btn-icon" title="Aktif Yap">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Employee Modal -->
+  <div class="modal-backdrop" id="addEmployeeModal" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Yeni Çalışan Ekle</h3>
+        <button class="modal-close" onclick="closeAddEmployeeModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addEmployeeForm">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Ad Soyad</label>
+              <input type="text" class="form-input" placeholder="Çalışan adı soyadı" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">E-posta</label>
+              <input type="email" class="form-input" placeholder="ornek@ihsanai.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Telefon</label>
+              <input type="tel" class="form-input" placeholder="0532 123 4567">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rol</label>
+              <select class="form-select" required>
+                <option value="">Seçiniz</option>
+                <option value="admin">Yönetici</option>
+                <option value="agent">Acente</option>
+                <option value="intern">Stajyer</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notlar</label>
+            <textarea class="form-textarea" placeholder="Çalışan hakkında ek notlar..." rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeAddEmployeeModal()">İptal</button>
+        <button class="btn btn-primary">Çalışan Ekle</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script>
+    function openAddEmployeeModal() {
+      document.getElementById('addEmployeeModal').style.display = 'flex';
+    }
+    function closeAddEmployeeModal() {
+      document.getElementById('addEmployeeModal').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

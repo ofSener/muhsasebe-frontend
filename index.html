@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - IHSAN AI</title>
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="index.html" class="nav-link active">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="pages/policies/my-policies.html" class="nav-link">Poliçelerim</a>
+              <a href="pages/policies/captured.html" class="nav-link">
+                Yakalanan
+                <span class="nav-badge">12</span>
+              </a>
+              <a href="pages/policies/pool.html" class="nav-link">Poliçe Havuzu</a>
+              <a href="pages/policies/add-manual.html" class="nav-link">Manuel Ekle</a>
+              <a href="pages/policies/bulk-import.html" class="nav-link">Toplu Aktar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="pages/employees/list.html" class="nav-link">Çalışan Listesi</a>
+              <a href="pages/employees/performance.html" class="nav-link">Performans</a>
+              <a href="pages/employees/tracking.html" class="nav-link">Takip/Hakediş</a>
+              <a href="pages/employees/commission.html" class="nav-link">Komisyon Ayarları</a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="pages/customers/list.html" class="nav-link">Müşteri Listesi</a>
+              <a href="pages/customers/renewals.html" class="nav-link">
+                Yenileme Takibi
+                <span class="nav-badge warning">8</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="pages/finance/dashboard.html" class="nav-link">Finans Özeti</a>
+              <a href="pages/finance/policies.html" class="nav-link">Poliçe Bazlı</a>
+              <a href="pages/finance/collections.html" class="nav-link">Tahsilat Takibi</a>
+              <a href="pages/finance/reports.html" class="nav-link">Raporlar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="pages/settings/permissions.html" class="nav-link">Yetki Yönetimi</a>
+              <a href="pages/settings/agency-codes.html" class="nav-link">Acente Kodları</a>
+              <a href="pages/settings/report-settings.html" class="nav-link">Rapor Ayarları</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Ana Sayfa</span>
+            <svg class="breadcrumb-separator" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9,18 15,12 9,6"/>
+            </svg>
+            <span class="breadcrumb-item active">Dashboard</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn" title="Bildirimler">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">IA</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">İhsan Admin</div>
+              <div class="navbar-user-role">Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <!-- Page Content -->
+        <div class="page-content">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+          <h1 class="dashboard-title">Dashboard</h1>
+          <div class="dashboard-actions">
+            <!-- Preset Date Filters -->
+            <div class="date-presets">
+              <button class="date-preset-btn" data-range="today">Bugün</button>
+              <button class="date-preset-btn" data-range="yesterday">Dün</button>
+              <button class="date-preset-btn" data-range="thisWeek">Bu Hafta</button>
+              <button class="date-preset-btn" data-range="thisMonth">Bu Ay</button>
+              <button class="date-preset-btn" data-range="last30">Son 30 Gün</button>
+              <button class="date-preset-btn active" data-range="thisYear">Bu Yıl</button>
+            </div>
+            <!-- Custom Date Range Picker -->
+            <div class="date-range-picker" id="dateRangePicker">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <input type="text" id="dateRangeInput" placeholder="Tarih aralığı seçin" readonly>
+              <svg class="picker-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Tabs -->
+        <div class="dashboard-tabs">
+          <button class="dashboard-tab active">Dashboard</button>
+          <button class="dashboard-tab">Özet</button>
+        </div>
+
+        <!-- Progress Cards Row -->
+        <div class="grid-3 mb-4">
+          <!-- Toplam Prim -->
+          <div class="progress-card">
+            <div class="progress-card-header">
+              <span class="progress-card-title">Toplam Prim</span>
+              <a href="pages/finance/policies.html" class="progress-card-link">Raporu Görüntüle</a>
+            </div>
+            <p class="progress-card-subtitle">Bu dönem içinde üretilen toplam prim tutarı</p>
+            <div class="progress-card-total">
+              <span class="label">Toplam:</span>
+              <span class="value">₺2,450,000</span>
+            </div>
+            <div class="progress-card-bar">
+              <div class="progress-card-bar-fill success" style="width: 100%"></div>
+            </div>
+            <div class="progress-card-stats">
+              <div class="progress-card-stat">
+                <span class="stat-label">Bu Ay</span>
+                <span class="stat-value">₺245,000</span>
+              </div>
+              <div class="progress-card-stat">
+                <span class="stat-label">Geçen Ay</span>
+                <span class="stat-value muted">₺218,500</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Komisyon -->
+          <div class="progress-card">
+            <div class="progress-card-header">
+              <span class="progress-card-title">Komisyon</span>
+              <a href="pages/employees/tracking.html" class="progress-card-link">Raporu Görüntüle</a>
+            </div>
+            <p class="progress-card-subtitle">Toplam prim üzerinden hesaplanan komisyon</p>
+            <div class="progress-card-total">
+              <span class="label">Toplam Komisyon:</span>
+              <span class="value">₺186,200</span>
+            </div>
+            <div class="progress-card-bar">
+              <div class="progress-card-bar-fill primary" style="width: 72%"></div>
+            </div>
+            <div class="progress-card-stats">
+              <div class="progress-card-stat">
+                <span class="stat-label">Ödenen</span>
+                <span class="stat-value">₺134,064</span>
+              </div>
+              <div class="progress-card-stat">
+                <span class="stat-label">Kalan</span>
+                <span class="stat-value muted">₺52,136</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ödemeler -->
+          <div class="progress-card">
+            <div class="progress-card-header">
+              <span class="progress-card-title">Ödemeler</span>
+              <a href="pages/finance/collections.html" class="progress-card-link">Raporu Görüntüle</a>
+            </div>
+            <p class="progress-card-subtitle">Müşterilerden tahsil edilen ödemeler</p>
+            <div class="progress-card-total">
+              <span class="label">Toplam Tahsilat:</span>
+              <span class="value">₺1,890,500</span>
+            </div>
+            <div class="progress-card-bar">
+              <div class="progress-card-bar-fill warning" style="width: 77%"></div>
+            </div>
+            <div class="progress-card-stats">
+              <div class="progress-card-stat">
+                <span class="stat-label">Tahsil Edilen</span>
+                <span class="stat-value">₺1,890,500</span>
+              </div>
+              <div class="progress-card-stat">
+                <span class="stat-label">Bekleyen</span>
+                <span class="stat-value muted">₺559,500</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cash Flow Chart -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Cash Flow</h3>
+              <p class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">İşletmenize giren ve çıkan nakit</p>
+            </div>
+            <a href="pages/finance/reports.html" class="progress-card-link">Raporu Görüntüle</a>
+          </div>
+          <div class="card-body">
+            <div id="cashFlowChart" class="chart-container"></div>
+          </div>
+        </div>
+
+        <!-- Bottom Row -->
+        <div class="grid-2 mb-4">
+          <!-- Policy Distribution -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Poliçe Dağılımı</h3>
+                <p class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">Poliçe tipine göre dağılım</p>
+              </div>
+              <a href="pages/policies/my-policies.html" class="progress-card-link">Raporu Görüntüle</a>
+            </div>
+            <div class="card-body">
+              <div id="policyDistChart" class="chart-container"></div>
+            </div>
+          </div>
+
+          <!-- Monthly Performance -->
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Aylık Performans</h3>
+                <p class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">Yıllık karşılaştırma</p>
+              </div>
+              <a href="pages/finance/reports.html" class="progress-card-link">Raporu Görüntüle</a>
+            </div>
+            <div class="card-body">
+              <div id="monthlyChart" class="chart-container"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity & Performance Row -->
+        <div class="grid-2">
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Son İşlemler</h3>
+              <a href="#" class="progress-card-link">Tümünü Gör</a>
+            </div>
+            <div class="card-body">
+              <div class="activity-list">
+                <div class="activity-item">
+                  <div class="activity-icon" style="background: var(--success-glow); color: var(--success);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20,6 9,17 4,12"/>
+                    </svg>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text"><strong>Yeni Poliçe</strong> - Mehmet Demir için Kasko poliçesi oluşturuldu</div>
+                    <div class="activity-time">2 dakika önce</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon" style="background: var(--primary-glow); color: var(--primary);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text"><strong>Poliçe Yakalandı</strong> - #POL-2024-1284 otomatik yakalandı</div>
+                    <div class="activity-time">15 dakika önce</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon" style="background: var(--warning-glow); color: var(--warning);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <polyline points="12,6 12,12 16,14"/>
+                    </svg>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text"><strong>Yenileme Hatırlatması</strong> - Ayşe Kaya'nın DASK poliçesi 5 gün içinde bitiyor</div>
+                    <div class="activity-time">1 saat önce</div>
+                  </div>
+                </div>
+                <div class="activity-item">
+                  <div class="activity-icon" style="background: var(--info-glow); color: var(--info);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"/>
+                      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                  </div>
+                  <div class="activity-content">
+                    <div class="activity-text"><strong>Tahsilat</strong> - ₺12,450 ödeme alındı (#POL-2024-1180)</div>
+                    <div class="activity-time">3 saat önce</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Performers -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Çalışan Performansı</h3>
+              <span class="badge badge-primary">Bu Ay</span>
+            </div>
+            <div class="card-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Çalışan</th>
+                    <th>Poliçe</th>
+                    <th>Prim</th>
+                    <th>Hedef</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-cyan">ZA</div>
+                        <div>
+                          <div class="cell-main">Zeynep Aydın</div>
+                          <div class="cell-sub">Kıdemli Uzman</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="font-semibold">87</td>
+                    <td class="font-mono">₺245K</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar cyan" style="width: 92%"></div>
+                        </div>
+                        <span class="text-primary font-semibold">92%</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-emerald">MK</div>
+                        <div>
+                          <div class="cell-main">Mehmet Kaya</div>
+                          <div class="cell-sub">Uzman</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="font-semibold">72</td>
+                    <td class="font-mono">₺198K</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar emerald" style="width: 85%"></div>
+                        </div>
+                        <span class="text-success font-semibold">85%</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-amber">AY</div>
+                        <div>
+                          <div class="cell-main">Ayşe Yılmaz</div>
+                          <div class="cell-sub">Uzman</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="font-semibold">68</td>
+                    <td class="font-mono">₺175K</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar amber" style="width: 78%"></div>
+                        </div>
+                        <span class="text-warning font-semibold">78%</span>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-violet">CD</div>
+                        <div>
+                          <div class="cell-main">Can Demir</div>
+                          <div class="cell-sub">Jr. Uzman</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="font-semibold">45</td>
+                    <td class="font-mono">₺112K</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 80px;">
+                          <div class="progress-bar violet" style="width: 65%"></div>
+                        </div>
+                        <span style="color: var(--info);" class="font-semibold">65%</span>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Chart Colors
+      const colors = {
+        primary: '#6366f1',
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444',
+        info: '#3b82f6',
+        secondary: '#06b6d4'
+      };
+
+      // Cash Flow Chart (Line with multiple series)
+      const cashFlowOptions = {
+        series: [{
+          name: 'Gelen',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 185000, 245000]
+        }, {
+          name: 'Çıkan',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 42000, 58000]
+        }, {
+          name: 'Kar',
+          data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 143000, 187000]
+        }],
+        chart: {
+          height: 280,
+          type: 'line',
+          toolbar: { show: false },
+          fontFamily: 'Plus Jakarta Sans, sans-serif',
+          zoom: { enabled: false }
+        },
+        stroke: {
+          width: 2,
+          curve: 'smooth'
+        },
+        colors: [colors.success, colors.danger, colors.info],
+        markers: {
+          size: 4,
+          strokeWidth: 0,
+          hover: { size: 6 }
+        },
+        xaxis: {
+          categories: ['Oca 2026', 'Şub 2026', 'Mar 2026', 'Nis 2026', 'May 2026', 'Haz 2026', 'Tem 2026', 'Ağu 2026', 'Eyl 2026', 'Eki 2026', 'Kas 2026', 'Ara 2026'],
+          labels: {
+            style: { colors: '#64748b', fontSize: '10px' },
+            rotate: 0
+          },
+          axisBorder: { show: false },
+          axisTicks: { show: false }
+        },
+        yaxis: {
+          labels: {
+            style: { colors: '#64748b', fontSize: '11px' },
+            formatter: (val) => '₺' + (val / 1000).toFixed(0) + 'K'
+          }
+        },
+        legend: {
+          show: true,
+          position: 'top',
+          horizontalAlign: 'left',
+          labels: { colors: '#475569' },
+          markers: {
+            width: 8,
+            height: 8,
+            radius: 8
+          }
+        },
+        tooltip: {
+          y: {
+            formatter: (val) => '₺' + val.toLocaleString('tr-TR')
+          }
+        },
+        grid: {
+          borderColor: 'rgba(148, 163, 184, 0.15)',
+          strokeDashArray: 4
+        },
+        annotations: {
+          yaxis: [{
+            y: 0,
+            borderColor: 'rgba(148, 163, 184, 0.3)',
+            strokeDashArray: 0
+          }]
+        }
+      };
+      const cashFlowChart = new ApexCharts(document.querySelector("#cashFlowChart"), cashFlowOptions);
+      cashFlowChart.render();
+
+      // Policy Distribution (Donut)
+      const donutOptions = {
+        series: [35, 25, 18, 12, 6, 4],
+        chart: {
+          height: 280,
+          type: 'donut',
+          fontFamily: 'Plus Jakarta Sans, sans-serif'
+        },
+        labels: ['Kasko', 'Trafik', 'DASK', 'Sağlık', 'Konut', 'İşyeri'],
+        colors: [colors.primary, colors.success, colors.warning, colors.danger, colors.info, colors.secondary],
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '70%',
+              labels: {
+                show: true,
+                name: {
+                  show: true,
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: '#0f172a'
+                },
+                value: {
+                  show: true,
+                  fontSize: '24px',
+                  fontWeight: 800,
+                  color: '#0f172a',
+                  formatter: (val) => val + '%'
+                },
+                total: {
+                  show: true,
+                  label: 'Toplam',
+                  fontSize: '12px',
+                  color: '#64748b',
+                  formatter: () => '1,284'
+                }
+              }
+            }
+          }
+        },
+        stroke: {
+          width: 0
+        },
+        legend: {
+          position: 'bottom',
+          labels: { colors: '#475569' }
+        },
+        dataLabels: {
+          enabled: false
+        }
+      };
+      const donutChart = new ApexCharts(document.querySelector("#policyDistChart"), donutOptions);
+      donutChart.render();
+
+      // Monthly Performance (Bar)
+      const monthlyOptions = {
+        series: [{
+          name: 'Bu Yıl',
+          data: [65, 78, 52, 85, 72, 90, 95, 68, 82, 98, 75, 88]
+        }, {
+          name: 'Geçen Yıl',
+          data: [55, 62, 48, 70, 58, 75, 80, 55, 68, 82, 62, 72]
+        }],
+        chart: {
+          type: 'bar',
+          height: 280,
+          toolbar: { show: false },
+          fontFamily: 'Plus Jakarta Sans, sans-serif'
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '55%',
+            borderRadius: 4,
+            borderRadiusApplication: 'end'
+          }
+        },
+        colors: [colors.primary, '#e2e8f0'],
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          show: true,
+          width: 2,
+          colors: ['transparent']
+        },
+        xaxis: {
+          categories: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
+          labels: {
+            style: { colors: '#64748b', fontSize: '11px' }
+          },
+          axisBorder: { show: false },
+          axisTicks: { show: false }
+        },
+        yaxis: {
+          labels: {
+            style: { colors: '#64748b', fontSize: '11px' }
+          }
+        },
+        fill: {
+          opacity: 1
+        },
+        legend: {
+          position: 'top',
+          horizontalAlign: 'right',
+          labels: { colors: '#475569' }
+        },
+        grid: {
+          borderColor: 'rgba(148, 163, 184, 0.15)',
+          strokeDashArray: 4
+        },
+        tooltip: {
+          y: {
+            formatter: (val) => val + ' poliçe'
+          }
+        }
+      };
+      const monthlyChart = new ApexCharts(document.querySelector("#monthlyChart"), monthlyOptions);
+      monthlyChart.render();
+
+      // ═══════════════════════════════════════════════════════════════
+      // DATE RANGE PICKER WITH FLATPICKR
+      // ═══════════════════════════════════════════════════════════════
+
+      // Initialize Flatpickr with range mode
+      const dateRangeInput = document.getElementById('dateRangeInput');
+      const dateRangePicker = document.getElementById('dateRangePicker');
+
+      // Date formatting helper
+      const formatDateTR = (date) => {
+        return date.toLocaleDateString('tr-TR', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric'
+        });
+      };
+
+      // Get date ranges
+      const getDateRanges = () => {
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        const thisWeekStart = new Date(today);
+        thisWeekStart.setDate(today.getDate() - today.getDay() + 1);
+
+        const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        const last30Start = new Date(today);
+        last30Start.setDate(today.getDate() - 30);
+
+        const thisYearStart = new Date(today.getFullYear(), 0, 1);
+        const thisYearEnd = new Date(today.getFullYear(), 11, 31);
+
+        return {
+          today: [today, today],
+          yesterday: [yesterday, yesterday],
+          thisWeek: [thisWeekStart, today],
+          thisMonth: [thisMonthStart, today],
+          last30: [last30Start, today],
+          thisYear: [thisYearStart, thisYearEnd]
+        };
+      };
+
+      // Initialize with "This Year" range
+      const ranges = getDateRanges();
+      let currentRange = ranges.thisYear;
+
+      // Initialize Flatpickr
+      const fp = flatpickr(dateRangeInput, {
+        mode: 'range',
+        dateFormat: 'd M Y',
+        locale: 'tr',
+        defaultDate: currentRange,
+        allowInput: false,
+        disableMobile: true,
+        onOpen: function() {
+          dateRangePicker.classList.add('active');
+        },
+        onClose: function() {
+          dateRangePicker.classList.remove('active');
+        },
+        onChange: function(selectedDates, dateStr) {
+          if (selectedDates.length === 2) {
+            // Clear active state from preset buttons when manually selecting
+            document.querySelectorAll('.date-preset-btn').forEach(btn => {
+              btn.classList.remove('active');
+            });
+
+            console.log('Seçilen tarih aralığı:', dateStr);
+            // Here you would refresh dashboard data
+          }
+        }
+      });
+
+      // Set initial display
+      dateRangeInput.value = formatDateTR(currentRange[0]) + ' - ' + formatDateTR(currentRange[1]);
+
+      // Preset button handlers with ripple effect
+      document.querySelectorAll('.date-preset-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          // Create ripple effect
+          const ripple = document.createElement('span');
+          ripple.classList.add('ripple');
+          const rect = this.getBoundingClientRect();
+          ripple.style.left = (e.clientX - rect.left) + 'px';
+          ripple.style.top = (e.clientY - rect.top) + 'px';
+          this.appendChild(ripple);
+          setTimeout(() => ripple.remove(), 600);
+
+          const rangeKey = this.dataset.range;
+          const range = ranges[rangeKey];
+
+          if (range) {
+            // Update active state
+            document.querySelectorAll('.date-preset-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Update Flatpickr
+            fp.setDate(range, true);
+
+            // Update display
+            if (range[0].getTime() === range[1].getTime()) {
+              dateRangeInput.value = formatDateTR(range[0]);
+            } else {
+              dateRangeInput.value = formatDateTR(range[0]) + ' - ' + formatDateTR(range[1]);
+            }
+
+            console.log('Preset seçildi:', rangeKey, dateRangeInput.value);
+            // Here you would refresh dashboard data
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

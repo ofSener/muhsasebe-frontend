@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Police Bazli Finans - IHSAN AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yonetimi</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menu</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Police Islemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              <span class="nav-text">Policeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Policelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Policeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Police Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Yonetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              <span class="nav-text">Calisanlarim</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link"><span class="nav-text">Calisan Listesi</span></a>
+              <a href="../employees/performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="../employees/tracking.html" class="nav-link"><span class="nav-text">Takip/Hakedis</span></a>
+              <a href="../employees/commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarlari</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="nav-text">Musterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link"><span class="nav-text">Musteri Listesi</span></a>
+              <a href="../customers/detail.html" class="nav-link"><span class="nav-text">Musteri Detay</span></a>
+              <a href="../customers/renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="dashboard.html" class="nav-link"><span class="nav-text">Ozet Dashboard</span></a>
+              <a href="policies.html" class="nav-link active"><span class="nav-text">Police Bazli</span></a>
+              <a href="collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span><span class="nav-badge warning">5</span></a>
+              <a href="reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link"><span class="nav-text">Yetki Yonetimi</span></a>
+              <a href="../settings/agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodlari</span></a>
+              <a href="../settings/report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarlari</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11,17 6,12 11,7"/><polyline points="18,17 13,12 18,7"/></svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Finans</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Police Bazli</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yilmaz</div>
+              <div class="navbar-user-role">Ana Yonetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Police Bazli Finans</h1>
+            <p class="page-subtitle">Her policenin prim ve komisyon detaylarini goruntuleyin.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Excel Indir
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-body">
+            <div class="filters-grid">
+              <div class="form-group">
+                <label class="form-label">Tarih Araligi</label>
+                <select class="form-select">
+                  <option>Bu Ay</option>
+                  <option>Son 7 Gun</option>
+                  <option>Son 30 Gun</option>
+                  <option>Son 3 Ay</option>
+                  <option>Bu Yil</option>
+                  <option>Ozel Aralik</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Police Tipi</label>
+                <select class="form-select">
+                  <option value="">Tumu</option>
+                  <option>Kasko</option>
+                  <option>Trafik</option>
+                  <option>DASK</option>
+                  <option>Saglik</option>
+                  <option>Konut</option>
+                  <option>Isyeri</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Calisan</label>
+                <select class="form-select">
+                  <option value="">Tumu</option>
+                  <option>Ahmet Yilmaz</option>
+                  <option>Fatma Kara</option>
+                  <option>Mehmet Demir</option>
+                  <option>Zeynep Ak</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Odeme Durumu</label>
+                <select class="form-select">
+                  <option value="">Tumu</option>
+                  <option>Odendi</option>
+                  <option>Bekliyor</option>
+                  <option>Gecikmis</option>
+                  <option>Kismi Odeme</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Acente</label>
+                <select class="form-select">
+                  <option value="">Tumu</option>
+                  <option>AXA-001</option>
+                  <option>ALLIANZ-002</option>
+                  <option>ANADOLU-003</option>
+                  <option>MAPFRE-004</option>
+                </select>
+              </div>
+              <button class="btn btn-primary filter-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Filtrele
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="summary-row">
+          <div class="summary-item">
+            <p class="summary-label">Toplam Kayit</p>
+            <h3 class="summary-value font-mono">156</h3>
+          </div>
+          <div class="summary-item">
+            <p class="summary-label">Toplam Prim</p>
+            <h3 class="summary-value font-mono text-emerald">1.248.560 TL</h3>
+          </div>
+          <div class="summary-item">
+            <p class="summary-label">Toplam Komisyon</p>
+            <h3 class="summary-value font-mono text-cyan">186.420 TL</h3>
+          </div>
+          <div class="summary-item">
+            <p class="summary-label">Ort. Komisyon Orani</p>
+            <h3 class="summary-value font-mono text-violet">%14.9</h3>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="card">
+          <div class="card-body" style="padding: 0;">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" class="form-checkbox"></th>
+                    <th>Police No</th>
+                    <th>Musteri</th>
+                    <th>Tip</th>
+                    <th>Calisan</th>
+                    <th>Tarih</th>
+                    <th>Prim</th>
+                    <th>Komisyon %</th>
+                    <th>Komisyon TL</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0892</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-cyan">MD</div>
+                        <span>Mehmet Demir</span>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge kasko">Kasko</span></td>
+                    <td>Ahmet Yilmaz</td>
+                    <td>13.01.2024</td>
+                    <td class="font-mono font-semibold">12.450 TL</td>
+                    <td class="text-center">%15</td>
+                    <td class="font-mono font-semibold text-emerald">1.867 TL</td>
+                    <td><span class="status-badge status-success">Odendi</span></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0891</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-rose">AK</div>
+                        <span>Ayse Kaya</span>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge saglik">Saglik</span></td>
+                    <td>Fatma Kara</td>
+                    <td>13.01.2024</td>
+                    <td class="font-mono font-semibold">18.200 TL</td>
+                    <td class="text-center">%12</td>
+                    <td class="font-mono font-semibold text-emerald">2.184 TL</td>
+                    <td><span class="status-badge status-warning">Bekliyor</span></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0890</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-amber">AY</div>
+                        <span>Ali Yildiz</span>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge trafik">Trafik</span></td>
+                    <td>Mehmet Demir</td>
+                    <td>12.01.2024</td>
+                    <td class="font-mono font-semibold">3.450 TL</td>
+                    <td class="text-center">%18</td>
+                    <td class="font-mono font-semibold text-emerald">621 TL</td>
+                    <td><span class="status-badge status-success">Odendi</span></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0889</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-violet">ZC</div>
+                        <span>Zeynep Celik</span>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge dask">DASK</span></td>
+                    <td>Ahmet Yilmaz</td>
+                    <td>12.01.2024</td>
+                    <td class="font-mono font-semibold">1.850 TL</td>
+                    <td class="text-center">%20</td>
+                    <td class="font-mono font-semibold text-emerald">370 TL</td>
+                    <td><span class="status-badge status-success">Odendi</span></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0888</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-emerald">CB</div>
+                        <span>Can Bulut</span>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge konut">Konut</span></td>
+                    <td>Zeynep Ak</td>
+                    <td>11.01.2024</td>
+                    <td class="font-mono font-semibold">4.200 TL</td>
+                    <td class="text-center">%16</td>
+                    <td class="font-mono font-semibold text-emerald">672 TL</td>
+                    <td><span class="status-badge status-danger">Gecikmis</span></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0887</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-cyan">EK</div>
+                        <span>Elif Koc</span>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge isyeri">Isyeri</span></td>
+                    <td>Fatma Kara</td>
+                    <td>11.01.2024</td>
+                    <td class="font-mono font-semibold">8.500 TL</td>
+                    <td class="text-center">%14</td>
+                    <td class="font-mono font-semibold text-emerald">1.190 TL</td>
+                    <td><span class="status-badge status-info">Kismi</span></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0886</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-emerald">SY</div>
+                        <span>Selin Yilmaz</span>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge kasko">Kasko</span></td>
+                    <td>Ahmet Yilmaz</td>
+                    <td>10.01.2024</td>
+                    <td class="font-mono font-semibold">15.800 TL</td>
+                    <td class="text-center">%15</td>
+                    <td class="font-mono font-semibold text-emerald">2.370 TL</td>
+                    <td><span class="status-badge status-success">Odendi</span></td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0885</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-rose">OA</div>
+                        <span>Omer Arslan</span>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge saglik">Saglik</span></td>
+                    <td>Mehmet Demir</td>
+                    <td>10.01.2024</td>
+                    <td class="font-mono font-semibold">22.400 TL</td>
+                    <td class="text-center">%12</td>
+                    <td class="font-mono font-semibold text-emerald">2.688 TL</td>
+                    <td><span class="status-badge status-success">Odendi</span></td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="summary-footer">
+                    <td colspan="6" class="text-right">Sayfa Toplami:</td>
+                    <td class="font-mono font-semibold">86.850 TL</td>
+                    <td class="text-center">%14.3</td>
+                    <td class="font-mono font-semibold text-emerald">11.962 TL</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="pagination-info">156 kayittan 1-8 arasi gosteriliyor</span>
+            <div class="pagination">
+              <button class="btn btn-sm btn-ghost" disabled>&laquo;</button>
+              <button class="btn btn-sm btn-primary">1</button>
+              <button class="btn btn-sm btn-ghost">2</button>
+              <button class="btn btn-sm btn-ghost">3</button>
+              <button class="btn btn-sm btn-ghost">...</button>
+              <button class="btn btn-sm btn-ghost">20</button>
+              <button class="btn btn-sm btn-ghost">&raquo;</button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+
+  <style>
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr) auto;
+      gap: 1rem;
+      align-items: end;
+    }
+    .filter-btn {
+      height: 42px;
+    }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .summary-item {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .summary-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    .summary-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .customer-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .avatar-cyan { background: #00d4ff; }
+    .avatar-rose { background: #ec4899; }
+    .avatar-amber { background: #f59e0b; }
+    .avatar-violet { background: #6366f1; }
+    .avatar-emerald { background: #10b981; }
+
+    .policy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .policy-badge.kasko { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+    .policy-badge.trafik { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .policy-badge.dask { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .policy-badge.saglik { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+    .policy-badge.konut { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+    .policy-badge.isyeri { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+
+    .summary-footer {
+      background: var(--bg-secondary);
+      font-weight: 700;
+    }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+    .pagination-info {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    .pagination {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-semibold { font-weight: 600; }
+    .text-emerald { color: #10b981; }
+    .text-cyan { color: #00d4ff; }
+    .text-violet { color: #6366f1; }
+  </style>
+</body>
+</html>

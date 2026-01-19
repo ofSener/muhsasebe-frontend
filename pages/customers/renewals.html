@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yenileme Takibi - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Poliçelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Poliçeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Poliçe Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Poliçe Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link"><span class="nav-text">Çalışan Listesi</span></a>
+              <a href="../employees/performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="../employees/tracking.html" class="nav-link"><span class="nav-text">Takip / Hakediş</span></a>
+              <a href="../employees/commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarları</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="list.html" class="nav-link"><span class="nav-text">Müşteri Listesi</span></a>
+              <a href="detail.html" class="nav-link"><span class="nav-text">Müşteri Detay</span></a>
+              <a href="renewals.html" class="nav-link active"><span class="nav-text">Yenileme Takibi</span><span class="nav-badge">8</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link"><span class="nav-text">Finans Özeti</span></a>
+              <a href="../finance/policies.html" class="nav-link"><span class="nav-text">Poliçe Bazlı</span></a>
+              <a href="../finance/collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span></a>
+              <a href="../finance/reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link"><span class="nav-text">Yetki Yönetimi</span></a>
+              <a href="../settings/agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodları</span></a>
+              <a href="../settings/report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarları</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11,17 6,12 11,7"/><polyline points="18,17 13,12 18,7"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Müşterilerimiz</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Yenileme Takibi</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Ana Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Yenileme Takibi</h1>
+            <p class="page-subtitle">Yaklaşan poliçe yenilemelerini takip edin</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Excel İndir
+            </button>
+            <button class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13"/>
+                <path d="M22 2L15 22l-4-9-9-4 20-7z"/>
+              </svg>
+              Toplu SMS Gönder
+            </button>
+          </div>
+        </div>
+
+        <!-- Alert -->
+        <div class="alert alert-warning" style="margin-bottom: 1.5rem;">
+          <div class="alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="alert-content">
+            <div class="alert-title">8 Poliçe 7 Gün İçinde Sona Eriyor!</div>
+            <p class="alert-text">Müşterilerinize hatırlatma yapmayı unutmayın.</p>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card stat-rose">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value font-mono">8</div>
+              <div class="stat-label">7 Gün İçinde</div>
+            </div>
+          </div>
+          <div class="stat-card stat-amber">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value font-mono">18</div>
+              <div class="stat-label">15 Gün İçinde</div>
+            </div>
+          </div>
+          <div class="stat-card stat-cyan">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value font-mono">42</div>
+              <div class="stat-label">30 Gün İçinde</div>
+            </div>
+          </div>
+          <div class="stat-card stat-violet">
+            <div class="stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value font-mono">₺385K</div>
+              <div class="stat-label">Yenileme Potansiyeli</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs" style="margin-bottom: 1.5rem;">
+          <button class="tab active">Kritik (7 Gün)</button>
+          <button class="tab">Yaklaşan (15 Gün)</button>
+          <button class="tab">Önümüzdeki (30 Gün)</button>
+          <button class="tab">Tümü</button>
+        </div>
+
+        <!-- Renewals Table -->
+        <div class="card">
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Müşteri</th>
+                    <th>Poliçe</th>
+                    <th>Tip</th>
+                    <th>Bitiş Tarihi</th>
+                    <th>Kalan</th>
+                    <th>Prim</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="row-critical">
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-cyan">MD</div>
+                        <div>
+                          <div class="cell-main">Mustafa Demir</div>
+                          <div class="cell-sub">0532 XXX XX 45</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="font-mono font-semibold">POL-2024-3892</span></td>
+                    <td><span class="policy-type-badge kasko">Kasko</span></td>
+                    <td>16 Ocak 2024</td>
+                    <td><span class="badge badge-danger">3 Gün</span></td>
+                    <td><span class="font-mono font-semibold">₺14,200</span></td>
+                    <td><span class="badge badge-warning">Bekliyor</span></td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button class="btn btn-sm btn-primary">Yenile</button>
+                        <button class="btn btn-sm btn-ghost">SMS</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="row-critical">
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-emerald">SA</div>
+                        <div>
+                          <div class="cell-main">Selin Aktaş</div>
+                          <div class="cell-sub">0533 XXX XX 78</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="font-mono font-semibold">POL-2024-3756</span></td>
+                    <td><span class="policy-type-badge trafik">Trafik</span></td>
+                    <td>18 Ocak 2024</td>
+                    <td><span class="badge badge-danger">5 Gün</span></td>
+                    <td><span class="font-mono font-semibold">₺3,800</span></td>
+                    <td><span class="badge badge-info">SMS Gönderildi</span></td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button class="btn btn-sm btn-primary">Yenile</button>
+                        <button class="btn btn-sm btn-ghost">Ara</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="row-critical">
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-rose">HK</div>
+                        <div>
+                          <div class="cell-main">Hakan Korkmaz</div>
+                          <div class="cell-sub">0535 XXX XX 21</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="font-mono font-semibold">POL-2024-3801</span></td>
+                    <td><span class="policy-type-badge konut">Konut</span></td>
+                    <td>19 Ocak 2024</td>
+                    <td><span class="badge badge-danger">6 Gün</span></td>
+                    <td><span class="font-mono font-semibold">₺4,250</span></td>
+                    <td><span class="badge badge-warning">Bekliyor</span></td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button class="btn btn-sm btn-primary">Yenile</button>
+                        <button class="btn btn-sm btn-ghost">SMS</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-violet">EY</div>
+                        <div>
+                          <div class="cell-main">Emre Yılmaz</div>
+                          <div class="cell-sub">0534 XXX XX 92</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="font-mono font-semibold">POL-2024-3621</span></td>
+                    <td><span class="policy-type-badge dask">DASK</span></td>
+                    <td>23 Ocak 2024</td>
+                    <td><span class="badge badge-warning">10 Gün</span></td>
+                    <td><span class="font-mono font-semibold">₺920</span></td>
+                    <td><span class="badge badge-warning">Bekliyor</span></td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button class="btn btn-sm btn-primary">Yenile</button>
+                        <button class="btn btn-sm btn-ghost">SMS</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-amber">FK</div>
+                        <div>
+                          <div class="cell-main">Fatma Kılıç</div>
+                          <div class="cell-sub">0535 XXX XX 34</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="font-mono font-semibold">POL-2024-3589</span></td>
+                    <td><span class="policy-type-badge saglik">Sağlık</span></td>
+                    <td>28 Ocak 2024</td>
+                    <td><span class="badge badge-warning">15 Gün</span></td>
+                    <td><span class="font-mono font-semibold">₺8,900</span></td>
+                    <td><span class="badge badge-success">Yenilendi</span></td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button class="btn btn-sm btn-secondary" disabled>Yenilendi</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-cyan">BA</div>
+                        <div>
+                          <div class="cell-main">Burak Aydın</div>
+                          <div class="cell-sub">0537 XXX XX 56</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="font-mono font-semibold">POL-2024-3512</span></td>
+                    <td><span class="policy-type-badge isyeri">İşyeri</span></td>
+                    <td>02 Şubat 2024</td>
+                    <td><span class="badge badge-info">20 Gün</span></td>
+                    <td><span class="font-mono font-semibold">₺12,500</span></td>
+                    <td><span class="badge badge-warning">Bekliyor</span></td>
+                    <td>
+                      <div class="flex gap-2">
+                        <button class="btn btn-sm btn-primary">Yenile</button>
+                        <button class="btn btn-sm btn-ghost">SMS</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="pagination">
+              <div class="pagination-info">Toplam 42 kayıttan 1-10 arası gösteriliyor</div>
+              <div class="pagination-pages">
+                <button class="pagination-btn" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
+                </button>
+                <button class="pagination-btn active">1</button>
+                <button class="pagination-btn">2</button>
+                <button class="pagination-btn">3</button>
+                <button class="pagination-btn">4</button>
+                <button class="pagination-btn">5</button>
+                <button class="pagination-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+
+  <style>
+    /* Alert Styles */
+    .alert {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-radius: 0.75rem;
+      align-items: flex-start;
+    }
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .alert-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+    }
+    .alert-warning .alert-icon { color: #f59e0b; }
+    .alert-title {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin-bottom: 0.25rem;
+    }
+    .alert-warning .alert-title { color: #f59e0b; }
+    .alert-text {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.25rem;
+      background: var(--bg-secondary);
+      border-radius: 0.75rem;
+      width: fit-content;
+    }
+    .tab {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .tab.active {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Critical Row */
+    .row-critical {
+      background: rgba(244, 63, 94, 0.05);
+    }
+
+    /* Policy Type Badges */
+    .policy-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .policy-type-badge.kasko { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+    .policy-type-badge.trafik { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .policy-type-badge.dask { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .policy-type-badge.saglik { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+    .policy-type-badge.konut { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+    .policy-type-badge.isyeri { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+  </style>
+</body>
+</html>

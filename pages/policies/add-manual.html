@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manuel Poliçe Ekle - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="my-policies.html" class="nav-link">Poliçelerim</a>
+              <a href="captured.html" class="nav-link">Yakalanan <span class="nav-badge">12</span></a>
+              <a href="pool.html" class="nav-link">Poliçe Havuzu</a>
+              <a href="add-manual.html" class="nav-link active">Manuel Ekle</a>
+              <a href="bulk-import.html" class="nav-link">Toplu Aktar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link">Çalışan Listesi</a>
+              <a href="../employees/performance.html" class="nav-link">Performans</a>
+              <a href="../employees/tracking.html" class="nav-link">Takip/Hakediş</a>
+              <a href="../employees/commission.html" class="nav-link">Komisyon Ayarları</a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link">Müşteri Listesi</a>
+              <a href="../customers/renewals.html" class="nav-link">Yenileme Takibi <span class="nav-badge warning">8</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link">Finans Özeti</a>
+              <a href="../finance/policies.html" class="nav-link">Poliçe Bazlı</a>
+              <a href="../finance/collections.html" class="nav-link">Tahsilat Takibi</a>
+              <a href="../finance/reports.html" class="nav-link">Raporlar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link">Yetki Yönetimi</a>
+              <a href="../settings/agency-codes.html" class="nav-link">Acente Kodları</a>
+              <a href="../settings/report-settings.html" class="nav-link">Rapor Ayarları</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Poliçe İşlemleri</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Manuel Poliçe Ekle</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <!-- Page Content -->
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Manuel Poliçe Ekle</h1>
+            <p class="page-subtitle">Adım adım yeni bir poliçe kaydı oluşturun</p>
+          </div>
+        </div>
+
+        <!-- Wizard Steps -->
+        <div class="wizard-container">
+          <!-- Step Indicators -->
+          <div class="wizard-steps">
+            <div class="wizard-step active" data-step="1">
+              <div class="step-number">1</div>
+              <div class="step-info">
+                <div class="step-title">Poliçe Bilgileri</div>
+                <div class="step-desc">Temel bilgiler</div>
+              </div>
+            </div>
+            <div class="wizard-connector"></div>
+            <div class="wizard-step" data-step="2">
+              <div class="step-number">2</div>
+              <div class="step-info">
+                <div class="step-title">Müşteri</div>
+                <div class="step-desc">Müşteri seçimi</div>
+              </div>
+            </div>
+            <div class="wizard-connector"></div>
+            <div class="wizard-step" data-step="3">
+              <div class="step-number">3</div>
+              <div class="step-info">
+                <div class="step-title">Tarih & Tutar</div>
+                <div class="step-desc">Süre ve prim</div>
+              </div>
+            </div>
+            <div class="wizard-connector"></div>
+            <div class="wizard-step" data-step="4">
+              <div class="step-number">4</div>
+              <div class="step-info">
+                <div class="step-title">Onay</div>
+                <div class="step-desc">Son kontrol</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step Content -->
+          <div class="wizard-content">
+            <!-- Step 1: Poliçe Bilgileri -->
+            <div class="wizard-panel active" id="step1">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-icon cyan">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="card-title">Poliçe Temel Bilgileri</h3>
+                    <p class="card-subtitle">Poliçe numarası, acente ve tip bilgilerini girin</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-grid form-grid-2">
+                    <div class="form-group">
+                      <label class="form-label">Poliçe No <span class="required">*</span></label>
+                      <input type="text" class="form-input" id="policyNo" placeholder="POL-2024-XXXX">
+                      <span class="form-hint">Sigorta şirketinden aldığınız poliçe numarası</span>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Acente Kodu <span class="required">*</span></label>
+                      <select class="form-select" id="agencyCode">
+                        <option value="">Seçiniz</option>
+                        <option value="AC-001">AC-001 - Allianz</option>
+                        <option value="AC-002">AC-002 - Axa</option>
+                        <option value="AC-003">AC-003 - Anadolu</option>
+                        <option value="AC-004">AC-004 - Mapfre</option>
+                        <option value="AC-005">AC-005 - Sompo</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">Poliçe Tipi <span class="required">*</span></label>
+                    <div class="policy-type-grid">
+                      <label class="policy-type-option">
+                        <input type="radio" name="policyType" value="kasko">
+                        <div class="policy-type-card">
+                          <div class="policy-type-icon" style="background: rgba(0, 212, 255, 0.15); color: #00d4ff;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 002 12v4c0 .6.4 1 1 1h2"/>
+                              <circle cx="7" cy="17" r="2"/>
+                              <path d="M9 17h6"/>
+                              <circle cx="17" cy="17" r="2"/>
+                            </svg>
+                          </div>
+                          <span>Kasko</span>
+                        </div>
+                      </label>
+                      <label class="policy-type-option">
+                        <input type="radio" name="policyType" value="trafik">
+                        <div class="policy-type-card">
+                          <div class="policy-type-icon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <circle cx="12" cy="12" r="10"/>
+                              <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88"/>
+                            </svg>
+                          </div>
+                          <span>Trafik</span>
+                        </div>
+                      </label>
+                      <label class="policy-type-option">
+                        <input type="radio" name="policyType" value="dask">
+                        <div class="policy-type-card">
+                          <div class="policy-type-icon" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                              <polyline points="9,22 9,12 15,12 15,22"/>
+                            </svg>
+                          </div>
+                          <span>DASK</span>
+                        </div>
+                      </label>
+                      <label class="policy-type-option">
+                        <input type="radio" name="policyType" value="saglik">
+                        <div class="policy-type-card">
+                          <div class="policy-type-icon" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                            </svg>
+                          </div>
+                          <span>Sağlık</span>
+                        </div>
+                      </label>
+                      <label class="policy-type-option">
+                        <input type="radio" name="policyType" value="konut">
+                        <div class="policy-type-card">
+                          <div class="policy-type-icon" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                              <polyline points="9,22 9,12 15,12 15,22"/>
+                            </svg>
+                          </div>
+                          <span>Konut</span>
+                        </div>
+                      </label>
+                      <label class="policy-type-option">
+                        <input type="radio" name="policyType" value="isyeri">
+                        <div class="policy-type-card">
+                          <div class="policy-type-icon" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                              <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+                            </svg>
+                          </div>
+                          <span>İşyeri</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Müşteri Bilgileri -->
+            <div class="wizard-panel" id="step2">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-icon emerald">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="card-title">Müşteri Bilgileri</h3>
+                    <p class="card-subtitle">Mevcut müşteri seçin veya yeni müşteri ekleyin</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <!-- Customer Search -->
+                  <div class="customer-search-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" class="form-input" id="customerSearch" placeholder="TC Kimlik No veya Ad Soyad ile arayın...">
+                  </div>
+
+                  <!-- Customer Results -->
+                  <div class="customer-results" id="customerResults">
+                    <div class="customer-result-item" onclick="selectCustomer(this)">
+                      <div class="customer-avatar avatar-emerald">KY</div>
+                      <div class="customer-info">
+                        <div class="customer-name">Kemal Yıldırım</div>
+                        <div class="customer-details">TC: 12345678901 | 0532 111 2233</div>
+                      </div>
+                      <div class="customer-policies">
+                        <span class="badge badge-sm">3 poliçe</span>
+                      </div>
+                    </div>
+                    <div class="customer-result-item" onclick="selectCustomer(this)">
+                      <div class="customer-avatar avatar-cyan">SK</div>
+                      <div class="customer-info">
+                        <div class="customer-name">Seda Korkmaz</div>
+                        <div class="customer-details">TC: 98765432109 | 0533 222 3344</div>
+                      </div>
+                      <div class="customer-policies">
+                        <span class="badge badge-sm">1 poliçe</span>
+                      </div>
+                    </div>
+                    <div class="customer-result-item" onclick="selectCustomer(this)">
+                      <div class="customer-avatar avatar-violet">BŞ</div>
+                      <div class="customer-info">
+                        <div class="customer-name">Burak Şahin</div>
+                        <div class="customer-details">TC: 45678901234 | 0534 333 4455</div>
+                      </div>
+                      <div class="customer-policies">
+                        <span class="badge badge-sm">2 poliçe</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- New Customer Button -->
+                  <div class="new-customer-action">
+                    <button type="button" class="btn btn-ghost" onclick="showNewCustomerForm()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                      Yeni Müşteri Ekle
+                    </button>
+                  </div>
+
+                  <!-- Selected Customer Display -->
+                  <div class="selected-customer" id="selectedCustomer" style="display: none;">
+                    <div class="selected-customer-badge">Seçili Müşteri</div>
+                    <div class="customer-avatar avatar-lg avatar-emerald">KY</div>
+                    <div class="selected-customer-info">
+                      <div class="selected-customer-name">Kemal Yıldırım</div>
+                      <div class="selected-customer-details">TC: 12345678901</div>
+                      <div class="selected-customer-details">Tel: 0532 111 2233</div>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" onclick="clearCustomer()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                      </svg>
+                      Değiştir
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Tarih & Tutar -->
+            <div class="wizard-panel" id="step3">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-icon amber">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="card-title">Tarih ve Tutar Bilgileri</h3>
+                    <p class="card-subtitle">Poliçe geçerlilik süresi ve prim tutarını belirleyin</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-grid form-grid-2">
+                    <div class="form-group">
+                      <label class="form-label">Başlangıç Tarihi <span class="required">*</span></label>
+                      <input type="date" class="form-input" id="startDate">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Bitiş Tarihi <span class="required">*</span></label>
+                      <input type="date" class="form-input" id="endDate">
+                    </div>
+                  </div>
+
+                  <div class="form-grid form-grid-2">
+                    <div class="form-group">
+                      <label class="form-label">Prim Tutarı <span class="required">*</span></label>
+                      <div class="input-with-prefix">
+                        <span class="input-prefix">₺</span>
+                        <input type="number" class="form-input" id="premiumAmount" placeholder="0.00">
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Komisyon Oranı</label>
+                      <div class="input-with-suffix">
+                        <input type="number" class="form-input" id="commissionRate" value="12" min="0" max="100">
+                        <span class="input-suffix">%</span>
+                      </div>
+                      <span class="form-hint">Varsayılan: %12</span>
+                    </div>
+                  </div>
+
+                  <!-- Commission Preview -->
+                  <div class="commission-preview">
+                    <div class="commission-preview-row">
+                      <span>Prim Tutarı:</span>
+                      <strong id="previewPremium">₺0.00</strong>
+                    </div>
+                    <div class="commission-preview-row">
+                      <span>Komisyon Oranı:</span>
+                      <strong id="previewRate">%12</strong>
+                    </div>
+                    <div class="commission-preview-row highlight">
+                      <span>Komisyon Tutarı:</span>
+                      <strong id="previewCommission">₺0.00</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 4: Onay -->
+            <div class="wizard-panel" id="step4">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-icon violet">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                      <polyline points="22,4 12,14.01 9,11.01"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 class="card-title">Poliçe Özeti</h3>
+                    <p class="card-subtitle">Bilgileri kontrol edin ve poliçeyi kaydedin</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="summary-grid">
+                    <!-- Poliçe Bilgileri -->
+                    <div class="summary-section">
+                      <h4 class="summary-section-title">Poliçe Bilgileri</h4>
+                      <div class="summary-row">
+                        <span class="summary-label">Poliçe No:</span>
+                        <span class="summary-value" id="summaryPolicyNo">-</span>
+                      </div>
+                      <div class="summary-row">
+                        <span class="summary-label">Acente:</span>
+                        <span class="summary-value" id="summaryAgency">-</span>
+                      </div>
+                      <div class="summary-row">
+                        <span class="summary-label">Tip:</span>
+                        <span class="summary-value" id="summaryType">-</span>
+                      </div>
+                    </div>
+
+                    <!-- Müşteri Bilgileri -->
+                    <div class="summary-section">
+                      <h4 class="summary-section-title">Müşteri</h4>
+                      <div class="summary-row">
+                        <span class="summary-label">Ad Soyad:</span>
+                        <span class="summary-value" id="summaryCustomer">-</span>
+                      </div>
+                      <div class="summary-row">
+                        <span class="summary-label">TC Kimlik:</span>
+                        <span class="summary-value" id="summaryTC">-</span>
+                      </div>
+                    </div>
+
+                    <!-- Tarih Bilgileri -->
+                    <div class="summary-section">
+                      <h4 class="summary-section-title">Geçerlilik</h4>
+                      <div class="summary-row">
+                        <span class="summary-label">Başlangıç:</span>
+                        <span class="summary-value" id="summaryStartDate">-</span>
+                      </div>
+                      <div class="summary-row">
+                        <span class="summary-label">Bitiş:</span>
+                        <span class="summary-value" id="summaryEndDate">-</span>
+                      </div>
+                    </div>
+
+                    <!-- Finansal Bilgiler -->
+                    <div class="summary-section highlight">
+                      <h4 class="summary-section-title">Finansal</h4>
+                      <div class="summary-row">
+                        <span class="summary-label">Prim:</span>
+                        <span class="summary-value font-mono" id="summaryPremium">₺0.00</span>
+                      </div>
+                      <div class="summary-row">
+                        <span class="summary-label">Komisyon:</span>
+                        <span class="summary-value font-mono" id="summaryCommission">₺0.00</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Notes -->
+                  <div class="form-group" style="margin-top: 1.5rem;">
+                    <label class="form-label">Notlar (Opsiyonel)</label>
+                    <textarea class="form-textarea" id="policyNotes" rows="3" placeholder="Poliçe ile ilgili ek notlar..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Wizard Actions -->
+          <div class="wizard-actions">
+            <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" style="display: none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5"/>
+                <path d="M12 19l-7-7 7-7"/>
+              </svg>
+              Geri
+            </button>
+            <div class="flex-grow"></div>
+            <button class="btn btn-secondary" onclick="saveDraft()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17,21 17,13 7,13 7,21"/>
+                <polyline points="7,3 7,8 15,8"/>
+              </svg>
+              Taslak Kaydet
+            </button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">
+              İleri
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14"/>
+                <path d="M12 5l7 7-7 7"/>
+              </svg>
+            </button>
+            <button class="btn btn-success" id="submitBtn" onclick="submitPolicy()" style="display: none;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20,6 9,17 4,12"/>
+              </svg>
+              Poliçeyi Kaydet
+            </button>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <style>
+    .wizard-container {
+      max-width: 900px;
+    }
+
+    .wizard-steps {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+    }
+
+    .wizard-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0.5;
+      transition: all 0.3s;
+    }
+
+    .wizard-step.active {
+      opacity: 1;
+    }
+
+    .wizard-step.completed {
+      opacity: 1;
+    }
+
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+
+    .wizard-step.active .step-number {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .wizard-step.completed .step-number {
+      background: #10b981;
+      border-color: #10b981;
+      color: white;
+    }
+
+    .step-info {
+      display: none;
+    }
+
+    @media (min-width: 768px) {
+      .step-info {
+        display: block;
+      }
+    }
+
+    .step-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-primary);
+    }
+
+    .step-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .wizard-connector {
+      flex: 1;
+      height: 2px;
+      background: var(--border-color);
+      margin: 0 1rem;
+      transition: background 0.3s;
+    }
+
+    .wizard-connector.completed {
+      background: #10b981;
+    }
+
+    .wizard-panel {
+      display: none;
+    }
+
+    .wizard-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .wizard-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .flex-grow {
+      flex: 1;
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-icon.cyan {
+      background: rgba(0, 212, 255, 0.15);
+      color: #00d4ff;
+    }
+
+    .card-icon.emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+
+    .card-icon.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .card-icon.violet {
+      background: rgba(139, 92, 246, 0.15);
+      color: #8b5cf6;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .card-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .policy-type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .policy-type-option input {
+      display: none;
+    }
+
+    .policy-type-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1.25rem 1rem;
+      background: var(--bg-elevated);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .policy-type-card:hover {
+      border-color: var(--primary);
+    }
+
+    .policy-type-option input:checked + .policy-type-card {
+      border-color: var(--primary);
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .policy-type-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .policy-type-card span {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .customer-search-box {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .customer-search-box svg {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .customer-search-box .form-input {
+      padding-left: 3rem;
+    }
+
+    .customer-results {
+      max-height: 240px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .customer-result-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .customer-result-item:hover {
+      background: var(--bg-card);
+      border-color: var(--primary);
+    }
+
+    .customer-result-item.selected {
+      border: 2px solid var(--primary);
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .customer-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .customer-avatar.avatar-lg {
+      width: 56px;
+      height: 56px;
+      font-size: 1rem;
+    }
+
+    .customer-info {
+      flex: 1;
+    }
+
+    .customer-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .customer-details {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .new-customer-action {
+      text-align: center;
+      padding: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .selected-customer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 2rem;
+      background: rgba(0, 212, 255, 0.05);
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .selected-customer-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--primary);
+      letter-spacing: 0.05em;
+    }
+
+    .selected-customer-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .selected-customer-details {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .input-with-prefix {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .input-with-prefix .input-prefix {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-right: none;
+      border-radius: 8px 0 0 8px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .input-with-prefix .form-input {
+      border-radius: 0 8px 8px 0;
+    }
+
+    .input-with-suffix {
+      display: flex;
+      align-items: stretch;
+    }
+
+    .input-with-suffix .form-input {
+      border-radius: 8px 0 0 8px;
+      border-right: none;
+    }
+
+    .input-with-suffix .input-suffix {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .commission-preview {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+    }
+
+    .commission-preview-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      color: var(--text-muted);
+    }
+
+    .commission-preview-row.highlight {
+      border-top: 1px solid var(--border-color);
+      margin-top: 0.5rem;
+      padding-top: 1rem;
+      color: var(--text-primary);
+    }
+
+    .commission-preview-row.highlight strong {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .summary-section {
+      padding: 1.25rem;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+    }
+
+    .summary-section.highlight {
+      background: rgba(0, 212, 255, 0.08);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    .summary-section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      margin-bottom: 1rem;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0;
+    }
+
+    .summary-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .summary-value {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+  </style>
+  <script>
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    function updateSteps() {
+      // Update step indicators
+      document.querySelectorAll('.wizard-step').forEach((step, index) => {
+        const stepNum = index + 1;
+        step.classList.remove('active', 'completed');
+        if (stepNum === currentStep) {
+          step.classList.add('active');
+        } else if (stepNum < currentStep) {
+          step.classList.add('completed');
+        }
+      });
+
+      // Update connectors
+      document.querySelectorAll('.wizard-connector').forEach((conn, index) => {
+        conn.classList.toggle('completed', index < currentStep - 1);
+      });
+
+      // Update panels
+      document.querySelectorAll('.wizard-panel').forEach((panel, index) => {
+        panel.classList.toggle('active', index + 1 === currentStep);
+      });
+
+      // Update buttons
+      document.getElementById('prevBtn').style.display = currentStep > 1 ? 'flex' : 'none';
+      document.getElementById('nextBtn').style.display = currentStep < totalSteps ? 'flex' : 'none';
+      document.getElementById('submitBtn').style.display = currentStep === totalSteps ? 'flex' : 'none';
+    }
+
+    function nextStep() {
+      if (currentStep < totalSteps) {
+        currentStep++;
+        updateSteps();
+        if (currentStep === totalSteps) {
+          updateSummary();
+        }
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        updateSteps();
+      }
+    }
+
+    function selectCustomer(element) {
+      document.querySelectorAll('.customer-result-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      element.classList.add('selected');
+
+      // Show selected customer
+      document.getElementById('customerResults').style.display = 'none';
+      document.getElementById('selectedCustomer').style.display = 'flex';
+    }
+
+    function clearCustomer() {
+      document.getElementById('customerResults').style.display = 'block';
+      document.getElementById('selectedCustomer').style.display = 'none';
+      document.querySelectorAll('.customer-result-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+    }
+
+    function showNewCustomerForm() {
+      alert('Yeni müşteri formu açılıyor...');
+    }
+
+    function updateSummary() {
+      document.getElementById('summaryPolicyNo').textContent = document.getElementById('policyNo').value || '-';
+      document.getElementById('summaryAgency').textContent = document.getElementById('agencyCode').value || '-';
+
+      const selectedType = document.querySelector('input[name="policyType"]:checked');
+      document.getElementById('summaryType').textContent = selectedType ? selectedType.value.toUpperCase() : '-';
+
+      document.getElementById('summaryCustomer').textContent = 'Kemal Yıldırım';
+      document.getElementById('summaryTC').textContent = '12345678901';
+      document.getElementById('summaryStartDate').textContent = document.getElementById('startDate').value || '-';
+      document.getElementById('summaryEndDate').textContent = document.getElementById('endDate').value || '-';
+
+      const premium = parseFloat(document.getElementById('premiumAmount').value) || 0;
+      const rate = parseFloat(document.getElementById('commissionRate').value) || 0;
+      const commission = premium * (rate / 100);
+
+      document.getElementById('summaryPremium').textContent = '₺' + premium.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+      document.getElementById('summaryCommission').textContent = '₺' + commission.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+    }
+
+    function saveDraft() {
+      alert('Taslak kaydedildi!');
+    }
+
+    function submitPolicy() {
+      alert('Poliçe başarıyla kaydedildi!');
+      window.location.href = 'my-policies.html';
+    }
+
+    // Commission preview update
+    document.addEventListener('DOMContentLoaded', function() {
+      const premiumInput = document.getElementById('premiumAmount');
+      const rateInput = document.getElementById('commissionRate');
+
+      function updatePreview() {
+        const premium = parseFloat(premiumInput.value) || 0;
+        const rate = parseFloat(rateInput.value) || 0;
+        const commission = premium * (rate / 100);
+
+        document.getElementById('previewPremium').textContent = '₺' + premium.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        document.getElementById('previewRate').textContent = '%' + rate;
+        document.getElementById('previewCommission').textContent = '₺' + commission.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+      }
+
+      premiumInput?.addEventListener('input', updatePreview);
+      rateInput?.addEventListener('input', updatePreview);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çalışan Performans - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10,9 9,9 8,9"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Poliçelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Poliçeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Poliçe Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="list.html" class="nav-link"><span class="nav-text">Çalışan Listesi</span></a>
+              <a href="performance.html" class="nav-link active"><span class="nav-text">Performans</span></a>
+              <a href="tracking.html" class="nav-link"><span class="nav-text">Takip / Hakediş</span></a>
+              <a href="commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarları</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link"><span class="nav-text">Müşteri Listesi</span></a>
+              <a href="../customers/detail.html" class="nav-link"><span class="nav-text">Müşteri Detay</span></a>
+              <a href="../customers/renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link"><span class="nav-text">Finansal Özet</span></a>
+              <a href="../finance/policies.html" class="nav-link"><span class="nav-text">Poliçe Bazlı</span></a>
+              <a href="../finance/collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span></a>
+              <a href="../finance/reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link"><span class="nav-text">Yetki Yönetimi</span></a>
+              <a href="../settings/agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodları</span></a>
+              <a href="../settings/report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarları</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11,17 6,12 11,7"/>
+            <polyline points="18,17 13,12 18,7"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Yönetim</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Performans</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Ana Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Performans Analizi</h1>
+            <p class="page-subtitle">Çalışan performanslarını analiz edin ve karşılaştırın.</p>
+          </div>
+          <div class="page-actions">
+            <select class="form-select" style="width: auto;">
+              <option value="thisMonth">Bu Ay</option>
+              <option value="lastMonth">Geçen Ay</option>
+              <option value="thisQuarter">Bu Çeyrek</option>
+              <option value="thisYear">Bu Yıl</option>
+            </select>
+            <button class="btn btn-secondary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Rapor İndir
+            </button>
+          </div>
+        </div>
+
+        <!-- Top Performer Cards -->
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.5rem;">
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%); border-color: rgba(251, 191, 36, 0.3);">
+            <div class="stat-icon" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">1. Sıra</div>
+              <div class="stat-value" style="font-size: 1.25rem;">Zeynep Arslan</div>
+              <div class="text-muted" style="font-size: 0.8rem;">87 Poliçe • ₺245,000 Prim</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(209, 213, 219, 0.15) 0%, rgba(156, 163, 175, 0.05) 100%); border-color: rgba(156, 163, 175, 0.3);">
+            <div class="stat-icon" style="background: rgba(156, 163, 175, 0.2); color: #9ca3af;">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">2. Sıra</div>
+              <div class="stat-value" style="font-size: 1.25rem;">Mehmet Kaya</div>
+              <div class="text-muted" style="font-size: 0.8rem;">72 Poliçe • ₺198,000 Prim</div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(160, 82, 45, 0.05) 100%); border-color: rgba(205, 127, 50, 0.3);">
+            <div class="stat-icon" style="background: rgba(205, 127, 50, 0.2); color: #cd7f32;">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">3. Sıra</div>
+              <div class="stat-value" style="font-size: 1.25rem;">Ayşe Demir</div>
+              <div class="text-muted" style="font-size: 0.8rem;">68 Poliçe • ₺175,000 Prim</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid-2" style="margin-bottom: 1.5rem;">
+          <!-- Bar Chart - Poliçe Sayısı -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Aylık Poliçe Üretimi</h3>
+              <select class="form-select" style="width: auto; font-size: 0.8rem; padding: 0.4rem 0.6rem;">
+                <option>Bu Ay vs Geçen Ay</option>
+                <option>Bu Çeyrek</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <div id="employee-bar-chart" style="height: 300px;"></div>
+            </div>
+          </div>
+
+          <!-- Donut Chart - Tip Dağılımı -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Poliçe Tipi Dağılımı</h3>
+              <select class="form-select" id="employeeSelect" style="width: auto; font-size: 0.8rem; padding: 0.4rem 0.6rem;">
+                <option>Tüm Çalışanlar</option>
+                <option>Zeynep Arslan</option>
+                <option>Mehmet Kaya</option>
+                <option>Ayşe Demir</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <div id="policy-type-pie" style="height: 300px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trend Chart -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <h3 class="card-title">Prim Üretimi Trendi</h3>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-2" style="font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" checked style="accent-color: #10b981;">
+                <span style="color: #10b981;">Zeynep A.</span>
+              </label>
+              <label class="flex items-center gap-2" style="font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" checked style="accent-color: #00d4ff;">
+                <span style="color: #00d4ff;">Mehmet K.</span>
+              </label>
+              <label class="flex items-center gap-2" style="font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" checked style="accent-color: #8b5cf6;">
+                <span style="color: #8b5cf6;">Ayşe D.</span>
+              </label>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="premium-trend" style="height: 320px;"></div>
+          </div>
+        </div>
+
+        <!-- Performance Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Performans Karşılaştırması</h3>
+            <div class="card-actions">
+              <span class="text-muted">6 çalışan</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Çalışan</th>
+                    <th>Poliçe</th>
+                    <th>Prim</th>
+                    <th>Komisyon</th>
+                    <th>Ort. Prim</th>
+                    <th>Hedef %</th>
+                    <th>Sıralama</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-emerald">ZA</div>
+                        <span class="font-semibold">Zeynep Arslan</span>
+                      </div>
+                    </td>
+                    <td class="font-semibold font-mono">87</td>
+                    <td class="font-semibold font-mono">₺245,000</td>
+                    <td class="font-semibold text-success font-mono">₺24,500</td>
+                    <td class="font-mono">₺2,816</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 100px;">
+                          <div class="progress-bar emerald" style="width: 100%"></div>
+                        </div>
+                        <span class="text-success font-semibold font-mono">115%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #000;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+                        1.
+                      </span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-cyan">MK</div>
+                        <span class="font-semibold">Mehmet Kaya</span>
+                      </div>
+                    </td>
+                    <td class="font-semibold font-mono">72</td>
+                    <td class="font-semibold font-mono">₺198,000</td>
+                    <td class="font-semibold text-success font-mono">₺19,800</td>
+                    <td class="font-mono">₺2,750</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 100px;">
+                          <div class="progress-bar cyan" style="width: 98%"></div>
+                        </div>
+                        <span class="font-semibold font-mono">98%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge" style="background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%); color: #000;">2.</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-violet">AD</div>
+                        <span class="font-semibold">Ayşe Demir</span>
+                      </div>
+                    </td>
+                    <td class="font-semibold font-mono">68</td>
+                    <td class="font-semibold font-mono">₺175,000</td>
+                    <td class="font-semibold text-success font-mono">₺17,500</td>
+                    <td class="font-mono">₺2,574</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 100px;">
+                          <div class="progress-bar violet" style="width: 92%"></div>
+                        </div>
+                        <span class="font-semibold font-mono">92%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="badge" style="background: linear-gradient(135deg, #cd7f32 0%, #a0522d 100%); color: #fff;">3.</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-amber">CÖ</div>
+                        <span class="font-semibold">Can Özkan</span>
+                      </div>
+                    </td>
+                    <td class="font-semibold font-mono">45</td>
+                    <td class="font-semibold font-mono">₺112,000</td>
+                    <td class="font-semibold text-success font-mono">₺11,200</td>
+                    <td class="font-mono">₺2,489</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 100px;">
+                          <div class="progress-bar amber" style="width: 75%"></div>
+                        </div>
+                        <span class="text-warning font-semibold font-mono">75%</span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-secondary">4.</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-rose">EK</div>
+                        <span class="font-semibold">Elif Koç</span>
+                      </div>
+                    </td>
+                    <td class="font-semibold font-mono">38</td>
+                    <td class="font-semibold font-mono">₺95,000</td>
+                    <td class="font-semibold text-success font-mono">₺9,500</td>
+                    <td class="font-mono">₺2,500</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 100px;">
+                          <div class="progress-bar rose" style="width: 63%"></div>
+                        </div>
+                        <span class="text-danger font-semibold font-mono">63%</span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-secondary">5.</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-cyan">BY</div>
+                        <span class="font-semibold">Burak Yıldız</span>
+                      </div>
+                    </td>
+                    <td class="font-semibold font-mono">12</td>
+                    <td class="font-semibold font-mono">₺28,000</td>
+                    <td class="font-semibold text-success font-mono">₺2,800</td>
+                    <td class="font-mono">₺2,333</td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="progress" style="width: 100px;">
+                          <div class="progress-bar" style="width: 40%"></div>
+                        </div>
+                        <span class="text-danger font-semibold font-mono">40%</span>
+                      </div>
+                    </td>
+                    <td><span class="badge badge-secondary">6.</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/charts.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Employee Bar Chart - Aylık Poliçe Üretimi
+      createBarChart('employee-bar-chart', {
+        labels: ['Zeynep', 'Mehmet', 'Ayşe', 'Can', 'Elif', 'Burak'],
+        datasets: [
+          { name: 'Bu Ay', values: [87, 72, 68, 45, 38, 12] },
+          { name: 'Geçen Ay', values: [78, 65, 72, 42, 35, 8] }
+        ]
+      }, {
+        colors: [chartColors.primary, chartColors.success],
+        height: 300
+      });
+
+      // Policy Type Donut Chart
+      createDonutChart('policy-type-pie', {
+        labels: ['Kasko', 'Trafik', 'DASK', 'Sağlık', 'Konut', 'İşyeri'],
+        values: [145, 98, 67, 45, 32, 25]
+      }, {
+        height: 300
+      });
+
+      // Premium Trend - Multi Line Chart
+      const months = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+      createLineChart('premium-trend', {
+        labels: months,
+        datasets: [
+          { name: 'Zeynep A.', values: [18000, 22000, 19500, 24000, 21000, 25000, 23000, 26000, 24500, 28000, 27000, 25000] },
+          { name: 'Mehmet K.', values: [15000, 17000, 16500, 19000, 18000, 20000, 19500, 21000, 20000, 22000, 21500, 19800] },
+          { name: 'Ayşe D.', values: [12000, 14000, 13500, 16000, 15000, 17500, 16500, 18000, 17000, 19000, 18500, 17500] }
+        ]
+      }, {
+        colors: [chartColors.success, chartColors.primary, '#8b5cf6'],
+        height: 320
+      });
+
+      console.log('Performance charts initialized');
+    });
+  </script>
+</body>
+</html>

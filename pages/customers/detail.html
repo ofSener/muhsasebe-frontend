@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Müşteri Detay - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Poliçelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Poliçeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Poliçe Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Poliçe Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link"><span class="nav-text">Çalışan Listesi</span></a>
+              <a href="../employees/performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="../employees/tracking.html" class="nav-link"><span class="nav-text">Takip / Hakediş</span></a>
+              <a href="../employees/commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarları</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="list.html" class="nav-link"><span class="nav-text">Müşteri Listesi</span></a>
+              <a href="detail.html" class="nav-link active"><span class="nav-text">Müşteri Detay</span></a>
+              <a href="renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span><span class="nav-badge">8</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link"><span class="nav-text">Finans Özeti</span></a>
+              <a href="../finance/policies.html" class="nav-link"><span class="nav-text">Poliçe Bazlı</span></a>
+              <a href="../finance/collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span></a>
+              <a href="../finance/reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link"><span class="nav-text">Yetki Yönetimi</span></a>
+              <a href="../settings/agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodları</span></a>
+              <a href="../settings/report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarları</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11,17 6,12 11,7"/><polyline points="18,17 13,12 18,7"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Müşterilerimiz</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Müşteri Detay</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Ana Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <!-- Back Button & Actions -->
+        <div class="page-header">
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="list.html" class="btn btn-ghost btn-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5"/><polyline points="12,19 5,12 12,5"/>
+              </svg>
+            </a>
+            <div>
+              <h1 class="page-title">Mehmet Demir</h1>
+              <p class="page-subtitle">Bireysel Müşteri • Kayıt: 15.03.2022</p>
+            </div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+              Düzenle
+            </button>
+            <button class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+              Yeni Poliçe
+            </button>
+          </div>
+        </div>
+
+        <!-- Customer Profile Grid -->
+        <div class="grid-layout" style="grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <!-- Main Info Card -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Kişisel Bilgiler</h3>
+            </div>
+            <div class="card-body">
+              <div class="customer-profile-header">
+                <div class="avatar avatar-xl avatar-cyan">MD</div>
+                <div class="customer-profile-info">
+                  <h2 class="customer-name">Mehmet Demir</h2>
+                  <div class="customer-badges">
+                    <span class="badge badge-success">Aktif Müşteri</span>
+                    <span class="badge badge-violet">VIP</span>
+                    <span class="badge badge-amber">6 Poliçe</span>
+                  </div>
+                  <p class="customer-meta">
+                    Toplam Prim: <strong class="text-emerald">₺45.680</strong> • Son İşlem: 2 gün önce
+                  </p>
+                </div>
+              </div>
+
+              <div class="info-grid">
+                <div class="info-item">
+                  <label class="info-label">TC Kimlik No</label>
+                  <span class="info-value font-mono">12345678901</span>
+                </div>
+                <div class="info-item">
+                  <label class="info-label">Doğum Tarihi</label>
+                  <span class="info-value">15.06.1985</span>
+                </div>
+                <div class="info-item">
+                  <label class="info-label">Telefon</label>
+                  <span class="info-value">+90 532 123 45 67</span>
+                </div>
+                <div class="info-item">
+                  <label class="info-label">E-posta</label>
+                  <span class="info-value">mehmet.demir@email.com</span>
+                </div>
+                <div class="info-item" style="grid-column: span 2;">
+                  <label class="info-label">Adres</label>
+                  <span class="info-value">Atatürk Mah. Cumhuriyet Cad. No:45/3 Kadıköy / İstanbul</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="quick-stats-column">
+            <div class="stat-mini stat-emerald">
+              <div class="stat-mini-content">
+                <p class="stat-mini-label">Aktif Poliçeler</p>
+                <h3 class="stat-mini-value">6</h3>
+              </div>
+              <div class="stat-mini-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <path d="M9 15l2 2 4-4"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-mini stat-cyan">
+              <div class="stat-mini-content">
+                <p class="stat-mini-label">Toplam Prim</p>
+                <h3 class="stat-mini-value font-mono">₺45.680</h3>
+              </div>
+              <div class="stat-mini-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-mini stat-amber">
+              <div class="stat-mini-content">
+                <p class="stat-mini-label">Yaklaşan Yenileme</p>
+                <h3 class="stat-mini-value">12 Gün</h3>
+              </div>
+              <div class="stat-mini-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="stat-mini stat-violet">
+              <div class="stat-mini-content">
+                <p class="stat-mini-label">Müşteri Skoru</p>
+                <h3 class="stat-mini-value">92/100</h3>
+              </div>
+              <div class="stat-mini-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Policy History -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <h3 class="card-title">Poliçe Geçmişi</h3>
+            <div class="card-actions">
+              <select class="form-select" style="min-width: 150px;">
+                <option>Tüm Poliçeler</option>
+                <option>Aktif</option>
+                <option>Süresi Dolmuş</option>
+                <option>İptal Edilmiş</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Poliçe No</th>
+                    <th>Tip</th>
+                    <th>Başlangıç</th>
+                    <th>Bitiş</th>
+                    <th>Prim</th>
+                    <th>Durum</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><span class="font-mono font-semibold">#POL-2024-0892</span></td>
+                    <td><span class="policy-type-badge kasko">Kasko</span></td>
+                    <td>15.01.2024</td>
+                    <td>15.01.2025</td>
+                    <td><span class="font-mono font-semibold">₺12.450</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-icon btn-ghost" title="Görüntüle">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                        <button class="btn btn-icon btn-ghost" title="Yazdır">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><span class="font-mono font-semibold">#POL-2024-0756</span></td>
+                    <td><span class="policy-type-badge trafik">Trafik</span></td>
+                    <td>10.01.2024</td>
+                    <td>10.01.2025</td>
+                    <td><span class="font-mono font-semibold">₺3.280</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><span class="font-mono font-semibold">#POL-2024-0612</span></td>
+                    <td><span class="policy-type-badge dask">DASK</span></td>
+                    <td>01.03.2024</td>
+                    <td>01.03.2025</td>
+                    <td><span class="font-mono font-semibold">₺1.850</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><span class="font-mono font-semibold">#POL-2024-0445</span></td>
+                    <td><span class="policy-type-badge saglik">Sağlık</span></td>
+                    <td>01.06.2024</td>
+                    <td>01.06.2025</td>
+                    <td><span class="font-mono font-semibold">₺18.500</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><span class="font-mono font-semibold">#POL-2024-0298</span></td>
+                    <td><span class="policy-type-badge konut">Konut</span></td>
+                    <td>15.04.2024</td>
+                    <td>15.04.2025</td>
+                    <td><span class="font-mono font-semibold">₺4.200</span></td>
+                    <td><span class="badge badge-success">Aktif</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><span class="font-mono font-semibold">#POL-2023-1245</span></td>
+                    <td><span class="policy-type-badge isyeri">İşyeri</span></td>
+                    <td>01.09.2023</td>
+                    <td>01.09.2024</td>
+                    <td><span class="font-mono font-semibold">₺5.400</span></td>
+                    <td><span class="badge badge-warning">Yenileme Bekliyor</span></td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                        <button class="btn btn-icon btn-ghost text-cyan" title="Yenile"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity & Notes -->
+        <div class="grid-layout" style="grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <!-- Activity Timeline -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Aktivite Geçmişi</h3>
+            </div>
+            <div class="card-body">
+              <div class="activity-timeline">
+                <div class="timeline-item">
+                  <div class="timeline-marker emerald"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title">Sağlık poliçesi yenilendi</p>
+                    <p class="timeline-text">Yıllık sağlık sigortası poliçesi yenilendi.</p>
+                    <span class="timeline-date">2 gün önce</span>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-marker cyan"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title">Ödeme alındı</p>
+                    <p class="timeline-text">₺18.500 tutarında ödeme tahsil edildi.</p>
+                    <span class="timeline-date">2 gün önce</span>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-marker amber"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title">Yenileme hatırlatması gönderildi</p>
+                    <p class="timeline-text">İşyeri sigortası için SMS gönderildi.</p>
+                    <span class="timeline-date">5 gün önce</span>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-marker violet"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title">Telefon görüşmesi</p>
+                    <p class="timeline-text">Kasko hasarı hakkında bilgi verildi.</p>
+                    <span class="timeline-date">1 hafta önce</span>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-marker cyan"></div>
+                  <div class="timeline-content">
+                    <p class="timeline-title">Konut poliçesi oluşturuldu</p>
+                    <p class="timeline-text">Yeni konut sigortası poliçesi düzenlendi.</p>
+                    <span class="timeline-date">2 hafta önce</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes Section -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Notlar</h3>
+              <button class="btn btn-sm btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Not Ekle
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="notes-list">
+                <div class="note-item">
+                  <div class="note-header">
+                    <span class="note-title">VIP Müşteri</span>
+                    <span class="note-date">15.03.2024</span>
+                  </div>
+                  <p class="note-text">Müşteri her yıl düzenli poliçe yenilemesi yapıyor. Özel indirim uygulanabilir.</p>
+                </div>
+                <div class="note-item">
+                  <div class="note-header">
+                    <span class="note-title">İletişim Tercihi</span>
+                    <span class="note-date">10.01.2024</span>
+                  </div>
+                  <p class="note-text">WhatsApp üzerinden iletişim tercih ediyor. Mesai saatleri içinde aranabilir.</p>
+                </div>
+                <div class="note-item important">
+                  <div class="note-header">
+                    <span class="note-title">Önemli</span>
+                    <span class="note-date">05.09.2024</span>
+                  </div>
+                  <p class="note-text">İşyeri sigortası yenileme için görüşme yapılacak. Fiyat hassasiyeti var.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+
+  <style>
+    /* Customer Profile Styles */
+    .customer-profile-header {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .avatar-xl {
+      width: 100px;
+      height: 100px;
+      font-size: 2rem;
+    }
+    .customer-profile-info {
+      flex: 1;
+    }
+    .customer-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .customer-badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .customer-meta {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+    .customer-meta strong {
+      font-weight: 600;
+    }
+    .text-emerald { color: #10b981; }
+
+    /* Info Grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    .info-label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+    .info-value {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Quick Stats Column */
+    .quick-stats-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .stat-mini {
+      padding: 1.25rem;
+      border-radius: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .stat-mini.stat-emerald {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+      border-left: 4px solid #10b981;
+    }
+    .stat-mini.stat-cyan {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 212, 255, 0.05) 100%);
+      border-left: 4px solid #00d4ff;
+    }
+    .stat-mini.stat-amber {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
+      border-left: 4px solid #f59e0b;
+    }
+    .stat-mini.stat-violet {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%);
+      border-left: 4px solid #6366f1;
+    }
+    .stat-mini-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    .stat-mini-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .stat-mini.stat-emerald .stat-mini-value { color: #10b981; }
+    .stat-mini.stat-cyan .stat-mini-value { color: #00d4ff; }
+    .stat-mini.stat-amber .stat-mini-value { color: #f59e0b; }
+    .stat-mini.stat-violet .stat-mini-value { color: #6366f1; }
+    .stat-mini-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stat-mini-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+    .stat-mini.stat-emerald .stat-mini-icon { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .stat-mini.stat-cyan .stat-mini-icon { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
+    .stat-mini.stat-amber .stat-mini-icon { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .stat-mini.stat-violet .stat-mini-icon { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+
+    /* Policy Type Badges */
+    .policy-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .policy-type-badge.kasko { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+    .policy-type-badge.trafik { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .policy-type-badge.dask { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .policy-type-badge.saglik { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+    .policy-type-badge.konut { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+    .policy-type-badge.isyeri { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+
+    /* Activity Timeline */
+    .activity-timeline {
+      position: relative;
+      padding-left: 1.5rem;
+    }
+    .activity-timeline::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--border-color);
+    }
+    .timeline-item {
+      position: relative;
+      padding-bottom: 1.5rem;
+    }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-marker {
+      position: absolute;
+      left: -1.5rem;
+      top: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid var(--bg-primary);
+    }
+    .timeline-marker.emerald { background: #10b981; }
+    .timeline-marker.cyan { background: #00d4ff; }
+    .timeline-marker.amber { background: #f59e0b; }
+    .timeline-marker.violet { background: #6366f1; }
+    .timeline-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+    .timeline-text {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+    .timeline-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Notes */
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .note-item {
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 0.5rem;
+    }
+    .note-item.important {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid #f59e0b;
+    }
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .note-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    .note-item.important .note-title { color: #f59e0b; }
+    .note-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .note-text {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+
+    /* Helper */
+    .text-cyan { color: #00d4ff; }
+    .grid-layout { display: grid; }
+  </style>
+</body>
+</html>

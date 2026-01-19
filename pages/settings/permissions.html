@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yetki Yönetimi - IHSAN AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetim</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Poliçelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Poliçeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Poliçe Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Poliçe Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link"><span class="nav-text">Çalışan Listesi</span></a>
+              <a href="../employees/performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="../employees/tracking.html" class="nav-link"><span class="nav-text">Takip/Hakediş</span></a>
+              <a href="../employees/commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarları</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link"><span class="nav-text">Müşteri Listesi</span></a>
+              <a href="../customers/detail.html" class="nav-link"><span class="nav-text">Müşteri Detay</span></a>
+              <a href="../customers/renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link"><span class="nav-text">Finans Dashboard</span></a>
+              <a href="../finance/policies.html" class="nav-link"><span class="nav-text">Poliçe Bazlı</span></a>
+              <a href="../finance/collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span></a>
+              <a href="../finance/reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="permissions.html" class="nav-link active"><span class="nav-text">Yetki Yönetimi</span></a>
+              <a href="agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodları</span></a>
+              <a href="report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarları</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="11,17 6,12 11,7"/>
+            <polyline points="18,17 13,12 18,7"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Ayarlar</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Yetki Yönetimi</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Ana Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Yetki Yönetimi</h1>
+            <p class="page-subtitle">Çalışanların sayfa erişim yetkilerini yönetin.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" id="savePermissions">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17,21 17,13 7,13 7,21"/>
+                <polyline points="7,3 7,8 15,8"/>
+              </svg>
+              Değişiklikleri Kaydet
+            </button>
+          </div>
+        </div>
+
+        <!-- Info Alert -->
+        <div class="info-alert info-alert-cyan">
+          <div class="info-alert-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </div>
+          <div class="info-alert-content">
+            <p class="info-alert-title">Yetki Sistemi Hakkında</p>
+            <p class="info-alert-desc">Her çalışan için ayrı ayrı sayfa erişim yetkilerini açıp kapatabilirsiniz. Ana Yönetici tüm sayfalara erişebilir ve bu değiştirilemez.</p>
+          </div>
+        </div>
+
+        <!-- Employee Selection -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-header">
+            <h3 class="card-title">Çalışan Seçin</h3>
+          </div>
+          <div class="card-body">
+            <div class="employee-selector">
+              <div class="employee-chip active" data-employee="fatma">
+                <div class="chip-avatar" style="background: linear-gradient(135deg, #ec4899, #f472b6);">FK</div>
+                <div class="chip-info">
+                  <span class="chip-name">Fatma Kara</span>
+                  <span class="chip-role">Satış Temsilcisi</span>
+                </div>
+              </div>
+              <div class="employee-chip" data-employee="mehmet">
+                <div class="chip-avatar" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">MD</div>
+                <div class="chip-info">
+                  <span class="chip-name">Mehmet Demir</span>
+                  <span class="chip-role">Satış Temsilcisi</span>
+                </div>
+              </div>
+              <div class="employee-chip" data-employee="zeynep">
+                <div class="chip-avatar" style="background: linear-gradient(135deg, #6366f1, #818cf8);">ZA</div>
+                <div class="chip-info">
+                  <span class="chip-name">Zeynep Ak</span>
+                  <span class="chip-role">Müşteri İlişkileri</span>
+                </div>
+              </div>
+              <div class="employee-chip" data-employee="can">
+                <div class="chip-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">CB</div>
+                <div class="chip-info">
+                  <span class="chip-name">Can Bulut</span>
+                  <span class="chip-role">Finans Uzmanı</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Permissions Grid -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title" id="permissionTitle">Fatma Kara - Yetki Ayarları</h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-ghost" onclick="selectAllPermissions()">Tümünü Seç</button>
+              <button class="btn btn-sm btn-ghost" onclick="deselectAllPermissions()">Tümünü Kaldır</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="permissions-grid">
+
+              <!-- Poliçe İşlemleri -->
+              <div class="permission-group">
+                <div class="permission-group-header">
+                  <div class="permission-group-icon" style="background: rgba(0, 212, 255, 0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4>Poliçe İşlemleri</h4>
+                    <p>Poliçe yönetimi yetkileri</p>
+                  </div>
+                </div>
+                <div class="permission-items">
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox" checked>
+                    <span class="permission-label">
+                      <span class="permission-name">Poliçelerim</span>
+                      <span class="permission-desc">Kendi poliçelerini görüntüleme</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox" checked>
+                    <span class="permission-label">
+                      <span class="permission-name">Yakalanan Poliçeler</span>
+                      <span class="permission-desc">Otomatik yakalanan poliçeler</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Poliçe Havuzu</span>
+                      <span class="permission-desc">Atanmamış poliçeleri görme</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox" checked>
+                    <span class="permission-label">
+                      <span class="permission-name">Manuel Poliçe Ekle</span>
+                      <span class="permission-desc">Yeni poliçe oluşturma</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Toplu Aktar</span>
+                      <span class="permission-desc">Excel ile toplu import</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Müşteri İşlemleri -->
+              <div class="permission-group">
+                <div class="permission-group-header">
+                  <div class="permission-group-icon" style="background: rgba(16, 185, 129, 0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4>Müşteri İşlemleri</h4>
+                    <p>Müşteri yönetimi yetkileri</p>
+                  </div>
+                </div>
+                <div class="permission-items">
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox" checked>
+                    <span class="permission-label">
+                      <span class="permission-name">Müşteri Listesi</span>
+                      <span class="permission-desc">Müşterileri görüntüleme</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox" checked>
+                    <span class="permission-label">
+                      <span class="permission-name">Müşteri Detay</span>
+                      <span class="permission-desc">Detaylı müşteri bilgisi</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Müşteri Ekleme/Düzenleme</span>
+                      <span class="permission-desc">Yeni müşteri kayıt ve güncelleme</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox" checked>
+                    <span class="permission-label">
+                      <span class="permission-name">Yenileme Takibi</span>
+                      <span class="permission-desc">Yaklaşan yenilemeleri görme</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Finans İşlemleri -->
+              <div class="permission-group">
+                <div class="permission-group-header">
+                  <div class="permission-group-icon" style="background: rgba(245, 158, 11, 0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"/>
+                      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4>Finans İşlemleri</h4>
+                    <p>Finansal işlem yetkileri</p>
+                  </div>
+                </div>
+                <div class="permission-items">
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Finans Dashboard</span>
+                      <span class="permission-desc">Finansal özet görüntüleme</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Poliçe Bazlı Finans</span>
+                      <span class="permission-desc">Poliçe mali detayları</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Tahsilat Takibi</span>
+                      <span class="permission-desc">Ödeme takip ve kayıt</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Raporlar</span>
+                      <span class="permission-desc">Finansal rapor oluşturma</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Diğer Yetkiler -->
+              <div class="permission-group">
+                <div class="permission-group-header">
+                  <div class="permission-group-icon" style="background: rgba(99, 102, 241, 0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2"/>
+                      <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4>Diğer Yetkiler</h4>
+                    <p>Ek sistem yetkileri</p>
+                  </div>
+                </div>
+                <div class="permission-items">
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox" checked>
+                    <span class="permission-label">
+                      <span class="permission-name">Dashboard</span>
+                      <span class="permission-desc">Ana sayfa erişimi</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Kendi Performansını Görme</span>
+                      <span class="permission-desc">Performans istatistikleri</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox">
+                    <span class="permission-label">
+                      <span class="permission-name">Komisyon Bilgilerini Görme</span>
+                      <span class="permission-desc">Kendi komisyon detayları</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+
+  <script>
+    // Employee chip selection
+    document.querySelectorAll('.employee-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.employee-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+
+        const employeeName = this.querySelector('.chip-name').textContent;
+        document.getElementById('permissionTitle').textContent = employeeName + ' - Yetki Ayarları';
+      });
+    });
+
+    function selectAllPermissions() {
+      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = true);
+    }
+
+    function deselectAllPermissions() {
+      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+    }
+  </script>
+
+  <style>
+    .info-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .info-alert-cyan {
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    .info-alert-icon {
+      flex-shrink: 0;
+      color: var(--primary);
+    }
+    .info-alert-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--primary);
+    }
+    .info-alert-desc {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .employee-selector {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .employee-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.25rem;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-subtle);
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .employee-chip:hover {
+      border-color: var(--border-default);
+      background: var(--bg-elevated);
+    }
+    .employee-chip.active {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+    .chip-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .chip-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .chip-name {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+    }
+    .chip-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .permissions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+    .permission-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .permission-group-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 0.625rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .permission-group-header h4 {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 0.125rem;
+    }
+    .permission-group-header p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .permission-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.875rem;
+      padding: 0.875rem 1rem;
+      background: var(--bg-elevated);
+      border-radius: 0.625rem;
+      margin-bottom: 0.625rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .permission-item:hover {
+      background: var(--bg-overlay);
+      border-color: var(--border-subtle);
+    }
+    .permission-item:has(input:checked) {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+    .permission-item input[type="checkbox"] {
+      margin-top: 2px;
+      accent-color: var(--primary);
+    }
+    .permission-label {
+      display: flex;
+      flex-direction: column;
+    }
+    .permission-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+    .permission-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.125rem;
+    }
+
+    @media (max-width: 1024px) {
+      .permissions-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</body>
+</html>

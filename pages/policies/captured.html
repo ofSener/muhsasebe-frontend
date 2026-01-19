@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yakalanan Poliçeler - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="my-policies.html" class="nav-link">Poliçelerim</a>
+              <a href="captured.html" class="nav-link active">Yakalanan <span class="nav-badge">12</span></a>
+              <a href="pool.html" class="nav-link">Poliçe Havuzu</a>
+              <a href="add-manual.html" class="nav-link">Manuel Ekle</a>
+              <a href="bulk-import.html" class="nav-link">Toplu Aktar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link">Çalışan Listesi</a>
+              <a href="../employees/performance.html" class="nav-link">Performans</a>
+              <a href="../employees/tracking.html" class="nav-link">Takip/Hakediş</a>
+              <a href="../employees/commission.html" class="nav-link">Komisyon Ayarları</a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link">Müşteri Listesi</a>
+              <a href="../customers/renewals.html" class="nav-link">Yenileme Takibi <span class="nav-badge warning">8</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link">Finans Özeti</a>
+              <a href="../finance/policies.html" class="nav-link">Poliçe Bazlı</a>
+              <a href="../finance/collections.html" class="nav-link">Tahsilat Takibi</a>
+              <a href="../finance/reports.html" class="nav-link">Raporlar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link">Yetki Yönetimi</a>
+              <a href="../settings/agency-codes.html" class="nav-link">Acente Kodları</a>
+              <a href="../settings/report-settings.html" class="nav-link">Rapor Ayarları</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Poliçe İşlemleri</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Yakalanan Poliçeler</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <!-- Page Content -->
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Yakalanan Poliçeler</h1>
+            <p class="page-subtitle">Prodüktör bazlı otomatik yakalanan poliçeler - Havuza aktarılmaya hazır</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23,4 23,10 17,10"/>
+                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+              </svg>
+              Yenile
+            </button>
+            <button class="btn btn-primary" onclick="sendAllToPool()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M5 12h14"/>
+                <path d="M12 5l7 7-7 7"/>
+              </svg>
+              Tümünü Havuza Gönder
+            </button>
+          </div>
+        </div>
+
+        <!-- Workflow Info -->
+        <div class="workflow-banner">
+          <div class="workflow-step">
+            <div class="workflow-icon captured">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                <polyline points="22,4 12,14.01 9,11.01"/>
+              </svg>
+            </div>
+            <span>Yakalanan</span>
+          </div>
+          <div class="workflow-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14"/>
+              <path d="M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+          <div class="workflow-step">
+            <div class="workflow-icon pool">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+            </div>
+            <span>Poliçe Havuzu</span>
+          </div>
+          <div class="workflow-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14"/>
+              <path d="M12 5l7 7-7 7"/>
+            </svg>
+          </div>
+          <div class="workflow-step">
+            <div class="workflow-icon compare">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+            </div>
+            <span>Karşılaştır</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid mb-4">
+          <div class="stat-card stat-amber">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <polyline points="12,6 12,12 16,14"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Bekleyen</div>
+            </div>
+          </div>
+          <div class="stat-card stat-emerald">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">4</div>
+              <div class="stat-label">Prodüktör</div>
+            </div>
+          </div>
+          <div class="stat-card stat-cyan">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">847</div>
+              <div class="stat-label">Havuza Gönderilen</div>
+            </div>
+          </div>
+          <div class="stat-card stat-violet">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">₺156K</div>
+              <div class="stat-label">Toplam Prim</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Produktor Groups -->
+        <div class="produktor-grid">
+          <!-- Prodüktör 1 -->
+          <div class="produktor-card">
+            <div class="produktor-header">
+              <div class="produktor-info">
+                <div class="avatar avatar-md avatar-emerald">ZA</div>
+                <div>
+                  <div class="produktor-name">Zeynep Arslan</div>
+                  <div class="produktor-role">Kıdemli Prodüktör</div>
+                </div>
+              </div>
+              <div class="produktor-stats">
+                <span class="badge badge-warning">4 yeni</span>
+              </div>
+            </div>
+            <div class="produktor-policies">
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4525</span>
+                  <span class="badge badge-sm badge-primary">Kasko</span>
+                </div>
+                <div class="mini-policy-customer">Kemal Yıldırım</div>
+                <div class="mini-policy-amount">₺18,750</div>
+              </div>
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4524</span>
+                  <span class="badge badge-sm badge-success">Trafik</span>
+                </div>
+                <div class="mini-policy-customer">Seda Korkmaz</div>
+                <div class="mini-policy-amount">₺4,200</div>
+              </div>
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4520</span>
+                  <span class="badge badge-sm badge-warning">DASK</span>
+                </div>
+                <div class="mini-policy-customer">Ali Vural</div>
+                <div class="mini-policy-amount">₺920</div>
+              </div>
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4518</span>
+                  <span class="badge badge-sm" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;">Sağlık</span>
+                </div>
+                <div class="mini-policy-customer">Deniz Acar</div>
+                <div class="mini-policy-amount">₺12,400</div>
+              </div>
+            </div>
+            <div class="produktor-footer">
+              <div class="produktor-total">
+                <span>Toplam:</span>
+                <strong>₺36,270</strong>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="sendToPool('ZA')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14"/>
+                  <path d="M12 5l7 7-7 7"/>
+                </svg>
+                Havuza Gönder
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodüktör 2 -->
+          <div class="produktor-card">
+            <div class="produktor-header">
+              <div class="produktor-info">
+                <div class="avatar avatar-md avatar-cyan">MK</div>
+                <div>
+                  <div class="produktor-name">Mehmet Kaya</div>
+                  <div class="produktor-role">Prodüktör</div>
+                </div>
+              </div>
+              <div class="produktor-stats">
+                <span class="badge badge-warning">3 yeni</span>
+              </div>
+            </div>
+            <div class="produktor-policies">
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4523</span>
+                  <span class="badge badge-sm badge-warning">DASK</span>
+                </div>
+                <div class="mini-policy-customer">Burak Şahin</div>
+                <div class="mini-policy-amount">₺920</div>
+              </div>
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4519</span>
+                  <span class="badge badge-sm badge-primary">Kasko</span>
+                </div>
+                <div class="mini-policy-customer">Canan Demir</div>
+                <div class="mini-policy-amount">₺15,300</div>
+              </div>
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4516</span>
+                  <span class="badge badge-sm" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">Konut</span>
+                </div>
+                <div class="mini-policy-customer">Hakan Yılmaz</div>
+                <div class="mini-policy-amount">₺2,850</div>
+              </div>
+            </div>
+            <div class="produktor-footer">
+              <div class="produktor-total">
+                <span>Toplam:</span>
+                <strong>₺19,070</strong>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="sendToPool('MK')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14"/>
+                  <path d="M12 5l7 7-7 7"/>
+                </svg>
+                Havuza Gönder
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodüktör 3 -->
+          <div class="produktor-card">
+            <div class="produktor-header">
+              <div class="produktor-info">
+                <div class="avatar avatar-md avatar-violet">AD</div>
+                <div>
+                  <div class="produktor-name">Ayşe Demir</div>
+                  <div class="produktor-role">Prodüktör</div>
+                </div>
+              </div>
+              <div class="produktor-stats">
+                <span class="badge badge-warning">3 yeni</span>
+              </div>
+            </div>
+            <div class="produktor-policies">
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4522</span>
+                  <span class="badge badge-sm" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;">Sağlık</span>
+                </div>
+                <div class="mini-policy-customer">Elif Demirtaş</div>
+                <div class="mini-policy-amount">₺12,400</div>
+              </div>
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4517</span>
+                  <span class="badge badge-sm badge-success">Trafik</span>
+                </div>
+                <div class="mini-policy-customer">Murat Özkan</div>
+                <div class="mini-policy-amount">₺3,800</div>
+              </div>
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4515</span>
+                  <span class="badge badge-sm badge-primary">Kasko</span>
+                </div>
+                <div class="mini-policy-customer">Zehra Kurt</div>
+                <div class="mini-policy-amount">₺21,500</div>
+              </div>
+            </div>
+            <div class="produktor-footer">
+              <div class="produktor-total">
+                <span>Toplam:</span>
+                <strong>₺37,700</strong>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="sendToPool('AD')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14"/>
+                  <path d="M12 5l7 7-7 7"/>
+                </svg>
+                Havuza Gönder
+              </button>
+            </div>
+          </div>
+
+          <!-- Prodüktör 4 -->
+          <div class="produktor-card">
+            <div class="produktor-header">
+              <div class="produktor-info">
+                <div class="avatar avatar-md avatar-amber">CÖ</div>
+                <div>
+                  <div class="produktor-name">Can Özkan</div>
+                  <div class="produktor-role">Jr. Prodüktör</div>
+                </div>
+              </div>
+              <div class="produktor-stats">
+                <span class="badge badge-warning">2 yeni</span>
+              </div>
+            </div>
+            <div class="produktor-policies">
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4521</span>
+                  <span class="badge badge-sm badge-primary">Kasko</span>
+                </div>
+                <div class="mini-policy-customer">Oğuz Karaca</div>
+                <div class="mini-policy-amount">₺22,100</div>
+              </div>
+              <div class="mini-policy-item">
+                <div class="mini-policy-info">
+                  <span class="mini-policy-no">#POL-2024-4514</span>
+                  <span class="badge badge-sm badge-success">Trafik</span>
+                </div>
+                <div class="mini-policy-customer">Selin Ak</div>
+                <div class="mini-policy-amount">₺4,500</div>
+              </div>
+            </div>
+            <div class="produktor-footer">
+              <div class="produktor-total">
+                <span>Toplam:</span>
+                <strong>₺26,600</strong>
+              </div>
+              <button class="btn btn-sm btn-primary" onclick="sendToPool('CO')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 12h14"/>
+                  <path d="M12 5l7 7-7 7"/>
+                </svg>
+                Havuza Gönder
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Alert -->
+        <div class="alert alert-info" style="margin-top: 1.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <div>
+            <strong>Otomatik Aktarım Aktif</strong>
+            <p style="margin: 0.25rem 0 0 0; opacity: 0.8;">Yakalanan poliçeler prodüktör bazlı gruplanır ve Poliçe Havuzu'na aktarılır. Havuzda aktarım dosyalarıyla karşılaştırma yapılır.</p>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <style>
+    .workflow-banner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .workflow-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .workflow-step span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .workflow-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .workflow-icon.captured {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .workflow-icon.pool {
+      background: rgba(0, 212, 255, 0.15);
+      color: #00d4ff;
+    }
+
+    .workflow-icon.compare {
+      background: rgba(139, 92, 246, 0.15);
+      color: #8b5cf6;
+    }
+
+    .workflow-arrow {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    .produktor-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .produktor-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .produktor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-elevated);
+    }
+
+    .produktor-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .produktor-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .produktor-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .produktor-policies {
+      padding: 0.75rem;
+      max-height: 280px;
+      overflow-y: auto;
+    }
+
+    .mini-policy-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.25rem;
+      padding: 0.75rem;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .mini-policy-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .mini-policy-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mini-policy-no {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .mini-policy-customer {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      grid-column: 1;
+    }
+
+    .mini-policy-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      grid-row: 1 / 3;
+      align-self: center;
+    }
+
+    .badge-sm {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.4rem;
+    }
+
+    .produktor-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-elevated);
+    }
+
+    .produktor-total {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .produktor-total strong {
+      color: var(--primary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+  <script>
+    function sendToPool(produktorId) {
+      // Simulate sending to pool
+      alert(`${produktorId} prodüktörünün poliçeleri havuza gönderiliyor...`);
+    }
+
+    function sendAllToPool() {
+      alert('Tüm poliçeler havuza gönderiliyor...');
+    }
+  </script>
+</body>
+</html>

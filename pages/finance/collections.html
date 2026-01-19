@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tahsilat Takibi - IHSAN AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yonetimi</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menu</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Police Islemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              <span class="nav-text">Policeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Policelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Policeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Police Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Yonetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              <span class="nav-text">Calisanlarim</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link"><span class="nav-text">Calisan Listesi</span></a>
+              <a href="../employees/performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="../employees/tracking.html" class="nav-link"><span class="nav-text">Takip/Hakedis</span></a>
+              <a href="../employees/commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarlari</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="nav-text">Musterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link"><span class="nav-text">Musteri Listesi</span></a>
+              <a href="../customers/detail.html" class="nav-link"><span class="nav-text">Musteri Detay</span></a>
+              <a href="../customers/renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="dashboard.html" class="nav-link"><span class="nav-text">Ozet Dashboard</span></a>
+              <a href="policies.html" class="nav-link"><span class="nav-text">Police Bazli</span></a>
+              <a href="collections.html" class="nav-link active"><span class="nav-text">Tahsilat Takibi</span><span class="nav-badge warning">5</span></a>
+              <a href="reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link"><span class="nav-text">Yetki Yonetimi</span></a>
+              <a href="../settings/agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodlari</span></a>
+              <a href="../settings/report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarlari</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11,17 6,12 11,7"/><polyline points="18,17 13,12 18,7"/></svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Finans</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Tahsilat Takibi</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yilmaz</div>
+              <div class="navbar-user-role">Ana Yonetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Tahsilat Takibi</h1>
+            <p class="page-subtitle">Bekleyen, gecikmis ve taksitli odemeleri yonetin.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary" data-modal-open="recordPaymentModal">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Tahsilat Kaydet
+            </button>
+          </div>
+        </div>
+
+        <!-- Collection Stats -->
+        <div class="stats-grid">
+          <div class="stat-card stat-emerald">
+            <div class="stat-header">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+              </div>
+              <span class="stat-badge">%90</span>
+            </div>
+            <p class="stat-label">Tahsil Edilen</p>
+            <h3 class="stat-value font-mono">1.124.800 TL</h3>
+            <p class="stat-info">142 police</p>
+          </div>
+
+          <div class="stat-card stat-amber">
+            <div class="stat-header">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+              </div>
+              <span class="stat-badge">%6.3</span>
+            </div>
+            <p class="stat-label">Bekleyen</p>
+            <h3 class="stat-value font-mono">78.530 TL</h3>
+            <p class="stat-info">9 police</p>
+          </div>
+
+          <div class="stat-card stat-rose">
+            <div class="stat-header">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <span class="stat-badge">%3.6</span>
+            </div>
+            <p class="stat-label">Gecikmis</p>
+            <h3 class="stat-value font-mono">45.230 TL</h3>
+            <p class="stat-info">5 police</p>
+          </div>
+
+          <div class="stat-card stat-violet">
+            <div class="stat-header">
+              <div class="stat-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <span class="stat-badge">12</span>
+            </div>
+            <p class="stat-label">Bu Hafta Taksit</p>
+            <h3 class="stat-value font-mono">34.200 TL</h3>
+            <p class="stat-info">12 taksit</p>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-container">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="overdue">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Gecikmis
+              <span class="tab-count danger">5</span>
+            </button>
+            <button class="tab-btn" data-tab="pending">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+              Bekleyen
+              <span class="tab-count warning">9</span>
+            </button>
+            <button class="tab-btn" data-tab="installments">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Taksitler
+              <span class="tab-count">24</span>
+            </button>
+            <button class="tab-btn" data-tab="completed">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+              Tamamlanan
+            </button>
+          </div>
+        </div>
+
+        <!-- Overdue Payments Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Gecikmis Odemeler</h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-secondary">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                Hatirlatma Gonder
+              </button>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" class="form-checkbox"></th>
+                    <th>Police No</th>
+                    <th>Musteri</th>
+                    <th>Tip</th>
+                    <th>Vade Tarihi</th>
+                    <th>Gecikme</th>
+                    <th>Tutar</th>
+                    <th>Islemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="overdue-row">
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0745</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-rose">HK</div>
+                        <div>
+                          <p class="customer-name">Hasan Kilic</p>
+                          <p class="customer-phone">0532 xxx xx 45</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge kasko">Kasko</span></td>
+                    <td>28.12.2023</td>
+                    <td><span class="overdue-days">16 gun</span></td>
+                    <td class="font-mono font-semibold text-rose">12.450 TL</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-sm btn-success" title="Tahsilat Kaydet">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" title="SMS Gonder">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-ghost" title="Ara">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="overdue-row">
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0698</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-amber">SA</div>
+                        <div>
+                          <p class="customer-name">Serkan Aydin</p>
+                          <p class="customer-phone">0545 xxx xx 12</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge saglik">Saglik</span></td>
+                    <td>02.01.2024</td>
+                    <td><span class="overdue-days">11 gun</span></td>
+                    <td class="font-mono font-semibold text-rose">18.500 TL</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-sm btn-success" title="Tahsilat Kaydet">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" title="SMS Gonder">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-ghost" title="Ara">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="overdue-row">
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0672</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-cyan">DY</div>
+                        <div>
+                          <p class="customer-name">Deniz Yalcin</p>
+                          <p class="customer-phone">0533 xxx xx 78</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge konut">Konut</span></td>
+                    <td>05.01.2024</td>
+                    <td><span class="overdue-days">8 gun</span></td>
+                    <td class="font-mono font-semibold text-rose">4.280 TL</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-sm btn-success" title="Tahsilat Kaydet">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" title="SMS Gonder">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-ghost" title="Ara">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="overdue-row">
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0658</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-violet">GO</div>
+                        <div>
+                          <p class="customer-name">Gul Ozdemir</p>
+                          <p class="customer-phone">0542 xxx xx 90</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge trafik">Trafik</span></td>
+                    <td>08.01.2024</td>
+                    <td><span class="overdue-days warning">5 gun</span></td>
+                    <td class="font-mono font-semibold text-rose">3.200 TL</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-sm btn-success" title="Tahsilat Kaydet">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" title="SMS Gonder">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-ghost" title="Ara">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="overdue-row">
+                    <td><input type="checkbox" class="form-checkbox"></td>
+                    <td><span class="font-mono font-semibold">#POL-2024-0612</span></td>
+                    <td>
+                      <div class="customer-cell">
+                        <div class="avatar avatar-emerald">BT</div>
+                        <div>
+                          <p class="customer-name">Burak Tekin</p>
+                          <p class="customer-phone">0538 xxx xx 34</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="policy-badge isyeri">Isyeri</span></td>
+                    <td>10.01.2024</td>
+                    <td><span class="overdue-days warning">3 gun</span></td>
+                    <td class="font-mono font-semibold text-rose">6.800 TL</td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="btn btn-sm btn-success" title="Tahsilat Kaydet">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-secondary" title="SMS Gonder">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        </button>
+                        <button class="btn btn-sm btn-ghost" title="Ara">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="summary-footer">
+                    <td colspan="6" class="text-right">Toplam Gecikmis:</td>
+                    <td class="font-mono font-semibold text-rose">45.230 TL</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Record Payment Modal -->
+  <div class="modal-overlay" id="recordPaymentModal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Tahsilat Kaydet</h3>
+        <button class="modal-close" data-modal-close>&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Police No</label>
+          <input type="text" class="form-input" placeholder="POL-2024-XXXX">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tahsilat Tutari</label>
+          <input type="text" class="form-input" placeholder="0.00 TL">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Odeme Yontemi</label>
+          <select class="form-select">
+            <option>Nakit</option>
+            <option>Kredi Karti</option>
+            <option>Havale/EFT</option>
+            <option>Cek</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tahsilat Tarihi</label>
+          <input type="date" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Not</label>
+          <textarea class="form-textarea" rows="2" placeholder="Odeme ile ilgili not..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal-close>Iptal</button>
+        <button class="btn btn-primary">Tahsilat Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+
+  <style>
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .stat-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-weight: 600;
+    }
+    .stat-emerald .stat-badge { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .stat-amber .stat-badge { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .stat-rose .stat-badge { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    .stat-violet .stat-badge { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+
+    .tabs-container {
+      margin-bottom: 1.5rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.25rem;
+      background: var(--bg-secondary);
+      padding: 0.25rem;
+      border-radius: 0.5rem;
+      width: fit-content;
+    }
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 1rem;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { background: rgba(255, 255, 255, 0.05); }
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    .tab-count {
+      font-size: 0.75rem;
+      padding: 0.125rem 0.375rem;
+      border-radius: 0.25rem;
+      background: rgba(255, 255, 255, 0.2);
+    }
+    .tab-count.danger { background: #ef4444; color: white; }
+    .tab-count.warning { background: #f59e0b; color: white; }
+
+    .overdue-row {
+      background: rgba(239, 68, 68, 0.05);
+    }
+    .customer-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .avatar-cyan { background: #00d4ff; }
+    .avatar-rose { background: #ef4444; }
+    .avatar-amber { background: #f59e0b; }
+    .avatar-violet { background: #6366f1; }
+    .avatar-emerald { background: #10b981; }
+
+    .customer-name { font-weight: 500; }
+    .customer-phone { font-size: 0.75rem; color: var(--text-muted); }
+
+    .overdue-days {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    .overdue-days.warning {
+      color: #f59e0b;
+    }
+
+    .policy-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.625rem;
+      border-radius: 0.375rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .policy-badge.kasko { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+    .policy-badge.trafik { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+    .policy-badge.dask { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .policy-badge.saglik { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+    .policy-badge.konut { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+    .policy-badge.isyeri { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
+
+    .summary-footer {
+      background: rgba(239, 68, 68, 0.1);
+      font-weight: 700;
+    }
+    .text-right { text-align: right; }
+
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .font-semibold { font-weight: 600; }
+    .text-rose { color: #ef4444; }
+  </style>
+</body>
+</html>

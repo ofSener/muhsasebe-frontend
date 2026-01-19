@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finans Dashboard - IHSAN AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yonetimi</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menu</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Police Islemleri</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+              <span class="nav-text">Policeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../policies/my-policies.html" class="nav-link"><span class="nav-text">Policelerim</span></a>
+              <a href="../policies/captured.html" class="nav-link"><span class="nav-text">Yakalanan Policeler</span></a>
+              <a href="../policies/pool.html" class="nav-link"><span class="nav-text">Police Havuzu</span></a>
+              <a href="../policies/add-manual.html" class="nav-link"><span class="nav-text">Manuel Ekle</span></a>
+              <a href="../policies/bulk-import.html" class="nav-link"><span class="nav-text">Toplu Aktar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Yonetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              <span class="nav-text">Calisanlarim</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link"><span class="nav-text">Calisan Listesi</span></a>
+              <a href="../employees/performance.html" class="nav-link"><span class="nav-text">Performans</span></a>
+              <a href="../employees/tracking.html" class="nav-link"><span class="nav-text">Takip/Hakedis</span></a>
+              <a href="../employees/commission.html" class="nav-link"><span class="nav-text">Komisyon Ayarlari</span></a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="nav-text">Musterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link"><span class="nav-text">Musteri Listesi</span></a>
+              <a href="../customers/detail.html" class="nav-link"><span class="nav-text">Musteri Detay</span></a>
+              <a href="../customers/renewals.html" class="nav-link"><span class="nav-text">Yenileme Takibi</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="dashboard.html" class="nav-link active"><span class="nav-text">Ozet Dashboard</span></a>
+              <a href="policies.html" class="nav-link"><span class="nav-text">Police Bazli</span></a>
+              <a href="collections.html" class="nav-link"><span class="nav-text">Tahsilat Takibi</span><span class="nav-badge warning">5</span></a>
+              <a href="reports.html" class="nav-link"><span class="nav-text">Raporlar</span></a>
+            </div>
+          </div>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link"><span class="nav-text">Yetki Yonetimi</span></a>
+              <a href="../settings/agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodlari</span></a>
+              <a href="../settings/report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarlari</span></a>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11,17 6,12 11,7"/><polyline points="18,17 13,12 18,7"/></svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Finans</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Ozet Dashboard</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yilmaz</div>
+              <div class="navbar-user-role">Ana Yonetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Finansal Ozet</h1>
+            <p class="page-subtitle">Prim, komisyon ve tahsilat verilerinizi takip edin.</p>
+          </div>
+          <div class="page-actions">
+            <div class="date-range-picker">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <select class="form-select" style="border: none; background: transparent; min-width: 140px;">
+                <option>Bu Ay</option>
+                <option>Son 7 Gun</option>
+                <option>Son 30 Gun</option>
+                <option>Bu Yil</option>
+                <option>Ozel Aralik</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Rapor Indir
+            </button>
+          </div>
+        </div>
+
+        <!-- Financial Stats -->
+        <div class="stats-grid">
+          <div class="stat-card stat-emerald">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Toplam Prim</p>
+              <h3 class="stat-value font-mono">1.248.560 TL</h3>
+              <span class="stat-change positive">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+                +12.5% gecen aya gore
+              </span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-cyan">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Toplam Komisyon</p>
+              <h3 class="stat-value font-mono">186.420 TL</h3>
+              <span class="stat-change positive">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+                +8.3% gecen aya gore
+              </span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-violet">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Tahsil Edilen</p>
+              <h3 class="stat-value font-mono">1.124.800 TL</h3>
+              <span class="stat-info">%90 tahsilat orani</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-amber">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Bekleyen Tahsilat</p>
+              <h3 class="stat-value font-mono">123.760 TL</h3>
+              <span class="stat-info">24 police bekliyor</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-cols-2" style="gap: 1.5rem; margin-bottom: 2rem;">
+          <!-- Revenue Trend Chart -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Prim Gelisimi</h3>
+              <div class="card-actions">
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-ghost active">Aylik</button>
+                  <button class="btn btn-sm btn-ghost">Haftalik</button>
+                  <button class="btn btn-sm btn-ghost">Gunluk</button>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="revenueChart" style="height: 300px;"></div>
+            </div>
+          </div>
+
+          <!-- Policy Distribution Pie -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Police Tipine Gore Prim Dagilimi</h3>
+            </div>
+            <div class="card-body">
+              <div id="distributionChart" style="height: 300px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Stats Row -->
+        <div class="grid grid-cols-3" style="gap: 1.5rem; margin-bottom: 2rem;">
+          <!-- Commission by Employee -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Calisan Bazli Komisyon</h3>
+            </div>
+            <div class="card-body">
+              <div id="employeeCommissionChart" style="height: 250px;"></div>
+            </div>
+          </div>
+
+          <!-- Monthly Comparison -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Aylik Karsilastirma</h3>
+            </div>
+            <div class="card-body">
+              <div class="comparison-stats">
+                <div class="comparison-item">
+                  <div>
+                    <p class="comparison-label">Bu Ay</p>
+                    <p class="comparison-sublabel">Ocak 2024</p>
+                  </div>
+                  <div class="comparison-value">
+                    <p class="comparison-amount success">1.248.560 TL</p>
+                    <p class="comparison-change success">+12.5%</p>
+                  </div>
+                </div>
+                <div class="comparison-item">
+                  <div>
+                    <p class="comparison-label">Gecen Ay</p>
+                    <p class="comparison-sublabel">Aralik 2023</p>
+                  </div>
+                  <div class="comparison-value">
+                    <p class="comparison-amount">1.109.872 TL</p>
+                    <p class="comparison-sublabel">Baz ay</p>
+                  </div>
+                </div>
+                <div class="comparison-item no-border">
+                  <div>
+                    <p class="comparison-label">Gecen Yil Ayni Ay</p>
+                    <p class="comparison-sublabel">Ocak 2023</p>
+                  </div>
+                  <div class="comparison-value">
+                    <p class="comparison-amount">892.340 TL</p>
+                    <p class="comparison-change success">+39.9% YoY</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Alerts -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Dikkat Edilmesi Gerekenler</h3>
+            </div>
+            <div class="card-body">
+              <div class="alert-list">
+                <div class="alert-item danger">
+                  <div class="alert-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  </div>
+                  <div class="alert-content">
+                    <p class="alert-title">5 Gecikmis Tahsilat</p>
+                    <p class="alert-subtitle">Toplam: 45.230 TL</p>
+                  </div>
+                </div>
+                <div class="alert-item warning">
+                  <div class="alert-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  </div>
+                  <div class="alert-content">
+                    <p class="alert-title">12 Yaklasan Taksit</p>
+                    <p class="alert-subtitle">Bu hafta icinde</p>
+                  </div>
+                </div>
+                <div class="alert-item success">
+                  <div class="alert-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>
+                  </div>
+                  <div class="alert-content">
+                    <p class="alert-title">Hedef: %90 Ulasildi</p>
+                    <p class="alert-subtitle">Aylik tahsilat hedefi</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Son Finansal Hareketler</h3>
+            <a href="policies.html" class="btn btn-sm btn-secondary">
+              Tumunu Gor
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>Islem</th>
+                    <th>Musteri</th>
+                    <th>Police No</th>
+                    <th>Tutar</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>13.01.2024</td>
+                    <td><span class="text-success font-semibold">Tahsilat</span></td>
+                    <td>Mehmet Demir</td>
+                    <td><span class="font-mono">#POL-2024-0892</span></td>
+                    <td class="font-mono font-semibold text-success">+12.450 TL</td>
+                    <td><span class="status-badge status-success">Tamamlandi</span></td>
+                  </tr>
+                  <tr>
+                    <td>13.01.2024</td>
+                    <td><span class="text-cyan font-semibold">Yeni Police</span></td>
+                    <td>Ayse Kaya</td>
+                    <td><span class="font-mono">#POL-2024-0891</span></td>
+                    <td class="font-mono font-semibold">8.200 TL</td>
+                    <td><span class="status-badge status-warning">Bekliyor</span></td>
+                  </tr>
+                  <tr>
+                    <td>12.01.2024</td>
+                    <td><span class="text-success font-semibold">Tahsilat</span></td>
+                    <td>Ali Yildiz</td>
+                    <td><span class="font-mono">#POL-2024-0885</span></td>
+                    <td class="font-mono font-semibold text-success">+3.450 TL</td>
+                    <td><span class="status-badge status-success">Tamamlandi</span></td>
+                  </tr>
+                  <tr>
+                    <td>12.01.2024</td>
+                    <td><span class="text-violet font-semibold">Komisyon</span></td>
+                    <td>-</td>
+                    <td><span class="text-muted">Haftalik Ozet</span></td>
+                    <td class="font-mono font-semibold text-violet">4.580 TL</td>
+                    <td><span class="status-badge status-info">Hesaplandi</span></td>
+                  </tr>
+                  <tr>
+                    <td>11.01.2024</td>
+                    <td><span class="text-success font-semibold">Tahsilat</span></td>
+                    <td>Zeynep Celik</td>
+                    <td><span class="font-mono">#POL-2024-0878</span></td>
+                    <td class="font-mono font-semibold text-success">+15.800 TL</td>
+                    <td><span class="status-badge status-success">Tamamlandi</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/charts.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Revenue Area Chart with ApexCharts
+      const revenueData = generateTimeSeriesData(30, 100000, 30000);
+      createAreaChart('revenueChart', revenueData, {
+        seriesName: 'Prim',
+        color: chartColors.primary,
+        height: 280,
+        formatter: (val) => formatCurrency(val)
+      });
+
+      // Policy Distribution Donut Chart
+      const distributionData = getPolicyDistributionData();
+      createDonutChart('distributionChart', {
+        labels: distributionData.labels,
+        values: [420000, 280000, 150000, 180000, 120000, 98560]
+      }, {
+        height: 280
+      });
+
+      // Employee Commission Bar Chart
+      createBarChart('employeeCommissionChart', {
+        labels: ['Ahmet Y.', 'Fatma K.', 'Mehmet D.', 'Zeynep A.', 'Can B.'],
+        values: [42500, 38200, 35800, 32100, 28400]
+      }, {
+        seriesName: 'Komisyon',
+        colors: [chartColors.success],
+        height: 230
+      });
+
+      console.log('Finance dashboard charts initialized with ApexCharts');
+    });
+  </script>
+
+  <style>
+    .date-range-picker {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-secondary);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 0.25rem;
+      background: var(--bg-secondary);
+      padding: 0.25rem;
+      border-radius: 0.5rem;
+    }
+    .btn-group .btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .comparison-stats {
+      display: flex;
+      flex-direction: column;
+    }
+    .comparison-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .comparison-item.no-border {
+      border-bottom: none;
+    }
+    .comparison-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .comparison-sublabel {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .comparison-value {
+      text-align: right;
+    }
+    .comparison-amount {
+      font-size: 1.25rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .comparison-amount.success {
+      color: #10b981;
+    }
+    .comparison-change {
+      font-size: 0.75rem;
+    }
+    .comparison-change.success {
+      color: #10b981;
+    }
+
+    .alert-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .alert-item {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.875rem;
+      border-radius: 0.5rem;
+      border-left: 3px solid;
+    }
+    .alert-item.danger {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: #ef4444;
+    }
+    .alert-item.danger .alert-icon { color: #ef4444; }
+    .alert-item.danger .alert-title { color: #ef4444; }
+
+    .alert-item.warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: #f59e0b;
+    }
+    .alert-item.warning .alert-icon { color: #f59e0b; }
+    .alert-item.warning .alert-title { color: #f59e0b; }
+
+    .alert-item.success {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: #10b981;
+    }
+    .alert-item.success .alert-icon { color: #10b981; }
+    .alert-item.success .alert-title { color: #10b981; }
+
+    .alert-icon {
+      flex-shrink: 0;
+    }
+    .alert-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .alert-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .text-success { color: #10b981; }
+    .text-cyan { color: #00d4ff; }
+    .text-violet { color: #6366f1; }
+    .text-muted { color: var(--text-muted); }
+    .font-semibold { font-weight: 600; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</body>
+</html>

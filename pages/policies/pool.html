@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poliçe Havuzu - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../../logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        </div>
+        <div class="sidebar-brand">
+          <h1>IHSAN AI</h1>
+          <span>Sigorta Yönetimi</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Ana Menü</div>
+          <div class="nav-item">
+            <a href="../../index.html" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Poliçe İşlemleri</div>
+          <div class="nav-item has-submenu open">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+              <span class="nav-text">Poliçeler</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="my-policies.html" class="nav-link">Poliçelerim</a>
+              <a href="captured.html" class="nav-link">Yakalanan <span class="nav-badge">12</span></a>
+              <a href="pool.html" class="nav-link active">Poliçe Havuzu</a>
+              <a href="add-manual.html" class="nav-link">Manuel Ekle</a>
+              <a href="bulk-import.html" class="nav-link">Toplu Aktar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Yönetim</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Çalışanlarım</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../employees/list.html" class="nav-link">Çalışan Listesi</a>
+              <a href="../employees/performance.html" class="nav-link">Performans</a>
+              <a href="../employees/tracking.html" class="nav-link">Takip/Hakediş</a>
+              <a href="../employees/commission.html" class="nav-link">Komisyon Ayarları</a>
+            </div>
+          </div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              <span class="nav-text">Müşterilerimiz</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../customers/list.html" class="nav-link">Müşteri Listesi</a>
+              <a href="../customers/renewals.html" class="nav-link">Yenileme Takibi <span class="nav-badge warning">8</span></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finans</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+              <span class="nav-text">Finans</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../finance/dashboard.html" class="nav-link">Finans Özeti</a>
+              <a href="../finance/policies.html" class="nav-link">Poliçe Bazlı</a>
+              <a href="../finance/collections.html" class="nav-link">Tahsilat Takibi</a>
+              <a href="../finance/reports.html" class="nav-link">Raporlar</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <div class="nav-item has-submenu">
+            <a href="#" class="nav-link">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+              </svg>
+              <span class="nav-text">Ayarlar</span>
+              <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6,9 12,15 18,9"/>
+              </svg>
+            </a>
+            <div class="nav-submenu">
+              <a href="../settings/permissions.html" class="nav-link">Yetki Yönetimi</a>
+              <a href="../settings/agency-codes.html" class="nav-link">Acente Kodları</a>
+              <a href="../settings/report-settings.html" class="nav-link">Rapor Ayarları</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('collapsed')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15,18 9,12 15,6"/>
+          </svg>
+          <span class="nav-text">Daralt</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Navbar -->
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Poliçe İşlemleri</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Poliçe Havuzu</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar">AY</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Ahmet Yılmaz</div>
+              <div class="navbar-user-role">Yönetici</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <!-- Page Content -->
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Poliçe Havuzu</h1>
+            <p class="page-subtitle">Yakalanan ve aktarılan poliçeleri karşılaştırın ve eşleştirin</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-secondary" onclick="openImportModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="17,8 12,3 7,8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              Aktarım Dosyası Yükle
+            </button>
+            <button class="btn btn-primary" onclick="runComparison()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/>
+                <rect x="14" y="3" width="7" height="7"/>
+                <rect x="14" y="14" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              Karşılaştır
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid mb-4">
+          <div class="stat-card stat-cyan">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">156</div>
+              <div class="stat-label">Havuzdaki Poliçe</div>
+            </div>
+          </div>
+          <div class="stat-card stat-emerald">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                <polyline points="22,4 12,14.01 9,11.01"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">128</div>
+              <div class="stat-label">Eşleşen</div>
+            </div>
+          </div>
+          <div class="stat-card stat-amber">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">18</div>
+              <div class="stat-label">Eşleşmeyen</div>
+            </div>
+          </div>
+          <div class="stat-card stat-violet">
+            <div class="stat-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              </svg>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">₺1.2M</div>
+              <div class="stat-label">Toplam Prim</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison Tabs -->
+        <div class="comparison-tabs">
+          <button class="tab-btn active" onclick="switchTab('all')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+            </svg>
+            Tümü
+            <span class="tab-count">156</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('matched')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22,4 12,14.01 9,11.01"/>
+            </svg>
+            Eşleşen
+            <span class="tab-count success">128</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('unmatched')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            Eşleşmeyen
+            <span class="tab-count warning">18</span>
+          </button>
+          <button class="tab-btn" onclick="switchTab('only-import')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17,8 12,3 7,8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            Sadece Aktarımda
+            <span class="tab-count info">10</span>
+          </button>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Poliçe Karşılaştırma</h3>
+            <div class="card-actions">
+              <select class="form-select form-select-sm" style="width: auto;">
+                <option value="">Prodüktör Filtrele</option>
+                <option value="ZA">Zeynep Arslan</option>
+                <option value="MK">Mehmet Kaya</option>
+                <option value="AD">Ayşe Demir</option>
+                <option value="CO">Can Özkan</option>
+              </select>
+              <select class="form-select form-select-sm" style="width: auto;">
+                <option value="">Tüm Tipler</option>
+                <option value="kasko">Kasko</option>
+                <option value="trafik">Trafik</option>
+                <option value="dask">DASK</option>
+                <option value="saglik">Sağlık</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table comparison-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px;"><input type="checkbox"></th>
+                  <th>Poliçe No</th>
+                  <th>Prodüktör</th>
+                  <th>Müşteri</th>
+                  <th>Tip</th>
+                  <th>Yakalanan Prim</th>
+                  <th>Aktarım Prim</th>
+                  <th>Durum</th>
+                  <th>İşlem</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Eşleşen -->
+                <tr class="row-matched">
+                  <td><input type="checkbox"></td>
+                  <td>
+                    <span class="font-mono cell-main">#POL-2024-4530</span>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="avatar avatar-xs avatar-emerald">ZA</div>
+                      <span class="text-sm">Zeynep A.</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cell-main">Serkan Yılmaz</div>
+                    <div class="cell-sub">TC: 123*****89</div>
+                  </td>
+                  <td><span class="badge badge-sm badge-primary">Kasko</span></td>
+                  <td class="font-mono">₺14,200</td>
+                  <td class="font-mono">₺14,200</td>
+                  <td>
+                    <span class="status-badge status-matched">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                      Eşleşti
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-ghost" title="Detay">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+                <!-- Fark Var -->
+                <tr class="row-diff">
+                  <td><input type="checkbox"></td>
+                  <td>
+                    <span class="font-mono cell-main">#POL-2024-4529</span>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="avatar avatar-xs avatar-cyan">MK</div>
+                      <span class="text-sm">Mehmet K.</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cell-main">Deniz Akın</div>
+                    <div class="cell-sub">TC: 456*****12</div>
+                  </td>
+                  <td><span class="badge badge-sm badge-success">Trafik</span></td>
+                  <td class="font-mono">₺3,800</td>
+                  <td class="font-mono diff-value">₺3,950</td>
+                  <td>
+                    <span class="status-badge status-diff">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                      </svg>
+                      Fark Var
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-warning" title="İncele">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+                <!-- Eşleşmeyen -->
+                <tr class="row-unmatched">
+                  <td><input type="checkbox"></td>
+                  <td>
+                    <span class="font-mono cell-main">#POL-2024-4528</span>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="avatar avatar-xs avatar-violet">AD</div>
+                      <span class="text-sm">Ayşe D.</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cell-main">Merve Çetin</div>
+                    <div class="cell-sub">TC: 789*****34</div>
+                  </td>
+                  <td><span class="badge badge-sm badge-warning">DASK</span></td>
+                  <td class="font-mono">₺890</td>
+                  <td class="font-mono text-muted">-</td>
+                  <td>
+                    <span class="status-badge status-unmatched">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="15" y1="9" x2="9" y2="15"/>
+                        <line x1="9" y1="9" x2="15" y2="15"/>
+                      </svg>
+                      Eşleşmedi
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-danger" title="Manuel Eşleştir">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+                <!-- Eşleşen -->
+                <tr class="row-matched">
+                  <td><input type="checkbox"></td>
+                  <td>
+                    <span class="font-mono cell-main">#POL-2024-4527</span>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="avatar avatar-xs avatar-amber">CÖ</div>
+                      <span class="text-sm">Can Ö.</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cell-main">Burak Şen</div>
+                    <div class="cell-sub">TC: 321*****56</div>
+                  </td>
+                  <td><span class="badge badge-sm" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;">Sağlık</span></td>
+                  <td class="font-mono">₺9,500</td>
+                  <td class="font-mono">₺9,500</td>
+                  <td>
+                    <span class="status-badge status-matched">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                      Eşleşti
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-ghost" title="Detay">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+                <!-- Sadece Aktarımda -->
+                <tr class="row-import-only">
+                  <td><input type="checkbox"></td>
+                  <td>
+                    <span class="font-mono cell-main">#POL-2024-4599</span>
+                  </td>
+                  <td>
+                    <span class="text-muted text-sm">-</span>
+                  </td>
+                  <td>
+                    <div class="cell-main">Yeni Müşteri</div>
+                    <div class="cell-sub">TC: 555*****66</div>
+                  </td>
+                  <td><span class="badge badge-sm" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">Konut</span></td>
+                  <td class="font-mono text-muted">-</td>
+                  <td class="font-mono">₺2,450</td>
+                  <td>
+                    <span class="status-badge status-import">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                        <polyline points="17,8 12,3 7,8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                      Aktarımda
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-primary" title="Prodüktöre Ata">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                        <circle cx="8.5" cy="7" r="4"/>
+                        <line x1="20" y1="8" x2="20" y2="14"/>
+                        <line x1="23" y1="11" x2="17" y2="11"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+                <!-- Eşleşen -->
+                <tr class="row-matched">
+                  <td><input type="checkbox"></td>
+                  <td>
+                    <span class="font-mono cell-main">#POL-2024-4526</span>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="avatar avatar-xs avatar-emerald">ZA</div>
+                      <span class="text-sm">Zeynep A.</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cell-main">Canan Öztürk</div>
+                    <div class="cell-sub">TC: 159*****73</div>
+                  </td>
+                  <td><span class="badge badge-sm" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">Konut</span></td>
+                  <td class="font-mono">₺2,450</td>
+                  <td class="font-mono">₺2,450</td>
+                  <td>
+                    <span class="status-badge status-matched">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                      Eşleşti
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-xs btn-ghost" title="Detay">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer">
+            <div class="flex items-center justify-between">
+              <span class="text-muted">1-6 / 156 poliçe gösteriliyor</span>
+              <div class="flex gap-2">
+                <button class="btn btn-sm btn-secondary" disabled>Önceki</button>
+                <button class="btn btn-sm btn-primary">1</button>
+                <button class="btn btn-sm btn-secondary">2</button>
+                <button class="btn btn-sm btn-secondary">3</button>
+                <button class="btn btn-sm btn-secondary">...</button>
+                <button class="btn btn-sm btn-secondary">26</button>
+                <button class="btn btn-sm btn-secondary">Sonraki</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Import Modal -->
+  <div class="modal-backdrop" id="importModal" style="display: none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Aktarım Dosyası Yükle</h3>
+        <button class="modal-close" onclick="closeImportModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="upload-zone" id="uploadZone">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="17,8 12,3 7,8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          <p>Excel veya CSV dosyasını sürükleyip bırakın</p>
+          <span class="text-muted">veya</span>
+          <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">
+            Dosya Seç
+          </button>
+          <input type="file" id="fileInput" style="display: none;" accept=".xlsx,.xls,.csv">
+        </div>
+        <div class="upload-info">
+          <p><strong>Desteklenen formatlar:</strong> .xlsx, .xls, .csv</p>
+          <p><strong>Gerekli sütunlar:</strong> Poliçe No, Müşteri Adı, TC/VKN, Prim Tutarı</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeImportModal()">İptal</button>
+        <button class="btn btn-primary" disabled>Karşılaştırmayı Başlat</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <style>
+    .comparison-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--primary);
+      color: var(--text-primary);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .tab-count {
+      padding: 0.15rem 0.5rem;
+      background: rgba(255,255,255,0.2);
+      border-radius: 4px;
+      font-size: 0.75rem;
+    }
+
+    .tab-btn:not(.active) .tab-count {
+      background: var(--bg-elevated);
+    }
+
+    .tab-btn:not(.active) .tab-count.success {
+      color: #10b981;
+    }
+
+    .tab-btn:not(.active) .tab-count.warning {
+      color: #f59e0b;
+    }
+
+    .tab-btn:not(.active) .tab-count.info {
+      color: #00d4ff;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-matched {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+
+    .status-diff {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .status-unmatched {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .status-import {
+      background: rgba(0, 212, 255, 0.15);
+      color: #00d4ff;
+    }
+
+    .diff-value {
+      color: #f59e0b !important;
+      position: relative;
+    }
+
+    .row-matched {
+      background: rgba(16, 185, 129, 0.03);
+    }
+
+    .row-diff {
+      background: rgba(245, 158, 11, 0.05);
+    }
+
+    .row-unmatched {
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .row-import-only {
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .btn-xs {
+      padding: 0.35rem 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .avatar-xs {
+      width: 24px;
+      height: 24px;
+      font-size: 0.65rem;
+    }
+
+    .upload-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 3rem;
+      border: 2px dashed var(--border-color);
+      border-radius: 12px;
+      text-align: center;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .upload-zone:hover {
+      border-color: var(--primary);
+      background: rgba(0, 212, 255, 0.03);
+    }
+
+    .upload-zone svg {
+      color: var(--primary);
+      opacity: 0.6;
+    }
+
+    .upload-info {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+
+    .upload-info p {
+      margin: 0.25rem 0;
+      color: var(--text-muted);
+    }
+
+    .comparison-table th:nth-child(6),
+    .comparison-table th:nth-child(7),
+    .comparison-table td:nth-child(6),
+    .comparison-table td:nth-child(7) {
+      text-align: right;
+    }
+  </style>
+  <script>
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.tab-btn').classList.add('active');
+      // Filter table based on tab
+      console.log('Switching to tab:', tab);
+    }
+
+    function openImportModal() {
+      document.getElementById('importModal').style.display = 'flex';
+    }
+
+    function closeImportModal() {
+      document.getElementById('importModal').style.display = 'none';
+    }
+
+    function runComparison() {
+      alert('Karşılaştırma başlatılıyor...');
+    }
+  </script>
+</body>
+</html>
