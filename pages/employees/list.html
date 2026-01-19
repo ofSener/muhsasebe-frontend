@@ -228,14 +228,8 @@
               </svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">8</div>
+              <div class="stat-value" id="statTotal">-</div>
               <div class="stat-label">Toplam Çalışan</div>
-            </div>
-            <div class="stat-trend trend-up">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
-              </svg>
-              +2 bu ay
             </div>
           </div>
 
@@ -247,7 +241,7 @@
               </svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">6</div>
+              <div class="stat-value" id="statActive">-</div>
               <div class="stat-label">Aktif Çalışan</div>
             </div>
           </div>
@@ -260,7 +254,7 @@
               </svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">2</div>
+              <div class="stat-value" id="statInactive">-</div>
               <div class="stat-label">Pasif Çalışan</div>
             </div>
           </div>
@@ -272,14 +266,8 @@
               </svg>
             </div>
             <div class="stat-content">
-              <div class="stat-value">92%</div>
+              <div class="stat-value" id="statPerformance">-</div>
               <div class="stat-label">Ort. Performans</div>
-            </div>
-            <div class="stat-trend trend-up">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
-              </svg>
-              +5%
             </div>
           </div>
         </div>
@@ -333,309 +321,8 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-md avatar-emerald">ZA</div>
-                        <div>
-                          <div class="font-semibold">Zeynep Arslan</div>
-                          <div class="text-muted text-sm">Kıdemli Acente</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>zeynep@ihsanai.com</td>
-                    <td class="font-mono">0532 111 2233</td>
-                    <td><span class="badge badge-info">Acente</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td class="font-semibold font-mono">87</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar emerald" style="width: 100%"></div>
-                        </div>
-                        <span class="text-success font-mono">115%</span>
-                      </div>
-                    </td>
-                    <td class="text-muted">15.01.2023</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-icon" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="btn-icon" title="Yetkileri Yönet">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-md avatar-cyan">MK</div>
-                        <div>
-                          <div class="font-semibold">Mehmet Kaya</div>
-                          <div class="text-muted text-sm">Acente</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>mehmet@ihsanai.com</td>
-                    <td class="font-mono">0533 222 3344</td>
-                    <td><span class="badge badge-info">Acente</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td class="font-semibold font-mono">72</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar cyan" style="width: 98%"></div>
-                        </div>
-                        <span class="font-mono">98%</span>
-                      </div>
-                    </td>
-                    <td class="text-muted">22.03.2023</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-icon" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="btn-icon" title="Yetkileri Yönet">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-md avatar-violet">AD</div>
-                        <div>
-                          <div class="font-semibold">Ayşe Demir</div>
-                          <div class="text-muted text-sm">Acente</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>ayse@ihsanai.com</td>
-                    <td class="font-mono">0534 333 4455</td>
-                    <td><span class="badge badge-info">Acente</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td class="font-semibold font-mono">68</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar violet" style="width: 92%"></div>
-                        </div>
-                        <span class="font-mono">92%</span>
-                      </div>
-                    </td>
-                    <td class="text-muted">08.05.2023</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-icon" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="btn-icon" title="Yetkileri Yönet">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-md avatar-amber">CÖ</div>
-                        <div>
-                          <div class="font-semibold">Can Özkan</div>
-                          <div class="text-muted text-sm">Jr. Acente</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>can@ihsanai.com</td>
-                    <td class="font-mono">0535 444 5566</td>
-                    <td><span class="badge badge-info">Acente</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td class="font-semibold font-mono">45</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar amber" style="width: 75%"></div>
-                        </div>
-                        <span class="text-warning font-mono">75%</span>
-                      </div>
-                    </td>
-                    <td class="text-muted">12.07.2023</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-icon" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="btn-icon" title="Yetkileri Yönet">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-md avatar-rose">EK</div>
-                        <div>
-                          <div class="font-semibold">Elif Koç</div>
-                          <div class="text-muted text-sm">Jr. Acente</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>elif@ihsanai.com</td>
-                    <td class="font-mono">0536 555 6677</td>
-                    <td><span class="badge badge-info">Acente</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td class="font-semibold font-mono">38</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar rose" style="width: 63%"></div>
-                        </div>
-                        <span class="text-danger font-mono">63%</span>
-                      </div>
-                    </td>
-                    <td class="text-muted">28.09.2023</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-icon" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="btn-icon" title="Yetkileri Yönet">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-md avatar-cyan">BY</div>
-                        <div>
-                          <div class="font-semibold">Burak Yıldız</div>
-                          <div class="text-muted text-sm">Stajyer</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td>burak@ihsanai.com</td>
-                    <td class="font-mono">0537 666 7788</td>
-                    <td><span class="badge badge-secondary">Stajyer</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td class="font-semibold font-mono">12</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar" style="width: 40%"></div>
-                        </div>
-                        <span class="text-danger font-mono">40%</span>
-                      </div>
-                    </td>
-                    <td class="text-muted">05.11.2023</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-icon" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="btn-icon" title="Yetkileri Yönet">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="row-inactive">
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-md" style="background: var(--bg-elevated); color: var(--text-muted);">HT</div>
-                        <div>
-                          <div class="font-semibold text-muted">Hakan Tekin</div>
-                          <div class="text-muted text-sm">Eski Çalışan</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-muted">hakan@ihsanai.com</td>
-                    <td class="font-mono text-muted">0538 777 8899</td>
-                    <td><span class="badge badge-secondary">Acente</span></td>
-                    <td><span class="badge badge-secondary">Pasif</span></td>
-                    <td class="text-muted font-mono">156</td>
-                    <td><span class="text-muted">-</span></td>
-                    <td class="text-muted">10.06.2022</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-icon" title="Aktif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="row-inactive">
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-md" style="background: var(--bg-elevated); color: var(--text-muted);">SA</div>
-                        <div>
-                          <div class="font-semibold text-muted">Seda Aktaş</div>
-                          <div class="text-muted text-sm">Eski Çalışan</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="text-muted">seda@ihsanai.com</td>
-                    <td class="font-mono text-muted">0539 888 9900</td>
-                    <td><span class="badge badge-secondary">Acente</span></td>
-                    <td><span class="badge badge-secondary">Pasif</span></td>
-                    <td class="text-muted font-mono">89</td>
-                    <td><span class="text-muted">-</span></td>
-                    <td class="text-muted">18.02.2022</td>
-                    <td>
-                      <div class="action-buttons">
-                        <button class="btn-icon" title="Aktif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle cx="12" cy="12" r="3"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                <tbody id="employeeTableBody">
+                  <!-- Veriler JavaScript ile yüklenecek -->
                 </tbody>
               </table>
             </div>
@@ -698,9 +385,193 @@
 
   <script src="../../assets/js/app.js"></script>
   <script>
+    const API_BASE_URL = 'http://localhost:5000';
+
+    // Sayfa yüklendiğinde çalışanları getir
+    document.addEventListener('DOMContentLoaded', function() {
+      loadKullanicilar();
+    });
+
+    // Kullanıcı bilgisinden FirmaId al
+    function getCurrentFirmaId() {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      return user.firmaId || null;
+    }
+
+    // Kullanıcıları API'den yükle
+    async function loadKullanicilar() {
+      const tbody = document.getElementById('employeeTableBody');
+      const firmaId = getCurrentFirmaId();
+
+      if (!firmaId) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Firma bilgisi bulunamadı. Lütfen giriş yapın.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Yükleniyor...</td></tr>';
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/kullanicilar?firmaId=${firmaId}`);
+        if (!response.ok) throw new Error('API hatası');
+
+        const kullanicilar = await response.json();
+        renderKullanicilar(kullanicilar);
+        updateStats(kullanicilar);
+      } catch (error) {
+        console.error('Kullanıcılar yüklenirken hata:', error);
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Veriler yüklenirken hata oluştu.</td></tr>';
+      }
+    }
+
+    // Kullanıcıları tabloya render et
+    function renderKullanicilar(kullanicilar) {
+      const tbody = document.getElementById('employeeTableBody');
+      const countEl = document.querySelector('.card-actions .text-muted');
+
+      if (!kullanicilar || kullanicilar.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Henüz çalışan bulunmuyor.</td></tr>';
+        if (countEl) countEl.textContent = '0 çalışan listeleniyor';
+        return;
+      }
+
+      if (countEl) countEl.textContent = `${kullanicilar.length} çalışan listeleniyor`;
+
+      tbody.innerHTML = kullanicilar.map(k => {
+        const isActive = k.onay === 1;
+        const initials = getInitials(k.adi, k.soyadi);
+        const avatarColor = getAvatarColor(k.id);
+        const rolBadge = getRolBadge(k.kullaniciTuru);
+        const durumBadge = isActive
+          ? '<span class="badge badge-success">Aktif</span>'
+          : '<span class="badge badge-secondary">Pasif</span>';
+        const kayitTarihi = formatDate(k.kayitTarihi);
+        const telefon = formatPhone(k.gsmNo);
+        const rowClass = isActive ? '' : 'row-inactive';
+        const avatarStyle = isActive
+          ? `avatar avatar-md ${avatarColor}`
+          : 'avatar avatar-md" style="background: var(--bg-elevated); color: var(--text-muted);';
+
+        return `
+          <tr class="${rowClass}">
+            <td>
+              <div class="flex items-center gap-3">
+                <div class="${avatarStyle}">${initials}</div>
+                <div>
+                  <div class="font-semibold ${isActive ? '' : 'text-muted'}">${k.adi || ''} ${k.soyadi || ''}</div>
+                  <div class="text-muted text-sm">${getRolText(k.kullaniciTuru)}</div>
+                </div>
+              </div>
+            </td>
+            <td class="${isActive ? '' : 'text-muted'}">${k.email || '-'}</td>
+            <td class="font-mono ${isActive ? '' : 'text-muted'}">${telefon}</td>
+            <td>${rolBadge}</td>
+            <td>${durumBadge}</td>
+            <td class="font-semibold font-mono ${isActive ? '' : 'text-muted'}">-</td>
+            <td><span class="text-muted">-</span></td>
+            <td class="text-muted">${kayitTarihi}</td>
+            <td>
+              <div class="action-buttons">
+                ${isActive ? `
+                  <button class="btn-icon" title="Düzenle" onclick="editKullanici(${k.id})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </button>
+                  <button class="btn-icon" title="Yetkileri Yönet" onclick="managePermissions(${k.id})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                      <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    </svg>
+                  </button>
+                ` : `
+                  <button class="btn-icon" title="Aktif Yap" onclick="activateKullanici(${k.id})">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // İstatistikleri güncelle
+    function updateStats(kullanicilar) {
+      const total = kullanicilar.length;
+      const active = kullanicilar.filter(k => k.onay === 1).length;
+      const inactive = total - active;
+
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statActive').textContent = active;
+      document.getElementById('statInactive').textContent = inactive;
+      document.getElementById('statPerformance').textContent = '-';
+    }
+
+    // Yardımcı fonksiyonlar
+    function getInitials(adi, soyadi) {
+      const a = (adi || '').charAt(0).toUpperCase();
+      const s = (soyadi || '').charAt(0).toUpperCase();
+      return a + s || '??';
+    }
+
+    function getAvatarColor(id) {
+      const colors = ['avatar-emerald', 'avatar-cyan', 'avatar-violet', 'avatar-amber', 'avatar-rose'];
+      return colors[id % colors.length];
+    }
+
+    function getRolBadge(kullaniciTuru) {
+      switch (kullaniciTuru) {
+        case 1: return '<span class="badge badge-warning">Yönetici</span>';
+        case 2: return '<span class="badge badge-info">Acente</span>';
+        case 3: return '<span class="badge badge-secondary">Stajyer</span>';
+        default: return '<span class="badge badge-secondary">Bilinmiyor</span>';
+      }
+    }
+
+    function getRolText(kullaniciTuru) {
+      switch (kullaniciTuru) {
+        case 1: return 'Yönetici';
+        case 2: return 'Acente';
+        case 3: return 'Stajyer';
+        default: return 'Çalışan';
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('tr-TR');
+    }
+
+    function formatPhone(phone) {
+      if (!phone) return '-';
+      return phone.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+    }
+
+    // Aksiyon fonksiyonları
+    function editKullanici(id) {
+      console.log('Düzenle:', id);
+      // TODO: Düzenleme modalı aç
+    }
+
+    function managePermissions(id) {
+      console.log('Yetkiler:', id);
+      // TODO: Yetki yönetimi modalı aç
+    }
+
+    function activateKullanici(id) {
+      console.log('Aktif yap:', id);
+      // TODO: Kullanıcıyı aktif yap
+    }
+
     function openAddEmployeeModal() {
       document.getElementById('addEmployeeModal').style.display = 'flex';
     }
+
     function closeAddEmployeeModal() {
       document.getElementById('addEmployeeModal').style.display = 'none';
     }
