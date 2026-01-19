@@ -236,6 +236,307 @@
           <button class="dashboard-tab">Özet</button>
         </div>
 
+        <!-- Müşteri Üretimi Bölümü -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Müşteri Üretimi</h3>
+              <p class="text-muted" style="font-size: 0.75rem; margin-top: 0.25rem;">Seçilen tarih aralığında müşteri bazlı poliçe üretimi</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <!-- Üretim Modu Toggle -->
+              <div class="production-mode-toggle">
+                <button class="mode-btn active" data-mode="capture" title="Sadece yeni yakalanan poliçeler">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                    <polyline points="22,4 12,14.01 9,11.01"/>
+                  </svg>
+                  Yakalama
+                </button>
+                <button class="mode-btn" data-mode="full" title="Aktarımlar dahil tüm poliçeler">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="3" y1="9" x2="21" y2="9"/>
+                    <line x1="9" y1="21" x2="9" y2="9"/>
+                  </svg>
+                  Tam Mod
+                </button>
+              </div>
+              <a href="pages/customers/list.html" class="progress-card-link">Tümünü Gör</a>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Üretim Özet Kartları -->
+            <div class="production-summary-row">
+              <div class="production-stat">
+                <div class="production-stat-icon" style="background: var(--primary-glow); color: var(--primary);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                  </svg>
+                </div>
+                <div class="production-stat-content">
+                  <span class="production-stat-value" id="totalCustomers">24</span>
+                  <span class="production-stat-label">Müşteri</span>
+                </div>
+              </div>
+              <div class="production-stat">
+                <div class="production-stat-icon" style="background: var(--success-glow); color: var(--success);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                  </svg>
+                </div>
+                <div class="production-stat-content">
+                  <span class="production-stat-value" id="totalPolicies">47</span>
+                  <span class="production-stat-label">Poliçe</span>
+                </div>
+              </div>
+              <div class="production-stat">
+                <div class="production-stat-icon" style="background: var(--warning-glow); color: var(--warning);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/>
+                    <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                  </svg>
+                </div>
+                <div class="production-stat-content">
+                  <span class="production-stat-value" id="totalPremium">₺186,450</span>
+                  <span class="production-stat-label">Toplam Prim</span>
+                </div>
+              </div>
+              <div class="production-stat">
+                <div class="production-stat-icon" style="background: var(--info-glow); color: var(--info);">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+                    <polyline points="17,6 23,6 23,12"/>
+                  </svg>
+                </div>
+                <div class="production-stat-content">
+                  <span class="production-stat-value" id="avgPremium">₺3,968</span>
+                  <span class="production-stat-label">Ort. Prim</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Müşteri Üretim Tablosu -->
+            <div class="table-container" style="margin-top: 1rem;">
+              <table class="data-table" id="customerProductionTable">
+                <thead>
+                  <tr>
+                    <th>Müşteri</th>
+                    <th>Poliçe Sayısı</th>
+                    <th>Poliçe Tipleri</th>
+                    <th>Toplam Prim</th>
+                    <th>Son Poliçe</th>
+                    <th>İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody id="customerProductionBody">
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-cyan">MD</div>
+                        <div>
+                          <div class="cell-main">Mehmet Demir</div>
+                          <div class="cell-sub">12345678901</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="font-semibold">5</span>
+                      <span class="text-muted" style="font-size: 0.6875rem; margin-left: 0.25rem;">poliçe</span>
+                    </td>
+                    <td>
+                      <div class="flex gap-1 flex-wrap">
+                        <span class="badge badge-primary" style="font-size: 0.5625rem;">Kasko x2</span>
+                        <span class="badge badge-success" style="font-size: 0.5625rem;">Trafik x2</span>
+                        <span class="badge badge-warning" style="font-size: 0.5625rem;">DASK x1</span>
+                      </div>
+                    </td>
+                    <td class="font-mono font-semibold">₺52,350</td>
+                    <td>
+                      <div class="cell-sub">15.01.2026</div>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Detay Görüntüle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-emerald">AK</div>
+                        <div>
+                          <div class="cell-main">Ayşe Kaya</div>
+                          <div class="cell-sub">98765432109</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="font-semibold">3</span>
+                      <span class="text-muted" style="font-size: 0.6875rem; margin-left: 0.25rem;">poliçe</span>
+                    </td>
+                    <td>
+                      <div class="flex gap-1 flex-wrap">
+                        <span class="badge badge-success" style="font-size: 0.5625rem;">Trafik x1</span>
+                        <span class="badge badge-warning" style="font-size: 0.5625rem;">DASK x1</span>
+                        <span class="badge" style="background: var(--secondary-glow); color: var(--secondary); font-size: 0.5625rem;">Sağlık x1</span>
+                      </div>
+                    </td>
+                    <td class="font-mono font-semibold">₺28,750</td>
+                    <td>
+                      <div class="cell-sub">14.01.2026</div>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Detay Görüntüle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-amber">AY</div>
+                        <div>
+                          <div class="cell-main">Ali Yıldız</div>
+                          <div class="cell-sub">55544433221</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="font-semibold">4</span>
+                      <span class="text-muted" style="font-size: 0.6875rem; margin-left: 0.25rem;">poliçe</span>
+                    </td>
+                    <td>
+                      <div class="flex gap-1 flex-wrap">
+                        <span class="badge badge-primary" style="font-size: 0.5625rem;">Kasko x1</span>
+                        <span class="badge badge-warning" style="font-size: 0.5625rem;">DASK x2</span>
+                        <span class="badge badge-info" style="font-size: 0.5625rem;">Konut x1</span>
+                      </div>
+                    </td>
+                    <td class="font-mono font-semibold">₺34,200</td>
+                    <td>
+                      <div class="cell-sub">12.01.2026</div>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Detay Görüntüle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-violet">ZC</div>
+                        <div>
+                          <div class="cell-main">Zeynep Çelik</div>
+                          <div class="cell-sub">11122233344</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="font-semibold">2</span>
+                      <span class="text-muted" style="font-size: 0.6875rem; margin-left: 0.25rem;">poliçe</span>
+                    </td>
+                    <td>
+                      <div class="flex gap-1 flex-wrap">
+                        <span class="badge" style="background: var(--secondary-glow); color: var(--secondary); font-size: 0.5625rem;">Sağlık x1</span>
+                        <span class="badge badge-success" style="font-size: 0.5625rem;">Trafik x1</span>
+                      </div>
+                    </td>
+                    <td class="font-mono font-semibold">₺21,950</td>
+                    <td>
+                      <div class="cell-sub">10.01.2026</div>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Detay Görüntüle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-3">
+                        <div class="avatar avatar-sm avatar-rose">FK</div>
+                        <div>
+                          <div class="cell-main">Fatma Korkmaz</div>
+                          <div class="cell-sub">77788899900</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="font-semibold">6</span>
+                      <span class="text-muted" style="font-size: 0.6875rem; margin-left: 0.25rem;">poliçe</span>
+                    </td>
+                    <td>
+                      <div class="flex gap-1 flex-wrap">
+                        <span class="badge badge-primary" style="font-size: 0.5625rem;">Kasko x2</span>
+                        <span class="badge badge-success" style="font-size: 0.5625rem;">Trafik x2</span>
+                        <span class="badge badge-warning" style="font-size: 0.5625rem;">DASK x1</span>
+                        <span class="badge badge-info" style="font-size: 0.5625rem;">Konut x1</span>
+                      </div>
+                    </td>
+                    <td class="font-mono font-semibold">₺49,200</td>
+                    <td>
+                      <div class="cell-sub">08.01.2026</div>
+                    </td>
+                    <td>
+                      <div class="table-actions">
+                        <button class="action-btn" title="Detay Görüntüle">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Aktarım Bilgisi (Tam Modda görünür) -->
+            <div class="transfer-info-banner" id="transferInfoBanner" style="display: none;">
+              <div class="alert alert-info" style="margin-top: 1rem; margin-bottom: 0;">
+                <div class="alert-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                </div>
+                <div class="alert-content">
+                  <div class="alert-title">Tam Mod Aktif</div>
+                  <div class="alert-text">Aktarımlar dahil tüm poliçeler gösteriliyor. Toplam <strong id="transferCount">12</strong> aktarım poliçesi mevcut.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Progress Cards Row -->
         <div class="grid-3 mb-4">
           <!-- Toplam Prim -->
@@ -852,9 +1153,177 @@
 
             console.log('Preset seçildi:', rangeKey, dateRangeInput.value);
             // Here you would refresh dashboard data
+            // Müşteri üretim verilerini de güncelle
+            updateCustomerProduction(rangeKey);
           }
         });
       });
+
+      // ═══════════════════════════════════════════════════════════════
+      // MÜŞTERİ ÜRETİMİ - MOD DEĞİŞTİRME
+      // ═══════════════════════════════════════════════════════════════
+
+      let currentMode = 'capture'; // 'capture' veya 'full'
+
+      // Mock veriler - Yakalama modu (sadece yeni poliçeler)
+      const captureData = {
+        customers: 24,
+        policies: 47,
+        premium: 186450,
+        avgPremium: 3968,
+        customerList: [
+          { name: 'Mehmet Demir', tc: '12345678901', initials: 'MD', color: 'cyan', policyCount: 5, types: [{ name: 'Kasko', count: 2 }, { name: 'Trafik', count: 2 }, { name: 'DASK', count: 1 }], premium: 52350, lastDate: '15.01.2026' },
+          { name: 'Ayşe Kaya', tc: '98765432109', initials: 'AK', color: 'emerald', policyCount: 3, types: [{ name: 'Trafik', count: 1 }, { name: 'DASK', count: 1 }, { name: 'Sağlık', count: 1 }], premium: 28750, lastDate: '14.01.2026' },
+          { name: 'Ali Yıldız', tc: '55544433221', initials: 'AY', color: 'amber', policyCount: 4, types: [{ name: 'Kasko', count: 1 }, { name: 'DASK', count: 2 }, { name: 'Konut', count: 1 }], premium: 34200, lastDate: '12.01.2026' },
+          { name: 'Zeynep Çelik', tc: '11122233344', initials: 'ZC', color: 'violet', policyCount: 2, types: [{ name: 'Sağlık', count: 1 }, { name: 'Trafik', count: 1 }], premium: 21950, lastDate: '10.01.2026' },
+          { name: 'Fatma Korkmaz', tc: '77788899900', initials: 'FK', color: 'rose', policyCount: 6, types: [{ name: 'Kasko', count: 2 }, { name: 'Trafik', count: 2 }, { name: 'DASK', count: 1 }, { name: 'Konut', count: 1 }], premium: 49200, lastDate: '08.01.2026' }
+        ]
+      };
+
+      // Mock veriler - Tam mod (aktarımlar dahil)
+      const fullData = {
+        customers: 31,
+        policies: 59,
+        premium: 248700,
+        avgPremium: 4215,
+        transferCount: 12,
+        customerList: [
+          { name: 'Mehmet Demir', tc: '12345678901', initials: 'MD', color: 'cyan', policyCount: 7, types: [{ name: 'Kasko', count: 3 }, { name: 'Trafik', count: 3 }, { name: 'DASK', count: 1 }], premium: 68450, lastDate: '15.01.2026', hasTransfer: true },
+          { name: 'Ayşe Kaya', tc: '98765432109', initials: 'AK', color: 'emerald', policyCount: 4, types: [{ name: 'Trafik', count: 2 }, { name: 'DASK', count: 1 }, { name: 'Sağlık', count: 1 }], premium: 35200, lastDate: '14.01.2026', hasTransfer: true },
+          { name: 'Ali Yıldız', tc: '55544433221', initials: 'AY', color: 'amber', policyCount: 5, types: [{ name: 'Kasko', count: 2 }, { name: 'DASK', count: 2 }, { name: 'Konut', count: 1 }], premium: 42800, lastDate: '12.01.2026', hasTransfer: true },
+          { name: 'Zeynep Çelik', tc: '11122233344', initials: 'ZC', color: 'violet', policyCount: 3, types: [{ name: 'Sağlık', count: 2 }, { name: 'Trafik', count: 1 }], premium: 31450, lastDate: '10.01.2026', hasTransfer: true },
+          { name: 'Fatma Korkmaz', tc: '77788899900', initials: 'FK', color: 'rose', policyCount: 6, types: [{ name: 'Kasko', count: 2 }, { name: 'Trafik', count: 2 }, { name: 'DASK', count: 1 }, { name: 'Konut', count: 1 }], premium: 49200, lastDate: '08.01.2026', hasTransfer: false },
+          { name: 'Burak Öztürk', tc: '44455566677', initials: 'BÖ', color: 'cyan', policyCount: 2, types: [{ name: 'Kasko', count: 1 }, { name: 'Trafik', count: 1 }], premium: 21600, lastDate: '05.01.2026', hasTransfer: true }
+        ]
+      };
+
+      // Badge renkleri
+      const typeColors = {
+        'Kasko': 'badge-primary',
+        'Trafik': 'badge-success',
+        'DASK': 'badge-warning',
+        'Sağlık': 'badge-secondary',
+        'Konut': 'badge-info',
+        'İşyeri': 'badge-neutral'
+      };
+
+      // Para formatı
+      const formatCurrency = (amount) => {
+        return '₺' + amount.toLocaleString('tr-TR');
+      };
+
+      // Müşteri tablosunu güncelle
+      function updateCustomerTable(data) {
+        const tbody = document.getElementById('customerProductionBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = data.customerList.map(customer => {
+          const typeBadges = customer.types.map(type => {
+            const colorClass = typeColors[type.name] || 'badge-neutral';
+            const isSecondary = type.name === 'Sağlık';
+            const badgeStyle = isSecondary
+              ? 'style="background: var(--secondary-glow); color: var(--secondary); font-size: 0.5625rem;"'
+              : `class="badge ${colorClass}" style="font-size: 0.5625rem;"`;
+            return `<span ${isSecondary ? '' : 'class="badge ' + colorClass + '"'} ${badgeStyle}>${type.name} x${type.count}</span>`;
+          }).join('');
+
+          const transferBadge = customer.hasTransfer
+            ? '<span class="badge badge-info" style="font-size: 0.5rem; margin-left: 0.25rem;" title="Aktarım içerir">A</span>'
+            : '';
+
+          return `
+            <tr>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="avatar avatar-sm avatar-${customer.color}">${customer.initials}</div>
+                  <div>
+                    <div class="cell-main">${customer.name}${transferBadge}</div>
+                    <div class="cell-sub">${customer.tc}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="font-semibold">${customer.policyCount}</span>
+                <span class="text-muted" style="font-size: 0.6875rem; margin-left: 0.25rem;">poliçe</span>
+              </td>
+              <td>
+                <div class="flex gap-1 flex-wrap">${typeBadges}</div>
+              </td>
+              <td class="font-mono font-semibold">${formatCurrency(customer.premium)}</td>
+              <td>
+                <div class="cell-sub">${customer.lastDate}</div>
+              </td>
+              <td>
+                <div class="table-actions">
+                  <button class="action-btn" title="Detay Görüntüle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Üretim istatistiklerini güncelle
+      function updateProductionStats(data) {
+        document.getElementById('totalCustomers').textContent = data.customers;
+        document.getElementById('totalPolicies').textContent = data.policies;
+        document.getElementById('totalPremium').textContent = formatCurrency(data.premium);
+        document.getElementById('avgPremium').textContent = formatCurrency(data.avgPremium);
+
+        // Aktarım banner'ını göster/gizle
+        const transferBanner = document.getElementById('transferInfoBanner');
+        if (transferBanner) {
+          if (currentMode === 'full') {
+            transferBanner.style.display = 'block';
+            document.getElementById('transferCount').textContent = data.transferCount || 0;
+          } else {
+            transferBanner.style.display = 'none';
+          }
+        }
+      }
+
+      // Mod değiştirme işlevi
+      function switchProductionMode(mode) {
+        currentMode = mode;
+        const data = mode === 'capture' ? captureData : fullData;
+
+        updateProductionStats(data);
+        updateCustomerTable(data);
+
+        // Buton durumlarını güncelle
+        document.querySelectorAll('.production-mode-toggle .mode-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+
+        console.log('Üretim modu değişti:', mode);
+      }
+
+      // Mod butonlarına tıklama olayı
+      document.querySelectorAll('.production-mode-toggle .mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const mode = this.dataset.mode;
+          switchProductionMode(mode);
+        });
+      });
+
+      // Tarih filtresi değiştiğinde verileri güncelle
+      function updateCustomerProduction(rangeKey) {
+        // Gerçek uygulamada burada API çağrısı yapılır
+        console.log('Müşteri üretim verileri güncelleniyor, tarih aralığı:', rangeKey);
+
+        // Demo için mevcut mod verilerini yeniden yükle
+        const data = currentMode === 'capture' ? captureData : fullData;
+        updateProductionStats(data);
+        updateCustomerTable(data);
+      }
+
+      // Sayfa yüklendiğinde ilk verileri göster
+      switchProductionMode('capture');
     });
   </script>
 </body>
