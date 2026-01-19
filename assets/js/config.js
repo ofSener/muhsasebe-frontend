@@ -334,3 +334,17 @@ function getUserRole() {
 
 // Config yüklendiğinde konsola bilgi yaz (development için)
 console.log(`[Config] API Base URL: ${APP_CONFIG.API.BASE_URL}`);
+
+// ═══════════════════════════════════════════════════════════════
+// OTOMATİK AUTH KONTROLÜ
+// ═══════════════════════════════════════════════════════════════
+// Login sayfası hariç tüm sayfalarda token kontrolü yap
+(function() {
+  const currentPath = window.location.pathname;
+  const isLoginPage = currentPath.includes('login.html');
+
+  if (!isLoginPage && !APP_CONFIG.AUTH.isLoggedIn()) {
+    // Token yok, login sayfasına yönlendir
+    APP_CONFIG.AUTH.redirectToLogin();
+  }
+})();
