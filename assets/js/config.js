@@ -25,7 +25,7 @@ const APP_CONFIG = {
     TOKEN_KEY: 'auth_token',
     REFRESH_TOKEN_KEY: 'refresh_token',
     USER_KEY: 'current_user',
-    LOGIN_PAGE: '/frontend/pages/login.html',
+    LOGIN_PAGE: '/pages/login.html',
 
     // Token'ı localStorage'dan al
     getToken: function() {
