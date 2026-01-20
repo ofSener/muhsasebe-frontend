@@ -607,6 +607,19 @@
 
     // Sayfa yüklendiğinde token kontrolü
     document.addEventListener('DOMContentLoaded', function() {
+      // TEST ORTAMI: localhost'ta login bypass
+      if (TEST_MODE.BYPASS_LOGIN) {
+        console.log('[Test Mode] Login bypass aktif - otomatik giriş yapılıyor...');
+
+        // Test kullanıcı bilgilerini kaydet
+        APP_CONFIG.AUTH.setToken(TEST_MODE.TEST_TOKEN);
+        APP_CONFIG.AUTH.setUser(TEST_MODE.TEST_USER);
+
+        // Dashboard'a yönlendir
+        window.location.href = '../index.html';
+        return;
+      }
+
       const token = APP_CONFIG.AUTH.getToken();
       if (token) {
         // Token varsa doğrula ve yönlendir
