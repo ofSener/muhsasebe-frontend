@@ -186,8 +186,16 @@ async function apiRequest(endpoint, options = {}) {
         throw new Error('Oturum süresi doldu');
       } else {
         // Login gibi istekler için: backend'den gelen hatayı kullan
-        const data = await response.json();
-        throw new Error(data.error || 'E-posta veya parola hatalı');
+        try {
+          const text = await response.text();
+          if (text) {
+            const data = JSON.parse(text);
+            throw new Error(data.error || data.message || 'E-posta veya parola hatalı');
+          }
+        } catch (parseError) {
+          // JSON parse hatası - varsayılan mesaj kullan
+        }
+        throw new Error('E-posta veya parola hatalı');
       }
     }
 
