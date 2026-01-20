@@ -3,12 +3,19 @@
  * Bu dosya tüm sayfalarda kullanılan global ayarları içerir.
  */
 
+// Ortam tespiti: localhost ise local backend, değilse production
+const isLocalhost = window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.protocol === 'file:';
+
 const APP_CONFIG = {
   // ═══════════════════════════════════════════════════════════════
   // API AYARLARI
   // ═══════════════════════════════════════════════════════════════
   API: {
-    BASE_URL: 'https://muhasebeapi.sigorta.teklifi.al',
+    // Local: http://localhost:5000 veya https://localhost:5001
+    // Production: https://muhasebeapi.sigorta.teklifi.al
+    BASE_URL: isLocalhost ? 'http://localhost:5000' : 'https://muhasebeapi.sigorta.teklifi.al',
     VERSION: 'v1',
     TIMEOUT: 30000, // 30 saniye
 
