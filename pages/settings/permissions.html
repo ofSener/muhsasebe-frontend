@@ -213,25 +213,19 @@
           </div>
         </div>
 
-        <!-- Info Alert -->
-        <div class="info-alert info-alert-cyan">
-          <div class="info-alert-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-          </div>
-          <div class="info-alert-content">
-            <p class="info-alert-title">Yetki Sistemi Hakkında</p>
-            <p class="info-alert-desc">Her çalışan için ayrı ayrı sayfa erişim yetkilerini açıp kapatabilirsiniz. Ana Yönetici tüm sayfalara erişebilir ve bu değiştirilemez.</p>
-          </div>
-        </div>
-
-        <!-- Employee Selection -->
+        <!-- Permission Profiles -->
         <div class="card" style="margin-bottom: 1.5rem;">
           <div class="card-header">
-            <h3 class="card-title">Çalışan Seçin</h3>
+            <h3 class="card-title">Yetki Profilleri</h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-ghost" id="editModeToggle" onclick="toggleEditMode()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Duzenleme Modu
+              </button>
+            </div>
           </div>
           <div class="card-body">
             <div class="employee-selector">
@@ -271,9 +265,9 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title" id="permissionTitle">Yetki Ayarları</h3>
-            <div class="card-actions">
-              <button class="btn btn-sm btn-ghost" onclick="selectAllPermissions()">Tümünü Seç</button>
-              <button class="btn btn-sm btn-ghost" onclick="deselectAllPermissions()">Tümünü Kaldır</button>
+            <div class="card-actions" id="permissionActions" style="display: none;">
+              <button class="btn btn-sm btn-ghost" onclick="selectAllPermissions()">Tumunu Sec</button>
+              <button class="btn btn-sm btn-ghost" onclick="deselectAllPermissions()">Tumunu Kaldir</button>
             </div>
           </div>
           <div class="card-body">
@@ -437,7 +431,7 @@
               Bu Yetkiye Sahip Calisanlar
             </h3>
             <div class="card-actions">
-              <button class="btn btn-sm btn-primary" onclick="showAssignEmployeeModal()">
+              <button class="btn btn-sm btn-primary" id="addEmployeeBtn" onclick="showAssignEmployeeModal()" style="display: none;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -447,8 +441,22 @@
             </div>
           </div>
           <div class="card-body">
-            <div class="employees-with-permission" id="employeesWithPermission">
-              <p class="text-muted">Yetki seciniz...</p>
+            <div class="table-responsive">
+              <table class="data-table" id="employeesTable">
+                <thead>
+                  <tr>
+                    <th>Ad Soyad</th>
+                    <th>E-posta</th>
+                    <th>Telefon</th>
+                    <th width="100">Islem</th>
+                  </tr>
+                </thead>
+                <tbody id="employeesTableBody">
+                  <tr>
+                    <td colspan="4" class="text-center text-muted">Yetki seciniz...</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -467,11 +475,13 @@
       </div>
       <div class="modal-body">
         <div class="form-group">
-          <label class="form-label">Calisan Ara</label>
-          <input type="text" class="form-input" id="employeeSearchInput" placeholder="Isim ile ara..." oninput="searchEmployees()">
+          <label class="form-label">Calisan Sec</label>
+          <select class="form-select" id="employeeSelect">
+            <option value="">-- Calisan Secin --</option>
+          </select>
         </div>
-        <div class="employee-search-results" id="employeeSearchResults">
-          <p class="text-muted">Aramak icin yazmaya baslayin...</p>
+        <div style="margin-top: 1rem; text-align: right;">
+          <button class="btn btn-primary" onclick="assignSelectedEmployee()">Yetki Ata</button>
         </div>
       </div>
     </div>
@@ -485,11 +495,71 @@
     document.addEventListener('DOMContentLoaded', function() {
       if (!requirePermission('yetkilerSayfasindaIslemYapabilsin')) return;
       loadPermissions();
+      updateEditModeUI();
     });
 
     // Yetki listesini yükle
     let allPermissions = [];
     let selectedPermissionId = null;
+    let isEditMode = false;
+
+    // Duzenleme modu toggle
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      updateEditModeUI();
+    }
+
+    function updateEditModeUI() {
+      const btn = document.getElementById('editModeToggle');
+      if (isEditMode) {
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Goruntuleme Modu
+        `;
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-ghost');
+      } else {
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Duzenleme Modu
+        `;
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-ghost');
+      }
+
+      // Duzenleme elemanlarini goster/gizle
+      const deleteBtn = document.getElementById('deletePermission');
+      const saveBtn = document.getElementById('savePermissions');
+      const addChip = document.querySelector('.add-new-chip');
+      const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+      const permissionActions = document.getElementById('permissionActions');
+
+      if (deleteBtn) deleteBtn.style.display = isEditMode && selectedPermissionId ? 'inline-flex' : 'none';
+      if (saveBtn) saveBtn.style.display = isEditMode ? 'inline-flex' : 'none';
+      if (addChip) addChip.style.display = isEditMode ? 'flex' : 'none';
+      if (addEmployeeBtn) addEmployeeBtn.style.display = isEditMode && selectedPermissionId ? 'inline-flex' : 'none';
+      if (permissionActions) permissionActions.style.display = isEditMode ? 'flex' : 'none';
+
+      // Tablodaki Kaldir butonlarini goster/gizle
+      document.querySelectorAll('#employeesTableBody .btn-danger-text').forEach(btn => {
+        btn.style.display = isEditMode ? 'inline-flex' : 'none';
+      });
+
+      // Form alanlarini readonly yap/ac
+      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(input => {
+        input.disabled = !isEditMode;
+      });
+      const nameInput = document.getElementById('permissionName');
+      const viewSelect = document.getElementById('viewLevelSelect');
+      if (nameInput) nameInput.disabled = !isEditMode;
+      if (viewSelect) viewSelect.disabled = !isEditMode;
+    }
 
     async function loadPermissions() {
       try {
@@ -518,9 +588,10 @@
       const container = document.querySelector('.employee-selector');
       container.innerHTML = '';
 
-      // Yeni Yetki Ekle butonu
+      // Yeni Yetki Ekle butonu (sadece duzenleme modunda gorunur)
       const addButton = document.createElement('div');
       addButton.className = 'employee-chip add-new-chip';
+      addButton.style.display = isEditMode ? 'flex' : 'none';
       addButton.innerHTML = `
         <div class="chip-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -584,9 +655,8 @@
       // Form alanlarını doldur
       fillPermissionForm(permission);
 
-      // Kaydet ve Sil butonlarını göster
-      document.getElementById('savePermissions').style.display = 'inline-flex';
-      document.getElementById('deletePermission').style.display = 'inline-flex';
+      // Edit mode UI guncelle
+      updateEditModeUI();
     }
 
     // Form alanlarını doldur
@@ -680,7 +750,7 @@
       document.querySelector('.add-new-chip')?.classList.add('active');
 
       // Başlığı güncelle
-      document.getElementById('permissionTitle').textContent = 'Yeni Yetki Oluştur';
+      document.getElementById('permissionTitle').textContent = 'Yeni Yetki Olustur';
 
       // Formu temizle
       document.getElementById('permissionName').value = '';
@@ -693,9 +763,15 @@
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
-        Yeni Yetki Oluştur
+        Yeni Yetki Olustur
       `;
       document.getElementById('deletePermission').style.display = 'none';
+
+      // Form card'ina smooth scroll
+      const permissionsCard = document.getElementById('permissionTitle')?.closest('.card');
+      if (permissionsCard) {
+        permissionsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
 
     // Yeni yetki oluştur
@@ -801,12 +877,12 @@
       }
     }
 
-    // Secili yetkiye sahip calisanlari goster
+    // Secili yetkiye sahip calisanlari goster (tablo formatinda)
     async function loadEmployeesWithPermission() {
-      const container = document.getElementById('employeesWithPermission');
+      const tbody = document.getElementById('employeesTableBody');
 
       if (!selectedPermissionId) {
-        container.innerHTML = '<p class="text-muted">Yetki seciniz...</p>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Yetki seciniz...</td></tr>';
         return;
       }
 
@@ -819,38 +895,30 @@
       const employeesWithThisPermission = allEmployees.filter(emp => emp.muhasebeYetkiId === selectedPermissionId);
 
       if (employeesWithThisPermission.length === 0) {
-        container.innerHTML = '<p class="text-muted">Bu yetkiye sahip calisan bulunmuyor.</p>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Bu yetkiye sahip calisan bulunmuyor.</td></tr>';
         return;
       }
 
-      const colors = [
-        '#ec4899, #f472b6',
-        '#f59e0b, #fbbf24',
-        '#6366f1, #818cf8',
-        '#10b981, #34d399',
-        '#ef4444, #f87171',
-        '#8b5cf6, #a78bfa'
-      ];
-
-      container.innerHTML = employeesWithThisPermission.map((emp, index) => {
-        const initials = ((emp.adi || '').charAt(0) + (emp.soyadi || '').charAt(0)).toUpperCase() || 'CA';
-        const color = colors[index % colors.length];
-        return `
-          <div class="employee-card">
-            <div class="employee-card-avatar" style="background: linear-gradient(135deg, ${color});">${initials}</div>
-            <div class="employee-card-info">
-              <span class="employee-card-name">${emp.adi || ''} ${emp.soyadi || ''}</span>
-              <span class="employee-card-email">${emp.email || 'E-posta yok'}</span>
+      tbody.innerHTML = employeesWithThisPermission.map(emp => `
+        <tr>
+          <td>
+            <div class="user-cell">
+              <span class="user-name">${emp.adi || ''} ${emp.soyadi || ''}</span>
             </div>
-            <button class="btn btn-sm btn-ghost btn-danger-text" onclick="removeEmployeePermission(${emp.id})" title="Yetkiyi kaldir">
+          </td>
+          <td>${emp.email || '-'}</td>
+          <td>${emp.gsmNo || '-'}</td>
+          <td>
+            <button class="btn btn-sm btn-ghost btn-danger-text" onclick="removeEmployeePermission(${emp.id})" title="Yetkiyi kaldir" style="display: ${isEditMode ? 'inline-flex' : 'none'};">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
+              Kaldir
             </button>
-          </div>
-        `;
-      }).join('');
+          </td>
+        </tr>
+      `).join('');
     }
 
     // selectPermission fonksiyonunu guncelle - calisan listesini de yukle
@@ -861,14 +929,13 @@
     };
 
     // Calisan atama modalini goster
-    function showAssignEmployeeModal() {
+    async function showAssignEmployeeModal() {
       if (!selectedPermissionId) {
         showToast('Lutfen once bir yetki secin', 'warning');
         return;
       }
       document.getElementById('assignEmployeeModal').style.display = 'flex';
-      document.getElementById('employeeSearchInput').value = '';
-      document.getElementById('employeeSearchResults').innerHTML = '<p class="text-muted">Aramak icin yazmaya baslayin...</p>';
+      await loadEmployeeDropdown();
     }
 
     // Calisan atama modalini kapat
@@ -876,61 +943,47 @@
       document.getElementById('assignEmployeeModal').style.display = 'none';
     }
 
-    // Calisan ara
-    let searchTimeout = null;
-    async function searchEmployees() {
-      const searchTerm = document.getElementById('employeeSearchInput').value.trim();
-      const resultsContainer = document.getElementById('employeeSearchResults');
+    // Calisan dropdown'u yukle
+    async function loadEmployeeDropdown() {
+      const select = document.getElementById('employeeSelect');
+      select.innerHTML = '<option value="">Yukleniyor...</option>';
 
-      if (searchTerm.length < 2) {
-        resultsContainer.innerHTML = '<p class="text-muted">En az 2 karakter girin...</p>';
+      try {
+        // Eger calisanlar yuklenmemisse yukle
+        if (allEmployees.length === 0) {
+          await loadEmployees();
+        }
+
+        // Bu yetkiye sahip olmayan calisanlari filtrele
+        const availableEmployees = allEmployees.filter(emp => emp.muhasebeYetkiId !== selectedPermissionId);
+
+        select.innerHTML = '<option value="">-- Calisan Secin --</option>';
+
+        availableEmployees.forEach(emp => {
+          const option = document.createElement('option');
+          option.value = emp.id;
+          option.textContent = `${emp.adi || ''} ${emp.soyadi || ''} - ${emp.email || 'E-posta yok'}`;
+          select.appendChild(option);
+        });
+
+        if (availableEmployees.length === 0) {
+          select.innerHTML = '<option value="">Atanacak calisan bulunamadi</option>';
+        }
+      } catch (error) {
+        select.innerHTML = '<option value="">Hata olustu</option>';
+      }
+    }
+
+    // Secili calisana yetki ata
+    async function assignSelectedEmployee() {
+      const select = document.getElementById('employeeSelect');
+      const employeeId = select.value;
+
+      if (!employeeId) {
+        showToast('Lutfen bir calisan secin', 'warning');
         return;
       }
 
-      // Debounce
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(async () => {
-        try {
-          const user = APP_CONFIG.AUTH.getUser();
-          const firmaId = user?.firmaId;
-          const params = { name: searchTerm, limit: 10 };
-          if (firmaId) params.firmaId = firmaId;
-
-          const results = await apiGet('producers/search', params);
-
-          if (results.length === 0) {
-            resultsContainer.innerHTML = '<p class="text-muted">Sonuc bulunamadi.</p>';
-            return;
-          }
-
-          const colors = [
-            '#ec4899, #f472b6',
-            '#f59e0b, #fbbf24',
-            '#6366f1, #818cf8',
-            '#10b981, #34d399'
-          ];
-
-          resultsContainer.innerHTML = results.map((emp, index) => {
-            const initials = ((emp.adi || '').charAt(0) + (emp.soyadi || '').charAt(0)).toUpperCase() || 'CA';
-            const color = colors[index % colors.length];
-            return `
-              <div class="employee-search-item" onclick="assignPermissionToEmployee(${emp.id}, '${emp.adi || ''} ${emp.soyadi || ''}')">
-                <div class="employee-search-avatar" style="background: linear-gradient(135deg, ${color});">${initials}</div>
-                <div class="employee-search-info">
-                  <span class="employee-search-name">${emp.adi || ''} ${emp.soyadi || ''}</span>
-                  <span class="employee-search-email">${emp.email || 'E-posta yok'}</span>
-                </div>
-              </div>
-            `;
-          }).join('');
-        } catch (error) {
-          resultsContainer.innerHTML = '<p class="text-muted">Arama sirasinda hata olustu.</p>';
-        }
-      }, 300);
-    }
-
-    // Calisana yetki ata
-    async function assignPermissionToEmployee(employeeId, employeeName) {
       if (!selectedPermissionId) {
         showToast('Lutfen once bir yetki secin', 'warning');
         return;
@@ -940,7 +993,7 @@
         showLoading(true);
         await apiPut(`producers/${employeeId}/permission`, { yetkiId: selectedPermissionId });
 
-        showToast(`${employeeName} adli calisana yetki atandi`, 'success');
+        showToast('Calisana yetki atandi', 'success');
         closeAssignEmployeeModal();
 
         // Calisan listesini yenile
