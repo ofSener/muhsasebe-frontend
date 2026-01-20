@@ -6,6 +6,118 @@
   <title>Çalışan Listesi - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
   <style>
+    /* Tablo altı boşluğu kaldır */
+    .page-wrapper,
+    .page-content {
+      flex: initial !important;
+    }
+
+    /* Table overflow düzeltmesi */
+    .table-container {
+      overflow-x: visible;
+      overflow-y: visible;
+    }
+    @media (max-width: 1200px) {
+      .table-container {
+        overflow-x: auto;
+      }
+    }
+
+    /* Modern Gradient Stat Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 1200px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    .stat-card {
+      position: relative;
+      padding: 1.5rem;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      transform: translate(30%, -30%);
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+      transform: translate(-30%, 30%);
+    }
+
+    .stat-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    .stat-content {
+      z-index: 1;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+      margin-top: 0.25rem;
+      font-weight: 500;
+    }
+
+    /* Gradient Renkleri */
+    .stat-card.stat-cyan {
+      background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
+    }
+    .stat-card.stat-emerald {
+      background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+    }
+    .stat-card.stat-amber {
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+    }
+    .stat-card.stat-violet {
+      background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%);
+    }
     .modal-backdrop {
       position: fixed;
       top: 0;
@@ -104,16 +216,23 @@
       background-color: rgba(245, 158, 11, 0.15);
     }
 
+    /* Filtre kartı */
+    .filters-card {
+      position: relative;
+      z-index: 500;
+      margin-bottom: 1.5rem;
+    }
+
     /* Filtre satırı stili */
     .filters-row {
       display: flex;
       align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
+      gap: 0.75rem;
+      flex-wrap: nowrap;
     }
     .filters-row .search-box {
       flex: 1;
-      min-width: 250px;
+      min-width: 200px;
       position: relative;
     }
     .filters-row .search-icon {
@@ -125,20 +244,258 @@
       height: 18px;
       color: var(--text-muted);
       pointer-events: none;
+      z-index: 1;
     }
     .filters-row .search-input {
       width: 100%;
       padding-left: 2.75rem;
     }
 
-    /* Filtre dropdown'ları */
-    .filter-select {
+    /* Custom Dropdown Styles */
+    .custom-dropdown {
+      position: relative;
       flex-shrink: 0;
-      min-width: 160px;
-      background-color: var(--bg-elevated);
+      z-index: 10;
     }
-    .filter-select:hover {
-      background-color: var(--bg-overlay);
+    .custom-dropdown.open {
+      z-index: 9999;
+    }
+    .custom-dropdown.filter-dropdown {
+      width: 160px;
+    }
+    .dropdown-toggle {
+      width: 100%;
+      padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      background-color: #fff;
+      color: #374151;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      position: relative;
+    }
+    .dropdown-toggle::after {
+      content: '';
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 5px solid #9ca3af;
+      transition: transform 0.2s ease;
+    }
+    .custom-dropdown.open .dropdown-toggle::after {
+      transform: translateY(-50%) rotate(180deg);
+      border-top-color: #6366f1;
+    }
+    .dropdown-toggle:hover {
+      border-color: #d1d5db;
+      background-color: #f9fafb;
+    }
+    .dropdown-toggle:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+    .custom-dropdown.open .dropdown-toggle {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      background-color: #fff;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: linear-gradient(145deg, #f8f9fc 0%, #eef0f5 100%);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-radius: 0.75rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(99, 102, 241, 0.1);
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 0.375rem;
+    }
+    .custom-dropdown.open .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .dropdown-menu::-webkit-scrollbar {
+      width: 6px;
+    }
+    .dropdown-menu::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .dropdown-menu::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+    }
+
+    .dropdown-item {
+      padding: 0.625rem 0.875rem;
+      font-size: 0.875rem;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-radius: 0.5rem;
+      margin: 2px 0;
+    }
+    .dropdown-item:hover {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.08) 100%);
+      color: #4338ca;
+    }
+    .dropdown-item.selected {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+      color: #4338ca;
+      font-weight: 600;
+    }
+    .dropdown-item.selected::before {
+      content: '✓';
+      font-size: 0.7rem;
+      color: #10b981;
+      font-weight: bold;
+    }
+
+    /* Permission dropdown in table */
+    .permission-dropdown {
+      min-width: 160px;
+    }
+    .permission-dropdown .dropdown-toggle {
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      font-size: 0.8125rem;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border: none;
+      color: #fff;
+    }
+    .permission-dropdown .dropdown-toggle::after {
+      border-top-color: rgba(255, 255, 255, 0.7);
+    }
+    .permission-dropdown .dropdown-toggle:hover {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    }
+    .permission-dropdown.open .dropdown-toggle {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    }
+    .permission-dropdown.changed .dropdown-toggle {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+    }
+    .permission-dropdown.changed .dropdown-toggle:hover {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+    }
+    .permission-dropdown .dropdown-menu {
+      min-width: 180px;
+    }
+
+    /* Yukarı açılan dropdown */
+    .permission-dropdown.open-up .dropdown-menu {
+      top: auto;
+      bottom: calc(100% + 4px);
+      transform-origin: bottom center;
+    }
+    .permission-dropdown.open-up.open .dropdown-menu {
+      transform: translateY(0);
+    }
+
+    /* Floating Menu (body'e eklenen) */
+    .dropdown-menu-floating {
+      position: fixed !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
+      display: block !important;
+      background: linear-gradient(145deg, #ffffff 0%, #f8f9fc 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 0.75rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(99, 102, 241, 0.15);
+      z-index: 99999 !important;
+      max-height: 280px !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 0.5rem;
+    }
+    @keyframes dropdownFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .dropdown-menu-floating .dropdown-item {
+      padding: 0.75rem 1rem;
+      font-size: 0.875rem;
+      color: #374151;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-radius: 0.5rem;
+      margin: 2px 0;
+      background: transparent;
+    }
+    .dropdown-menu-floating .dropdown-item:hover {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.06) 100%);
+      color: #4338ca;
+    }
+    .dropdown-menu-floating .dropdown-item.selected {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+      color: #4338ca;
+      font-weight: 600;
+    }
+    .dropdown-menu-floating .dropdown-item.selected::before {
+      content: '\2713';
+      font-size: 0.75rem;
+      color: #10b981;
+      font-weight: bold;
+      margin-right: 0.25rem;
+    }
+    .dropdown-menu-floating::-webkit-scrollbar {
+      width: 6px;
+    }
+    .dropdown-menu-floating::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+      border-radius: 3px;
+    }
+    .dropdown-menu-floating::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 3px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .filters-row {
+        flex-wrap: wrap;
+      }
+      .filters-row .search-box {
+        width: 100%;
+        flex: none;
+      }
+      .custom-dropdown.filter-dropdown {
+        flex: 1;
+        min-width: 120px;
+      }
     }
 
     /* Floating Action Box */
@@ -537,30 +894,47 @@
         </div>
 
         <!-- Filters -->
-        <div class="card" style="margin-bottom: 1.5rem;">
-          <div class="card-body">
+        <div class="card filters-card">
+          <div class="card-body" style="overflow: visible;">
             <div class="filters-row">
               <div class="search-box">
                 <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="11" cy="11" r="8"/>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
-                <input type="text" class="form-input search-input" placeholder="Çalışan ara (isim, e-posta, telefon)...">
+                <input type="text" id="searchInput" class="form-input search-input" placeholder="Çalışan ara..." oninput="applyFilters()">
               </div>
-              <select class="form-select filter-select" id="durumFilter">
-                <option value="">Tüm Durumlar</option>
-                <option value="active">Aktif</option>
-                <option value="inactive">Pasif</option>
-              </select>
-              <select class="form-select filter-select" id="yetkiFilter">
-                <option value="">Tüm Yetkiler</option>
-              </select>
+
+              <!-- Durum Filter Dropdown -->
+              <div class="custom-dropdown filter-dropdown" id="durumDropdown">
+                <button type="button" class="dropdown-toggle" onclick="toggleDropdown('durumDropdown')">
+                  <span class="dropdown-text">Tüm Durumlar</span>
+                </button>
+                <div class="dropdown-menu">
+                  <div class="dropdown-item selected" data-value="" onclick="selectDropdownItem('durumDropdown', '', 'Tüm Durumlar')">Tüm Durumlar</div>
+                  <div class="dropdown-item" data-value="active" onclick="selectDropdownItem('durumDropdown', 'active', 'Aktif')">Aktif</div>
+                  <div class="dropdown-item" data-value="inactive" onclick="selectDropdownItem('durumDropdown', 'inactive', 'Pasif')">Pasif</div>
+                </div>
+                <input type="hidden" id="durumFilter" value="">
+              </div>
+
+              <!-- Yetki Filter Dropdown -->
+              <div class="custom-dropdown filter-dropdown" id="yetkiDropdown">
+                <button type="button" class="dropdown-toggle" onclick="toggleDropdown('yetkiDropdown')">
+                  <span class="dropdown-text">Tüm Yetkiler</span>
+                </button>
+                <div class="dropdown-menu" id="yetkiDropdownMenu">
+                  <div class="dropdown-item selected" data-value="" onclick="selectDropdownItem('yetkiDropdown', '', 'Tüm Yetkiler')">Tüm Yetkiler</div>
+                  <div class="dropdown-item" data-value="ana-yonetici" onclick="selectDropdownItem('yetkiDropdown', 'ana-yonetici', 'Ana Yönetici')">Ana Yönetici</div>
+                </div>
+                <input type="hidden" id="yetkiFilter" value="">
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Employee Table -->
-        <div class="card">
+        <div class="card" style="position: relative; z-index: 1;">
           <div class="card-header">
             <h3 class="card-title">Çalışanlar</h3>
             <div class="card-actions">
@@ -693,7 +1067,176 @@
     document.addEventListener('DOMContentLoaded', async function() {
       await loadYetkiler(); // Önce yetkiler yüklensin
       await loadKullanicilar(); // Sonra çalışanlar
+
+      // Dışarı tıklandığında dropdown'ları kapat
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.custom-dropdown') && !e.target.closest('.dropdown-menu-floating')) {
+          closeAllDropdowns();
+        }
+      });
+
+      // Floating menu'daki tıklamaları dinle (event delegation)
+      document.addEventListener('click', function(e) {
+        const floatingMenu = e.target.closest('.dropdown-menu-floating');
+        if (floatingMenu && e.target.classList.contains('dropdown-item')) {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const value = e.target.dataset.value || '';
+          const text = e.target.textContent.trim();
+
+          // Hangi dropdown'a ait olduğunu bul (floating menu'daki dataset'ten veya açık dropdown'dan)
+          const dropdownId = floatingMenu.dataset.dropdownId || document.querySelector('.custom-dropdown.open')?.id;
+
+          if (dropdownId) {
+            selectDropdownItem(dropdownId, value, text);
+          }
+        }
+      });
+
+      // Scroll olduğunda dropdown'ları kapat
+      window.addEventListener('scroll', function() {
+        closeAllDropdowns();
+      }, { passive: true });
     });
+
+    // Custom Dropdown Fonksiyonları
+    function toggleDropdown(dropdownId) {
+      const dropdown = document.getElementById(dropdownId);
+      const wasOpen = dropdown.classList.contains('open');
+
+      // Diğer tüm dropdown'ları kapat
+      closeAllDropdowns();
+
+      // Bu dropdown'ı aç/kapat
+      if (!wasOpen) {
+        dropdown.classList.add('open');
+        positionDropdownMenu(dropdown);
+      }
+    }
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        // Orijinal menüyü tekrar göster
+        const menu = d.querySelector('.dropdown-menu');
+        if (menu) menu.style.display = '';
+      });
+      // Body'deki floating menu'ları kaldır
+      document.querySelectorAll('.dropdown-menu-floating').forEach(m => m.remove());
+    }
+
+    function positionDropdownMenu(dropdown) {
+      const toggle = dropdown.querySelector('.dropdown-toggle');
+      const menu = dropdown.querySelector('.dropdown-menu');
+
+      // Önceki floating menüleri temizle
+      document.querySelectorAll('.dropdown-menu-floating').forEach(m => m.remove());
+
+      // Menüyü klonla ve body'e ekle
+      const floatingMenu = menu.cloneNode(true);
+      floatingMenu.classList.add('dropdown-menu-floating');
+
+      // Inline onclick handler'ları kaldır (event delegation ile çalışacak)
+      floatingMenu.querySelectorAll('.dropdown-item').forEach(item => {
+        item.removeAttribute('onclick');
+      });
+
+      // Orijinal menüyü gizle
+      menu.style.display = 'none';
+
+      // Toggle'ın pozisyonunu al
+      const rect = toggle.getBoundingClientRect();
+
+      // Dropdown ID'sini floating menu'ya ekle (hangi dropdown'a ait olduğunu bilmek için)
+      floatingMenu.dataset.dropdownId = dropdown.id;
+
+      // Pozisyonlama
+      floatingMenu.style.top = (rect.bottom + 4) + 'px';
+      floatingMenu.style.left = rect.left + 'px';
+      floatingMenu.style.width = Math.max(rect.width, 160) + 'px';
+
+      document.body.appendChild(floatingMenu);
+
+      // Ekranın dışına çıkıyorsa yukarı aç
+      const menuRect = floatingMenu.getBoundingClientRect();
+      if (menuRect.bottom > window.innerHeight - 10) {
+        floatingMenu.style.top = (rect.top - menuRect.height - 4) + 'px';
+      }
+    }
+
+    function selectDropdownItem(dropdownId, value, text) {
+      const dropdown = document.getElementById(dropdownId);
+      const hiddenInput = dropdown.querySelector('input[type="hidden"]');
+      const toggleText = dropdown.querySelector('.dropdown-text');
+
+      // Hidden input değerini güncelle
+      hiddenInput.value = value;
+
+      // Toggle text'i güncelle
+      toggleText.textContent = text;
+
+      // Selected class'ını güncelle
+      dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+        item.classList.toggle('selected', item.dataset.value === value);
+      });
+
+      // Dropdown'ı kapat
+      closeAllDropdowns();
+
+      // Filtreleri uygula
+      applyFilters();
+    }
+
+    // Permission dropdown için toggle
+    function togglePermissionDropdown(btn) {
+      const dropdown = btn.closest('.custom-dropdown');
+      const wasOpen = dropdown.classList.contains('open');
+
+      // Diğer tüm dropdown'ları kapat
+      document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+        d.classList.remove('open');
+        d.classList.remove('open-up');
+      });
+
+      // Bu dropdown'ı aç/kapat
+      if (!wasOpen) {
+        // Dropdown'un ekrandaki pozisyonunu kontrol et
+        const rect = btn.getBoundingClientRect();
+        const menuHeight = 200; // Yaklaşık menu yüksekliği
+        const spaceBelow = window.innerHeight - rect.bottom;
+
+        // Altında yeterli alan yoksa yukarı aç
+        if (spaceBelow < menuHeight) {
+          dropdown.classList.add('open-up');
+        }
+
+        dropdown.classList.add('open');
+      }
+    }
+
+    // Permission seçildiğinde
+    function selectPermission(item, value, text) {
+      const dropdown = item.closest('.custom-dropdown');
+      const employeeId = parseInt(dropdown.dataset.employeeId);
+      const employeeName = dropdown.dataset.employeeName;
+      const originalValue = dropdown.dataset.original;
+
+      // Toggle text'i güncelle
+      dropdown.querySelector('.dropdown-text').textContent = text;
+
+      // Selected class'ını güncelle
+      dropdown.querySelectorAll('.dropdown-item').forEach(i => {
+        i.classList.toggle('selected', i.dataset.value == value);
+      });
+
+      // Dropdown'ı kapat
+      dropdown.classList.remove('open');
+
+      // Permission change işlemini yap
+      const newValue = value ? parseInt(value) : null;
+      onPermissionChange(employeeId, newValue, employeeName, dropdown);
+    }
 
     // Kullanıcı bilgisinden FirmaId al
     function getCurrentFirmaId() {
@@ -704,18 +1247,20 @@
     // Yetkileri API'den yükle (filtre ve dropdown için)
     async function loadYetkiler() {
       const firmaId = getCurrentFirmaId();
-      const select = document.getElementById('yetkiFilter');
+      const dropdownMenu = document.getElementById('yetkiDropdownMenu');
 
       try {
         const yetkiler = await apiGet('permissions', firmaId ? { firmaId } : {});
         yetkilerCache = yetkiler; // Cache'e kaydet
 
-        // Filtre dropdown'ı doldur
+        // Custom dropdown menu'ya yetkileri ekle
         yetkiler.forEach(y => {
-          const option = document.createElement('option');
-          option.value = y.id;
-          option.textContent = y.yetkiAdi;
-          select.appendChild(option);
+          const item = document.createElement('div');
+          item.className = 'dropdown-item';
+          item.dataset.value = y.id;
+          item.textContent = y.yetkiAdi;
+          item.onclick = () => selectDropdownItem('yetkiDropdown', String(y.id), y.yetkiAdi);
+          dropdownMenu.appendChild(item);
         });
       } catch (error) {
         console.error('Yetkiler yüklenirken hata:', error);
@@ -759,9 +1304,9 @@
       if (countEl) countEl.textContent = `${kullanicilar.length} çalışan listeleniyor`;
 
       // Yetki dropdown seçeneklerini oluştur
-      const yetkiOptions = yetkilerCache ? yetkilerCache.map(y =>
-        `<option value="${y.id}">${y.yetkiAdi}</option>`
-      ).join('') : '<option value="">Yükleniyor...</option>';
+      const yetkiDropdownItems = yetkilerCache ? yetkilerCache.map(y =>
+        `<div class="dropdown-item" data-value="${y.id}" onclick="selectPermission(this, ${y.id}, '${y.yetkiAdi.replace(/'/g, "\\'")}')">${y.yetkiAdi}</div>`
+      ).join('') : '';
 
       tbody.innerHTML = kullanicilar.map(k => {
         const isActive = k.onay === 1;
@@ -779,13 +1324,21 @@
 
         // Ana yönetici için dropdown gösterme
         const isAnaYonetici = k.anaYoneticimi === 0;
+        const currentYetkiName = k.yetkiAdi || 'Yetki Seçiniz';
+        const employeeName = `${(k.adi || '').replace(/'/g, "\\'")} ${(k.soyadi || '').replace(/'/g, "\\'")}`;
+
         const yetkiCell = isAnaYonetici
           ? '<span class="badge badge-danger">Ana Yönetici</span>'
           : (isActive
-            ? `<select class="permission-select" data-employee-id="${k.id}" data-original="${k.muhasebeYetkiId || ''}" onchange="onPermissionChange(${k.id}, this.value, '${(k.adi || '').replace(/'/g, "\\'")} ${(k.soyadi || '').replace(/'/g, "\\'")}')">
-                <option value="">Yetki Seçiniz</option>
-                ${yetkiOptions}
-              </select>`
+            ? `<div class="custom-dropdown permission-dropdown" data-employee-id="${k.id}" data-employee-name="${employeeName}" data-original="${k.muhasebeYetkiId || ''}">
+                <button type="button" class="dropdown-toggle" onclick="togglePermissionDropdown(this)">
+                  <span class="dropdown-text">${currentYetkiName}</span>
+                </button>
+                <div class="dropdown-menu">
+                  <div class="dropdown-item ${!k.muhasebeYetkiId ? 'selected' : ''}" data-value="" onclick="selectPermission(this, '', 'Yetki Seçiniz')">Yetki Seçiniz</div>
+                  ${yetkiDropdownItems.replace(new RegExp(`data-value="${k.muhasebeYetkiId}"`, 'g'), `data-value="${k.muhasebeYetkiId}" class="dropdown-item selected"`)}
+                </div>
+              </div>`
             : '<span class="badge badge-secondary">-</span>');
 
         return `
@@ -803,7 +1356,7 @@
             <td class="font-mono ${isActive ? '' : 'text-muted'}">${telefon}</td>
             <td>${yetkiCell}</td>
             <td>${durumBadge}</td>
-            <td class="font-semibold font-mono ${isActive ? '' : 'text-muted'}">-</td>
+            <td class="font-semibold font-mono ${isActive ? '' : 'text-muted'}">${k.policeSayisi || 0}</td>
             <td><span class="text-muted">-</span></td>
             <td class="text-muted">${kayitTarihi}</td>
             <td>
@@ -829,15 +1382,6 @@
         `;
       }).join('');
 
-      // Dropdown'lardaki mevcut yetkileri seç
-      kullanicilar.forEach(k => {
-        if (k.muhasebeYetkiId) {
-          const select = document.querySelector(`select[data-employee-id="${k.id}"]`);
-          if (select) {
-            select.value = k.muhasebeYetkiId;
-          }
-        }
-      });
     }
 
 
@@ -851,6 +1395,58 @@
       document.getElementById('statActive').textContent = active;
       document.getElementById('statInactive').textContent = inactive;
       document.getElementById('statPerformance').textContent = '-';
+    }
+
+    // Filtreleri uygula
+    function applyFilters() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      const durumFilter = document.getElementById('durumFilter').value;
+      const yetkiFilter = document.getElementById('yetkiFilter').value;
+
+      // Filtreleme işlemi
+      let filtered = kullanicilarCache.filter(k => {
+        // Arama filtresi
+        if (searchTerm) {
+          const fullName = `${k.adi || ''} ${k.soyadi || ''}`.toLowerCase();
+          const email = (k.email || '').toLowerCase();
+          const phone = (k.gsmNo || '').toLowerCase();
+          if (!fullName.includes(searchTerm) && !email.includes(searchTerm) && !phone.includes(searchTerm)) {
+            return false;
+          }
+        }
+
+        // Durum filtresi
+        if (durumFilter) {
+          const isActive = k.onay === 1;
+          if (durumFilter === 'active' && !isActive) return false;
+          if (durumFilter === 'inactive' && isActive) return false;
+        }
+
+        // Yetki filtresi
+        if (yetkiFilter) {
+          if (yetkiFilter === 'ana-yonetici') {
+            if (k.anaYoneticimi !== 0) return false;
+          } else {
+            if (k.muhasebeYetkiId !== parseInt(yetkiFilter)) return false;
+          }
+        }
+
+        return true;
+      });
+
+      // Tabloyu güncelle
+      renderKullanicilar(filtered);
+
+      // Sayacı güncelle
+      const countEl = document.querySelector('.card-actions .text-muted');
+      if (countEl) {
+        const totalCount = kullanicilarCache.length;
+        if (filtered.length === totalCount) {
+          countEl.textContent = `${totalCount} çalışan listeleniyor`;
+        } else {
+          countEl.textContent = `${filtered.length} / ${totalCount} çalışan gösteriliyor`;
+        }
+      }
     }
 
     // Yardımcı fonksiyonlar
@@ -896,7 +1492,7 @@
     // Yetki değişiklik takip sistemi
 
     // Yetki değişikliği olduğunda
-    function onPermissionChange(employeeId, newPermissionId, employeeName) {
+    function onPermissionChange(employeeId, newPermissionId, employeeName, dropdown) {
       newPermissionId = newPermissionId ? parseInt(newPermissionId) : null;
       const employee = kullanicilarCache.find(k => k.id === employeeId);
 
@@ -919,10 +1515,9 @@
         };
       }
 
-      // Select stilini güncelle
-      const select = document.querySelector(`select[data-employee-id="${employeeId}"]`);
-      if (select) {
-        select.classList.toggle('changed', !!pendingPermissionChanges[employeeId]);
+      // Dropdown stilini güncelle
+      if (dropdown) {
+        dropdown.classList.toggle('changed', !!pendingPermissionChanges[employeeId]);
       }
 
       // Floating box'ı güncelle
@@ -988,11 +1583,21 @@
 
       // Dropdown'ları orijinal değerlerine döndür
       Object.keys(pendingPermissionChanges).forEach(employeeId => {
-        const select = document.querySelector(`select[data-employee-id="${employeeId}"]`);
-        if (select) {
-          const originalValue = select.dataset.original || '';
-          select.value = originalValue;
-          select.classList.remove('changed');
+        const dropdown = document.querySelector(`.permission-dropdown[data-employee-id="${employeeId}"]`);
+        if (dropdown) {
+          const originalValue = dropdown.dataset.original || '';
+          const employee = kullanicilarCache.find(k => k.id == employeeId);
+          const originalYetkiAdi = employee?.yetkiAdi || 'Yetki Seçiniz';
+
+          // Text'i güncelle
+          dropdown.querySelector('.dropdown-text').textContent = originalYetkiAdi;
+
+          // Selected class'ı güncelle
+          dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.toggle('selected', item.dataset.value == originalValue);
+          });
+
+          dropdown.classList.remove('changed');
         }
       });
 
