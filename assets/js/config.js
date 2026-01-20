@@ -382,6 +382,97 @@ function getUserRole() {
   return user?.role || 'viewer';
 }
 
+/**
+ * Navbar'daki kullanıcı bilgilerini güncelle
+ * Tüm sayfalarda kullanılabilir
+ */
+function updateNavbarUser() {
+  const user = APP_CONFIG.AUTH.getUser();
+  if (!user) return;
+
+  // Kullanıcı adını göster
+  const userNameEl = document.querySelector('.navbar-user-name');
+  if (userNameEl) userNameEl.textContent = user.name || 'Kullanıcı';
+
+  // Şube adını göster (yoksa rolü göster)
+  const userRoleEl = document.querySelector('.navbar-user-role');
+  if (userRoleEl) userRoleEl.textContent = user.subeAdi || user.role || '';
+
+  // Avatar initials
+  const avatarEl = document.querySelector('.navbar-avatar');
+  if (avatarEl && user.name) {
+    const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    avatarEl.textContent = initials;
+  }
+}
+
+/**
+ * Kullanıcı yetkilerine göre menü öğelerini gizle/göster
+ * Sayfa yüklendiğinde çağrılır
+ */
+function applyPermissions() {
+  const user = APP_CONFIG.AUTH.getUser();
+  if (!user) return;
+
+  // Menü öğelerini yetkiye göre gizle
+  const menuRules = {
+    'a[href*="pool.html"]': 'policeHavuzunuGorebilsin',
+    'a[href*="permissions.html"]': 'yetkilerSayfasindaIslemYapabilsin',
+    'a[href*="agency-codes.html"]': 'acenteliklerSayfasindaIslemYapabilsin',
+    'a[href*="commission.html"]': 'komisyonOranlariniDuzenleyebilsin'
+  };
+
+  Object.entries(menuRules).forEach(([selector, permission]) => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      if (!hasPermission(permission)) {
+        // Önce parent nav-item'ı dene, yoksa elementi kaldır
+        const navItem = el.closest('.nav-item');
+        if (navItem) {
+          navItem.style.display = 'none';
+        } else {
+          el.style.display = 'none';
+        }
+      }
+    });
+  });
+}
+
+/**
+ * Belirli bir sayfaya erişim yetkisi kontrolü
+ * Korumalı sayfalarda çağrılır
+ * @param {string} permission - Gerekli yetki adı
+ * @param {string} redirectUrl - Yetki yoksa yönlendirilecek URL (default: index)
+ * @returns {boolean}
+ */
+function requirePermission(permission, redirectUrl = '../../index.html') {
+  if (!hasPermission(permission)) {
+    showToast('Bu sayfaya erişim yetkiniz yok', 'error');
+    setTimeout(() => {
+      window.location.href = redirectUrl;
+    }, 1500);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Düzenleme/silme butonlarını yetkiye göre devre dışı bırak
+ * @param {string} permission - Gerekli yetki adı
+ * @param {string} selectors - Devre dışı bırakılacak buton seçicileri (virgülle ayrılmış)
+ */
+function disableButtonsWithoutPermission(permission, selectors = '.btn-edit, .btn-delete') {
+  if (!hasPermission(permission)) {
+    document.querySelectorAll(selectors).forEach(btn => {
+      btn.disabled = true;
+      btn.classList.add('disabled');
+      btn.title = 'Bu işlem için yetkiniz yok';
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.5';
+    });
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 // SAYFA BAŞLATMA
 // ═══════════════════════════════════════════════════════════════
@@ -404,3 +495,12 @@ console.log(`[Config] Profil değiştirmek için: setDevProfile('omer') veya set
     APP_CONFIG.AUTH.redirectToLogin();
   }
 })();
+
+// ═══════════════════════════════════════════════════════════════
+// OTOMATİK NAVBAR GÜNCELLEME VE YETKİ KONTROLÜ
+// ═══════════════════════════════════════════════════════════════
+// Sayfa yüklendiğinde navbar'daki kullanıcı bilgilerini güncelle ve yetkileri uygula
+document.addEventListener('DOMContentLoaded', function() {
+  updateNavbarUser();
+  applyPermissions();
+});
