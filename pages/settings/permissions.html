@@ -195,6 +195,13 @@
             <p class="page-subtitle">Çalışanların sayfa erişim yetkilerini yönetin.</p>
           </div>
           <div class="page-actions">
+            <button class="btn btn-danger" id="deletePermission" style="display: none;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Yetkiyi Sil
+            </button>
             <button class="btn btn-primary" id="savePermissions">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
@@ -206,25 +213,19 @@
           </div>
         </div>
 
-        <!-- Info Alert -->
-        <div class="info-alert info-alert-cyan">
-          <div class="info-alert-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-          </div>
-          <div class="info-alert-content">
-            <p class="info-alert-title">Yetki Sistemi Hakkında</p>
-            <p class="info-alert-desc">Her çalışan için ayrı ayrı sayfa erişim yetkilerini açıp kapatabilirsiniz. Ana Yönetici tüm sayfalara erişebilir ve bu değiştirilemez.</p>
-          </div>
-        </div>
-
-        <!-- Employee Selection -->
+        <!-- Permission Profiles -->
         <div class="card" style="margin-bottom: 1.5rem;">
           <div class="card-header">
-            <h3 class="card-title">Çalışan Seçin</h3>
+            <h3 class="card-title">Yetki Profilleri</h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-ghost" id="editModeToggle" onclick="toggleEditMode()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Duzenleme Modu
+              </button>
+            </div>
           </div>
           <div class="card-body">
             <div class="employee-selector">
@@ -263,13 +264,30 @@
         <!-- Permissions Grid -->
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title" id="permissionTitle">Fatma Kara - Yetki Ayarları</h3>
-            <div class="card-actions">
-              <button class="btn btn-sm btn-ghost" onclick="selectAllPermissions()">Tümünü Seç</button>
-              <button class="btn btn-sm btn-ghost" onclick="deselectAllPermissions()">Tümünü Kaldır</button>
+            <h3 class="card-title" id="permissionTitle">Yetki Ayarları</h3>
+            <div class="card-actions" id="permissionActions" style="display: none;">
+              <button class="btn btn-sm btn-ghost" onclick="selectAllPermissions()">Tumunu Sec</button>
+              <button class="btn btn-sm btn-ghost" onclick="deselectAllPermissions()">Tumunu Kaldir</button>
             </div>
           </div>
           <div class="card-body">
+            <!-- Yetki Adı ve Görme Seviyesi -->
+            <div class="permission-basics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle);">
+              <div class="form-group">
+                <label class="form-label" for="permissionName">Yetki Adı</label>
+                <input type="text" class="form-input" id="permissionName" placeholder="Örn: Satış Temsilcisi">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="viewLevelSelect">Poliçe Görme Seviyesi</label>
+                <select class="form-select" id="viewLevelSelect">
+                  <option value="1">Tüm poliçeleri görebilir (Admin)</option>
+                  <option value="2">Sadece kendi şubesinin poliçelerini görür</option>
+                  <option value="3" selected>Sadece kendi poliçelerini görür</option>
+                  <option value="4">Hiçbir poliçe göremez</option>
+                </select>
+              </div>
+            </div>
+
             <div class="permissions-grid">
 
               <!-- Poliçe İşlemleri -->
@@ -288,44 +306,44 @@
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox" checked>
+                    <input type="checkbox" class="form-checkbox" name="policeDuzenleyebilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Poliçelerim</span>
-                      <span class="permission-desc">Kendi poliçelerini görüntüleme</span>
+                      <span class="permission-name">Poliçe Düzenleme</span>
+                      <span class="permission-desc">Poliçeleri düzenleme yetkisi</span>
                     </span>
                   </label>
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox" checked>
-                    <span class="permission-label">
-                      <span class="permission-name">Yakalanan Poliçeler</span>
-                      <span class="permission-desc">Otomatik yakalanan poliçeler</span>
-                    </span>
-                  </label>
-                  <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
+                    <input type="checkbox" class="form-checkbox" name="policeHavuzunuGorebilsin">
                     <span class="permission-label">
                       <span class="permission-name">Poliçe Havuzu</span>
                       <span class="permission-desc">Atanmamış poliçeleri görme</span>
                     </span>
                   </label>
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox" checked>
+                    <input type="checkbox" class="form-checkbox" name="policeAktarabilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Manuel Poliçe Ekle</span>
-                      <span class="permission-desc">Yeni poliçe oluşturma</span>
+                      <span class="permission-name">Poliçe Aktarma</span>
+                      <span class="permission-desc">Poliçe aktarma yetkisi</span>
                     </span>
                   </label>
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
+                    <input type="checkbox" class="form-checkbox" name="policeDosyalarinaErisebilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Toplu Aktar</span>
-                      <span class="permission-desc">Excel ile toplu import</span>
+                      <span class="permission-name">Poliçe Dosyaları</span>
+                      <span class="permission-desc">Poliçe dosyalarına erişim</span>
+                    </span>
+                  </label>
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox" name="policeYakalamaSecenekleri">
+                    <span class="permission-label">
+                      <span class="permission-name">Poliçe Yakalama</span>
+                      <span class="permission-desc">Otomatik poliçe yakalama ayarları</span>
                     </span>
                   </label>
                 </div>
               </div>
 
-              <!-- Müşteri İşlemleri -->
+              <!-- Yönetim Yetkileri -->
               <div class="permission-group">
                 <div class="permission-group-header">
                   <div class="permission-group-icon" style="background: rgba(16, 185, 129, 0.1);">
@@ -335,89 +353,43 @@
                     </svg>
                   </div>
                   <div>
-                    <h4>Müşteri İşlemleri</h4>
-                    <p>Müşteri yönetimi yetkileri</p>
+                    <h4>Yönetim Yetkileri</h4>
+                    <p>Sistem yönetimi yetkileri</p>
                   </div>
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox" checked>
+                    <input type="checkbox" class="form-checkbox" name="yetkilerSayfasindaIslemYapabilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Müşteri Listesi</span>
-                      <span class="permission-desc">Müşterileri görüntüleme</span>
+                      <span class="permission-name">Yetki Yönetimi</span>
+                      <span class="permission-desc">Yetki sayfasında işlem yapabilme</span>
                     </span>
                   </label>
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox" checked>
+                    <input type="checkbox" class="form-checkbox" name="acenteliklerSayfasindaIslemYapabilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Müşteri Detay</span>
-                      <span class="permission-desc">Detaylı müşteri bilgisi</span>
+                      <span class="permission-name">Acentelik Yönetimi</span>
+                      <span class="permission-desc">Acentelikler sayfasında işlem yapabilme</span>
                     </span>
                   </label>
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
+                    <input type="checkbox" class="form-checkbox" name="komisyonOranlariniDuzenleyebilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Müşteri Ekleme/Düzenleme</span>
-                      <span class="permission-desc">Yeni müşteri kayıt ve güncelleme</span>
+                      <span class="permission-name">Komisyon Düzenleme</span>
+                      <span class="permission-desc">Komisyon oranlarını düzenleyebilme</span>
                     </span>
                   </label>
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox" checked>
+                    <input type="checkbox" class="form-checkbox" name="produktorleriGorebilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Yenileme Takibi</span>
-                      <span class="permission-desc">Yaklaşan yenilemeleri görme</span>
+                      <span class="permission-name">Prodüktör Görme</span>
+                      <span class="permission-desc">Prodüktörleri görüntüleyebilme</span>
                     </span>
                   </label>
                 </div>
               </div>
 
-              <!-- Finans İşlemleri -->
-              <div class="permission-group">
-                <div class="permission-group-header">
-                  <div class="permission-group-icon" style="background: rgba(245, 158, 11, 0.1);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-                      <line x1="12" y1="1" x2="12" y2="23"/>
-                      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h4>Finans İşlemleri</h4>
-                    <p>Finansal işlem yetkileri</p>
-                  </div>
-                </div>
-                <div class="permission-items">
-                  <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
-                    <span class="permission-label">
-                      <span class="permission-name">Finans Dashboard</span>
-                      <span class="permission-desc">Finansal özet görüntüleme</span>
-                    </span>
-                  </label>
-                  <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
-                    <span class="permission-label">
-                      <span class="permission-name">Poliçe Bazlı Finans</span>
-                      <span class="permission-desc">Poliçe mali detayları</span>
-                    </span>
-                  </label>
-                  <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
-                    <span class="permission-label">
-                      <span class="permission-name">Tahsilat Takibi</span>
-                      <span class="permission-desc">Ödeme takip ve kayıt</span>
-                    </span>
-                  </label>
-                  <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
-                    <span class="permission-label">
-                      <span class="permission-name">Raporlar</span>
-                      <span class="permission-desc">Finansal rapor oluşturma</span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Diğer Yetkiler -->
+              <!-- Diğer Ayarlar -->
               <div class="permission-group">
                 <div class="permission-group-header">
                   <div class="permission-group-icon" style="background: rgba(99, 102, 241, 0.1);">
@@ -427,30 +399,16 @@
                     </svg>
                   </div>
                   <div>
-                    <h4>Diğer Yetkiler</h4>
-                    <p>Ek sistem yetkileri</p>
+                    <h4>Diğer Ayarlar</h4>
+                    <p>Ek sistem ayarları</p>
                   </div>
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox" checked>
+                    <input type="checkbox" class="form-checkbox" name="acenteliklereGorePoliceYakalansin">
                     <span class="permission-label">
-                      <span class="permission-name">Dashboard</span>
-                      <span class="permission-desc">Ana sayfa erişimi</span>
-                    </span>
-                  </label>
-                  <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
-                    <span class="permission-label">
-                      <span class="permission-name">Kendi Performansını Görme</span>
-                      <span class="permission-desc">Performans istatistikleri</span>
-                    </span>
-                  </label>
-                  <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox">
-                    <span class="permission-label">
-                      <span class="permission-name">Komisyon Bilgilerini Görme</span>
-                      <span class="permission-desc">Kendi komisyon detayları</span>
+                      <span class="permission-name">Acenteliklere Göre Yakalama</span>
+                      <span class="permission-desc">Acenteliklere göre poliçe yakalama</span>
                     </span>
                   </label>
                 </div>
@@ -459,25 +417,483 @@
             </div>
           </div>
         </div>
+
+        <!-- Employee Assignment Section -->
+        <div class="card" style="margin-top: 1.5rem;" id="employeeAssignmentCard">
+          <div class="card-header">
+            <h3 class="card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              Bu Yetkiye Sahip Calisanlar
+            </h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-primary" id="addEmployeeBtn" onclick="showAssignEmployeeModal()" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Calisan Ekle
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="data-table" id="employeesTable">
+                <thead>
+                  <tr>
+                    <th>Ad Soyad</th>
+                    <th>E-posta</th>
+                    <th>Telefon</th>
+                    <th width="180">Yetkiyi Degistir</th>
+                    <th width="100">Islem</th>
+                  </tr>
+                </thead>
+                <tbody id="employeesTableBody">
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">Yetki seciniz...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Floating Action Box for Changes -->
+  <div class="floating-action-box" id="floatingActionBox">
+    <div class="fab-header">
+      <div class="fab-count">
+        <span id="fabCount">0</span>
+        <small>degisiklik yapildi</small>
+      </div>
+      <button class="fab-close" onclick="cancelAllChanges()" title="Iptal Et">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="fab-stats">
+      <div class="fab-stat">
+        <span class="fab-stat-value" id="fabChangesList"></span>
+        <span class="fab-stat-label">Degistirilecek Yetkiler</span>
+      </div>
+    </div>
+    <div class="fab-actions">
+      <button class="fab-btn fab-btn-primary" onclick="applyAllChanges()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Degisiklikleri Uygula
+      </button>
+      <button class="fab-btn fab-btn-outline" onclick="cancelAllChanges()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        Iptal Et
+      </button>
+    </div>
+  </div>
+
+  <!-- Assign Employee Modal -->
+  <div class="modal-overlay" id="assignEmployeeModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Calisana Yetki Ata</h3>
+        <button class="modal-close" onclick="closeAssignEmployeeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Calisan Sec</label>
+          <select class="form-select" id="employeeSelect">
+            <option value="">-- Calisan Secin --</option>
+          </select>
+        </div>
+        <div style="margin-top: 1rem; text-align: right;">
+          <button class="btn btn-primary" onclick="assignSelectedEmployee()">Yetki Ata</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
 
   <script>
-    // Employee chip selection
-    document.querySelectorAll('.employee-chip').forEach(chip => {
-      chip.addEventListener('click', function() {
-        document.querySelectorAll('.employee-chip').forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-
-        const employeeName = this.querySelector('.chip-name').textContent;
-        document.getElementById('permissionTitle').textContent = employeeName + ' - Yetki Ayarları';
-      });
+    // Sayfa yüklendiğinde yetki kontrolü yap
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!requirePermission('yetkilerSayfasindaIslemYapabilsin')) return;
+      loadPermissions();
+      updateEditModeUI();
     });
+
+    // Yetki listesini yükle
+    let allPermissions = [];
+    let selectedPermissionId = null;
+    let isEditMode = false;
+
+    // Duzenleme modu toggle
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      updateEditModeUI();
+    }
+
+    function updateEditModeUI() {
+      const btn = document.getElementById('editModeToggle');
+      if (isEditMode) {
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Goruntuleme Modu
+        `;
+        btn.classList.add('btn-primary');
+        btn.classList.remove('btn-ghost');
+      } else {
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Duzenleme Modu
+        `;
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-ghost');
+      }
+
+      // Duzenleme elemanlarini goster/gizle
+      const deleteBtn = document.getElementById('deletePermission');
+      const saveBtn = document.getElementById('savePermissions');
+      const addChip = document.querySelector('.add-new-chip');
+      const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+      const permissionActions = document.getElementById('permissionActions');
+
+      if (deleteBtn) deleteBtn.style.display = isEditMode && selectedPermissionId ? 'inline-flex' : 'none';
+      if (saveBtn) saveBtn.style.display = isEditMode ? 'inline-flex' : 'none';
+      if (addChip) addChip.style.display = isEditMode ? 'flex' : 'none';
+      if (addEmployeeBtn) addEmployeeBtn.style.display = isEditMode && selectedPermissionId ? 'inline-flex' : 'none';
+      if (permissionActions) permissionActions.style.display = isEditMode ? 'flex' : 'none';
+
+      // Tablodaki Kaldir butonlarini goster/gizle
+      document.querySelectorAll('#employeesTableBody .btn-danger-text').forEach(btn => {
+        btn.style.display = isEditMode ? 'inline-flex' : 'none';
+      });
+
+      // Tablodaki yetki secim dropdown'larini aktif/pasif yap
+      document.querySelectorAll('#employeesTableBody .permission-select').forEach(select => {
+        select.disabled = !isEditMode;
+      });
+
+      // Form alanlarini readonly yap/ac
+      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(input => {
+        input.disabled = !isEditMode;
+      });
+      const nameInput = document.getElementById('permissionName');
+      const viewSelect = document.getElementById('viewLevelSelect');
+      if (nameInput) nameInput.disabled = !isEditMode;
+      if (viewSelect) viewSelect.disabled = !isEditMode;
+    }
+
+    async function loadPermissions() {
+      try {
+        showLoading(true);
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+
+        const params = firmaId ? { firmaId } : {};
+        allPermissions = await apiGet('permissions', params);
+
+        renderPermissionList();
+
+        // İlk yetkiyi seç
+        if (allPermissions.length > 0) {
+          selectPermission(allPermissions[0].id);
+        }
+      } catch (error) {
+        showToast('Yetkiler yüklenirken hata oluştu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Yetki listesini render et
+    function renderPermissionList() {
+      const container = document.querySelector('.employee-selector');
+      container.innerHTML = '';
+
+      // Yeni Yetki Ekle butonu (sadece duzenleme modunda gorunur)
+      const addButton = document.createElement('div');
+      addButton.className = 'employee-chip add-new-chip';
+      addButton.style.display = isEditMode ? 'flex' : 'none';
+      addButton.innerHTML = `
+        <div class="chip-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </div>
+        <div class="chip-info">
+          <span class="chip-name">Yeni Yetki</span>
+          <span class="chip-role">Ekle</span>
+        </div>
+      `;
+      addButton.onclick = () => showNewPermissionForm();
+      container.appendChild(addButton);
+
+      // Mevcut yetkiler
+      const colors = [
+        '#ec4899, #f472b6',
+        '#f59e0b, #fbbf24',
+        '#6366f1, #818cf8',
+        '#10b981, #34d399',
+        '#ef4444, #f87171',
+        '#8b5cf6, #a78bfa'
+      ];
+
+      allPermissions.forEach((permission, index) => {
+        const chip = document.createElement('div');
+        chip.className = 'employee-chip' + (selectedPermissionId === permission.id ? ' active' : '');
+        chip.dataset.permissionId = permission.id;
+
+        const initials = (permission.yetkiAdi || 'YT').substring(0, 2).toUpperCase();
+        const color = colors[index % colors.length];
+
+        chip.innerHTML = `
+          <div class="chip-avatar" style="background: linear-gradient(135deg, ${color});">${initials}</div>
+          <div class="chip-info">
+            <span class="chip-name">${permission.yetkiAdi || 'İsimsiz Yetki'}</span>
+            <span class="chip-role">ID: ${permission.id}</span>
+          </div>
+        `;
+        chip.onclick = () => selectPermission(permission.id);
+        container.appendChild(chip);
+      });
+    }
+
+    // Yetki seç ve detayları göster
+    function selectPermission(id) {
+      selectedPermissionId = id;
+      const permission = allPermissions.find(p => p.id === id);
+
+      if (!permission) return;
+
+      // Aktif chip'i güncelle
+      document.querySelectorAll('.employee-chip').forEach(c => c.classList.remove('active'));
+      const activeChip = document.querySelector(`.employee-chip[data-permission-id="${id}"]`);
+      if (activeChip) activeChip.classList.add('active');
+
+      // Başlığı güncelle
+      document.getElementById('permissionTitle').textContent = (permission.yetkiAdi || 'Yetki') + ' - Yetki Ayarları';
+
+      // Form alanlarını doldur
+      fillPermissionForm(permission);
+
+      // Edit mode UI guncelle
+      updateEditModeUI();
+    }
+
+    // Form alanlarını doldur
+    function fillPermissionForm(permission) {
+      // Yetki adı
+      const nameInput = document.getElementById('permissionName');
+      if (nameInput) nameInput.value = permission.yetkiAdi || '';
+
+      // Checkbox'ları doldur
+      const checkboxMapping = {
+        'gorebilecegiPolicelerveKartlar': permission.gorebilecegiPolicelerveKartlar,
+        'policeDuzenleyebilsin': permission.policeDuzenleyebilsin,
+        'policeHavuzunuGorebilsin': permission.policeHavuzunuGorebilsin,
+        'policeAktarabilsin': permission.policeAktarabilsin,
+        'policeDosyalarinaErisebilsin': permission.policeDosyalarinaErisebilsin,
+        'policeYakalamaSecenekleri': permission.policeYakalamaSecenekleri,
+        'yetkilerSayfasindaIslemYapabilsin': permission.yetkilerSayfasindaIslemYapabilsin,
+        'acenteliklerSayfasindaIslemYapabilsin': permission.acenteliklerSayfasindaIslemYapabilsin,
+        'komisyonOranlariniDuzenleyebilsin': permission.komisyonOranlariniDuzenleyebilsin,
+        'produktorleriGorebilsin': permission.produktorleriGorebilsin,
+        'acenteliklereGorePoliceYakalansin': permission.acenteliklereGorePoliceYakalansin
+      };
+
+      Object.entries(checkboxMapping).forEach(([name, value]) => {
+        const checkbox = document.querySelector(`input[name="${name}"]`);
+        if (checkbox) checkbox.checked = value === '1';
+      });
+
+      // Görme seviyesi select
+      const viewLevelSelect = document.getElementById('viewLevelSelect');
+      if (viewLevelSelect) viewLevelSelect.value = permission.gorebilecegiPolicelerveKartlar || '3';
+    }
+
+    // Form verilerini topla
+    function collectFormData() {
+      const checkboxNames = [
+        'policeDuzenleyebilsin',
+        'policeHavuzunuGorebilsin',
+        'policeAktarabilsin',
+        'policeDosyalarinaErisebilsin',
+        'policeYakalamaSecenekleri',
+        'yetkilerSayfasindaIslemYapabilsin',
+        'acenteliklerSayfasindaIslemYapabilsin',
+        'komisyonOranlariniDuzenleyebilsin',
+        'produktorleriGorebilsin',
+        'acenteliklereGorePoliceYakalansin'
+      ];
+
+      const data = {
+        yetkiAdi: document.getElementById('permissionName')?.value || '',
+        gorebilecegiPolicelerveKartlar: document.getElementById('viewLevelSelect')?.value || '3'
+      };
+
+      checkboxNames.forEach(name => {
+        const checkbox = document.querySelector(`input[name="${name}"]`);
+        data[name] = checkbox?.checked ? '1' : '0';
+      });
+
+      return data;
+    }
+
+    // Yetki kaydet
+    async function savePermission() {
+      if (!selectedPermissionId) {
+        showToast('Lütfen bir yetki seçin', 'warning');
+        return;
+      }
+
+      try {
+        showLoading(true);
+        const data = collectFormData();
+
+        await apiPut(`permissions/${selectedPermissionId}`, data);
+
+        showToast('Yetki başarıyla güncellendi', 'success');
+        await loadPermissions();
+        selectPermission(selectedPermissionId);
+      } catch (error) {
+        showToast('Yetki güncellenirken hata oluştu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Yeni yetki formu göster
+    function showNewPermissionForm() {
+      selectedPermissionId = null;
+
+      // Tüm chip'lerin aktifliğini kaldır, sadece "Yeni Yetki" aktif
+      document.querySelectorAll('.employee-chip').forEach(c => c.classList.remove('active'));
+      document.querySelector('.add-new-chip')?.classList.add('active');
+
+      // Başlığı güncelle
+      document.getElementById('permissionTitle').textContent = 'Yeni Yetki Olustur';
+
+      // Formu temizle
+      document.getElementById('permissionName').value = '';
+      document.getElementById('viewLevelSelect').value = '3';
+      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+
+      // Kaydet butonunu "Oluştur" olarak değiştir, Sil butonunu gizle
+      document.getElementById('savePermissions').innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Yeni Yetki Olustur
+      `;
+      document.getElementById('deletePermission').style.display = 'none';
+
+      // Form card'ina smooth scroll
+      const permissionsCard = document.getElementById('permissionTitle')?.closest('.card');
+      if (permissionsCard) {
+        permissionsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Yeni yetki oluştur
+    async function createPermission() {
+      const user = APP_CONFIG.AUTH.getUser();
+      const data = collectFormData();
+
+      if (!data.yetkiAdi) {
+        showToast('Lütfen yetki adı girin', 'warning');
+        return;
+      }
+
+      try {
+        showLoading(true);
+
+        const createData = {
+          ...data,
+          firmaId: user?.firmaId || 1,
+          ekleyenUyeId: user?.id || 1
+        };
+
+        const result = await apiPost('permissions', createData);
+
+        showToast('Yetki başarıyla oluşturuldu', 'success');
+        await loadPermissions();
+        selectPermission(result.id);
+
+        // Kaydet butonunu eski haline döndür
+        document.getElementById('savePermissions').innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17,21 17,13 7,13 7,21"/>
+            <polyline points="7,3 7,8 15,8"/>
+          </svg>
+          Değişiklikleri Kaydet
+        `;
+      } catch (error) {
+        showToast('Yetki oluşturulurken hata oluştu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Yetki sil
+    async function deletePermission() {
+      if (!selectedPermissionId) {
+        showToast('Lütfen bir yetki seçin', 'warning');
+        return;
+      }
+
+      if (!confirm('Bu yetkiyi silmek istediğinizden emin misiniz?')) {
+        return;
+      }
+
+      try {
+        showLoading(true);
+
+        await apiDelete(`permissions/${selectedPermissionId}`);
+
+        showToast('Yetki başarıyla silindi', 'success');
+        selectedPermissionId = null;
+        await loadPermissions();
+      } catch (error) {
+        showToast('Yetki silinirken hata oluştu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Kaydet butonu click handler
+    document.getElementById('savePermissions').addEventListener('click', function() {
+      if (selectedPermissionId) {
+        savePermission();
+      } else {
+        createPermission();
+      }
+    });
+
+    // Sil butonu click handler
+    document.getElementById('deletePermission').addEventListener('click', deletePermission);
 
     function selectAllPermissions() {
       document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = true);
@@ -486,6 +902,294 @@
     function deselectAllPermissions() {
       document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = false);
     }
+
+    // ==================== CALISAN YONETIMI ====================
+
+    let allEmployees = [];
+
+    // Calisanlari yukle
+    async function loadEmployees() {
+      try {
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+        const params = firmaId ? { firmaId, limit: 500 } : { limit: 500 };
+        allEmployees = await apiGet('producers', params);
+      } catch (error) {
+        console.error('Calisanlar yuklenirken hata:', error);
+      }
+    }
+
+    // Bekleyen yetki degisiklikleri
+    let pendingPermissionChanges = {};
+
+    // Secili yetkiye sahip calisanlari goster (tablo formatinda)
+    async function loadEmployeesWithPermission() {
+      const tbody = document.getElementById('employeesTableBody');
+
+      if (!selectedPermissionId) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Yetki seciniz...</td></tr>';
+        return;
+      }
+
+      // Eger calisanlar yuklenmemisse yukle
+      if (allEmployees.length === 0) {
+        await loadEmployees();
+      }
+
+      // Bu yetkiye sahip calisanlari filtrele
+      const employeesWithThisPermission = allEmployees.filter(emp => emp.muhasebeYetkiId === selectedPermissionId);
+
+      if (employeesWithThisPermission.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Bu yetkiye sahip calisan bulunmuyor.</td></tr>';
+        return;
+      }
+
+      // Yetki secenekleri HTML
+      const permissionOptions = allPermissions.map(p =>
+        `<option value="${p.id}">${p.yetkiAdi || 'Isimsiz Yetki'}</option>`
+      ).join('');
+
+      tbody.innerHTML = employeesWithThisPermission.map(emp => {
+        const hasPendingChange = pendingPermissionChanges[emp.id];
+        const selectClass = hasPendingChange ? 'permission-select changed' : 'permission-select';
+
+        return `
+        <tr data-employee-id="${emp.id}">
+          <td>
+            <div class="user-cell">
+              <span class="user-name">${emp.adi || ''} ${emp.soyadi || ''}</span>
+            </div>
+          </td>
+          <td>${emp.email || '-'}</td>
+          <td>${emp.gsmNo || '-'}</td>
+          <td>
+            <select class="${selectClass}" onchange="onPermissionChange(${emp.id}, this.value, '${emp.adi || ''} ${emp.soyadi || ''}')" ${!isEditMode ? 'disabled' : ''}>
+              ${permissionOptions}
+            </select>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-ghost btn-danger-text" onclick="removeEmployeePermission(${emp.id})" title="Yetkiyi kaldir" style="display: ${isEditMode ? 'inline-flex' : 'none'};">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Kaldir
+            </button>
+          </td>
+        </tr>
+      `}).join('');
+
+      // Secili yetkileri ayarla
+      employeesWithThisPermission.forEach(emp => {
+        const select = document.querySelector(`tr[data-employee-id="${emp.id}"] .permission-select`);
+        if (select) {
+          // Eger bekleyen degisiklik varsa onu goster, yoksa mevcut yetkiyi
+          select.value = pendingPermissionChanges[emp.id]?.newPermissionId || emp.muhasebeYetkiId;
+        }
+      });
+    }
+
+    // Yetki degisikligi olunca
+    function onPermissionChange(employeeId, newPermissionId, employeeName) {
+      newPermissionId = parseInt(newPermissionId);
+      const employee = allEmployees.find(e => e.id === employeeId);
+
+      if (!employee) return;
+
+      // Eger ayni yetkiye geri donduyse, bekleyen degisikligi kaldir
+      if (employee.muhasebeYetkiId === newPermissionId) {
+        delete pendingPermissionChanges[employeeId];
+      } else {
+        // Yeni degisikligi kaydet
+        const newPermission = allPermissions.find(p => p.id === newPermissionId);
+        pendingPermissionChanges[employeeId] = {
+          employeeId,
+          employeeName,
+          oldPermissionId: employee.muhasebeYetkiId,
+          newPermissionId,
+          newPermissionName: newPermission?.yetkiAdi || 'Isimsiz Yetki'
+        };
+      }
+
+      // Select stilini guncelle
+      const select = document.querySelector(`tr[data-employee-id="${employeeId}"] .permission-select`);
+      if (select) {
+        select.classList.toggle('changed', !!pendingPermissionChanges[employeeId]);
+      }
+
+      // Floating box'i guncelle
+      updateFloatingActionBox();
+    }
+
+    // Floating action box'i guncelle
+    function updateFloatingActionBox() {
+      const floatingBox = document.getElementById('floatingActionBox');
+      const changeCount = Object.keys(pendingPermissionChanges).length;
+
+      if (changeCount > 0) {
+        floatingBox.classList.add('active');
+        document.getElementById('fabCount').textContent = changeCount;
+
+        // Degisiklik listesini olustur
+        const changesList = Object.values(pendingPermissionChanges)
+          .map(c => `${c.employeeName} → ${c.newPermissionName}`)
+          .join('<br>');
+        document.getElementById('fabChangesList').innerHTML = changesList;
+      } else {
+        floatingBox.classList.remove('active');
+      }
+    }
+
+    // Tum degisiklikleri uygula
+    async function applyAllChanges() {
+      const changes = Object.values(pendingPermissionChanges);
+      if (changes.length === 0) return;
+
+      if (!confirm(`${changes.length} calisanin yetkisi degistirilecek. Onayliyor musunuz?`)) return;
+
+      try {
+        showLoading(true);
+
+        // Tum degisiklikleri API'ye gonder
+        for (const change of changes) {
+          await apiPut(`producers/${change.employeeId}/permission`, { yetkiId: change.newPermissionId });
+        }
+
+        showToast(`${changes.length} calisanin yetkisi basariyla degistirildi`, 'success');
+
+        // Temizle ve yenile
+        pendingPermissionChanges = {};
+        updateFloatingActionBox();
+        await loadEmployees();
+        await loadEmployeesWithPermission();
+      } catch (error) {
+        showToast('Yetkiler degistirilirken hata olustu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Tum degisiklikleri iptal et
+    function cancelAllChanges() {
+      if (Object.keys(pendingPermissionChanges).length === 0) return;
+
+      pendingPermissionChanges = {};
+      updateFloatingActionBox();
+      loadEmployeesWithPermission();
+      showToast('Degisiklikler iptal edildi', 'info');
+    }
+
+    // selectPermission fonksiyonunu guncelle - calisan listesini de yukle
+    const originalSelectPermission = selectPermission;
+    selectPermission = function(id) {
+      originalSelectPermission(id);
+      loadEmployeesWithPermission();
+    };
+
+    // Calisan atama modalini goster
+    async function showAssignEmployeeModal() {
+      if (!selectedPermissionId) {
+        showToast('Lutfen once bir yetki secin', 'warning');
+        return;
+      }
+      document.getElementById('assignEmployeeModal').style.display = 'flex';
+      await loadEmployeeDropdown();
+    }
+
+    // Calisan atama modalini kapat
+    function closeAssignEmployeeModal() {
+      document.getElementById('assignEmployeeModal').style.display = 'none';
+    }
+
+    // Calisan dropdown'u yukle
+    async function loadEmployeeDropdown() {
+      const select = document.getElementById('employeeSelect');
+      select.innerHTML = '<option value="">Yukleniyor...</option>';
+
+      try {
+        // Eger calisanlar yuklenmemisse yukle
+        if (allEmployees.length === 0) {
+          await loadEmployees();
+        }
+
+        // Bu yetkiye sahip olmayan calisanlari filtrele
+        const availableEmployees = allEmployees.filter(emp => emp.muhasebeYetkiId !== selectedPermissionId);
+
+        select.innerHTML = '<option value="">-- Calisan Secin --</option>';
+
+        availableEmployees.forEach(emp => {
+          const option = document.createElement('option');
+          option.value = emp.id;
+          option.textContent = `${emp.adi || ''} ${emp.soyadi || ''} - ${emp.email || 'E-posta yok'}`;
+          select.appendChild(option);
+        });
+
+        if (availableEmployees.length === 0) {
+          select.innerHTML = '<option value="">Atanacak calisan bulunamadi</option>';
+        }
+      } catch (error) {
+        select.innerHTML = '<option value="">Hata olustu</option>';
+      }
+    }
+
+    // Secili calisana yetki ata
+    async function assignSelectedEmployee() {
+      const select = document.getElementById('employeeSelect');
+      const employeeId = select.value;
+
+      if (!employeeId) {
+        showToast('Lutfen bir calisan secin', 'warning');
+        return;
+      }
+
+      if (!selectedPermissionId) {
+        showToast('Lutfen once bir yetki secin', 'warning');
+        return;
+      }
+
+      try {
+        showLoading(true);
+        await apiPut(`producers/${employeeId}/permission`, { yetkiId: selectedPermissionId });
+
+        showToast('Calisana yetki atandi', 'success');
+        closeAssignEmployeeModal();
+
+        // Calisan listesini yenile
+        await loadEmployees();
+        await loadEmployeesWithPermission();
+      } catch (error) {
+        showToast('Yetki atanirken hata olustu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Calisanin yetkisini kaldir
+    async function removeEmployeePermission(employeeId) {
+      if (!confirm('Bu calisanin yetkisini kaldirmak istediginizden emin misiniz?')) {
+        return;
+      }
+
+      try {
+        showLoading(true);
+        await apiDelete(`producers/${employeeId}/permission`);
+
+        showToast('Calisan yetkisi basariyla kaldirildi', 'success');
+
+        // Calisan listesini yenile
+        await loadEmployees();
+        await loadEmployeesWithPermission();
+      } catch (error) {
+        showToast('Yetki kaldirilirken hata olustu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Sayfa yuklendiginde calisanlari da yukle
+    document.addEventListener('DOMContentLoaded', function() {
+      loadEmployees();
+    });
   </script>
 
   <style>
@@ -641,6 +1345,363 @@
       .permissions-grid {
         grid-template-columns: 1fr;
       }
+    }
+
+    /* Form styles */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .form-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .form-input, .form-select {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-default);
+      border-radius: 0.5rem;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 0.9375rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Add new chip styles */
+    .add-new-chip {
+      border-style: dashed;
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+    .add-new-chip:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--primary);
+    }
+
+    /* Button danger style */
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+
+    .btn-danger-text {
+      color: #ef4444;
+    }
+    .btn-danger-text:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+    }
+
+    /* Employee cards */
+    .employees-with-permission {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .employee-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.625rem;
+      min-width: 250px;
+    }
+    .employee-card-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+    .employee-card-info {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .employee-card-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .employee-card-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: var(--bg-surface);
+      border-radius: 1rem;
+      width: 100%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .modal-header h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    .modal-close:hover {
+      color: var(--text-primary);
+    }
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    /* Employee search */
+    .employee-search-results {
+      margin-top: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .employee-search-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .employee-search-item:hover {
+      background: var(--bg-elevated);
+    }
+    .employee-search-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+    .employee-search-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .employee-search-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+    .employee-search-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .text-muted {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    /* Floating Action Box */
+    .floating-action-box {
+      position: fixed;
+      right: -320px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 280px;
+      background: #1a1b23;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: none;
+      border-radius: 16px 0 0 16px;
+      padding: 1.5rem;
+      z-index: 500;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+    }
+    .floating-action-box.active {
+      right: 0;
+    }
+    .fab-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .fab-count {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+    .fab-count span {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .fab-count small {
+      font-size: 0.8rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .fab-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      transition: all 0.15s ease;
+    }
+    .fab-close:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+    .fab-stats {
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+    }
+    .fab-stat {
+      text-align: center;
+    }
+    .fab-stat-value {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #a5b4fc;
+      max-height: 80px;
+      overflow-y: auto;
+      text-align: left;
+    }
+    .fab-stat-label {
+      display: block;
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .fab-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .fab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+    }
+    .fab-btn svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+    }
+    .fab-btn-primary {
+      background: #10b981;
+      color: #fff;
+    }
+    .fab-btn-primary:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+    .fab-btn-outline {
+      background: transparent;
+      color: #9ca3af;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .fab-btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    /* Permission change select in table */
+    .permission-select {
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border-default);
+      border-radius: 0.375rem;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      width: 100%;
+      max-width: 160px;
+    }
+    .permission-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    }
+    .permission-select.changed {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
     }
   </style>
 </body>
