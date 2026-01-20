@@ -690,11 +690,11 @@
       hideError();
 
       try {
-        // API'ye login isteği
+        // API'ye login isteği (skipAuthRedirect: login'de 401 hatası için özel mesaj gösterelim)
         const response = await apiPost('auth/login', {
           email: email,
           password: password
-        });
+        }, { skipAuthRedirect: true });
 
         if (response.success && response.token) {
           // Token ve kullanıcı bilgilerini kaydet
@@ -737,11 +737,10 @@
       } catch (error) {
         console.error('Login error:', error);
 
-        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-          showError('E-posta veya parola hatalı');
-        } else if (error.message.includes('zaman aşımı') || error.message.includes('timeout')) {
+        if (error.message.includes('zaman aşımı') || error.message.includes('timeout')) {
           showError('Sunucuya bağlanılamadı. Lütfen tekrar deneyin.');
         } else {
+          // config.js'den gelen hata mesajını direkt göster (E-posta veya parola hatalı vb.)
           showError(error.message || 'Giriş sırasında bir hata oluştu');
         }
       } finally {

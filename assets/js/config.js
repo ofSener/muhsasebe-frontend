@@ -122,6 +122,10 @@ async function apiRequest(endpoint, options = {}) {
   const url = APP_CONFIG.API.getUrl(endpoint);
   const token = APP_CONFIG.AUTH.getToken();
 
+  // skipAuthRedirect: true ise 401'de otomatik login'e yönlendirme yapma
+  const skipAuthRedirect = options.skipAuthRedirect || false;
+  delete options.skipAuthRedirect;
+
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
@@ -151,9 +155,15 @@ async function apiRequest(endpoint, options = {}) {
 
     // 401 Unauthorized - Token geçersiz
     if (response.status === 401) {
-      APP_CONFIG.AUTH.clearToken();
-      APP_CONFIG.AUTH.redirectToLogin();
-      throw new Error('Oturum süresi doldu');
+      if (!skipAuthRedirect) {
+        APP_CONFIG.AUTH.clearToken();
+        APP_CONFIG.AUTH.redirectToLogin();
+        throw new Error('Oturum süresi doldu');
+      } else {
+        // Login gibi istekler için: backend'den gelen hatayı kullan
+        const data = await response.json();
+        throw new Error(data.error || 'E-posta veya parola hatalı');
+      }
     }
 
     // 403 Forbidden - Yetki yok
@@ -187,11 +197,15 @@ async function apiGet(endpoint, params = {}) {
 
 /**
  * POST isteği
+ * @param {string} endpoint - API endpoint
+ * @param {object} data - POST body data
+ * @param {object} extraOptions - Ek opsiyonlar (örn: { skipAuthRedirect: true })
  */
-async function apiPost(endpoint, data = {}) {
+async function apiPost(endpoint, data = {}, extraOptions = {}) {
   return apiRequest(endpoint, {
     method: 'POST',
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
+    ...extraOptions
   });
 }
 
