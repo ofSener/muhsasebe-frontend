@@ -3148,25 +3148,47 @@ h6 { font-size: 0.8125rem; }
    TOAST NOTIFICATIONS
    ═══════════════════════════════════════════════════════════════ */
 
+.toast-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.toast-backdrop.show {
+  opacity: 1;
+  visibility: visible;
+}
+
 .toast-notification {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
   z-index: 10000;
   opacity: 0;
-  transform: translateY(20px);
+  visibility: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   max-width: 400px;
+  text-align: center;
 }
 
 .toast-notification.show {
   opacity: 1;
-  transform: translateY(0);
+  visibility: visible;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .toast-content {
@@ -3180,6 +3202,13 @@ h6 { font-size: 0.8125rem; }
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.toast-icon svg {
+  width: 24px;
+  height: 24px;
 }
 
 .toast-message {

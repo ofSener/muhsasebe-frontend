@@ -276,41 +276,101 @@ async function apiDelete(endpoint) {
  * Toast/Notification göster
  */
 function showToast(message, type = 'info') {
+  console.log('showToast çağrıldı:', message, type);
+
   // Mevcut toast varsa kaldır
-  const existingToast = document.querySelector('.toast-notification');
-  if (existingToast) {
-    existingToast.remove();
+  const existing = document.getElementById('app-toast');
+  if (existing) {
+    existing.remove();
+    console.log('Eski toast kaldırıldı');
   }
 
+  // Renk ayarları
+  const colors = {
+    success: { bg: '#10b981', icon: '✓' },
+    error: { bg: '#ef4444', icon: '✕' },
+    warning: { bg: '#f59e0b', icon: '!' },
+    info: { bg: '#3b82f6', icon: 'i' }
+  };
+  const color = colors[type] || colors.info;
+
+  // Toast wrapper - doğrudan HTML'e eklenir
   const toast = document.createElement('div');
-  toast.className = `toast-notification toast-${type}`;
+  toast.id = 'app-toast';
+
+  // Inline CSS - !important ile override garantisi
+  toast.setAttribute('style', `
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(4px) !important;
+    z-index: 2147483647 !important;
+    opacity: 0;
+    transition: opacity 0.3s ease !important;
+  `);
+
   toast.innerHTML = `
-    <div class="toast-content">
-      <span class="toast-icon">${getToastIcon(type)}</span>
-      <span class="toast-message">${message}</span>
+    <div id="app-toast-box" style="
+      background: #ffffff !important;
+      border-radius: 16px !important;
+      padding: 24px 32px !important;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3) !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 16px !important;
+      transform: scale(0.8);
+      transition: transform 0.3s ease !important;
+    ">
+      <div style="
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 50% !important;
+        background: ${color.bg} !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 24px !important;
+        font-weight: bold !important;
+        flex-shrink: 0 !important;
+      ">${color.icon}</div>
+      <div style="font-size: 16px !important; font-weight: 500 !important; color: #1f2937 !important;">${message}</div>
     </div>
   `;
 
-  document.body.appendChild(toast);
+  // HTML elementine (en üst seviye) ekle
+  document.documentElement.appendChild(toast);
+  console.log('Toast eklendi:', toast);
 
-  // Animasyon için timeout
-  setTimeout(() => toast.classList.add('show'), 10);
+  // Animasyon
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    const box = document.getElementById('app-toast-box');
+    if (box) box.style.transform = 'scale(1)';
+    console.log('Toast gösterildi');
+  });
 
-  // 3 saniye sonra kaldır
+  // 2.5 saniye sonra kapat
   setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
+    toast.style.opacity = '0';
+    const box = document.getElementById('app-toast-box');
+    if (box) box.style.transform = 'scale(0.8)';
+    setTimeout(() => {
+      toast.remove();
+      console.log('Toast kaldırıldı');
+    }, 300);
+  }, 2500);
 }
 
+// Eski fonksiyon - geriye uyumluluk için
 function getToastIcon(type) {
-  const icons = {
-    success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22,4 12,14.01 9,11.01"/></svg>',
-    error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
-    warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-    info: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
-  };
-  return icons[type] || icons.info;
+  return '';
 }
 
 /**

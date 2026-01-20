@@ -34,6 +34,240 @@
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
+
+    /* Modern Dropdown Styles - Tüm select'ler için */
+    .form-select,
+    .permission-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding: 0.625rem 2.25rem 0.625rem 0.875rem;
+      border: 1px solid var(--border-default);
+      border-radius: 0.5rem;
+      background-color: var(--bg-surface);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 16px;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 140px;
+    }
+    .form-select:hover,
+    .permission-select:hover {
+      border-color: var(--border-hover, #4b5563);
+      background-color: var(--bg-elevated);
+    }
+    .form-select:focus,
+    .permission-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      background-color: var(--bg-surface);
+    }
+    .form-select option,
+    .permission-select option {
+      padding: 0.5rem;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    /* Tablo içi permission select - daha kompakt */
+    .permission-select {
+      padding: 0.5rem 2rem 0.5rem 0.75rem;
+      font-size: 0.8125rem;
+      min-width: 150px;
+      max-width: 170px;
+      background-color: rgba(99, 102, 241, 0.05);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+    .permission-select:hover {
+      background-color: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+    .permission-select:focus {
+      background-color: rgba(99, 102, 241, 0.08);
+    }
+
+    /* Değişiklik yapılmış dropdown */
+    .permission-select.changed {
+      border-color: #f59e0b;
+      background-color: rgba(245, 158, 11, 0.1);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f59e0b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15);
+    }
+    .permission-select.changed:hover {
+      border-color: #d97706;
+      background-color: rgba(245, 158, 11, 0.15);
+    }
+
+    /* Filtre satırı stili */
+    .filters-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .filters-row .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+    .filters-row .search-icon {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .filters-row .search-input {
+      width: 100%;
+      padding-left: 2.75rem;
+    }
+
+    /* Filtre dropdown'ları */
+    .filter-select {
+      flex-shrink: 0;
+      min-width: 160px;
+      background-color: var(--bg-elevated);
+    }
+    .filter-select:hover {
+      background-color: var(--bg-overlay);
+    }
+
+    /* Floating Action Box */
+    .floating-action-box {
+      position: fixed;
+      right: -320px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 280px;
+      background: #1a1b23;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: none;
+      border-radius: 16px 0 0 16px;
+      padding: 1.5rem;
+      z-index: 1000;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+    }
+    .floating-action-box.active {
+      right: 0;
+    }
+    .fab-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .fab-count {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+    .fab-count span {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .fab-count small {
+      font-size: 0.8rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .fab-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      transition: all 0.15s ease;
+    }
+    .fab-close:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+    .fab-stats {
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+    }
+    .fab-stat {
+      text-align: center;
+    }
+    .fab-stat-value {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #a5b4fc;
+      max-height: 80px;
+      overflow-y: auto;
+      text-align: left;
+    }
+    .fab-stat-label {
+      display: block;
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .fab-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .fab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+    }
+    .fab-btn svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+    }
+    .fab-btn-primary {
+      background: #10b981;
+      color: #fff;
+    }
+    .fab-btn-primary:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+    .fab-btn-outline {
+      background: transparent;
+      color: #9ca3af;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .fab-btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
@@ -311,14 +545,14 @@
                   <circle cx="11" cy="11" r="8"/>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
-                <input type="text" class="form-input" placeholder="Çalışan ara (isim, e-posta, telefon)..." style="padding-left: 2.5rem;">
+                <input type="text" class="form-input search-input" placeholder="Çalışan ara (isim, e-posta, telefon)...">
               </div>
-              <select class="form-select" style="width: auto;">
+              <select class="form-select filter-select" id="durumFilter">
                 <option value="">Tüm Durumlar</option>
                 <option value="active">Aktif</option>
                 <option value="inactive">Pasif</option>
               </select>
-              <select id="yetkiFilter" class="form-select" style="width: auto;">
+              <select class="form-select filter-select" id="yetkiFilter">
                 <option value="">Tüm Yetkiler</option>
               </select>
             </div>
@@ -359,6 +593,42 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Floating Action Box for Permission Changes -->
+  <div class="floating-action-box" id="floatingActionBox">
+    <div class="fab-header">
+      <div class="fab-count">
+        <span id="fabCount">0</span>
+        <small>değişiklik yapıldı</small>
+      </div>
+      <button class="fab-close" onclick="cancelAllChanges()" title="İptal Et">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="fab-stats">
+      <div class="fab-stat">
+        <span class="fab-stat-value" id="fabChangesList"></span>
+        <span class="fab-stat-label">Değiştirilecek Yetkiler</span>
+      </div>
+    </div>
+    <div class="fab-actions">
+      <button class="fab-btn fab-btn-primary" onclick="applyAllChanges()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Değişiklikleri Uygula
+      </button>
+      <button class="fab-btn fab-btn-outline" onclick="cancelAllChanges()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        İptal Et
+      </button>
+    </div>
   </div>
 
   <!-- Add Employee Modal -->
@@ -411,43 +681,18 @@
     </div>
   </div>
 
-  <!-- Yetki Değiştir Modal -->
-  <div class="modal-backdrop" id="yetkiModal" style="display: none;">
-    <div class="modal" style="max-width: 400px;">
-      <div class="modal-header">
-        <h3 class="modal-title">Yetki Değiştir</h3>
-        <button class="modal-close" onclick="closeYetkiModal()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/>
-            <line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted mb-3">Çalışan: <strong id="yetkiModalName"></strong></p>
-        <div class="form-group">
-          <label class="form-label">Yeni Yetki</label>
-          <select id="yetkiModalSelect" class="form-select">
-            <option value="">Yükleniyor...</option>
-          </select>
-        </div>
-        <input type="hidden" id="yetkiModalKullaniciId">
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeYetkiModal()">İptal</button>
-        <button class="btn btn-primary" onclick="saveYetki()">Kaydet</button>
-      </div>
-    </div>
-  </div>
-
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
   <script>
+    // Global değişkenler
+    let yetkilerCache = null;
+    let kullanicilarCache = [];
+    let pendingPermissionChanges = {};
 
-    // Sayfa yüklendiğinde çalışanları ve yetkileri getir
-    document.addEventListener('DOMContentLoaded', function() {
-      loadKullanicilar();
-      loadYetkiler();
+    // Sayfa yüklendiğinde önce yetkileri sonra çalışanları getir
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadYetkiler(); // Önce yetkiler yüklensin
+      await loadKullanicilar(); // Sonra çalışanlar
     });
 
     // Kullanıcı bilgisinden FirmaId al
@@ -456,13 +701,16 @@
       return user?.firmaId || null;
     }
 
-    // Yetkileri API'den yükle (filtre için)
+    // Yetkileri API'den yükle (filtre ve dropdown için)
     async function loadYetkiler() {
       const firmaId = getCurrentFirmaId();
       const select = document.getElementById('yetkiFilter');
 
       try {
         const yetkiler = await apiGet('permissions', firmaId ? { firmaId } : {});
+        yetkilerCache = yetkiler; // Cache'e kaydet
+
+        // Filtre dropdown'ı doldur
         yetkiler.forEach(y => {
           const option = document.createElement('option');
           option.value = y.id;
@@ -488,6 +736,7 @@
 
       try {
         const kullanicilar = await apiGet('kullanicilar', { firmaId: firmaId });
+        kullanicilarCache = kullanicilar; // Cache'e kaydet
         renderKullanicilar(kullanicilar);
         updateStats(kullanicilar);
       } catch (error) {
@@ -509,11 +758,15 @@
 
       if (countEl) countEl.textContent = `${kullanicilar.length} çalışan listeleniyor`;
 
+      // Yetki dropdown seçeneklerini oluştur
+      const yetkiOptions = yetkilerCache ? yetkilerCache.map(y =>
+        `<option value="${y.id}">${y.yetkiAdi}</option>`
+      ).join('') : '<option value="">Yükleniyor...</option>';
+
       tbody.innerHTML = kullanicilar.map(k => {
         const isActive = k.onay === 1;
         const initials = getInitials(k.adi, k.soyadi);
         const avatarColor = getAvatarColor(k.id);
-        const rolBadge = getRolBadge(k.anaYoneticimi, k.yetkiAdi);
         const durumBadge = isActive
           ? '<span class="badge badge-success">Aktif</span>'
           : '<span class="badge badge-secondary">Pasif</span>';
@@ -524,8 +777,19 @@
           ? `avatar avatar-md ${avatarColor}`
           : 'avatar avatar-md" style="background: var(--bg-elevated); color: var(--text-muted);';
 
+        // Ana yönetici için dropdown gösterme
+        const isAnaYonetici = k.anaYoneticimi === 0;
+        const yetkiCell = isAnaYonetici
+          ? '<span class="badge badge-danger">Ana Yönetici</span>'
+          : (isActive
+            ? `<select class="permission-select" data-employee-id="${k.id}" data-original="${k.muhasebeYetkiId || ''}" onchange="onPermissionChange(${k.id}, this.value, '${(k.adi || '').replace(/'/g, "\\'")} ${(k.soyadi || '').replace(/'/g, "\\'")}')">
+                <option value="">Yetki Seçiniz</option>
+                ${yetkiOptions}
+              </select>`
+            : '<span class="badge badge-secondary">-</span>');
+
         return `
-          <tr class="${rowClass}">
+          <tr class="${rowClass}" data-employee-id="${k.id}">
             <td>
               <div class="flex items-center gap-3">
                 <div class="${avatarStyle}">${initials}</div>
@@ -537,7 +801,7 @@
             </td>
             <td class="${isActive ? '' : 'text-muted'}">${k.email || '-'}</td>
             <td class="font-mono ${isActive ? '' : 'text-muted'}">${telefon}</td>
-            <td>${rolBadge}</td>
+            <td>${yetkiCell}</td>
             <td>${durumBadge}</td>
             <td class="font-semibold font-mono ${isActive ? '' : 'text-muted'}">-</td>
             <td><span class="text-muted">-</span></td>
@@ -545,11 +809,6 @@
             <td>
               <div class="action-buttons">
                 ${isActive ? `
-                  <button class="btn-icon" title="Yetki Değiştir" onclick="openYetkiModal(${k.id}, ${k.muhasebeYetkiId || 'null'}, '${k.adi || ''} ${k.soyadi || ''}')">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                    </svg>
-                  </button>
                   <button class="btn-icon" title="Karta Git" onclick="goToEmployeeCard(${k.id})">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
@@ -569,7 +828,18 @@
           </tr>
         `;
       }).join('');
+
+      // Dropdown'lardaki mevcut yetkileri seç
+      kullanicilar.forEach(k => {
+        if (k.muhasebeYetkiId) {
+          const select = document.querySelector(`select[data-employee-id="${k.id}"]`);
+          if (select) {
+            select.value = k.muhasebeYetkiId;
+          }
+        }
+      });
     }
+
 
     // İstatistikleri güncelle
     function updateStats(kullanicilar) {
@@ -623,52 +893,112 @@
       return phone.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
     }
 
-    // Yetki değiştirme modal fonksiyonları
-    let yetkilerCache = null;
+    // Yetki değişiklik takip sistemi
 
-    async function openYetkiModal(kullaniciId, currentYetkiId, kullaniciAdi) {
-      document.getElementById('yetkiModalKullaniciId').value = kullaniciId;
-      document.getElementById('yetkiModalName').textContent = kullaniciAdi;
-      document.getElementById('yetkiModal').style.display = 'flex';
+    // Yetki değişikliği olduğunda
+    function onPermissionChange(employeeId, newPermissionId, employeeName) {
+      newPermissionId = newPermissionId ? parseInt(newPermissionId) : null;
+      const employee = kullanicilarCache.find(k => k.id === employeeId);
 
-      const select = document.getElementById('yetkiModalSelect');
+      if (!employee) return;
 
-      // Yetkileri cache'den veya API'den al
-      if (!yetkilerCache) {
-        const firmaId = getCurrentFirmaId();
-        yetkilerCache = await apiGet('permissions', firmaId ? { firmaId } : {});
+      const originalPermissionId = employee.muhasebeYetkiId || null;
+
+      // Eğer aynı yetkiye geri döndüyse, bekleyen değişikliği kaldır
+      if (originalPermissionId === newPermissionId) {
+        delete pendingPermissionChanges[employeeId];
+      } else {
+        // Yeni değişikliği kaydet
+        const newPermission = yetkilerCache ? yetkilerCache.find(y => y.id === newPermissionId) : null;
+        pendingPermissionChanges[employeeId] = {
+          employeeId,
+          employeeName,
+          oldPermissionId: originalPermissionId,
+          newPermissionId,
+          newPermissionName: newPermission?.yetkiAdi || 'Yetki Seçilmedi'
+        };
       }
 
-      // Select'i doldur
-      select.innerHTML = '<option value="">Yetki Seçiniz</option>';
-      yetkilerCache.forEach(y => {
-        const option = document.createElement('option');
-        option.value = y.id;
-        option.textContent = y.yetkiAdi;
-        if (y.id === currentYetkiId) option.selected = true;
-        select.appendChild(option);
-      });
+      // Select stilini güncelle
+      const select = document.querySelector(`select[data-employee-id="${employeeId}"]`);
+      if (select) {
+        select.classList.toggle('changed', !!pendingPermissionChanges[employeeId]);
+      }
+
+      // Floating box'ı güncelle
+      updateFloatingActionBox();
     }
 
-    function closeYetkiModal() {
-      document.getElementById('yetkiModal').style.display = 'none';
+    // Floating action box'ı güncelle
+    function updateFloatingActionBox() {
+      const floatingBox = document.getElementById('floatingActionBox');
+      const changeCount = Object.keys(pendingPermissionChanges).length;
+
+      if (changeCount > 0) {
+        floatingBox.classList.add('active');
+        document.getElementById('fabCount').textContent = changeCount;
+
+        // Değişiklik listesini oluştur
+        const changesList = Object.values(pendingPermissionChanges)
+          .map(c => `${c.employeeName} → ${c.newPermissionName}`)
+          .join('<br>');
+
+        document.getElementById('fabChangesList').innerHTML = changesList;
+      } else {
+        floatingBox.classList.remove('active');
+      }
     }
 
-    async function saveYetki() {
-      const kullaniciId = document.getElementById('yetkiModalKullaniciId').value;
-      const yetkiId = document.getElementById('yetkiModalSelect').value;
+    // Tüm değişiklikleri uygula
+    async function applyAllChanges() {
+      const changes = Object.values(pendingPermissionChanges);
+
+      if (changes.length === 0) return;
+
+      if (!confirm(`${changes.length} çalışanın yetkisi değiştirilecek. Onaylıyor musunuz?`)) return;
 
       try {
-        await apiPut(`kullanicilar/${kullaniciId}/permission`, {
-          yetkiId: parseInt(yetkiId)
-        });
-        showToast('Yetki başarıyla güncellendi', 'success');
-        closeYetkiModal();
-        loadKullanicilar();
+        // Her değişiklik için API çağrısı yap
+        for (const change of changes) {
+          if (change.newPermissionId) {
+            await apiPut(`kullanicilar/${change.employeeId}/permission`, {
+              yetkiId: change.newPermissionId
+            });
+          }
+        }
+
+        // Başarılı mesajı göster
+        showToast(`${changes.length} çalışanın yetkisi başarıyla güncellendi`, 'success');
+
+        // Temizle ve yenile
+        pendingPermissionChanges = {};
+        updateFloatingActionBox();
+
+        // Verileri yeniden yükle
+        await loadKullanicilar();
       } catch (error) {
-        showToast('Yetki güncellenirken hata oluştu', 'error');
         console.error('Permission update error:', error);
+        showToast('Yetkiler güncellenirken hata oluştu: ' + error.message, 'error');
       }
+    }
+
+    // Tüm değişiklikleri iptal et
+    function cancelAllChanges() {
+      if (Object.keys(pendingPermissionChanges).length === 0) return;
+
+      // Dropdown'ları orijinal değerlerine döndür
+      Object.keys(pendingPermissionChanges).forEach(employeeId => {
+        const select = document.querySelector(`select[data-employee-id="${employeeId}"]`);
+        if (select) {
+          const originalValue = select.dataset.original || '';
+          select.value = originalValue;
+          select.classList.remove('changed');
+        }
+      });
+
+      pendingPermissionChanges = {};
+      updateFloatingActionBox();
+      showToast('Değişiklikler iptal edildi', 'info');
     }
 
     // Çalışan kartına git
