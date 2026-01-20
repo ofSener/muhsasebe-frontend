@@ -411,7 +411,7 @@
       tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Yükleniyor...</td></tr>';
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/kullanicilar?firmaId=${firmaId}`);
+        const response = await fetch(`${API_BASE_URL}/api/producers?firmaId=${firmaId}`);
         if (!response.ok) throw new Error('API hatası');
 
         const kullanicilar = await response.json();
