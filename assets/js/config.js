@@ -413,6 +413,62 @@ function updateNavbarUser() {
     const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     avatarEl.textContent = initials;
   }
+
+  // Kullanıcı dropdown menüsünü ekle
+  setupUserDropdown();
+}
+
+/**
+ * Kullanıcı dropdown menüsünü oluştur ve ekle
+ */
+function setupUserDropdown() {
+  const navbarUser = document.querySelector('.navbar-user');
+  if (!navbarUser || navbarUser.classList.contains('dropdown')) return;
+
+  // navbar-user'ı dropdown'a çevir
+  navbarUser.classList.add('dropdown');
+  navbarUser.style.cursor = 'pointer';
+
+  // Dropdown menüyü oluştur
+  const dropdownMenu = document.createElement('div');
+  dropdownMenu.className = 'dropdown-menu user-dropdown-menu';
+  dropdownMenu.innerHTML = `
+    <a class="dropdown-item" href="javascript:void(0)" onclick="showProfileModal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      Profilim
+    </a>
+    <div class="dropdown-divider"></div>
+    <a class="dropdown-item dropdown-item-danger" href="javascript:void(0)" onclick="logout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16,17 21,12 16,7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Cikis Yap
+    </a>
+  `;
+  navbarUser.appendChild(dropdownMenu);
+
+  // Tıklama olayını ekle
+  navbarUser.addEventListener('click', function(e) {
+    e.stopPropagation();
+    this.classList.toggle('open');
+  });
+
+  // Dışarı tıklandığında kapat
+  document.addEventListener('click', function() {
+    navbarUser.classList.remove('open');
+  });
+}
+
+/**
+ * Profil modalını göster (placeholder)
+ */
+function showProfileModal() {
+  showToast('Profil sayfasi yaklinda...', 'info');
 }
 
 /**

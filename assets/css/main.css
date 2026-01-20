@@ -2069,6 +2069,30 @@ h6 { font-size: 0.8125rem; }
   margin: 0.375rem 0;
 }
 
+/* User Dropdown */
+.user-dropdown-menu {
+  min-width: 200px;
+  margin-top: 0.5rem;
+}
+
+.dropdown-item-danger {
+  color: var(--danger) !important;
+}
+
+.dropdown-item-danger:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: var(--danger) !important;
+}
+
+.navbar-user.dropdown {
+  position: relative;
+}
+
+.navbar-user.dropdown .dropdown-menu {
+  top: calc(100% + 0.25rem);
+  right: 0;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    FILE UPLOAD
    ═══════════════════════════════════════════════════════════════ */
