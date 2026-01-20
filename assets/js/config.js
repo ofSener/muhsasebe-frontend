@@ -8,14 +8,39 @@ const isLocalhost = window.location.hostname === 'localhost' ||
                     window.location.hostname === '127.0.0.1' ||
                     window.location.protocol === 'file:';
 
+// ═══════════════════════════════════════════════════════════════
+// GELİŞTİRİCİ PROFİLLERİ
+// ═══════════════════════════════════════════════════════════════
+const DEV_PROFILES = {
+  omer:  { https: 'https://localhost:36100', http: 'http://localhost:36101' },
+  musti: { https: 'https://localhost:36200', http: 'http://localhost:36201' }
+};
+
+// localStorage'dan geliştirici seç, yoksa 'omer' default
+const currentDev = localStorage.getItem('dev_profile') || 'omer';
+
+// Geliştirici değiştirme fonksiyonu (console'dan kullanılabilir)
+function setDevProfile(name) {
+  if (DEV_PROFILES[name]) {
+    localStorage.setItem('dev_profile', name);
+    console.log(`[Config] Geliştirici profili: ${name}`);
+    console.log(`[Config] API URL: ${DEV_PROFILES[name].https}`);
+    console.log('[Config] Sayfayı yenileyiniz...');
+    return true;
+  }
+  console.error(`[Config] Geçersiz profil. Seçenekler: ${Object.keys(DEV_PROFILES).join(', ')}`);
+  return false;
+}
+
 const APP_CONFIG = {
   // ═══════════════════════════════════════════════════════════════
   // API AYARLARI
   // ═══════════════════════════════════════════════════════════════
   API: {
-    // Local: https://localhost:36100 (veya http://localhost:36101)
+    // Omer:  https://localhost:36100 (http://localhost:36101)
+    // Musti: https://localhost:36200 (http://localhost:36201)
     // Production: https://muhasebeapi.sigorta.teklifi.al
-    BASE_URL: isLocalhost ? 'https://localhost:36100' : 'https://muhasebeapi.sigorta.teklifi.al',
+    BASE_URL: isLocalhost ? DEV_PROFILES[currentDev].https : 'https://muhasebeapi.sigorta.teklifi.al',
     VERSION: 'v1',
     TIMEOUT: 30000, // 30 saniye
 
@@ -354,7 +379,9 @@ function getUserRole() {
 // ═══════════════════════════════════════════════════════════════
 
 // Config yüklendiğinde konsola bilgi yaz (development için)
+console.log(`[Config] Geliştirici: ${currentDev.toUpperCase()}`);
 console.log(`[Config] API Base URL: ${APP_CONFIG.API.BASE_URL}`);
+console.log(`[Config] Profil değiştirmek için: setDevProfile('omer') veya setDevProfile('musti')`);
 
 // ═══════════════════════════════════════════════════════════════
 // OTOMATİK AUTH KONTROLÜ
