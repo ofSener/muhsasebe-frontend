@@ -195,7 +195,7 @@
             <p class="page-subtitle">Çalışanların sayfa erişim yetkilerini yönetin.</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-danger" id="deletePermission" style="display: none;">
+            <button class="btn btn-danger" id="deletePermission">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -217,15 +217,6 @@
         <div class="card" style="margin-bottom: 1.5rem;">
           <div class="card-header">
             <h3 class="card-title">Yetki Profilleri</h3>
-            <div class="card-actions">
-              <button class="btn btn-sm btn-ghost" id="editModeToggle" onclick="toggleEditMode()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-                Duzenleme Modu
-              </button>
-            </div>
           </div>
           <div class="card-body">
             <div class="employee-selector">
@@ -265,7 +256,7 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title" id="permissionTitle">Yetki Ayarları</h3>
-            <div class="card-actions" id="permissionActions" style="display: none;">
+            <div class="card-actions" id="permissionActions">
               <button class="btn btn-sm btn-ghost" onclick="selectAllPermissions()">Tumunu Sec</button>
               <button class="btn btn-sm btn-ghost" onclick="deselectAllPermissions()">Tumunu Kaldir</button>
             </div>
@@ -431,7 +422,7 @@
               Bu Yetkiye Sahip Calisanlar
             </h3>
             <div class="card-actions">
-              <button class="btn btn-sm btn-primary" id="addEmployeeBtn" onclick="showAssignEmployeeModal()" style="display: none;">
+              <button class="btn btn-sm btn-primary" id="addEmployeeBtn" onclick="showAssignEmployeeModal()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -532,75 +523,81 @@
     document.addEventListener('DOMContentLoaded', function() {
       if (!requirePermission('yetkilerSayfasindaIslemYapabilsin')) return;
       loadPermissions();
-      updateEditModeUI();
+      setupChangeListeners();
     });
 
     // Yetki listesini yükle
     let allPermissions = [];
     let selectedPermissionId = null;
-    let isEditMode = false;
+    let originalPermissionData = null; // Orijinal yetki verisi (degisiklikleri karsilastirmak icin)
 
-    // Duzenleme modu toggle
-    function toggleEditMode() {
-      isEditMode = !isEditMode;
-      updateEditModeUI();
+    // Buton gorunurlugunu guncelle (yetki seciliyken)
+    function updateButtonVisibility() {
+      const deleteBtn = document.getElementById('deletePermission');
+      const addEmployeeBtn = document.getElementById('addEmployeeBtn');
+
+      if (deleteBtn) deleteBtn.style.display = selectedPermissionId ? 'inline-flex' : 'none';
+      if (addEmployeeBtn) addEmployeeBtn.style.display = selectedPermissionId ? 'inline-flex' : 'none';
     }
 
-    function updateEditModeUI() {
-      const btn = document.getElementById('editModeToggle');
-      if (isEditMode) {
-        btn.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-          Goruntuleme Modu
-        `;
-        btn.classList.add('btn-primary');
-        btn.classList.remove('btn-ghost');
-      } else {
-        btn.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-          Duzenleme Modu
-        `;
-        btn.classList.remove('btn-primary');
-        btn.classList.add('btn-ghost');
+    // Yetki ayarlari degisiklik takibi
+    let hasPermissionSettingsChanged = false;
+
+    // Degisiklik dinleyicilerini kur
+    function setupChangeListeners() {
+      // Checkbox'lar icin
+      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', onPermissionSettingsChange);
+      });
+
+      // Yetki adi input'u icin
+      const nameInput = document.getElementById('permissionName');
+      if (nameInput) {
+        nameInput.addEventListener('input', onPermissionSettingsChange);
       }
 
-      // Duzenleme elemanlarini goster/gizle
-      const deleteBtn = document.getElementById('deletePermission');
-      const saveBtn = document.getElementById('savePermissions');
-      const addChip = document.querySelector('.add-new-chip');
-      const addEmployeeBtn = document.getElementById('addEmployeeBtn');
-      const permissionActions = document.getElementById('permissionActions');
-
-      if (deleteBtn) deleteBtn.style.display = isEditMode && selectedPermissionId ? 'inline-flex' : 'none';
-      if (saveBtn) saveBtn.style.display = isEditMode ? 'inline-flex' : 'none';
-      if (addChip) addChip.style.display = isEditMode ? 'flex' : 'none';
-      if (addEmployeeBtn) addEmployeeBtn.style.display = isEditMode && selectedPermissionId ? 'inline-flex' : 'none';
-      if (permissionActions) permissionActions.style.display = isEditMode ? 'flex' : 'none';
-
-      // Tablodaki Kaldir butonlarini goster/gizle
-      document.querySelectorAll('#employeesTableBody .btn-danger-text').forEach(btn => {
-        btn.style.display = isEditMode ? 'inline-flex' : 'none';
-      });
-
-      // Tablodaki yetki secim dropdown'larini aktif/pasif yap
-      document.querySelectorAll('#employeesTableBody .permission-select').forEach(select => {
-        select.disabled = !isEditMode;
-      });
-
-      // Form alanlarini readonly yap/ac
-      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(input => {
-        input.disabled = !isEditMode;
-      });
-      const nameInput = document.getElementById('permissionName');
+      // Gorme seviyesi select'i icin
       const viewSelect = document.getElementById('viewLevelSelect');
-      if (nameInput) nameInput.disabled = !isEditMode;
-      if (viewSelect) viewSelect.disabled = !isEditMode;
+      if (viewSelect) {
+        viewSelect.addEventListener('change', onPermissionSettingsChange);
+      }
+    }
+
+    // Yetki ayarlari degistiginde
+    function onPermissionSettingsChange() {
+      if (!selectedPermissionId || !originalPermissionData) return;
+
+      // Mevcut form degerlerini al
+      const currentData = collectFormData();
+
+      // Orijinal verilerle karsilastir
+      const changed = hasAnyChange(originalPermissionData, currentData);
+      hasPermissionSettingsChanged = changed;
+
+      // Floating box'i guncelle
+      updateFloatingActionBox();
+    }
+
+    // Degisiklik var mi kontrol et
+    function hasAnyChange(original, current) {
+      if (original.yetkiAdi !== current.yetkiAdi) return true;
+      if (original.gorebilecegiPolicelerveKartlar !== current.gorebilecegiPolicelerveKartlar) return true;
+
+      const checkboxFields = [
+        'policeDuzenleyebilsin', 'policeHavuzunuGorebilsin', 'policeAktarabilsin',
+        'policeDosyalarinaErisebilsin', 'policeYakalamaSecenekleri',
+        'yetkilerSayfasindaIslemYapabilsin', 'acenteliklerSayfasindaIslemYapabilsin',
+        'komisyonOranlariniDuzenleyebilsin', 'produktorleriGorebilsin',
+        'acenteliklereGorePoliceYakalansin'
+      ];
+
+      for (const field of checkboxFields) {
+        const origVal = original[field] === '1' || original[field] === true;
+        const currVal = current[field] === '1' || current[field] === true;
+        if (origVal !== currVal) return true;
+      }
+
+      return false;
     }
 
     async function loadPermissions() {
@@ -630,10 +627,9 @@
       const container = document.querySelector('.employee-selector');
       container.innerHTML = '';
 
-      // Yeni Yetki Ekle butonu (sadece duzenleme modunda gorunur)
+      // Yeni Yetki Ekle butonu
       const addButton = document.createElement('div');
       addButton.className = 'employee-chip add-new-chip';
-      addButton.style.display = isEditMode ? 'flex' : 'none';
       addButton.innerHTML = `
         <div class="chip-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
@@ -697,8 +693,11 @@
       // Form alanlarını doldur
       fillPermissionForm(permission);
 
-      // Edit mode UI guncelle
-      updateEditModeUI();
+      // Orijinal veriyi sakla (degisiklik takibi icin)
+      originalPermissionData = JSON.parse(JSON.stringify(permission));
+
+      // Buton gorunurlugunu guncelle
+      updateButtonVisibility();
     }
 
     // Form alanlarını doldur
@@ -963,12 +962,12 @@
           <td>${emp.email || '-'}</td>
           <td>${emp.gsmNo || '-'}</td>
           <td>
-            <select class="${selectClass}" onchange="onPermissionChange(${emp.id}, this.value, '${emp.adi || ''} ${emp.soyadi || ''}')" ${!isEditMode ? 'disabled' : ''}>
+            <select class="${selectClass}" onchange="onPermissionChange(${emp.id}, this.value, '${emp.adi || ''} ${emp.soyadi || ''}')">
               ${permissionOptions}
             </select>
           </td>
           <td>
-            <button class="btn btn-sm btn-ghost btn-danger-text" onclick="removeEmployeePermission(${emp.id})" title="Yetkiyi kaldir" style="display: ${isEditMode ? 'inline-flex' : 'none'};">
+            <button class="btn btn-sm btn-ghost btn-danger-text" onclick="removeEmployeePermission(${emp.id})" title="Yetkiyi kaldir">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1024,16 +1023,29 @@
     // Floating action box'i guncelle
     function updateFloatingActionBox() {
       const floatingBox = document.getElementById('floatingActionBox');
-      const changeCount = Object.keys(pendingPermissionChanges).length;
+      const employeeChangeCount = Object.keys(pendingPermissionChanges).length;
+      const totalChanges = employeeChangeCount + (hasPermissionSettingsChanged ? 1 : 0);
 
-      if (changeCount > 0) {
+      if (totalChanges > 0) {
         floatingBox.classList.add('active');
-        document.getElementById('fabCount').textContent = changeCount;
+        document.getElementById('fabCount').textContent = totalChanges;
 
         // Degisiklik listesini olustur
-        const changesList = Object.values(pendingPermissionChanges)
-          .map(c => `${c.employeeName} → ${c.newPermissionName}`)
-          .join('<br>');
+        let changesList = '';
+
+        // Yetki ayarlari degismisse
+        if (hasPermissionSettingsChanged) {
+          const permName = originalPermissionData?.yetkiAdi || 'Yetki';
+          changesList += `<strong>${permName}</strong> ayarlari degisti<br>`;
+        }
+
+        // Calisan yetki degisiklikleri
+        if (employeeChangeCount > 0) {
+          changesList += Object.values(pendingPermissionChanges)
+            .map(c => `${c.employeeName} → ${c.newPermissionName}`)
+            .join('<br>');
+        }
+
         document.getElementById('fabChangesList').innerHTML = changesList;
       } else {
         floatingBox.classList.remove('active');
@@ -1042,28 +1054,52 @@
 
     // Tum degisiklikleri uygula
     async function applyAllChanges() {
-      const changes = Object.values(pendingPermissionChanges);
-      if (changes.length === 0) return;
+      const employeeChanges = Object.values(pendingPermissionChanges);
+      const hasEmployeeChanges = employeeChanges.length > 0;
 
-      if (!confirm(`${changes.length} calisanin yetkisi degistirilecek. Onayliyor musunuz?`)) return;
+      if (!hasPermissionSettingsChanged && !hasEmployeeChanges) return;
+
+      // Onay mesaji olustur
+      let confirmMsg = '';
+      if (hasPermissionSettingsChanged && hasEmployeeChanges) {
+        confirmMsg = `Yetki ayarlari ve ${employeeChanges.length} calisanin yetkisi degistirilecek. Onayliyor musunuz?`;
+      } else if (hasPermissionSettingsChanged) {
+        confirmMsg = 'Yetki ayarlari kaydedilecek. Onayliyor musunuz?';
+      } else {
+        confirmMsg = `${employeeChanges.length} calisanin yetkisi degistirilecek. Onayliyor musunuz?`;
+      }
+
+      if (!confirm(confirmMsg)) return;
 
       try {
         showLoading(true);
 
-        // Tum degisiklikleri API'ye gonder
-        for (const change of changes) {
+        // Yetki ayarlarini kaydet
+        if (hasPermissionSettingsChanged && selectedPermissionId) {
+          const data = collectFormData();
+          await apiPut(`permissions/${selectedPermissionId}`, data);
+        }
+
+        // Calisan yetki degisikliklerini kaydet
+        for (const change of employeeChanges) {
           await apiPut(`producers/${change.employeeId}/permission`, { yetkiId: change.newPermissionId });
         }
 
-        showToast(`${changes.length} calisanin yetkisi basariyla degistirildi`, 'success');
+        showToast('Degisiklikler basariyla kaydedildi', 'success');
 
         // Temizle ve yenile
         pendingPermissionChanges = {};
+        hasPermissionSettingsChanged = false;
         updateFloatingActionBox();
+
+        await loadPermissions();
+        if (selectedPermissionId) {
+          selectPermission(selectedPermissionId);
+        }
         await loadEmployees();
         await loadEmployeesWithPermission();
       } catch (error) {
-        showToast('Yetkiler degistirilirken hata olustu: ' + error.message, 'error');
+        showToast('Degisiklikler kaydedilirken hata olustu: ' + error.message, 'error');
       } finally {
         showLoading(false);
       }
@@ -1071,9 +1107,17 @@
 
     // Tum degisiklikleri iptal et
     function cancelAllChanges() {
-      if (Object.keys(pendingPermissionChanges).length === 0) return;
+      if (Object.keys(pendingPermissionChanges).length === 0 && !hasPermissionSettingsChanged) return;
 
+      // Yetki ayarlarini geri al
+      if (hasPermissionSettingsChanged && originalPermissionData) {
+        fillPermissionForm(originalPermissionData);
+      }
+
+      // Calisan degisikliklerini temizle
       pendingPermissionChanges = {};
+      hasPermissionSettingsChanged = false;
+
       updateFloatingActionBox();
       loadEmployeesWithPermission();
       showToast('Degisiklikler iptal edildi', 'info');
@@ -1082,6 +1126,18 @@
     // selectPermission fonksiyonunu guncelle - calisan listesini de yukle
     const originalSelectPermission = selectPermission;
     selectPermission = function(id) {
+      // Kaydedilmemis degisiklik varsa uyar
+      const hasUnsavedChanges = Object.keys(pendingPermissionChanges).length > 0 || hasPermissionSettingsChanged;
+      if (hasUnsavedChanges && id !== selectedPermissionId) {
+        if (!confirm('Kaydedilmemis degisiklikler var. Devam etmek istiyor musunuz?')) {
+          return;
+        }
+        // Degisiklikleri temizle
+        pendingPermissionChanges = {};
+        hasPermissionSettingsChanged = false;
+        updateFloatingActionBox();
+      }
+
       originalSelectPermission(id);
       loadEmployeesWithPermission();
     };
