@@ -448,12 +448,13 @@
                     <th>Ad Soyad</th>
                     <th>E-posta</th>
                     <th>Telefon</th>
+                    <th width="180">Yetkiyi Degistir</th>
                     <th width="100">Islem</th>
                   </tr>
                 </thead>
                 <tbody id="employeesTableBody">
                   <tr>
-                    <td colspan="4" class="text-center text-muted">Yetki seciniz...</td>
+                    <td colspan="5" class="text-center text-muted">Yetki seciniz...</td>
                   </tr>
                 </tbody>
               </table>
@@ -464,6 +465,42 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Floating Action Box for Changes -->
+  <div class="floating-action-box" id="floatingActionBox">
+    <div class="fab-header">
+      <div class="fab-count">
+        <span id="fabCount">0</span>
+        <small>degisiklik yapildi</small>
+      </div>
+      <button class="fab-close" onclick="cancelAllChanges()" title="Iptal Et">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="fab-stats">
+      <div class="fab-stat">
+        <span class="fab-stat-value" id="fabChangesList"></span>
+        <span class="fab-stat-label">Degistirilecek Yetkiler</span>
+      </div>
+    </div>
+    <div class="fab-actions">
+      <button class="fab-btn fab-btn-primary" onclick="applyAllChanges()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Degisiklikleri Uygula
+      </button>
+      <button class="fab-btn fab-btn-outline" onclick="cancelAllChanges()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+        </svg>
+        Iptal Et
+      </button>
+    </div>
   </div>
 
   <!-- Assign Employee Modal -->
@@ -549,6 +586,11 @@
       // Tablodaki Kaldir butonlarini goster/gizle
       document.querySelectorAll('#employeesTableBody .btn-danger-text').forEach(btn => {
         btn.style.display = isEditMode ? 'inline-flex' : 'none';
+      });
+
+      // Tablodaki yetki secim dropdown'larini aktif/pasif yap
+      document.querySelectorAll('#employeesTableBody .permission-select').forEach(select => {
+        select.disabled = !isEditMode;
       });
 
       // Form alanlarini readonly yap/ac
@@ -877,12 +919,15 @@
       }
     }
 
+    // Bekleyen yetki degisiklikleri
+    let pendingPermissionChanges = {};
+
     // Secili yetkiye sahip calisanlari goster (tablo formatinda)
     async function loadEmployeesWithPermission() {
       const tbody = document.getElementById('employeesTableBody');
 
       if (!selectedPermissionId) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Yetki seciniz...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Yetki seciniz...</td></tr>';
         return;
       }
 
@@ -895,12 +940,21 @@
       const employeesWithThisPermission = allEmployees.filter(emp => emp.muhasebeYetkiId === selectedPermissionId);
 
       if (employeesWithThisPermission.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Bu yetkiye sahip calisan bulunmuyor.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Bu yetkiye sahip calisan bulunmuyor.</td></tr>';
         return;
       }
 
-      tbody.innerHTML = employeesWithThisPermission.map(emp => `
-        <tr>
+      // Yetki secenekleri HTML
+      const permissionOptions = allPermissions.map(p =>
+        `<option value="${p.id}">${p.yetkiAdi || 'Isimsiz Yetki'}</option>`
+      ).join('');
+
+      tbody.innerHTML = employeesWithThisPermission.map(emp => {
+        const hasPendingChange = pendingPermissionChanges[emp.id];
+        const selectClass = hasPendingChange ? 'permission-select changed' : 'permission-select';
+
+        return `
+        <tr data-employee-id="${emp.id}">
           <td>
             <div class="user-cell">
               <span class="user-name">${emp.adi || ''} ${emp.soyadi || ''}</span>
@@ -908,6 +962,11 @@
           </td>
           <td>${emp.email || '-'}</td>
           <td>${emp.gsmNo || '-'}</td>
+          <td>
+            <select class="${selectClass}" onchange="onPermissionChange(${emp.id}, this.value, '${emp.adi || ''} ${emp.soyadi || ''}')" ${!isEditMode ? 'disabled' : ''}>
+              ${permissionOptions}
+            </select>
+          </td>
           <td>
             <button class="btn btn-sm btn-ghost btn-danger-text" onclick="removeEmployeePermission(${emp.id})" title="Yetkiyi kaldir" style="display: ${isEditMode ? 'inline-flex' : 'none'};">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -918,7 +977,106 @@
             </button>
           </td>
         </tr>
-      `).join('');
+      `}).join('');
+
+      // Secili yetkileri ayarla
+      employeesWithThisPermission.forEach(emp => {
+        const select = document.querySelector(`tr[data-employee-id="${emp.id}"] .permission-select`);
+        if (select) {
+          // Eger bekleyen degisiklik varsa onu goster, yoksa mevcut yetkiyi
+          select.value = pendingPermissionChanges[emp.id]?.newPermissionId || emp.muhasebeYetkiId;
+        }
+      });
+    }
+
+    // Yetki degisikligi olunca
+    function onPermissionChange(employeeId, newPermissionId, employeeName) {
+      newPermissionId = parseInt(newPermissionId);
+      const employee = allEmployees.find(e => e.id === employeeId);
+
+      if (!employee) return;
+
+      // Eger ayni yetkiye geri donduyse, bekleyen degisikligi kaldir
+      if (employee.muhasebeYetkiId === newPermissionId) {
+        delete pendingPermissionChanges[employeeId];
+      } else {
+        // Yeni degisikligi kaydet
+        const newPermission = allPermissions.find(p => p.id === newPermissionId);
+        pendingPermissionChanges[employeeId] = {
+          employeeId,
+          employeeName,
+          oldPermissionId: employee.muhasebeYetkiId,
+          newPermissionId,
+          newPermissionName: newPermission?.yetkiAdi || 'Isimsiz Yetki'
+        };
+      }
+
+      // Select stilini guncelle
+      const select = document.querySelector(`tr[data-employee-id="${employeeId}"] .permission-select`);
+      if (select) {
+        select.classList.toggle('changed', !!pendingPermissionChanges[employeeId]);
+      }
+
+      // Floating box'i guncelle
+      updateFloatingActionBox();
+    }
+
+    // Floating action box'i guncelle
+    function updateFloatingActionBox() {
+      const floatingBox = document.getElementById('floatingActionBox');
+      const changeCount = Object.keys(pendingPermissionChanges).length;
+
+      if (changeCount > 0) {
+        floatingBox.classList.add('active');
+        document.getElementById('fabCount').textContent = changeCount;
+
+        // Degisiklik listesini olustur
+        const changesList = Object.values(pendingPermissionChanges)
+          .map(c => `${c.employeeName} → ${c.newPermissionName}`)
+          .join('<br>');
+        document.getElementById('fabChangesList').innerHTML = changesList;
+      } else {
+        floatingBox.classList.remove('active');
+      }
+    }
+
+    // Tum degisiklikleri uygula
+    async function applyAllChanges() {
+      const changes = Object.values(pendingPermissionChanges);
+      if (changes.length === 0) return;
+
+      if (!confirm(`${changes.length} calisanin yetkisi degistirilecek. Onayliyor musunuz?`)) return;
+
+      try {
+        showLoading(true);
+
+        // Tum degisiklikleri API'ye gonder
+        for (const change of changes) {
+          await apiPut(`producers/${change.employeeId}/permission`, { yetkiId: change.newPermissionId });
+        }
+
+        showToast(`${changes.length} calisanin yetkisi basariyla degistirildi`, 'success');
+
+        // Temizle ve yenile
+        pendingPermissionChanges = {};
+        updateFloatingActionBox();
+        await loadEmployees();
+        await loadEmployeesWithPermission();
+      } catch (error) {
+        showToast('Yetkiler degistirilirken hata olustu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Tum degisiklikleri iptal et
+    function cancelAllChanges() {
+      if (Object.keys(pendingPermissionChanges).length === 0) return;
+
+      pendingPermissionChanges = {};
+      updateFloatingActionBox();
+      loadEmployeesWithPermission();
+      showToast('Degisiklikler iptal edildi', 'info');
     }
 
     // selectPermission fonksiyonunu guncelle - calisan listesini de yukle
@@ -1395,6 +1553,155 @@
     .text-muted {
       color: var(--text-muted);
       font-size: 0.875rem;
+    }
+
+    /* Floating Action Box */
+    .floating-action-box {
+      position: fixed;
+      right: -320px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 280px;
+      background: #1a1b23;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: none;
+      border-radius: 16px 0 0 16px;
+      padding: 1.5rem;
+      z-index: 500;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+    }
+    .floating-action-box.active {
+      right: 0;
+    }
+    .fab-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .fab-count {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+    .fab-count span {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .fab-count small {
+      font-size: 0.8rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+    .fab-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      transition: all 0.15s ease;
+    }
+    .fab-close:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+    .fab-stats {
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+    }
+    .fab-stat {
+      text-align: center;
+    }
+    .fab-stat-value {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #a5b4fc;
+      max-height: 80px;
+      overflow-y: auto;
+      text-align: left;
+    }
+    .fab-stat-label {
+      display: block;
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .fab-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .fab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+    }
+    .fab-btn svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+    }
+    .fab-btn-primary {
+      background: #10b981;
+      color: #fff;
+    }
+    .fab-btn-primary:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+    .fab-btn-outline {
+      background: transparent;
+      color: #9ca3af;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .fab-btn-outline:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    /* Permission change select in table */
+    .permission-select {
+      padding: 0.4rem 0.6rem;
+      border: 1px solid var(--border-default);
+      border-radius: 0.375rem;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      width: 100%;
+      max-width: 160px;
+    }
+    .permission-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    }
+    .permission-select.changed {
+      border-color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
     }
   </style>
 </body>
