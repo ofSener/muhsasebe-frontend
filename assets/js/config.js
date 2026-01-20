@@ -13,9 +13,9 @@ const APP_CONFIG = {
   // API AYARLARI
   // ═══════════════════════════════════════════════════════════════
   API: {
-    // Local: http://localhost:5000 veya https://localhost:5001
+    // Local: http://localhost:36100
     // Production: https://muhasebeapi.sigorta.teklifi.al
-    BASE_URL: isLocalhost ? 'http://localhost:5000' : 'https://muhasebeapi.sigorta.teklifi.al',
+    BASE_URL: isLocalhost ? 'http://localhost:36100' : 'https://muhasebeapi.sigorta.teklifi.al',
     VERSION: 'v1',
     TIMEOUT: 30000, // 30 saniye
 
