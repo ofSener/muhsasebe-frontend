@@ -423,9 +423,58 @@
             </div>
           </div>
         </div>
+
+        <!-- Employee Assignment Section -->
+        <div class="card" style="margin-top: 1.5rem;" id="employeeAssignmentCard">
+          <div class="card-header">
+            <h3 class="card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              Bu Yetkiye Sahip Calisanlar
+            </h3>
+            <div class="card-actions">
+              <button class="btn btn-sm btn-primary" onclick="showAssignEmployeeModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Calisan Ekle
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="employees-with-permission" id="employeesWithPermission">
+              <p class="text-muted">Yetki seciniz...</p>
+            </div>
+          </div>
+        </div>
+
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Assign Employee Modal -->
+  <div class="modal-overlay" id="assignEmployeeModal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Calisana Yetki Ata</h3>
+        <button class="modal-close" onclick="closeAssignEmployeeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Calisan Ara</label>
+          <input type="text" class="form-input" id="employeeSearchInput" placeholder="Isim ile ara..." oninput="searchEmployees()">
+        </div>
+        <div class="employee-search-results" id="employeeSearchResults">
+          <p class="text-muted">Aramak icin yazmaya baslayin...</p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="../../assets/js/config.js"></script>
@@ -735,6 +784,201 @@
     function deselectAllPermissions() {
       document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = false);
     }
+
+    // ==================== CALISAN YONETIMI ====================
+
+    let allEmployees = [];
+
+    // Calisanlari yukle
+    async function loadEmployees() {
+      try {
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+        const params = firmaId ? { firmaId, limit: 500 } : { limit: 500 };
+        allEmployees = await apiGet('producers', params);
+      } catch (error) {
+        console.error('Calisanlar yuklenirken hata:', error);
+      }
+    }
+
+    // Secili yetkiye sahip calisanlari goster
+    async function loadEmployeesWithPermission() {
+      const container = document.getElementById('employeesWithPermission');
+
+      if (!selectedPermissionId) {
+        container.innerHTML = '<p class="text-muted">Yetki seciniz...</p>';
+        return;
+      }
+
+      // Eger calisanlar yuklenmemisse yukle
+      if (allEmployees.length === 0) {
+        await loadEmployees();
+      }
+
+      // Bu yetkiye sahip calisanlari filtrele
+      const employeesWithThisPermission = allEmployees.filter(emp => emp.muhasebeYetkiId === selectedPermissionId);
+
+      if (employeesWithThisPermission.length === 0) {
+        container.innerHTML = '<p class="text-muted">Bu yetkiye sahip calisan bulunmuyor.</p>';
+        return;
+      }
+
+      const colors = [
+        '#ec4899, #f472b6',
+        '#f59e0b, #fbbf24',
+        '#6366f1, #818cf8',
+        '#10b981, #34d399',
+        '#ef4444, #f87171',
+        '#8b5cf6, #a78bfa'
+      ];
+
+      container.innerHTML = employeesWithThisPermission.map((emp, index) => {
+        const initials = ((emp.adi || '').charAt(0) + (emp.soyadi || '').charAt(0)).toUpperCase() || 'CA';
+        const color = colors[index % colors.length];
+        return `
+          <div class="employee-card">
+            <div class="employee-card-avatar" style="background: linear-gradient(135deg, ${color});">${initials}</div>
+            <div class="employee-card-info">
+              <span class="employee-card-name">${emp.adi || ''} ${emp.soyadi || ''}</span>
+              <span class="employee-card-email">${emp.email || 'E-posta yok'}</span>
+            </div>
+            <button class="btn btn-sm btn-ghost btn-danger-text" onclick="removeEmployeePermission(${emp.id})" title="Yetkiyi kaldir">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // selectPermission fonksiyonunu guncelle - calisan listesini de yukle
+    const originalSelectPermission = selectPermission;
+    selectPermission = function(id) {
+      originalSelectPermission(id);
+      loadEmployeesWithPermission();
+    };
+
+    // Calisan atama modalini goster
+    function showAssignEmployeeModal() {
+      if (!selectedPermissionId) {
+        showToast('Lutfen once bir yetki secin', 'warning');
+        return;
+      }
+      document.getElementById('assignEmployeeModal').style.display = 'flex';
+      document.getElementById('employeeSearchInput').value = '';
+      document.getElementById('employeeSearchResults').innerHTML = '<p class="text-muted">Aramak icin yazmaya baslayin...</p>';
+    }
+
+    // Calisan atama modalini kapat
+    function closeAssignEmployeeModal() {
+      document.getElementById('assignEmployeeModal').style.display = 'none';
+    }
+
+    // Calisan ara
+    let searchTimeout = null;
+    async function searchEmployees() {
+      const searchTerm = document.getElementById('employeeSearchInput').value.trim();
+      const resultsContainer = document.getElementById('employeeSearchResults');
+
+      if (searchTerm.length < 2) {
+        resultsContainer.innerHTML = '<p class="text-muted">En az 2 karakter girin...</p>';
+        return;
+      }
+
+      // Debounce
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(async () => {
+        try {
+          const user = APP_CONFIG.AUTH.getUser();
+          const firmaId = user?.firmaId;
+          const params = { name: searchTerm, limit: 10 };
+          if (firmaId) params.firmaId = firmaId;
+
+          const results = await apiGet('producers/search', params);
+
+          if (results.length === 0) {
+            resultsContainer.innerHTML = '<p class="text-muted">Sonuc bulunamadi.</p>';
+            return;
+          }
+
+          const colors = [
+            '#ec4899, #f472b6',
+            '#f59e0b, #fbbf24',
+            '#6366f1, #818cf8',
+            '#10b981, #34d399'
+          ];
+
+          resultsContainer.innerHTML = results.map((emp, index) => {
+            const initials = ((emp.adi || '').charAt(0) + (emp.soyadi || '').charAt(0)).toUpperCase() || 'CA';
+            const color = colors[index % colors.length];
+            return `
+              <div class="employee-search-item" onclick="assignPermissionToEmployee(${emp.id}, '${emp.adi || ''} ${emp.soyadi || ''}')">
+                <div class="employee-search-avatar" style="background: linear-gradient(135deg, ${color});">${initials}</div>
+                <div class="employee-search-info">
+                  <span class="employee-search-name">${emp.adi || ''} ${emp.soyadi || ''}</span>
+                  <span class="employee-search-email">${emp.email || 'E-posta yok'}</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } catch (error) {
+          resultsContainer.innerHTML = '<p class="text-muted">Arama sirasinda hata olustu.</p>';
+        }
+      }, 300);
+    }
+
+    // Calisana yetki ata
+    async function assignPermissionToEmployee(employeeId, employeeName) {
+      if (!selectedPermissionId) {
+        showToast('Lutfen once bir yetki secin', 'warning');
+        return;
+      }
+
+      try {
+        showLoading(true);
+        await apiPut(`producers/${employeeId}/permission`, { yetkiId: selectedPermissionId });
+
+        showToast(`${employeeName} adli calisana yetki atandi`, 'success');
+        closeAssignEmployeeModal();
+
+        // Calisan listesini yenile
+        await loadEmployees();
+        await loadEmployeesWithPermission();
+      } catch (error) {
+        showToast('Yetki atanirken hata olustu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Calisanin yetkisini kaldir
+    async function removeEmployeePermission(employeeId) {
+      if (!confirm('Bu calisanin yetkisini kaldirmak istediginizden emin misiniz?')) {
+        return;
+      }
+
+      try {
+        showLoading(true);
+        await apiDelete(`producers/${employeeId}/permission`);
+
+        showToast('Calisan yetkisi basariyla kaldirildi', 'success');
+
+        // Calisan listesini yenile
+        await loadEmployees();
+        await loadEmployeesWithPermission();
+      } catch (error) {
+        showToast('Yetki kaldirilirken hata olustu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Sayfa yuklendiginde calisanlari da yukle
+    document.addEventListener('DOMContentLoaded', function() {
+      loadEmployees();
+    });
   </script>
 
   <style>
@@ -936,6 +1180,168 @@
     }
     .btn-danger:hover {
       background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+
+    .btn-danger-text {
+      color: #ef4444;
+    }
+    .btn-danger-text:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+    }
+
+    /* Employee cards */
+    .employees-with-permission {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .employee-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.625rem;
+      min-width: 250px;
+    }
+    .employee-card-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+    .employee-card-info {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .employee-card-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .employee-card-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: var(--bg-surface);
+      border-radius: 1rem;
+      width: 100%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .modal-header h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+    .modal-close:hover {
+      color: var(--text-primary);
+    }
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    /* Employee search */
+    .employee-search-results {
+      margin-top: 1rem;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .employee-search-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .employee-search-item:hover {
+      background: var(--bg-elevated);
+    }
+    .employee-search-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+    .employee-search-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .employee-search-name {
+      font-weight: 500;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+    .employee-search-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .text-muted {
+      color: var(--text-muted);
+      font-size: 0.875rem;
     }
   </style>
 </body>
