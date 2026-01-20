@@ -11,6 +11,7 @@
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
 <body>
+  <div class="gradient-mesh"></div>
   <div class="app-container">
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
@@ -220,33 +221,9 @@
           </div>
           <div class="card-body">
             <div class="employee-selector">
-              <div class="employee-chip active" data-employee="fatma">
-                <div class="chip-avatar" style="background: linear-gradient(135deg, #ec4899, #f472b6);">FK</div>
-                <div class="chip-info">
-                  <span class="chip-name">Fatma Kara</span>
-                  <span class="chip-role">Satış Temsilcisi</span>
-                </div>
-              </div>
-              <div class="employee-chip" data-employee="mehmet">
-                <div class="chip-avatar" style="background: linear-gradient(135deg, #f59e0b, #fbbf24);">MD</div>
-                <div class="chip-info">
-                  <span class="chip-name">Mehmet Demir</span>
-                  <span class="chip-role">Satış Temsilcisi</span>
-                </div>
-              </div>
-              <div class="employee-chip" data-employee="zeynep">
-                <div class="chip-avatar" style="background: linear-gradient(135deg, #6366f1, #818cf8);">ZA</div>
-                <div class="chip-info">
-                  <span class="chip-name">Zeynep Ak</span>
-                  <span class="chip-role">Müşteri İlişkileri</span>
-                </div>
-              </div>
-              <div class="employee-chip" data-employee="can">
-                <div class="chip-avatar" style="background: linear-gradient(135deg, #10b981, #34d399);">CB</div>
-                <div class="chip-info">
-                  <span class="chip-name">Can Bulut</span>
-                  <span class="chip-role">Finans Uzmanı</span>
-                </div>
+              <!-- Yetki profilleri API'den yüklenecek -->
+              <div class="loading-placeholder" style="color: var(--text-muted); font-size: 0.875rem;">
+                Yetki profilleri yükleniyor...
               </div>
             </div>
           </div>
@@ -257,20 +234,20 @@
           <div class="card-header">
             <h3 class="card-title" id="permissionTitle">Yetki Ayarları</h3>
             <div class="card-actions" id="permissionActions">
-              <button class="btn btn-sm btn-ghost" onclick="selectAllPermissions()">Tumunu Sec</button>
-              <button class="btn btn-sm btn-ghost" onclick="deselectAllPermissions()">Tumunu Kaldir</button>
+              <button class="btn btn-sm btn-secondary" onclick="selectAllPermissions()">Tumunu Sec</button>
+              <button class="btn btn-sm btn-secondary" onclick="deselectAllPermissions()">Tumunu Kaldir</button>
             </div>
           </div>
           <div class="card-body">
             <!-- Yetki Adı ve Görme Seviyesi -->
-            <div class="permission-basics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle);">
-              <div class="form-group">
-                <label class="form-label" for="permissionName">Yetki Adı</label>
-                <input type="text" class="form-input" id="permissionName" placeholder="Örn: Satış Temsilcisi">
+            <div class="permission-basics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
+              <div class="form-group" style="gap: 0.375rem;">
+                <label class="form-label" for="permissionName" style="font-size: 0.75rem;">Yetki Adı</label>
+                <input type="text" class="form-input" id="permissionName" placeholder="Örn: Satış Temsilcisi" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;">
               </div>
-              <div class="form-group">
-                <label class="form-label" for="viewLevelSelect">Poliçe Görme Seviyesi</label>
-                <select class="form-select" id="viewLevelSelect">
+              <div class="form-group" style="gap: 0.375rem;">
+                <label class="form-label" for="viewLevelSelect" style="font-size: 0.75rem;">Poliçe Görme Seviyesi</label>
+                <select class="form-select" id="viewLevelSelect" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;">
                   <option value="1">Tüm poliçeleri görebilir (Admin)</option>
                   <option value="2">Sadece kendi şubesinin poliçelerini görür</option>
                   <option value="3" selected>Sadece kendi poliçelerini görür</option>
@@ -300,35 +277,35 @@
                     <input type="checkbox" class="form-checkbox" name="policeDuzenleyebilsin">
                     <span class="permission-label">
                       <span class="permission-name">Poliçe Düzenleme</span>
-                      <span class="permission-desc">Poliçeleri düzenleme yetkisi</span>
+                      <span class="permission-desc">Poliçe bilgilerini değiştirebilir, müşteri ve prim güncellemesi yapabilir</span>
                     </span>
                   </label>
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="policeHavuzunuGorebilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Poliçe Havuzu</span>
-                      <span class="permission-desc">Atanmamış poliçeleri görme</span>
+                      <span class="permission-name">Poliçe Havuzu Erişimi</span>
+                      <span class="permission-desc">Henüz kimseye atanmamış poliçeleri görebilir ve üzerine alabilir. Menüde "Poliçe Havuzu" görünür</span>
                     </span>
                   </label>
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="policeAktarabilsin">
                     <span class="permission-label">
                       <span class="permission-name">Poliçe Aktarma</span>
-                      <span class="permission-desc">Poliçe aktarma yetkisi</span>
+                      <span class="permission-desc">Toplu poliçe aktarımı yapabilir, Excel/CSV dosyalarından poliçe yükleyebilir</span>
                     </span>
                   </label>
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="policeDosyalarinaErisebilsin">
                     <span class="permission-label">
                       <span class="permission-name">Poliçe Dosyaları</span>
-                      <span class="permission-desc">Poliçe dosyalarına erişim</span>
+                      <span class="permission-desc">Poliçelere eklenmiş PDF, resim ve diğer dosyaları görüntüleyip indirebilir</span>
                     </span>
                   </label>
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="policeYakalamaSecenekleri">
                     <span class="permission-label">
-                      <span class="permission-name">Poliçe Yakalama</span>
-                      <span class="permission-desc">Otomatik poliçe yakalama ayarları</span>
+                      <span class="permission-name">Yakalanan Poliçeler</span>
+                      <span class="permission-desc">E-postadan otomatik yakalanan poliçeleri görebilir. Menüde "Yakalanan Poliçeler" görünür</span>
                     </span>
                   </label>
                 </div>
@@ -345,66 +322,227 @@
                   </div>
                   <div>
                     <h4>Yönetim Yetkileri</h4>
-                    <p>Sistem yönetimi yetkileri</p>
+                    <p>Sistem ve kullanıcı yönetimi</p>
                   </div>
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="yetkilerSayfasindaIslemYapabilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Yetki Yönetimi</span>
-                      <span class="permission-desc">Yetki sayfasında işlem yapabilme</span>
+                      <span class="permission-name">Yetki Yönetimi (Admin)</span>
+                      <span class="permission-desc">Bu sayfayı görebilir, yetki profilleri oluşturabilir ve çalışanlara atayabilir</span>
                     </span>
                   </label>
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="acenteliklerSayfasindaIslemYapabilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Acentelik Yönetimi</span>
-                      <span class="permission-desc">Acentelikler sayfasında işlem yapabilme</span>
+                      <span class="permission-name">Acente Kodları Yönetimi</span>
+                      <span class="permission-desc">Sigorta şirketlerine ait acente kodlarını ekleyebilir ve düzenleyebilir</span>
                     </span>
                   </label>
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="komisyonOranlariniDuzenleyebilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Komisyon Düzenleme</span>
-                      <span class="permission-desc">Komisyon oranlarını düzenleyebilme</span>
+                      <span class="permission-name">Komisyon Oranları</span>
+                      <span class="permission-desc">Çalışan komisyon oranlarını belirleyebilir. Menüde "Komisyon Ayarları" görünür</span>
                     </span>
                   </label>
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="produktorleriGorebilsin">
                     <span class="permission-label">
-                      <span class="permission-name">Prodüktör Görme</span>
-                      <span class="permission-desc">Prodüktörleri görüntüleyebilme</span>
+                      <span class="permission-name">Çalışan Listesi</span>
+                      <span class="permission-desc">Tüm çalışanların listesini ve detaylarını görebilir. Menüde "Çalışanlarım" bölümü görünür</span>
                     </span>
                   </label>
                 </div>
               </div>
 
-              <!-- Diğer Ayarlar -->
+              <!-- Müşterilerimiz Yetkileri -->
+              <div class="permission-group">
+                <div class="permission-group-header">
+                  <div class="permission-group-icon" style="background: rgba(245, 158, 11, 0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4>Müşterilerimiz Yetkileri</h4>
+                    <p>Müşteri sayfalarına erişim yetkileri</p>
+                  </div>
+                </div>
+                <div class="permission-items">
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox parent-permission" name="musterileriGorebilsin" data-children="musteriListesiGorebilsin,musteriDetayGorebilsin,yenilemeTakibiGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Müşterilerimiz Menüsü (Ana)</span>
+                      <span class="permission-desc">Tüm müşteri sayfalarına erişim. Bu kapatılırsa alt yetkiler de kapatılır</span>
+                    </span>
+                  </label>
+                  <label class="permission-item sub-permission" style="margin-left: 1.5rem;">
+                    <input type="checkbox" class="form-checkbox" name="musteriListesiGorebilsin" data-parent="musterileriGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Müşteri Listesi</span>
+                      <span class="permission-desc">Tüm müşterilerin listesini görebilir</span>
+                    </span>
+                  </label>
+                  <label class="permission-item sub-permission" style="margin-left: 1.5rem;">
+                    <input type="checkbox" class="form-checkbox" name="musteriDetayGorebilsin" data-parent="musterileriGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Müşteri Detay</span>
+                      <span class="permission-desc">Müşteri detay sayfasına erişebilir</span>
+                    </span>
+                  </label>
+                  <label class="permission-item sub-permission" style="margin-left: 1.5rem;">
+                    <input type="checkbox" class="form-checkbox" name="yenilemeTakibiGorebilsin" data-parent="musterileriGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Yenileme Takibi</span>
+                      <span class="permission-desc">Poliçe yenileme takibi sayfasına erişebilir</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Finans Yetkileri -->
+              <div class="permission-group">
+                <div class="permission-group-header">
+                  <div class="permission-group-icon" style="background: rgba(16, 185, 129, 0.1);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+                      <line x1="12" y1="1" x2="12" y2="23"/>
+                      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h4>Finans Yetkileri</h4>
+                    <p>Finans sayfalarına erişim yetkileri</p>
+                  </div>
+                </div>
+                <div class="permission-items">
+                  <label class="permission-item">
+                    <input type="checkbox" class="form-checkbox parent-permission" name="finansSayfasiniGorebilsin" data-children="finansDashboardGorebilsin,policeOdemeleriGorebilsin,tahsilatTakibiGorebilsin,finansRaporlariGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Finans Menüsü (Ana)</span>
+                      <span class="permission-desc">Tüm finans sayfalarına erişim. Bu kapatılırsa alt yetkiler de kapatılır</span>
+                    </span>
+                  </label>
+                  <label class="permission-item sub-permission" style="margin-left: 1.5rem;">
+                    <input type="checkbox" class="form-checkbox" name="finansDashboardGorebilsin" data-parent="finansSayfasiniGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Finans Dashboard</span>
+                      <span class="permission-desc">Finans özet dashboard sayfasına erişebilir</span>
+                    </span>
+                  </label>
+                  <label class="permission-item sub-permission" style="margin-left: 1.5rem;">
+                    <input type="checkbox" class="form-checkbox" name="policeOdemeleriGorebilsin" data-parent="finansSayfasiniGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Poliçe Bazlı Ödemeler</span>
+                      <span class="permission-desc">Poliçe bazlı ödeme detaylarını görebilir</span>
+                    </span>
+                  </label>
+                  <label class="permission-item sub-permission" style="margin-left: 1.5rem;">
+                    <input type="checkbox" class="form-checkbox" name="tahsilatTakibiGorebilsin" data-parent="finansSayfasiniGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Tahsilat Takibi</span>
+                      <span class="permission-desc">Tahsilat takibi sayfasına erişebilir</span>
+                    </span>
+                  </label>
+                  <label class="permission-item sub-permission" style="margin-left: 1.5rem;">
+                    <input type="checkbox" class="form-checkbox" name="finansRaporlariGorebilsin" data-parent="finansSayfasiniGorebilsin">
+                    <span class="permission-label">
+                      <span class="permission-name">Finans Raporları</span>
+                      <span class="permission-desc">Finansal raporları görebilir ve indirebilir</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Otomasyon Ayarları -->
               <div class="permission-group">
                 <div class="permission-group-header">
                   <div class="permission-group-icon" style="background: rgba(99, 102, 241, 0.1);">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
-                      <rect x="3" y="11" width="18" height="11" rx="2"/>
-                      <path d="M7 11V7a5 5 0 0110 0v4"/>
+                      <circle cx="12" cy="12" r="3"/>
+                      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
                     </svg>
                   </div>
                   <div>
-                    <h4>Diğer Ayarlar</h4>
-                    <p>Ek sistem ayarları</p>
+                    <h4>Otomasyon Ayarları</h4>
+                    <p>Otomatik işlem yapılandırmaları</p>
                   </div>
                 </div>
                 <div class="permission-items">
                   <label class="permission-item">
                     <input type="checkbox" class="form-checkbox" name="acenteliklereGorePoliceYakalansin">
                     <span class="permission-label">
-                      <span class="permission-name">Acenteliklere Göre Yakalama</span>
-                      <span class="permission-desc">Acenteliklere göre poliçe yakalama</span>
+                      <span class="permission-name">Acenteye Göre Otomatik Atama</span>
+                      <span class="permission-desc">Yakalanan poliçeler acente koduna göre otomatik olarak ilgili çalışana atansın</span>
                     </span>
                   </label>
                 </div>
               </div>
 
+            </div>
+          </div>
+        </div>
+
+        <!-- Yetki Önizleme Paneli -->
+        <div class="card" style="margin-top: 1.5rem;" id="previewCard">
+          <div class="card-header">
+            <h3 class="card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem; vertical-align: middle;">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              Yetki Önizlemesi
+            </h3>
+            <span class="preview-hint">Seçilen yetkilere göre kullanıcının göreceği arayüz</span>
+          </div>
+          <div class="card-body">
+            <div class="preview-container">
+              <!-- Navbar Önizleme -->
+              <div class="preview-section">
+                <h4 class="preview-section-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                  </svg>
+                  Sol Menü (Navbar)
+                </h4>
+                <div class="preview-navbar" id="previewNavbar">
+                  <!-- JS ile doldurulacak -->
+                </div>
+              </div>
+
+              <!-- Dashboard Önizleme -->
+              <div class="preview-section">
+                <h4 class="preview-section-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                  </svg>
+                  Dashboard Kartları
+                </h4>
+                <div class="preview-dashboard" id="previewDashboard">
+                  <!-- JS ile doldurulacak -->
+                </div>
+              </div>
+
+              <!-- Sayfa Erişimleri -->
+              <div class="preview-section">
+                <h4 class="preview-section-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                  </svg>
+                  Sayfa Erişimleri
+                </h4>
+                <div class="preview-pages" id="previewPages">
+                  <!-- JS ile doldurulacak -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -524,6 +662,7 @@
       if (!requirePermission('yetkilerSayfasindaIslemYapabilsin')) return;
       loadPermissions();
       setupChangeListeners();
+      setupParentChildCheckboxes();
     });
 
     // Yetki listesini yükle
@@ -542,29 +681,81 @@
 
     // Yetki ayarlari degisiklik takibi
     let hasPermissionSettingsChanged = false;
+    let isNewPermission = false; // Yeni yetki oluşturma modu
 
     // Degisiklik dinleyicilerini kur
     function setupChangeListeners() {
-      // Checkbox'lar icin
+      // TÜM Checkbox'lar icin (parent ve child dahil)
       document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', onPermissionSettingsChange);
+        // Mevcut listener'ları temizle (duplicate önleme)
+        const newCheckbox = checkbox.cloneNode(true);
+        checkbox.parentNode.replaceChild(newCheckbox, checkbox);
+
+        newCheckbox.addEventListener('change', function() {
+          // Parent checkbox ise child'ları kontrol et
+          if (this.classList.contains('parent-permission')) {
+            handleParentCheckboxChange(this);
+          }
+          onPermissionSettingsChange();
+          updatePermissionPreview();
+        });
       });
 
       // Yetki adi input'u icin
       const nameInput = document.getElementById('permissionName');
       if (nameInput) {
-        nameInput.addEventListener('input', onPermissionSettingsChange);
+        // Mevcut listener'ı temizle
+        const newInput = nameInput.cloneNode(true);
+        nameInput.parentNode.replaceChild(newInput, nameInput);
+        newInput.addEventListener('input', onPermissionSettingsChange);
       }
 
       // Gorme seviyesi select'i icin
       const viewSelect = document.getElementById('viewLevelSelect');
       if (viewSelect) {
-        viewSelect.addEventListener('change', onPermissionSettingsChange);
+        // Mevcut listener'ı temizle
+        const newSelect = viewSelect.cloneNode(true);
+        viewSelect.parentNode.replaceChild(newSelect, viewSelect);
+        newSelect.addEventListener('change', onPermissionSettingsChange);
+      }
+    }
+
+    // Parent checkbox değiştiğinde children'ları yönet
+    function handleParentCheckboxChange(parentCheckbox) {
+      const childrenNames = parentCheckbox.dataset.children?.split(',') || [];
+
+      if (!parentCheckbox.checked) {
+        // Parent kapatılırsa, tüm children'ları da kapat ve disable et
+        childrenNames.forEach(childName => {
+          const childCheckbox = document.querySelector(`input[name="${childName}"]`);
+          if (childCheckbox) {
+            childCheckbox.checked = false;
+            childCheckbox.disabled = true;
+          }
+        });
+      } else {
+        // Parent açılırsa, children'ları etkinleştir
+        childrenNames.forEach(childName => {
+          const childCheckbox = document.querySelector(`input[name="${childName}"]`);
+          if (childCheckbox) {
+            childCheckbox.disabled = false;
+          }
+        });
       }
     }
 
     // Yetki ayarlari degistiginde
     function onPermissionSettingsChange() {
+      // Yeni yetki modu için özel kontrol
+      if (isNewPermission) {
+        // Yeni yetki için form dolu mu kontrol et
+        const currentData = collectFormData();
+        const hasData = currentData.yetkiAdi && currentData.yetkiAdi.trim() !== '';
+        hasPermissionSettingsChanged = hasData;
+        updateFloatingActionBox();
+        return;
+      }
+
       if (!selectedPermissionId || !originalPermissionData) return;
 
       // Mevcut form degerlerini al
@@ -588,7 +779,13 @@
         'policeDosyalarinaErisebilsin', 'policeYakalamaSecenekleri',
         'yetkilerSayfasindaIslemYapabilsin', 'acenteliklerSayfasindaIslemYapabilsin',
         'komisyonOranlariniDuzenleyebilsin', 'produktorleriGorebilsin',
-        'acenteliklereGorePoliceYakalansin'
+        'acenteliklereGorePoliceYakalansin',
+        // Ana menü yetkileri
+        'musterileriGorebilsin', 'finansSayfasiniGorebilsin',
+        // Müşterilerimiz alt yetkileri
+        'musteriListesiGorebilsin', 'musteriDetayGorebilsin', 'yenilemeTakibiGorebilsin',
+        // Finans alt yetkileri
+        'finansDashboardGorebilsin', 'policeOdemeleriGorebilsin', 'tahsilatTakibiGorebilsin', 'finansRaporlariGorebilsin'
       ];
 
       for (const field of checkboxFields) {
@@ -678,6 +875,7 @@
     // Yetki seç ve detayları göster
     function selectPermission(id) {
       selectedPermissionId = id;
+      isNewPermission = false; // Mevcut yetki seçildiğinde yeni yetki modunu kapat
       const permission = allPermissions.find(p => p.id === id);
 
       if (!permission) return;
@@ -693,8 +891,15 @@
       // Form alanlarını doldur
       fillPermissionForm(permission);
 
+      // Parent-child checkbox ilişkisini güncelle
+      setupParentChildCheckboxes();
+
       // Orijinal veriyi sakla (degisiklik takibi icin)
       originalPermissionData = JSON.parse(JSON.stringify(permission));
+
+      // Degisiklik durumunu sifirla
+      hasPermissionSettingsChanged = false;
+      updateFloatingActionBox();
 
       // Buton gorunurlugunu guncelle
       updateButtonVisibility();
@@ -718,7 +923,19 @@
         'acenteliklerSayfasindaIslemYapabilsin': permission.acenteliklerSayfasindaIslemYapabilsin,
         'komisyonOranlariniDuzenleyebilsin': permission.komisyonOranlariniDuzenleyebilsin,
         'produktorleriGorebilsin': permission.produktorleriGorebilsin,
-        'acenteliklereGorePoliceYakalansin': permission.acenteliklereGorePoliceYakalansin
+        'acenteliklereGorePoliceYakalansin': permission.acenteliklereGorePoliceYakalansin,
+        // Ana menü yetkileri
+        'musterileriGorebilsin': permission.musterileriGorebilsin,
+        'finansSayfasiniGorebilsin': permission.finansSayfasiniGorebilsin,
+        // Müşterilerimiz alt yetkileri
+        'musteriListesiGorebilsin': permission.musteriListesiGorebilsin,
+        'musteriDetayGorebilsin': permission.musteriDetayGorebilsin,
+        'yenilemeTakibiGorebilsin': permission.yenilemeTakibiGorebilsin,
+        // Finans alt yetkileri
+        'finansDashboardGorebilsin': permission.finansDashboardGorebilsin,
+        'policeOdemeleriGorebilsin': permission.policeOdemeleriGorebilsin,
+        'tahsilatTakibiGorebilsin': permission.tahsilatTakibiGorebilsin,
+        'finansRaporlariGorebilsin': permission.finansRaporlariGorebilsin
       };
 
       Object.entries(checkboxMapping).forEach(([name, value]) => {
@@ -729,6 +946,9 @@
       // Görme seviyesi select
       const viewLevelSelect = document.getElementById('viewLevelSelect');
       if (viewLevelSelect) viewLevelSelect.value = permission.gorebilecegiPolicelerveKartlar || '3';
+
+      // Önizlemeyi güncelle
+      updatePermissionPreview();
     }
 
     // Form verilerini topla
@@ -743,7 +963,19 @@
         'acenteliklerSayfasindaIslemYapabilsin',
         'komisyonOranlariniDuzenleyebilsin',
         'produktorleriGorebilsin',
-        'acenteliklereGorePoliceYakalansin'
+        'acenteliklereGorePoliceYakalansin',
+        // Ana menü yetkileri
+        'musterileriGorebilsin',
+        'finansSayfasiniGorebilsin',
+        // Müşterilerimiz alt yetkileri
+        'musteriListesiGorebilsin',
+        'musteriDetayGorebilsin',
+        'yenilemeTakibiGorebilsin',
+        // Finans alt yetkileri
+        'finansDashboardGorebilsin',
+        'policeOdemeleriGorebilsin',
+        'tahsilatTakibiGorebilsin',
+        'finansRaporlariGorebilsin'
       ];
 
       const data = {
@@ -785,6 +1017,8 @@
     // Yeni yetki formu göster
     function showNewPermissionForm() {
       selectedPermissionId = null;
+      isNewPermission = true; // Yeni yetki modunu aktifleştir
+      hasPermissionSettingsChanged = false; // Değişiklik takibini sıfırla
 
       // Tüm chip'lerin aktifliğini kaldır, sadece "Yeni Yetki" aktif
       document.querySelectorAll('.employee-chip').forEach(c => c.classList.remove('active'));
@@ -796,7 +1030,13 @@
       // Formu temizle
       document.getElementById('permissionName').value = '';
       document.getElementById('viewLevelSelect').value = '3';
-      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        cb.disabled = false; // Tüm checkbox'ları etkinleştir
+      });
+
+      // Parent-child ilişkisini yeniden kur
+      setupParentChildCheckboxes();
 
       // Kaydet butonunu "Oluştur" olarak değiştir, Sil butonunu gizle
       document.getElementById('savePermissions').innerHTML = `
@@ -808,11 +1048,10 @@
       `;
       document.getElementById('deletePermission').style.display = 'none';
 
-      // Form card'ina smooth scroll
-      const permissionsCard = document.getElementById('permissionTitle')?.closest('.card');
-      if (permissionsCard) {
-        permissionsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+      // Önizlemeyi güncelle (tüm yetkiler kapalı)
+      updatePermissionPreview();
+      // Floating box'u gizle (henüz değişiklik yok)
+      updateFloatingActionBox();
     }
 
     // Yeni yetki oluştur
@@ -896,10 +1135,184 @@
 
     function selectAllPermissions() {
       document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = true);
+      updatePermissionPreview();
     }
 
     function deselectAllPermissions() {
       document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+      updatePermissionPreview();
+    }
+
+    // ==================== YETKİ ÖNİZLEME ====================
+
+    // Yetki -> Menü/Dashboard eşleştirmesi
+    // permission: null = herkes görebilir, permission: 'xxx' = yetkiye bağlı
+    const PERMISSION_MAP = {
+      // Navbar menü öğeleri - TÜM MENÜLER
+      navbar: [
+        // Ana Menü
+        { permission: null, label: 'Dashboard', group: 'Ana Menü' },
+        // Poliçe İşlemleri
+        { permission: null, label: 'Poliçelerim', group: 'Poliçe İşlemleri' },
+        { permission: 'policeYakalamaSecenekleri', label: 'Yakalanan Poliçeler', group: 'Poliçe İşlemleri' },
+        { permission: 'policeHavuzunuGorebilsin', label: 'Poliçe Havuzu', group: 'Poliçe İşlemleri' },
+        { permission: null, label: 'Manuel Poliçe Ekle', group: 'Poliçe İşlemleri' },
+        { permission: 'policeAktarabilsin', label: 'Toplu Aktar', group: 'Poliçe İşlemleri' },
+        // Yönetim - Çalışanlarım
+        { permission: 'produktorleriGorebilsin', label: 'Çalışan Listesi', group: 'Çalışanlarım' },
+        { permission: 'produktorleriGorebilsin', label: 'Performans', group: 'Çalışanlarım' },
+        { permission: 'produktorleriGorebilsin', label: 'Takip/Hakediş', group: 'Çalışanlarım' },
+        { permission: 'komisyonOranlariniDuzenleyebilsin', label: 'Komisyon Ayarları', group: 'Çalışanlarım' },
+        // Yönetim - Müşterilerimiz (Alt yetkilerle)
+        { permission: 'musteriListesiGorebilsin', label: 'Müşteri Listesi', group: 'Müşterilerimiz', parent: 'musterileriGorebilsin' },
+        { permission: 'musteriDetayGorebilsin', label: 'Müşteri Detay', group: 'Müşterilerimiz', parent: 'musterileriGorebilsin' },
+        { permission: 'yenilemeTakibiGorebilsin', label: 'Yenileme Takibi', group: 'Müşterilerimiz', parent: 'musterileriGorebilsin' },
+        // Finans (Alt yetkilerle)
+        { permission: 'finansDashboardGorebilsin', label: 'Finans Dashboard', group: 'Finans', parent: 'finansSayfasiniGorebilsin' },
+        { permission: 'policeOdemeleriGorebilsin', label: 'Poliçe Bazlı', group: 'Finans', parent: 'finansSayfasiniGorebilsin' },
+        { permission: 'tahsilatTakibiGorebilsin', label: 'Tahsilat Takibi', group: 'Finans', parent: 'finansSayfasiniGorebilsin' },
+        { permission: 'finansRaporlariGorebilsin', label: 'Raporlar', group: 'Finans', parent: 'finansSayfasiniGorebilsin' },
+        // Sistem - Ayarlar
+        { permission: 'yetkilerSayfasindaIslemYapabilsin', label: 'Yetki Yönetimi', group: 'Ayarlar' },
+        { permission: 'acenteliklerSayfasindaIslemYapabilsin', label: 'Acente Kodları', group: 'Ayarlar' },
+        { permission: null, label: 'Rapor Ayarları', group: 'Ayarlar' },
+      ],
+      // Dashboard kartları
+      dashboard: [
+        { permission: null, label: 'Toplam Poliçe', icon: '📋' },
+        { permission: null, label: 'Toplam Prim', icon: '💵' },
+        { permission: 'policeHavuzunuGorebilsin', label: 'Havuzdaki Poliçeler', icon: '📥' },
+        { permission: 'policeYakalamaSecenekleri', label: 'Yakalanan Poliçeler', icon: '🎯' },
+        { permission: 'produktorleriGorebilsin', label: 'Çalışan Performansı', icon: '👥' },
+        { permission: 'komisyonOranlariniDuzenleyebilsin', label: 'Komisyon Özeti', icon: '💰' },
+        { permission: 'yenilemeTakibiGorebilsin', label: 'Yenileme Bekleyen', icon: '🔄' },
+        { permission: 'tahsilatTakibiGorebilsin', label: 'Tahsilat Durumu', icon: '💳' },
+      ],
+      // Sayfa erişimleri / İşlemler
+      pages: [
+        { permission: 'policeDuzenleyebilsin', label: 'Poliçe düzenleme/silme' },
+        { permission: 'policeHavuzunuGorebilsin', label: 'Poliçe Havuzu sayfası' },
+        { permission: 'policeYakalamaSecenekleri', label: 'Yakalanan Poliçeler sayfası' },
+        { permission: 'policeAktarabilsin', label: 'Toplu poliçe aktarma' },
+        { permission: 'policeDosyalarinaErisebilsin', label: 'Poliçe dosyalarını indirme' },
+        { permission: 'produktorleriGorebilsin', label: 'Çalışanlarım menüsü' },
+        // Müşterilerimiz alt yetkileri
+        { permission: 'musteriListesiGorebilsin', label: 'Müşteri Listesi sayfası' },
+        { permission: 'musteriDetayGorebilsin', label: 'Müşteri Detay sayfası' },
+        { permission: 'yenilemeTakibiGorebilsin', label: 'Yenileme Takibi sayfası' },
+        // Finans alt yetkileri
+        { permission: 'finansDashboardGorebilsin', label: 'Finans Dashboard sayfası' },
+        { permission: 'policeOdemeleriGorebilsin', label: 'Poliçe Bazlı Ödemeler sayfası' },
+        { permission: 'tahsilatTakibiGorebilsin', label: 'Tahsilat Takibi sayfası' },
+        { permission: 'finansRaporlariGorebilsin', label: 'Finans Raporları sayfası' },
+        { permission: 'komisyonOranlariniDuzenleyebilsin', label: 'Komisyon oranları düzenleme' },
+        { permission: 'yetkilerSayfasindaIslemYapabilsin', label: 'Yetki profilleri yönetimi' },
+        { permission: 'acenteliklerSayfasindaIslemYapabilsin', label: 'Acente kodları yönetimi' },
+        { permission: 'acenteliklereGorePoliceYakalansin', label: 'Otomatik poliçe atama' },
+      ]
+    };
+
+    // Mevcut checkbox durumuna göre yetkiyi kontrol et
+    // permission: null ise her zaman true döner (herkes görebilir)
+    // parent varsa, parent de açık olmalı
+    function isPermissionChecked(permissionName, parentPermission = null) {
+      if (permissionName === null) return true; // Herkes görebilir
+      const checkbox = document.querySelector(`input[name="${permissionName}"]`);
+      const isChecked = checkbox ? checkbox.checked : false;
+
+      // Parent varsa, parent de checked olmalı
+      if (parentPermission) {
+        const parentChecked = isPermissionChecked(parentPermission);
+        return isChecked && parentChecked;
+      }
+
+      return isChecked;
+    }
+
+    // Parent-child checkbox ilişkisini yönet
+    // Parent-child checkbox başlangıç durumlarını ayarla
+    function setupParentChildCheckboxes() {
+      // Child checkboxlar için parent kontrolü
+      document.querySelectorAll('input[data-parent]').forEach(childCheckbox => {
+        const parentName = childCheckbox.dataset.parent;
+        const parentCheckbox = document.querySelector(`input[name="${parentName}"]`);
+
+        // Parent kapalıysa child'ı disable et
+        if (parentCheckbox && !parentCheckbox.checked) {
+          childCheckbox.disabled = true;
+          childCheckbox.checked = false;
+        } else if (parentCheckbox && parentCheckbox.checked) {
+          childCheckbox.disabled = false;
+        }
+      });
+    }
+
+    // Önizlemeyi güncelle
+    function updatePermissionPreview() {
+      // Navbar önizlemesi
+      const navbarContainer = document.getElementById('previewNavbar');
+      if (navbarContainer) {
+        const groups = {};
+        PERMISSION_MAP.navbar.forEach(item => {
+          if (!groups[item.group]) groups[item.group] = [];
+          groups[item.group].push(item);
+        });
+
+        let navbarHtml = '';
+        Object.entries(groups).forEach(([groupName, items]) => {
+          // Gruptaki tüm öğeler gizli mi kontrol et (parent'ı da dikkate al)
+          const allHidden = items.every(item => !isPermissionChecked(item.permission, item.parent));
+          const groupClass = allHidden ? 'preview-nav-group hidden-group' : 'preview-nav-group';
+
+          navbarHtml += `<div class="${groupClass}">
+            <div class="preview-nav-group-title">${groupName}</div>`;
+          items.forEach(item => {
+            const isVisible = isPermissionChecked(item.permission, item.parent);
+            const isAlwaysVisible = item.permission === null;
+            const statusClass = isVisible ? 'visible' : 'hidden';
+            const icon = isVisible
+              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'
+              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+            const lockIcon = isAlwaysVisible ? '' : ' 🔒';
+            navbarHtml += `<div class="preview-nav-item ${statusClass}">${icon} ${item.label}${lockIcon}</div>`;
+          });
+          navbarHtml += '</div>';
+        });
+        navbarContainer.innerHTML = navbarHtml;
+      }
+
+      // Dashboard önizlemesi
+      const dashboardContainer = document.getElementById('previewDashboard');
+      if (dashboardContainer) {
+        let dashboardHtml = '';
+        PERMISSION_MAP.dashboard.forEach(item => {
+          const isVisible = isPermissionChecked(item.permission);
+          const isAlwaysVisible = item.permission === null;
+          const statusClass = isVisible ? 'visible' : 'hidden';
+          const lockIcon = isAlwaysVisible ? '' : '🔒';
+          dashboardHtml += `<div class="preview-card ${statusClass}">
+            <div class="preview-card-icon">${item.icon}</div>
+            <div>${item.label} ${lockIcon}</div>
+          </div>`;
+        });
+        dashboardContainer.innerHTML = dashboardHtml;
+      }
+
+      // Sayfa erişimleri önizlemesi (sadece yetkiye bağlı olanlar)
+      const pagesContainer = document.getElementById('previewPages');
+      if (pagesContainer) {
+        let pagesHtml = '';
+        PERMISSION_MAP.pages.forEach(item => {
+          const isVisible = isPermissionChecked(item.permission);
+          const statusClass = isVisible ? 'visible' : 'hidden';
+          const statusText = isVisible ? 'ERİŞEBİLİR' : 'ERİŞEMEZ';
+          pagesHtml += `<div class="preview-page ${statusClass}">
+            <span>${item.label}</span>
+            <span class="preview-page-status">${statusText}</span>
+          </div>`;
+        });
+        pagesContainer.innerHTML = pagesHtml;
+      }
     }
 
     // ==================== CALISAN YONETIMI ====================
@@ -912,7 +1325,7 @@
         const user = APP_CONFIG.AUTH.getUser();
         const firmaId = user?.firmaId;
         const params = firmaId ? { firmaId, limit: 500 } : { limit: 500 };
-        allEmployees = await apiGet('producers', params);
+        allEmployees = await apiGet('kullanicilar', params);
       } catch (error) {
         console.error('Calisanlar yuklenirken hata:', error);
       }
@@ -1035,8 +1448,13 @@
 
         // Yetki ayarlari degismisse
         if (hasPermissionSettingsChanged) {
-          const permName = originalPermissionData?.yetkiAdi || 'Yetki';
-          changesList += `<strong>${permName}</strong> ayarlari degisti<br>`;
+          if (isNewPermission) {
+            const newName = document.getElementById('permissionName')?.value || 'Yeni Yetki';
+            changesList += `<strong>${newName}</strong> olusturulacak<br>`;
+          } else {
+            const permName = originalPermissionData?.yetkiAdi || 'Yetki';
+            changesList += `<strong>${permName}</strong> ayarlari degisti<br>`;
+          }
         }
 
         // Calisan yetki degisiklikleri
@@ -1061,7 +1479,9 @@
 
       // Onay mesaji olustur
       let confirmMsg = '';
-      if (hasPermissionSettingsChanged && hasEmployeeChanges) {
+      if (isNewPermission && hasPermissionSettingsChanged) {
+        confirmMsg = 'Yeni yetki olusturulacak. Onayliyor musunuz?';
+      } else if (hasPermissionSettingsChanged && hasEmployeeChanges) {
         confirmMsg = `Yetki ayarlari ve ${employeeChanges.length} calisanin yetkisi degistirilecek. Onayliyor musunuz?`;
       } else if (hasPermissionSettingsChanged) {
         confirmMsg = 'Yetki ayarlari kaydedilecek. Onayliyor musunuz?';
@@ -1074,15 +1494,22 @@
       try {
         showLoading(true);
 
-        // Yetki ayarlarini kaydet
-        if (hasPermissionSettingsChanged && selectedPermissionId) {
-          const data = collectFormData();
-          await apiPut(`permissions/${selectedPermissionId}`, data);
+        // Yeni yetki oluştur veya mevcut yetkiyi güncelle
+        if (hasPermissionSettingsChanged) {
+          if (isNewPermission) {
+            // Yeni yetki oluştur
+            await createPermission();
+            isNewPermission = false;
+          } else if (selectedPermissionId) {
+            // Mevcut yetkiyi güncelle
+            const data = collectFormData();
+            await apiPut(`permissions/${selectedPermissionId}`, data);
+          }
         }
 
         // Calisan yetki degisikliklerini kaydet
         for (const change of employeeChanges) {
-          await apiPut(`producers/${change.employeeId}/permission`, { yetkiId: change.newPermissionId });
+          await apiPut(`kullanicilar/${change.employeeId}/permission`, { yetkiId: change.newPermissionId });
         }
 
         showToast('Degisiklikler basariyla kaydedildi', 'success');
@@ -1090,6 +1517,7 @@
         // Temizle ve yenile
         pendingPermissionChanges = {};
         hasPermissionSettingsChanged = false;
+        isNewPermission = false;
         updateFloatingActionBox();
 
         await loadPermissions();
@@ -1110,13 +1538,18 @@
       if (Object.keys(pendingPermissionChanges).length === 0 && !hasPermissionSettingsChanged) return;
 
       // Yetki ayarlarini geri al
-      if (hasPermissionSettingsChanged && originalPermissionData) {
+      if (isNewPermission) {
+        // Yeni yetki modunda formu temizle
+        document.getElementById('permissionName').value = '';
+        document.querySelectorAll('.permission-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+      } else if (hasPermissionSettingsChanged && originalPermissionData) {
         fillPermissionForm(originalPermissionData);
       }
 
       // Calisan degisikliklerini temizle
       pendingPermissionChanges = {};
       hasPermissionSettingsChanged = false;
+      isNewPermission = false;
 
       updateFloatingActionBox();
       loadEmployeesWithPermission();
@@ -1135,6 +1568,7 @@
         // Degisiklikleri temizle
         pendingPermissionChanges = {};
         hasPermissionSettingsChanged = false;
+        isNewPermission = false;
         updateFloatingActionBox();
       }
 
@@ -1205,7 +1639,7 @@
 
       try {
         showLoading(true);
-        await apiPut(`producers/${employeeId}/permission`, { yetkiId: selectedPermissionId });
+        await apiPut(`kullanicilar/${employeeId}/permission`, { yetkiId: selectedPermissionId });
 
         showToast('Calisana yetki atandi', 'success');
         closeAssignEmployeeModal();
@@ -1228,7 +1662,7 @@
 
       try {
         showLoading(true);
-        await apiDelete(`producers/${employeeId}/permission`);
+        await apiDelete(`kullanicilar/${employeeId}/permission`);
 
         showToast('Calisan yetkisi basariyla kaldirildi', 'success');
 
@@ -1249,6 +1683,152 @@
   </script>
 
   <style>
+    /* Önizleme Paneli Stilleri */
+    .preview-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    .preview-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 1200px) {
+      .preview-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 768px) {
+      .preview-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    .preview-section {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.75rem;
+      padding: 1rem;
+    }
+    .preview-section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.875rem;
+      padding-bottom: 0.625rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .preview-section-title svg {
+      color: var(--primary);
+    }
+
+    /* Mini Navbar Önizleme */
+    .preview-navbar {
+      font-size: 0.75rem;
+    }
+    .preview-nav-group {
+      margin-bottom: 0.75rem;
+    }
+    .preview-nav-group-title {
+      font-size: 0.625rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.375rem;
+      font-weight: 600;
+    }
+    .preview-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.5rem;
+      border-radius: 0.375rem;
+      margin-bottom: 0.125rem;
+      color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+    .preview-nav-item.visible {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+    .preview-nav-item.hidden {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    .preview-nav-item svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+    .preview-nav-group.hidden-group {
+      opacity: 0.5;
+    }
+    .preview-nav-group.hidden-group .preview-nav-group-title {
+      text-decoration: line-through;
+    }
+
+    /* Dashboard Kartları Önizleme */
+    .preview-dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    .preview-card {
+      padding: 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.6875rem;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .preview-card.visible {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+    .preview-card.hidden {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+    .preview-card-icon {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Sayfa Erişimleri */
+    .preview-pages {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .preview-page {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.375rem 0.5rem;
+      border-radius: 0.375rem;
+      font-size: 0.6875rem;
+    }
+    .preview-page.visible {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+    .preview-page.hidden {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+    .preview-page-status {
+      font-size: 0.625rem;
+      font-weight: 600;
+    }
+
     .info-alert {
       display: flex;
       align-items: flex-start;
@@ -1328,44 +1908,48 @@
 
     .permissions-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
     }
     .permission-group-header {
       display: flex;
       align-items: center;
-      gap: 0.875rem;
-      margin-bottom: 1.25rem;
-      padding-bottom: 1rem;
+      gap: 0.625rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.625rem;
       border-bottom: 1px solid var(--border-subtle);
     }
     .permission-group-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 0.625rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 0.5rem;
       display: flex;
       align-items: center;
       justify-content: center;
     }
+    .permission-group-icon svg {
+      width: 16px;
+      height: 16px;
+    }
     .permission-group-header h4 {
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.8125rem;
       color: var(--text-primary);
-      margin-bottom: 0.125rem;
+      margin-bottom: 0;
     }
     .permission-group-header p {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       color: var(--text-muted);
     }
 
     .permission-item {
       display: flex;
-      align-items: flex-start;
-      gap: 0.875rem;
-      padding: 0.875rem 1rem;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.625rem;
       background: var(--bg-elevated);
-      border-radius: 0.625rem;
-      margin-bottom: 0.625rem;
+      border-radius: 0.375rem;
+      margin-bottom: 0.375rem;
       cursor: pointer;
       transition: all 0.2s;
       border: 1px solid transparent;
@@ -1379,8 +1963,10 @@
       border-color: rgba(99, 102, 241, 0.2);
     }
     .permission-item input[type="checkbox"] {
-      margin-top: 2px;
+      margin-top: 0;
       accent-color: var(--primary);
+      width: 14px;
+      height: 14px;
     }
     .permission-label {
       display: flex;
@@ -1388,16 +1974,22 @@
     }
     .permission-name {
       font-weight: 500;
-      font-size: 0.875rem;
+      font-size: 0.75rem;
       color: var(--text-primary);
     }
     .permission-desc {
-      font-size: 0.75rem;
+      font-size: 0.6875rem;
       color: var(--text-muted);
-      margin-top: 0.125rem;
+      margin-top: 0;
+      display: none;
     }
 
-    @media (max-width: 1024px) {
+    @media (max-width: 1280px) {
+      .permissions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
       .permissions-grid {
         grid-template-columns: 1fr;
       }

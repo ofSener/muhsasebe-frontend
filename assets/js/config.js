@@ -9,6 +9,53 @@ const isLocalhost = window.location.hostname === 'localhost' ||
                     window.location.protocol === 'file:';
 
 // ═══════════════════════════════════════════════════════════════
+// TEST ORTAMI AYARLARI
+// ═══════════════════════════════════════════════════════════════
+const TEST_MODE = {
+  // Test ortamında login bypass aktif mi?
+  // Production API kullanıldığı için bypass kapalı - gerçek login gerekli
+  BYPASS_LOGIN: false,
+
+  // Test kullanıcı bilgileri (localhost'ta otomatik login için)
+  TEST_USER: {
+    id: 1,
+    name: 'Test Kullanıcı',
+    email: 'test@test.com',
+    role: 'admin',
+    firmaId: 1,
+    subeId: 1,
+    subeAdi: 'Ana Şube',
+    profilResmi: null,
+    permissions: {
+      policeDuzenleyebilsin: '1',
+      policeHavuzunuGorebilsin: '1',
+      policeAktarabilsin: '1',
+      policeDosyalarinaErisebilsin: '1',
+      policeYakalamaSecenekleri: '1',
+      yetkilerSayfasindaIslemYapabilsin: '1',
+      acenteliklerSayfasindaIslemYapabilsin: '1',
+      komisyonOranlariniDuzenleyebilsin: '1',
+      produktorleriGorebilsin: '1',
+      acenteliklereGorePoliceYakalansin: '1',
+      gorebilecegiPolicelerveKartlar: '1',
+      // Ana menü yetkileri
+      musterileriGorebilsin: '1',
+      finansSayfasiniGorebilsin: '1',
+      // Müşterilerimiz alt yetkileri
+      musteriListesiGorebilsin: '1',
+      musteriDetayGorebilsin: '1',
+      yenilemeTakibiGorebilsin: '1',
+      // Finans alt yetkileri
+      finansDashboardGorebilsin: '1',
+      policeOdemeleriGorebilsin: '1',
+      tahsilatTakibiGorebilsin: '1',
+      finansRaporlariGorebilsin: '1'
+    }
+  },
+  TEST_TOKEN: 'test-token-for-development-only'
+};
+
+// ═══════════════════════════════════════════════════════════════
 // GELİŞTİRİCİ PROFİLLERİ
 // ═══════════════════════════════════════════════════════════════
 const DEV_PROFILES = {
@@ -40,7 +87,8 @@ const APP_CONFIG = {
     // Omer:  https://localhost:36100 (http://localhost:36101)
     // Musti: https://localhost:36200 (http://localhost:36201)
     // Production: https://muhasebeapi.sigorta.teklifi.al
-    BASE_URL: isLocalhost ? DEV_PROFILES[currentDev].https : 'https://muhasebeapi.sigorta.teklifi.al',
+    // NOT: Şu an için her zaman production API kullanılıyor
+    BASE_URL: 'https://muhasebeapi.sigorta.teklifi.al',
     VERSION: 'v1',
     TIMEOUT: 30000, // 30 saniye
 
@@ -98,13 +146,31 @@ const APP_CONFIG = {
       // Login sayfasındaysak yönlendirme yapma
       if (currentHref.includes('login.html')) return;
 
-      // /pages/ klasörünün konumunu bul ve login.html yolunu oluştur
+      // file:// protokolü için özel handling
+      if (window.location.protocol === 'file:') {
+        // Mevcut dosya yolundan login.html yolunu hesapla
+        const pathParts = currentHref.split('/');
+        const frontendIndex = pathParts.findIndex(p => p === 'frontend');
+        if (frontendIndex !== -1) {
+          // frontend klasörüne kadar al ve login.html ekle
+          const basePath = pathParts.slice(0, frontendIndex + 1).join('/');
+          window.location.href = basePath + '/pages/login.html';
+          return;
+        }
+        // Fallback: pages klasörünü bul
+        const pagesIndex = pathParts.findIndex(p => p === 'pages');
+        if (pagesIndex !== -1) {
+          const basePath = pathParts.slice(0, pagesIndex + 1).join('/');
+          window.location.href = basePath + '/login.html';
+          return;
+        }
+      }
+
+      // HTTP/HTTPS için normal yönlendirme
       const pagesIndex = currentHref.indexOf('/pages/');
       if (pagesIndex !== -1) {
-        // /pages/ bulundu, login.html yolunu oluştur
         window.location.href = currentHref.substring(0, pagesIndex) + '/pages/login.html';
       } else {
-        // Fallback: göreceli yol dene
         window.location.href = this.LOGIN_PAGE;
       }
     }
@@ -540,24 +606,111 @@ function applyPermissions() {
   if (!user) return;
 
   // Menü öğelerini yetkiye göre gizle
+  // Selector -> Yetki adı eşleştirmesi (veya [parent, child] dizisi)
   const menuRules = {
+    // Poliçe İşlemleri
     'a[href*="pool.html"]': 'policeHavuzunuGorebilsin',
+    'a[href*="captured.html"]': 'policeYakalamaSecenekleri',
+    'a[href*="bulk-import.html"]': 'policeAktarabilsin',
+
+    // Çalışan Yönetimi
+    'a[href*="employees/list.html"]': 'produktorleriGorebilsin',
+    'a[href*="employees/performance.html"]': 'produktorleriGorebilsin',
+    'a[href*="employees/tracking.html"]': 'produktorleriGorebilsin',
+    'a[href*="commission.html"]': 'komisyonOranlariniDuzenleyebilsin',
+
+    // Müşterilerimiz - Alt yetkileri
+    'a[href*="customers/list.html"]': ['musterileriGorebilsin', 'musteriListesiGorebilsin'],
+    'a[href*="customers/detail.html"]': ['musterileriGorebilsin', 'musteriDetayGorebilsin'],
+    'a[href*="customers/renewals.html"]': ['musterileriGorebilsin', 'yenilemeTakibiGorebilsin'],
+
+    // Finans - Alt yetkileri
+    'a[href*="finance/dashboard.html"]': ['finansSayfasiniGorebilsin', 'finansDashboardGorebilsin'],
+    'a[href*="finance/policies.html"]': ['finansSayfasiniGorebilsin', 'policeOdemeleriGorebilsin'],
+    'a[href*="finance/collections.html"]': ['finansSayfasiniGorebilsin', 'tahsilatTakibiGorebilsin'],
+    'a[href*="finance/reports.html"]': ['finansSayfasiniGorebilsin', 'finansRaporlariGorebilsin'],
+
+    // Sistem Ayarları
     'a[href*="permissions.html"]': 'yetkilerSayfasindaIslemYapabilsin',
-    'a[href*="agency-codes.html"]': 'acenteliklerSayfasindaIslemYapabilsin',
-    'a[href*="commission.html"]': 'komisyonOranlariniDuzenleyebilsin'
+    'a[href*="agency-codes.html"]': 'acenteliklerSayfasindaIslemYapabilsin'
+  };
+
+  // Alt menü gruplarını da kontrol et (tüm alt öğeler gizliyse grubu da gizle)
+  const submenuGroups = {
+    'Çalışanlarım': 'produktorleriGorebilsin',
+    'Müşterilerimiz': 'musterileriGorebilsin',
+    'Finans': 'finansSayfasiniGorebilsin'
   };
 
   Object.entries(menuRules).forEach(([selector, permission]) => {
     const elements = document.querySelectorAll(selector);
     elements.forEach(el => {
-      if (!hasPermission(permission)) {
-        // Önce parent nav-item'ı dene, yoksa elementi kaldır
-        const navItem = el.closest('.nav-item');
-        if (navItem) {
+      // Permission bir array ise (parent + child), ikisinin de kontrolü gerekir
+      let hasAccess = false;
+      if (Array.isArray(permission)) {
+        // Parent ve child yetkisi kontrol edilir
+        hasAccess = permission.every(p => hasPermission(p));
+      } else {
+        hasAccess = hasPermission(permission);
+      }
+
+      if (!hasAccess) {
+        // Sadece linki gizle (parent nav-item değil, çünkü submenu item olabilir)
+        el.style.display = 'none';
+      }
+    });
+  });
+
+  // Alt menü gruplarını kontrol et - eğer içindeki tüm linkler gizliyse grubu da gizle
+  Object.entries(submenuGroups).forEach(([groupName, permission]) => {
+    if (!hasPermission(permission)) {
+      // Grup adına göre nav-item'ı bul ve gizle
+      document.querySelectorAll('.nav-item.has-submenu').forEach(navItem => {
+        const navText = navItem.querySelector('.nav-text');
+        if (navText && navText.textContent.trim() === groupName) {
           navItem.style.display = 'none';
-        } else {
-          el.style.display = 'none';
         }
+      });
+    }
+  });
+
+  // Dashboard'daki yetki bazlı elementleri kontrol et
+  applyDashboardPermissions();
+}
+
+/**
+ * Dashboard'daki elementleri yetkiye göre gizle/göster
+ */
+function applyDashboardPermissions() {
+  const user = APP_CONFIG.AUTH.getUser();
+  if (!user) return;
+
+  // Dashboard kartlarını yetkiye göre gizle
+  // Permission bir string veya array olabilir (array: tüm yetkiler gerekli)
+  const dashboardRules = {
+    '.dashboard-pool-card': 'policeHavuzunuGorebilsin',
+    '.dashboard-captured-card': 'policeYakalamaSecenekleri',
+    '.dashboard-employees-card': 'produktorleriGorebilsin',
+    '.dashboard-commission-card': 'komisyonOranlariniDuzenleyebilsin',
+    '.dashboard-customers-card': 'musterileriGorebilsin',
+    '.dashboard-finance-card': 'finansSayfasiniGorebilsin',
+    // Granüler yetkiler
+    '.dashboard-renewals-card': ['musterileriGorebilsin', 'yenilemeTakibiGorebilsin'],
+    '.dashboard-collections-card': ['finansSayfasiniGorebilsin', 'tahsilatTakibiGorebilsin']
+  };
+
+  Object.entries(dashboardRules).forEach(([selector, permission]) => {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(el => {
+      let hasAccess = false;
+      if (Array.isArray(permission)) {
+        hasAccess = permission.every(p => hasPermission(p));
+      } else {
+        hasAccess = hasPermission(permission);
+      }
+
+      if (!hasAccess) {
+        el.style.display = 'none';
       }
     });
   });
@@ -606,6 +759,9 @@ function disableButtonsWithoutPermission(permission, selectors = '.btn-edit, .bt
 console.log(`[Config] Geliştirici: ${currentDev.toUpperCase()}`);
 console.log(`[Config] API Base URL: ${APP_CONFIG.API.BASE_URL}`);
 console.log(`[Config] Profil değiştirmek için: setDevProfile('omer') veya setDevProfile('musti')`);
+if (TEST_MODE.BYPASS_LOGIN) {
+  console.log(`[Config] 🧪 TEST MODU AKTIF - Login bypass edilecek`);
+}
 
 // ═══════════════════════════════════════════════════════════════
 // OTOMATİK AUTH KONTROLÜ
@@ -614,6 +770,14 @@ console.log(`[Config] Profil değiştirmek için: setDevProfile('omer') veya set
 (function() {
   const currentPath = window.location.pathname;
   const isLoginPage = currentPath.includes('login.html');
+
+  // TEST ORTAMI: localhost'ta otomatik test kullanıcısı ile giriş
+  if (TEST_MODE.BYPASS_LOGIN && !isLoginPage && !APP_CONFIG.AUTH.isLoggedIn()) {
+    console.log('[Test Mode] Otomatik test kullanıcısı ayarlanıyor...');
+    APP_CONFIG.AUTH.setToken(TEST_MODE.TEST_TOKEN);
+    APP_CONFIG.AUTH.setUser(TEST_MODE.TEST_USER);
+    return;
+  }
 
   if (!isLoginPage && !APP_CONFIG.AUTH.isLoggedIn()) {
     // Token yok, login sayfasına yönlendir
