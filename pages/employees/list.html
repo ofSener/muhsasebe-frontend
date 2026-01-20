@@ -5,6 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Çalışan Listesi - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
+  <style>
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-backdrop .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow: hidden;
+      animation: modalIn 0.2s ease-out;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
@@ -288,10 +318,8 @@
                 <option value="active">Aktif</option>
                 <option value="inactive">Pasif</option>
               </select>
-              <select class="form-select" style="width: auto;">
-                <option value="">Tüm Roller</option>
-                <option value="admin">Yönetici</option>
-                <option value="agent">Acente</option>
+              <select id="yetkiFilter" class="form-select" style="width: auto;">
+                <option value="">Tüm Yetkiler</option>
               </select>
             </div>
           </div>
@@ -313,7 +341,7 @@
                     <th>Çalışan</th>
                     <th>E-posta</th>
                     <th>Telefon</th>
-                    <th>Rol</th>
+                    <th>Yetki</th>
                     <th>Durum</th>
                     <th>Poliçe</th>
                     <th>Performans</th>
@@ -361,7 +389,7 @@
               <input type="tel" class="form-input" placeholder="0532 123 4567">
             </div>
             <div class="form-group">
-              <label class="form-label">Rol</label>
+              <label class="form-label">Yetki</label>
               <select class="form-select" required>
                 <option value="">Seçiniz</option>
                 <option value="admin">Yönetici</option>
@@ -383,19 +411,67 @@
     </div>
   </div>
 
+  <!-- Yetki Değiştir Modal -->
+  <div class="modal-backdrop" id="yetkiModal" style="display: none;">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Yetki Değiştir</h3>
+        <button class="modal-close" onclick="closeYetkiModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-3">Çalışan: <strong id="yetkiModalName"></strong></p>
+        <div class="form-group">
+          <label class="form-label">Yeni Yetki</label>
+          <select id="yetkiModalSelect" class="form-select">
+            <option value="">Yükleniyor...</option>
+          </select>
+        </div>
+        <input type="hidden" id="yetkiModalKullaniciId">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeYetkiModal()">İptal</button>
+        <button class="btn btn-primary" onclick="saveYetki()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
   <script>
 
-    // Sayfa yüklendiğinde çalışanları getir
+    // Sayfa yüklendiğinde çalışanları ve yetkileri getir
     document.addEventListener('DOMContentLoaded', function() {
       loadKullanicilar();
+      loadYetkiler();
     });
 
     // Kullanıcı bilgisinden FirmaId al
     function getCurrentFirmaId() {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      return user.firmaId || null;
+      const user = APP_CONFIG.AUTH.getUser();
+      return user?.firmaId || null;
+    }
+
+    // Yetkileri API'den yükle (filtre için)
+    async function loadYetkiler() {
+      const firmaId = getCurrentFirmaId();
+      const select = document.getElementById('yetkiFilter');
+
+      try {
+        const yetkiler = await apiGet('permissions', firmaId ? { firmaId } : {});
+        yetkiler.forEach(y => {
+          const option = document.createElement('option');
+          option.value = y.id;
+          option.textContent = y.yetkiAdi;
+          select.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Yetkiler yüklenirken hata:', error);
+      }
     }
 
     // Kullanıcıları API'den yükle
@@ -411,10 +487,7 @@
       tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Yükleniyor...</td></tr>';
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/producers?firmaId=${firmaId}`);
-        if (!response.ok) throw new Error('API hatası');
-
-        const kullanicilar = await response.json();
+        const kullanicilar = await apiGet('kullanicilar', { firmaId: firmaId });
         renderKullanicilar(kullanicilar);
         updateStats(kullanicilar);
       } catch (error) {
@@ -440,7 +513,7 @@
         const isActive = k.onay === 1;
         const initials = getInitials(k.adi, k.soyadi);
         const avatarColor = getAvatarColor(k.id);
-        const rolBadge = getRolBadge(k.kullaniciTuru);
+        const rolBadge = getRolBadge(k.anaYoneticimi, k.yetkiAdi);
         const durumBadge = isActive
           ? '<span class="badge badge-success">Aktif</span>'
           : '<span class="badge badge-secondary">Pasif</span>';
@@ -458,7 +531,7 @@
                 <div class="${avatarStyle}">${initials}</div>
                 <div>
                   <div class="font-semibold ${isActive ? '' : 'text-muted'}">${k.adi || ''} ${k.soyadi || ''}</div>
-                  <div class="text-muted text-sm">${getRolText(k.kullaniciTuru)}</div>
+                  <div class="text-muted text-sm">${getRolText(k.anaYoneticimi, k.yetkiAdi)}</div>
                 </div>
               </div>
             </td>
@@ -472,16 +545,15 @@
             <td>
               <div class="action-buttons">
                 ${isActive ? `
-                  <button class="btn-icon" title="Düzenle" onclick="editKullanici(${k.id})">
+                  <button class="btn-icon" title="Yetki Değiştir" onclick="openYetkiModal(${k.id}, ${k.muhasebeYetkiId || 'null'}, '${k.adi || ''} ${k.soyadi || ''}')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
                   </button>
-                  <button class="btn-icon" title="Yetkileri Yönet" onclick="managePermissions(${k.id})">
+                  <button class="btn-icon" title="Karta Git" onclick="goToEmployeeCard(${k.id})">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0110 0v4"/>
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
                     </svg>
                   </button>
                 ` : `
@@ -523,22 +595,21 @@
       return colors[id % colors.length];
     }
 
-    function getRolBadge(kullaniciTuru) {
-      switch (kullaniciTuru) {
-        case 1: return '<span class="badge badge-warning">Yönetici</span>';
-        case 2: return '<span class="badge badge-info">Acente</span>';
-        case 3: return '<span class="badge badge-secondary">Stajyer</span>';
-        default: return '<span class="badge badge-secondary">Bilinmiyor</span>';
+    function getRolBadge(anaYoneticimi, yetkiAdi) {
+      // AnaYoneticimi = 0 ise Ana Yönetici
+      if (anaYoneticimi === 0) {
+        return '<span class="badge badge-danger">Ana Yönetici</span>';
       }
+      // Yetki adı varsa onu göster
+      if (yetkiAdi) {
+        return `<span class="badge badge-info">${yetkiAdi}</span>`;
+      }
+      return '<span class="badge badge-secondary">Tanımsız</span>';
     }
 
-    function getRolText(kullaniciTuru) {
-      switch (kullaniciTuru) {
-        case 1: return 'Yönetici';
-        case 2: return 'Acente';
-        case 3: return 'Stajyer';
-        default: return 'Çalışan';
-      }
+    function getRolText(anaYoneticimi, yetkiAdi) {
+      if (anaYoneticimi === 0) return 'Ana Yönetici';
+      return yetkiAdi || 'Çalışan';
     }
 
     function formatDate(dateStr) {
@@ -552,15 +623,57 @@
       return phone.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
     }
 
-    // Aksiyon fonksiyonları
-    function editKullanici(id) {
-      console.log('Düzenle:', id);
-      // TODO: Düzenleme modalı aç
+    // Yetki değiştirme modal fonksiyonları
+    let yetkilerCache = null;
+
+    async function openYetkiModal(kullaniciId, currentYetkiId, kullaniciAdi) {
+      document.getElementById('yetkiModalKullaniciId').value = kullaniciId;
+      document.getElementById('yetkiModalName').textContent = kullaniciAdi;
+      document.getElementById('yetkiModal').style.display = 'flex';
+
+      const select = document.getElementById('yetkiModalSelect');
+
+      // Yetkileri cache'den veya API'den al
+      if (!yetkilerCache) {
+        const firmaId = getCurrentFirmaId();
+        yetkilerCache = await apiGet('permissions', firmaId ? { firmaId } : {});
+      }
+
+      // Select'i doldur
+      select.innerHTML = '<option value="">Yetki Seçiniz</option>';
+      yetkilerCache.forEach(y => {
+        const option = document.createElement('option');
+        option.value = y.id;
+        option.textContent = y.yetkiAdi;
+        if (y.id === currentYetkiId) option.selected = true;
+        select.appendChild(option);
+      });
     }
 
-    function managePermissions(id) {
-      console.log('Yetkiler:', id);
-      // TODO: Yetki yönetimi modalı aç
+    function closeYetkiModal() {
+      document.getElementById('yetkiModal').style.display = 'none';
+    }
+
+    async function saveYetki() {
+      const kullaniciId = document.getElementById('yetkiModalKullaniciId').value;
+      const yetkiId = document.getElementById('yetkiModalSelect').value;
+
+      try {
+        await apiPut(`kullanicilar/${kullaniciId}/yetki`, {
+          muhasebeYetkiId: yetkiId ? parseInt(yetkiId) : null
+        });
+        showToast('Yetki başarıyla güncellendi', 'success');
+        closeYetkiModal();
+        loadKullanicilar(); // Listeyi yenile
+      } catch (error) {
+        showToast('Yetki güncellenirken hata oluştu', 'error');
+        console.error('Yetki güncelleme hatası:', error);
+      }
+    }
+
+    // Çalışan kartına git
+    function goToEmployeeCard(id) {
+      window.location.href = `detail.html?id=${id}`;
     }
 
     function activateKullanici(id) {

@@ -94,10 +94,19 @@ const APP_CONFIG = {
 
     // Login sayfasına yönlendir
     redirectToLogin: function() {
-      const currentPath = window.location.pathname;
+      const currentHref = window.location.href;
       // Login sayfasındaysak yönlendirme yapma
-      if (currentPath.includes('login.html')) return;
-      window.location.href = this.LOGIN_PAGE;
+      if (currentHref.includes('login.html')) return;
+
+      // /pages/ klasörünün konumunu bul ve login.html yolunu oluştur
+      const pagesIndex = currentHref.indexOf('/pages/');
+      if (pagesIndex !== -1) {
+        // /pages/ bulundu, login.html yolunu oluştur
+        window.location.href = currentHref.substring(0, pagesIndex) + '/pages/login.html';
+      } else {
+        // Fallback: göreceli yol dene
+        window.location.href = this.LOGIN_PAGE;
+      }
     }
   },
 
