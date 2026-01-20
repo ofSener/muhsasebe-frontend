@@ -659,15 +659,15 @@
       const yetkiId = document.getElementById('yetkiModalSelect').value;
 
       try {
-        await apiPut(`kullanicilar/${kullaniciId}/yetki`, {
-          muhasebeYetkiId: yetkiId ? parseInt(yetkiId) : null
+        await apiPut(`kullanicilar/${kullaniciId}/permission`, {
+          yetkiId: parseInt(yetkiId)
         });
         showToast('Yetki başarıyla güncellendi', 'success');
         closeYetkiModal();
-        loadKullanicilar(); // Listeyi yenile
+        loadKullanicilar();
       } catch (error) {
         showToast('Yetki güncellenirken hata oluştu', 'error');
-        console.error('Yetki güncelleme hatası:', error);
+        console.error('Permission update error:', error);
       }
     }
 
