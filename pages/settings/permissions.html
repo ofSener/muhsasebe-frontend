@@ -1550,6 +1550,12 @@
         await loadEmployees();
         await loadEmployeesWithPermission();
 
+        // Tüm async işlemler tamamlandıktan sonra floating box'ı kesinlikle kapat
+        pendingPermissionChanges = {};
+        hasPermissionSettingsChanged = false;
+        isNewPermission = false;
+        updateFloatingActionBox();
+
         // Kendi yetkimiz degistiyse sayfayi yenile
         if (myPermissionChanged || myPermissionSettingsChanged) {
           showToast('Yetkiniz degisti, sayfa yenileniyor...', 'info');
