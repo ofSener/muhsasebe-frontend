@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kazanclarim - IHSAN AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+</head>
+<body>
+  <div class="gradient-mesh"></div>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Finans</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Kazanclarim</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <span class="badge">3</span>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar" id="userAvatar">--</div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name" id="userName">Yukleniyor...</div>
+              <div class="navbar-user-role" id="userRole">--</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Kazanclarim</h1>
+            <p class="page-subtitle">Komisyon ve odeme bilgilerinizi takip edin.</p>
+          </div>
+          <div class="page-actions">
+            <div class="date-range-picker">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <select class="form-select" id="periodFilter" style="border: none; background: transparent; min-width: 140px;">
+                <option value="this-month">Bu Ay</option>
+                <option value="last-month">Gecen Ay</option>
+                <option value="last-3-months">Son 3 Ay</option>
+                <option value="this-year">Bu Yil</option>
+                <option value="all">Tum Zamanlar</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" onclick="exportToExcel()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                <polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Excel Indir
+            </button>
+          </div>
+        </div>
+
+        <!-- Earnings Stats -->
+        <div class="stats-grid">
+          <div class="stat-card stat-emerald">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Toplam Kazanc</p>
+              <h3 class="stat-value font-mono" id="totalEarnings">0 TL</h3>
+              <span class="stat-change" id="totalEarningsChange">Tum zamanlar</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-cyan">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Bu Ay Kazanc</p>
+              <h3 class="stat-value font-mono" id="thisMonthEarnings">0 TL</h3>
+              <span class="stat-change" id="thisMonthInfo">--</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-violet">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Odenen Tutar</p>
+              <h3 class="stat-value font-mono" id="paidAmount">0 TL</h3>
+              <span class="stat-change positive" id="paidInfo">--</span>
+            </div>
+          </div>
+
+          <div class="stat-card stat-amber">
+            <div class="stat-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-content">
+              <p class="stat-label">Bekleyen Tutar</p>
+              <h3 class="stat-value font-mono" id="pendingAmount">0 TL</h3>
+              <span class="stat-change" id="pendingInfo">Odeme bekliyor</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid grid-2" style="margin-top: 1.5rem;">
+          <!-- Monthly Trend Chart -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Aylik Kazanc Trendi</h3>
+            </div>
+            <div class="card-body">
+              <div id="trendChart" style="height: 280px;"></div>
+            </div>
+          </div>
+
+          <!-- Distribution Chart -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Sigorta Turune Gore Dagilim</h3>
+            </div>
+            <div class="card-body">
+              <div id="distributionChart" style="height: 280px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="card-body" style="padding: 1rem;">
+            <div class="filters-grid" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+              <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                <label class="form-label" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Baslangic Tarihi</label>
+                <input type="date" class="form-input" id="startDate" style="padding: 0.5rem;">
+              </div>
+              <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                <label class="form-label" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Bitis Tarihi</label>
+                <input type="date" class="form-input" id="endDate" style="padding: 0.5rem;">
+              </div>
+              <div class="form-group" style="margin: 0; flex: 1; min-width: 150px;">
+                <label class="form-label" style="font-size: 0.75rem; margin-bottom: 0.25rem;">Sigorta Turu</label>
+                <select class="form-select" id="insuranceType" style="padding: 0.5rem;">
+                  <option value="">Tumu</option>
+                  <option value="1">Trafik</option>
+                  <option value="2">Kasko</option>
+                  <option value="3">DASK</option>
+                  <option value="4">Konut</option>
+                  <option value="5">Saglik</option>
+                  <option value="6">Ferdi Kaza</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 0.5rem; align-items: flex-end; padding-top: 1.25rem;">
+                <button class="btn btn-primary" onclick="loadEarnings()" style="padding: 0.5rem 1rem;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Filtrele
+                </button>
+                <button class="btn btn-secondary" onclick="clearFilters()" style="padding: 0.5rem 1rem;">
+                  Temizle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Earnings Table -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <div class="card-header">
+            <h3 class="card-title">Kazanc Detaylari</h3>
+            <span class="badge badge-primary" id="recordCount">0 kayit</span>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container" style="overflow-x: auto;">
+              <table class="data-table" id="earningsTable">
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>Police No</th>
+                    <th>Musteri</th>
+                    <th>Sigorta Sirketi</th>
+                    <th>Tur</th>
+                    <th class="text-right">Net Prim</th>
+                    <th class="text-right">Sirket Kom.</th>
+                    <th class="text-right">Pay (%)</th>
+                    <th class="text-right">Kazanc</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody id="earningsTableBody">
+                  <tr>
+                    <td colspan="10" class="text-center" style="padding: 3rem;">
+                      <div class="loading-spinner"></div>
+                      <p style="margin-top: 1rem; color: var(--text-muted);">Veriler yukleniyor...</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-subtle);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    @media (max-width: 1024px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .badge-success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+    .badge-warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+  </style>
+
+  <script>
+    // API Base URL
+    const API_BASE = 'https://muhasebeapi.sigorta.teklifi.al';
+
+    // Format currency
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('tr-TR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(value) + ' TL';
+    }
+
+    // Format date
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('tr-TR');
+    }
+
+    // Get auth token
+    function getToken() {
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        return user.token;
+      }
+      return null;
+    }
+
+    // Check auth
+    function checkAuth() {
+      const token = getToken();
+      if (!token) {
+        window.location.href = '../../login.html';
+        return false;
+      }
+
+      // Update user info in navbar
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        const user = JSON.parse(userData);
+        document.getElementById('userName').textContent = user.user?.name || 'Kullanici';
+        document.getElementById('userRole').textContent = user.user?.role || '--';
+        const initials = (user.user?.name || 'KA').split(' ').map(n => n[0]).join('').substring(0, 2);
+        document.getElementById('userAvatar').textContent = initials;
+      }
+      return true;
+    }
+
+    // Chart instances
+    let trendChart = null;
+    let distributionChart = null;
+
+    // Load earnings data
+    async function loadEarnings() {
+      if (!checkAuth()) return;
+
+      const token = getToken();
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const bransId = document.getElementById('insuranceType').value;
+
+      let url = `${API_BASE}/api/earnings/my?`;
+      if (startDate) url += `startDate=${startDate}&`;
+      if (endDate) url += `endDate=${endDate}&`;
+      if (bransId) url += `bransId=${bransId}&`;
+
+      try {
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.status === 401) {
+          localStorage.removeItem('user');
+          window.location.href = '../../login.html';
+          return;
+        }
+
+        if (response.status === 403) {
+          document.getElementById('earningsTableBody').innerHTML = `
+            <tr>
+              <td colspan="10" class="text-center" style="padding: 3rem;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" style="margin-bottom: 1rem;">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <p style="color: var(--danger); font-weight: 600;">Erisim Yetkisi Yok</p>
+                <p style="color: var(--text-muted); font-size: 0.875rem;">Bu sayfayi goruntuleme yetkiniz bulunmuyor.</p>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        if (!response.ok) throw new Error('API error');
+
+        const data = await response.json();
+        updateUI(data);
+      } catch (error) {
+        console.error('Error loading earnings:', error);
+        document.getElementById('earningsTableBody').innerHTML = `
+          <tr>
+            <td colspan="10" class="text-center" style="padding: 3rem;">
+              <p style="color: var(--danger);">Veriler yuklenirken hata olustu.</p>
+              <button class="btn btn-primary" onclick="loadEarnings()" style="margin-top: 1rem;">Tekrar Dene</button>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Update UI with data
+    function updateUI(data) {
+      // Update stats
+      document.getElementById('totalEarnings').textContent = formatCurrency(data.toplamKazanc || 0);
+      document.getElementById('thisMonthEarnings').textContent = formatCurrency(data.buAyKazanc || 0);
+      document.getElementById('paidAmount').textContent = formatCurrency(data.odenenTutar || 0);
+      document.getElementById('pendingAmount').textContent = formatCurrency(data.bekleyenTutar || 0);
+
+      // Update record count
+      document.getElementById('recordCount').textContent = `${(data.detaylar || []).length} kayit`;
+
+      // Update trend chart
+      updateTrendChart(data.aylikTrend || []);
+
+      // Update distribution chart
+      updateDistributionChart(data.tureGoreDagilim || []);
+
+      // Update table
+      updateTable(data.detaylar || []);
+    }
+
+    // Update trend chart
+    function updateTrendChart(trendData) {
+      const options = {
+        series: [{
+          name: 'Kazanc',
+          data: trendData.map(t => t.tutar)
+        }],
+        chart: {
+          type: 'area',
+          height: 280,
+          toolbar: { show: false },
+          fontFamily: 'inherit'
+        },
+        colors: ['#6366f1'],
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.4,
+            opacityTo: 0.1
+          }
+        },
+        stroke: { curve: 'smooth', width: 2 },
+        xaxis: {
+          categories: trendData.map(t => t.ay),
+          labels: { style: { colors: '#64748b' } }
+        },
+        yaxis: {
+          labels: {
+            formatter: (val) => formatCurrency(val),
+            style: { colors: '#64748b' }
+          }
+        },
+        tooltip: {
+          y: { formatter: (val) => formatCurrency(val) }
+        },
+        grid: { borderColor: '#e2e8f0' }
+      };
+
+      if (trendChart) trendChart.destroy();
+      trendChart = new ApexCharts(document.getElementById('trendChart'), options);
+      trendChart.render();
+    }
+
+    // Update distribution chart
+    function updateDistributionChart(distData) {
+      const options = {
+        series: distData.map(d => d.tutar),
+        chart: {
+          type: 'donut',
+          height: 280,
+          fontFamily: 'inherit'
+        },
+        labels: distData.map(d => d.sigortaTuru),
+        colors: ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+        legend: {
+          position: 'bottom',
+          labels: { colors: '#64748b' }
+        },
+        tooltip: {
+          y: { formatter: (val) => formatCurrency(val) }
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '60%',
+              labels: {
+                show: true,
+                total: {
+                  show: true,
+                  label: 'Toplam',
+                  formatter: () => formatCurrency(distData.reduce((a, b) => a + b.tutar, 0))
+                }
+              }
+            }
+          }
+        }
+      };
+
+      if (distributionChart) distributionChart.destroy();
+      distributionChart = new ApexCharts(document.getElementById('distributionChart'), options);
+      distributionChart.render();
+    }
+
+    // Update table
+    function updateTable(details) {
+      const tbody = document.getElementById('earningsTableBody');
+
+      if (!details || details.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" class="text-center" style="padding: 3rem;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5" style="margin-bottom: 1rem;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <p style="color: var(--text-muted);">Henuz kazanc kaydı bulunmuyor.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = details.map(d => `
+        <tr>
+          <td>${formatDate(d.tarih)}</td>
+          <td><span class="font-mono" style="font-size: 0.8125rem;">${d.policeNo}</span></td>
+          <td>${d.musteriAdi}</td>
+          <td>${d.sigortaSirketi}</td>
+          <td><span class="badge badge-primary">${d.sigortaTuru}</span></td>
+          <td class="text-right font-mono">${formatCurrency(d.netPrim)}</td>
+          <td class="text-right font-mono">${formatCurrency(d.sirketKomisyonu)}</td>
+          <td class="text-right font-mono">%${d.komisyonOrani}</td>
+          <td class="text-right font-mono" style="font-weight: 600; color: var(--success);">${formatCurrency(d.kazanc)}</td>
+          <td><span class="badge ${d.odemeDurumu === 'Odendi' ? 'badge-success' : 'badge-warning'}">${d.odemeDurumu}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    // Clear filters
+    function clearFilters() {
+      document.getElementById('startDate').value = '';
+      document.getElementById('endDate').value = '';
+      document.getElementById('insuranceType').value = '';
+      loadEarnings();
+    }
+
+    // Export to Excel (placeholder)
+    function exportToExcel() {
+      alert('Excel indirme ozelligi yakinda eklenecek.');
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      if (checkAuth()) {
+        loadEarnings();
+      }
+    });
+
+    // Period filter change
+    document.getElementById('periodFilter')?.addEventListener('change', (e) => {
+      const now = new Date();
+      let startDate, endDate;
+
+      switch (e.target.value) {
+        case 'this-month':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          endDate = now;
+          break;
+        case 'last-month':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+          break;
+        case 'last-3-months':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+          endDate = now;
+          break;
+        case 'this-year':
+          startDate = new Date(now.getFullYear(), 0, 1);
+          endDate = now;
+          break;
+        case 'all':
+        default:
+          startDate = null;
+          endDate = null;
+      }
+
+      if (startDate) {
+        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+      } else {
+        document.getElementById('startDate').value = '';
+      }
+
+      if (endDate) {
+        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+      } else {
+        document.getElementById('endDate').value = '';
+      }
+
+      loadEarnings();
+    });
+  </script>
+  <script src="../../components/sidebar.js"></script>
+</body>
+</html>
