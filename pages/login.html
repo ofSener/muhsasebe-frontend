@@ -730,6 +730,11 @@
             permissions: response.user.permissions
           });
 
+          // Yetkileri cache'e kaydet
+          if (response.user.permissions) {
+            APP_CONFIG.PERMISSIONS.cache(response.user.permissions);
+          }
+
           // Beni hatırla
           if (rememberMe) {
             localStorage.setItem('remembered_email', email);

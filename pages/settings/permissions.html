@@ -142,6 +142,7 @@
             <div class="nav-submenu">
               <a href="permissions.html" class="nav-link active"><span class="nav-text">Yetki Yönetimi</span></a>
               <a href="agency-codes.html" class="nav-link"><span class="nav-text">Acente Kodları</span></a>
+              <a href="drive-integration.html" class="nav-link"><span class="nav-text">Drive Entegrasyonu</span></a>
               <a href="report-settings.html" class="nav-link"><span class="nav-text">Rapor Ayarları</span></a>
             </div>
           </div>
@@ -1514,6 +1515,16 @@
 
         showToast('Degisiklikler basariyla kaydedildi', 'success');
 
+        // Yetki cache'ini temizle - tum kullanicilar icin
+        APP_CONFIG.PERMISSIONS.invalidate();
+
+        // Kendi yetkimiz degisti mi kontrol et
+        const currentUser = APP_CONFIG.AUTH.getUser();
+        const myPermissionChanged = employeeChanges.some(c => c.employeeId === currentUser?.id);
+        const myPermissionSettingsChanged = hasPermissionSettingsChanged &&
+          currentUser?.permissions?.gorebilecegiPoliceler &&
+          selectedPermissionId === (await apiGet('kullanicilar/' + currentUser.id))?.muhasebeYetkiId;
+
         // Temizle ve yenile
         pendingPermissionChanges = {};
         hasPermissionSettingsChanged = false;
@@ -1526,6 +1537,12 @@
         }
         await loadEmployees();
         await loadEmployeesWithPermission();
+
+        // Kendi yetkimiz degistiyse sayfayi yenile
+        if (myPermissionChanged || myPermissionSettingsChanged) {
+          showToast('Yetkiniz degisti, sayfa yenileniyor...', 'info');
+          setTimeout(() => location.reload(), 1500);
+        }
       } catch (error) {
         showToast('Degisiklikler kaydedilirken hata olustu: ' + error.message, 'error');
       } finally {

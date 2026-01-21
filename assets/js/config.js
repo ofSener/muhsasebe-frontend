@@ -49,7 +49,9 @@ const TEST_MODE = {
       finansDashboardGorebilsin: '1',
       policeOdemeleriGorebilsin: '1',
       tahsilatTakibiGorebilsin: '1',
-      finansRaporlariGorebilsin: '1'
+      finansRaporlariGorebilsin: '1',
+      // Entegrasyon yetkileri
+      driveEntegrasyonuGorebilsin: '1'
     }
   },
   TEST_TOKEN: 'test-token-for-development-only'
@@ -173,6 +175,98 @@ const APP_CONFIG = {
       } else {
         window.location.href = this.LOGIN_PAGE;
       }
+    }
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // YETKİ CACHE SİSTEMİ
+  // ═══════════════════════════════════════════════════════════════
+  PERMISSIONS: {
+    CACHE_KEY: 'user_permissions',
+    CACHE_TIMESTAMP_KEY: 'permissions_timestamp',
+    CACHE_TTL: 5 * 60 * 1000, // 5 dakika
+
+    // Cache'den yetkileri al (TTL kontrolü ile)
+    getCached: function() {
+      const cached = localStorage.getItem(this.CACHE_KEY);
+      const timestamp = localStorage.getItem(this.CACHE_TIMESTAMP_KEY);
+
+      if (!cached || !timestamp) return null;
+
+      const age = Date.now() - parseInt(timestamp);
+      if (age > this.CACHE_TTL) {
+        // Cache expired
+        this.invalidate();
+        return null;
+      }
+
+      try {
+        return JSON.parse(cached);
+      } catch (e) {
+        this.invalidate();
+        return null;
+      }
+    },
+
+    // Yetkileri cache'e kaydet
+    cache: function(permissions) {
+      localStorage.setItem(this.CACHE_KEY, JSON.stringify(permissions));
+      localStorage.setItem(this.CACHE_TIMESTAMP_KEY, Date.now().toString());
+    },
+
+    // Cache'i temizle
+    invalidate: function() {
+      localStorage.removeItem(this.CACHE_KEY);
+      localStorage.removeItem(this.CACHE_TIMESTAMP_KEY);
+    },
+
+    // API'den yetkileri çek
+    fetchFromApi: async function() {
+      try {
+        const response = await apiGet('auth/me');
+        if (response && response.permissions) {
+          this.cache(response.permissions);
+          // User bilgisini de güncelle
+          const user = APP_CONFIG.AUTH.getUser();
+          if (user) {
+            user.permissions = response.permissions;
+            APP_CONFIG.AUTH.setUser(user);
+          }
+          return response.permissions;
+        }
+        return null;
+      } catch (error) {
+        console.error('[Permissions] API fetch error:', error);
+        return null;
+      }
+    },
+
+    // Yetkileri al (cache varsa onu, yoksa API'den)
+    get: async function() {
+      // Önce cache'e bak
+      const cached = this.getCached();
+      if (cached) {
+        return cached;
+      }
+
+      // Cache yoksa API'den çek
+      const permissions = await this.fetchFromApi();
+      if (permissions) {
+        return permissions;
+      }
+
+      // API de başarısız olduysa user'dan al
+      const user = APP_CONFIG.AUTH.getUser();
+      return user?.permissions || null;
+    },
+
+    // Senkron versiyon - mevcut cache veya user'dan al
+    getSync: function() {
+      const cached = this.getCached();
+      if (cached) return cached;
+
+      const user = APP_CONFIG.AUTH.getUser();
+      return user?.permissions || null;
     }
   },
 
@@ -492,6 +586,8 @@ async function logout() {
     // Hata olsa bile devam et
     console.warn('Logout API error:', error);
   } finally {
+    // Yetki cache'ini temizle
+    APP_CONFIG.PERMISSIONS.invalidate();
     APP_CONFIG.AUTH.clearToken();
     APP_CONFIG.AUTH.redirectToLogin();
   }
@@ -503,9 +599,10 @@ async function logout() {
  * @returns {boolean}
  */
 function hasPermission(permission) {
-  const user = APP_CONFIG.AUTH.getUser();
-  if (!user || !user.permissions) return false;
-  return user.permissions[permission] === '1' || user.permissions[permission] === 1;
+  // Önce cache'den, yoksa user'dan al
+  const permissions = APP_CONFIG.PERMISSIONS.getSync();
+  if (!permissions) return false;
+  return permissions[permission] === '1' || permissions[permission] === 1;
 }
 
 /**
@@ -601,9 +698,12 @@ function showProfileModal() {
  * Kullanıcı yetkilerine göre menü öğelerini gizle/göster
  * Sayfa yüklendiğinde çağrılır
  */
-function applyPermissions() {
+async function applyPermissions() {
   const user = APP_CONFIG.AUTH.getUser();
   if (!user) return;
+
+  // Yetkileri cache'den veya API'den al
+  await APP_CONFIG.PERMISSIONS.get();
 
   // Menü öğelerini yetkiye göre gizle
   // Selector -> Yetki adı eşleştirmesi (veya [parent, child] dizisi)
@@ -632,7 +732,8 @@ function applyPermissions() {
 
     // Sistem Ayarları
     'a[href*="permissions.html"]': 'yetkilerSayfasindaIslemYapabilsin',
-    'a[href*="agency-codes.html"]': 'acenteliklerSayfasindaIslemYapabilsin'
+    'a[href*="agency-codes.html"]': 'acenteliklerSayfasindaIslemYapabilsin',
+    'a[href*="drive-integration.html"]': 'driveEntegrasyonuGorebilsin'
   };
 
   // Alt menü gruplarını da kontrol et (tüm alt öğeler gizliyse grubu da gizle)
