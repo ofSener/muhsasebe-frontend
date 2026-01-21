@@ -23,10 +23,62 @@
       }
     }
 
+    /* Sortable Table Headers */
+    .sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+    .sortable:hover {
+      color: var(--primary, #6366f1);
+    }
+    .sort-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .sort-icon {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+      opacity: 0.3;
+      transition: opacity 0.15s ease;
+    }
+    .sortable:hover .sort-icon {
+      opacity: 0.6;
+    }
+    .sort-icon svg {
+      width: 10px;
+      height: 10px;
+      transition: all 0.15s ease;
+    }
+    .sort-icon .sort-asc,
+    .sort-icon .sort-desc {
+      color: var(--text-muted, #9ca3af);
+    }
+    /* Active sort states */
+    .sortable.asc .sort-icon,
+    .sortable.desc .sort-icon {
+      opacity: 1;
+    }
+    .sortable.asc .sort-icon .sort-asc {
+      color: var(--primary, #6366f1);
+    }
+    .sortable.asc .sort-icon .sort-desc {
+      opacity: 0.2;
+    }
+    .sortable.desc .sort-icon .sort-desc {
+      color: var(--primary, #6366f1);
+    }
+    .sortable.desc .sort-icon .sort-asc {
+      opacity: 0.2;
+    }
+
     /* Modern Gradient Stat Cards */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.25rem;
       margin-bottom: 1.5rem;
     }
@@ -881,17 +933,6 @@
             </div>
           </div>
 
-          <div class="stat-card stat-violet">
-            <div class="stat-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value" id="statPerformance">-</div>
-              <div class="stat-label">Ort. Performans</div>
-            </div>
-          </div>
         </div>
 
         <!-- Filters -->
@@ -947,14 +988,61 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Çalışan</th>
-                    <th>E-posta</th>
+                    <th class="sortable" data-sort="name" onclick="sortTable('name')">
+                      <span class="sort-header">
+                        Çalışan
+                        <span class="sort-icon">
+                          <svg class="sort-asc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                          <svg class="sort-desc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                        </span>
+                      </span>
+                    </th>
+                    <th class="sortable" data-sort="email" onclick="sortTable('email')">
+                      <span class="sort-header">
+                        E-posta
+                        <span class="sort-icon">
+                          <svg class="sort-asc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                          <svg class="sort-desc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                        </span>
+                      </span>
+                    </th>
                     <th>Telefon</th>
-                    <th>Yetki</th>
-                    <th>Durum</th>
-                    <th>Poliçe</th>
-                    <th>Performans</th>
-                    <th>Kayıt Tarihi</th>
+                    <th class="sortable" data-sort="yetki" onclick="sortTable('yetki')">
+                      <span class="sort-header">
+                        Yetki
+                        <span class="sort-icon">
+                          <svg class="sort-asc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                          <svg class="sort-desc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                        </span>
+                      </span>
+                    </th>
+                    <th class="sortable" data-sort="durum" onclick="sortTable('durum')">
+                      <span class="sort-header">
+                        Durum
+                        <span class="sort-icon">
+                          <svg class="sort-asc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                          <svg class="sort-desc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                        </span>
+                      </span>
+                    </th>
+                    <th class="sortable" data-sort="police" onclick="sortTable('police')">
+                      <span class="sort-header">
+                        Poliçe
+                        <span class="sort-icon">
+                          <svg class="sort-asc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                          <svg class="sort-desc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                        </span>
+                      </span>
+                    </th>
+                    <th class="sortable" data-sort="tarih" onclick="sortTable('tarih')">
+                      <span class="sort-header">
+                        Kayıt Tarihi
+                        <span class="sort-icon">
+                          <svg class="sort-asc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14l5-5 5 5H7z"/></svg>
+                          <svg class="sort-desc" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5H7z"/></svg>
+                        </span>
+                      </span>
+                    </th>
                     <th></th>
                   </tr>
                 </thead>
@@ -1063,6 +1151,8 @@
     let yetkilerCache = null;
     let kullanicilarCache = [];
     let pendingPermissionChanges = {};
+    // Sıralama durumu: null = sıralama yok (API sırası), değer varsa = aktif sıralama
+    let currentSort = { field: null, direction: null };
 
     // Sayfa yüklendiğinde önce yetkileri sonra çalışanları getir
     document.addEventListener('DOMContentLoaded', async function() {
@@ -1282,9 +1372,9 @@
 
       try {
         const kullanicilar = await apiGet('kullanicilar', { firmaId: firmaId });
-        kullanicilarCache = kullanicilar; // Cache'e kaydet
-        renderKullanicilar(kullanicilar);
+        kullanicilarCache = kullanicilar; // Cache'e kaydet (API sırasını korur)
         updateStats(kullanicilar);
+        applyFilters();
       } catch (error) {
         console.error('Kullanıcılar yüklenirken hata:', error);
         tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Veriler yüklenirken hata oluştu.</td></tr>';
@@ -1358,7 +1448,6 @@
             <td>${yetkiCell}</td>
             <td>${durumBadge}</td>
             <td class="font-semibold font-mono ${isActive ? '' : 'text-muted'}">${k.policeSayisi || 0}</td>
-            <td><span class="text-muted">-</span></td>
             <td class="text-muted">${kayitTarihi}</td>
             <td>
               <div class="action-buttons">
@@ -1395,7 +1484,6 @@
       document.getElementById('statTotal').textContent = total;
       document.getElementById('statActive').textContent = active;
       document.getElementById('statInactive').textContent = inactive;
-      document.getElementById('statPerformance').textContent = '-';
     }
 
     // Filtreleri uygula
@@ -1418,7 +1506,7 @@
 
         // Durum filtresi
         if (durumFilter) {
-          const isActive = k.onay === 1;
+          const isActive = k.onay === 1 && !k.isEski;
           if (durumFilter === 'active' && !isActive) return false;
           if (durumFilter === 'inactive' && isActive) return false;
         }
@@ -1435,6 +1523,12 @@
         return true;
       });
 
+      // Sıralamayı uygula (sadece aktif sort varsa)
+      if (currentSort.field && currentSort.direction) {
+        filtered = sortData(filtered, currentSort.field, currentSort.direction);
+      }
+      // else: API sırasını koru (zaten kayıt tarihine göre desc)
+
       // Tabloyu güncelle
       renderKullanicilar(filtered);
 
@@ -1448,6 +1542,84 @@
           countEl.textContent = `${filtered.length} / ${totalCount} çalışan gösteriliyor`;
         }
       }
+    }
+
+    // Sıralama değerini al
+    function getSortValue(item, field) {
+      switch (field) {
+        case 'name':
+          return `${item.adi || ''} ${item.soyadi || ''}`.toLowerCase().trim();
+        case 'email':
+          return (item.email || '').toLowerCase();
+        case 'yetki':
+          if (item.anaYoneticimi === 0) return '!Ana Yönetici'; // ! ile en başa gelir
+          return (item.yetkiAdi || 'zzz').toLowerCase();
+        case 'durum':
+          return (item.onay === 1 && !item.isEski) ? 0 : 1;
+        case 'police':
+          return item.policeSayisi || 0;
+        case 'tarih':
+          return item.kayitTarihi ? new Date(item.kayitTarihi).getTime() : 0;
+        default:
+          return '';
+      }
+    }
+
+    // Veri sıralama fonksiyonu
+    function sortData(data, field, direction) {
+      if (!field || !direction) return data;
+
+      return [...data].sort((a, b) => {
+        const valueA = getSortValue(a, field);
+        const valueB = getSortValue(b, field);
+
+        let comparison = 0;
+        if (typeof valueA === 'number' && typeof valueB === 'number') {
+          comparison = valueA - valueB;
+        } else {
+          comparison = String(valueA).localeCompare(String(valueB), 'tr');
+        }
+
+        return direction === 'desc' ? -comparison : comparison;
+      });
+    }
+
+    // Tablo sıralama fonksiyonu (3 aşamalı: asc → desc → kapalı)
+    function sortTable(field) {
+      // Tüm header'lardan class'ları kaldır
+      document.querySelectorAll('th.sortable').forEach(th => {
+        th.classList.remove('asc', 'desc');
+      });
+
+      // Sıralama durumunu belirle
+      if (currentSort.field === field) {
+        // Aynı sütuna tıklandı - döngü: asc → desc → null
+        if (currentSort.direction === 'asc') {
+          currentSort.direction = 'desc';
+        } else if (currentSort.direction === 'desc') {
+          // 3. tık: sıralamayı kapat
+          currentSort.field = null;
+          currentSort.direction = null;
+        } else {
+          // null'dan asc'ye
+          currentSort.direction = 'asc';
+        }
+      } else {
+        // Farklı sütuna tıklandı - asc ile başla
+        currentSort.field = field;
+        currentSort.direction = 'asc';
+      }
+
+      // Aktif sort varsa header'ı işaretle
+      if (currentSort.field && currentSort.direction) {
+        const activeHeader = document.querySelector(`th.sortable[data-sort="${currentSort.field}"]`);
+        if (activeHeader) {
+          activeHeader.classList.add(currentSort.direction);
+        }
+      }
+
+      // Tabloyu güncelle
+      applyFilters();
     }
 
     // Yardımcı fonksiyonlar
