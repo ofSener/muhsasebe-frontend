@@ -1105,6 +1105,19 @@ h6 { font-size: 0.8125rem; }
   display: none;
 }
 
+.date-preset-btn.active::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.6);
+}
+
 /* Ripple effect on click */
 @keyframes preset-ripple {
   0% {

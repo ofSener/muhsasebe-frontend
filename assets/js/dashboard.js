@@ -163,7 +163,12 @@
 
   async function fetchSonAktiviteler() {
     try {
-      const response = await apiGet('dashboard/son-aktiviteler?limit=10');
+      const params = new URLSearchParams();
+      if (currentDateRange.startDate) params.append('startDate', currentDateRange.startDate);
+      if (currentDateRange.endDate) params.append('endDate', currentDateRange.endDate);
+      params.append('limit', '10');
+
+      const response = await apiGet(`dashboard/son-aktiviteler?${params}`);
       dashboardData.sonAktiviteler = response;
       updateSonAktivitelerUI(response);
     } catch (error) {
