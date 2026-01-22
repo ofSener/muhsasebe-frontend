@@ -54,7 +54,7 @@
             <p class="page-subtitle">Poliçe yakalama için kullanılan acente kodlarını yönetin.</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-primary" data-modal-open="addAgencyModal">
+            <button class="btn btn-primary" onclick="openAddModal()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19"/>
                 <line x1="5" y1="12" x2="19" y2="12"/>
@@ -89,7 +89,7 @@
             </div>
             <div class="stat-content">
               <p class="stat-label">Toplam Kod</p>
-              <h4 class="stat-value">8</h4>
+              <h4 class="stat-value" id="totalCodesCount">0</h4>
             </div>
           </div>
           <div class="stat-card stat-card-mini stat-emerald">
@@ -101,7 +101,7 @@
             </div>
             <div class="stat-content">
               <p class="stat-label">Aktif Kod</p>
-              <h4 class="stat-value">6</h4>
+              <h4 class="stat-value" id="activeCodesCount">0</h4>
             </div>
           </div>
           <div class="stat-card stat-card-mini stat-amber">
@@ -113,7 +113,7 @@
             </div>
             <div class="stat-content">
               <p class="stat-label">Pasif Kod</p>
-              <h4 class="stat-value">2</h4>
+              <h4 class="stat-value" id="passiveCodesCount">0</h4>
             </div>
           </div>
           <div class="stat-card stat-card-mini stat-violet">
@@ -124,8 +124,8 @@
               </svg>
             </div>
             <div class="stat-content">
-              <p class="stat-label">Yakalanan Poliçe</p>
-              <h4 class="stat-value">1,247</h4>
+              <p class="stat-label">Dış Acente</p>
+              <h4 class="stat-value" id="externalCodesCount">0</h4>
             </div>
           </div>
         </div>
@@ -140,7 +140,7 @@
                   <circle cx="11" cy="11" r="8"/>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
-                <input type="text" placeholder="Kod veya şirket ara...">
+                <input type="text" id="searchInput" placeholder="Kod veya şirket ara..." oninput="filterAgencyCodes()">
               </div>
             </div>
           </div>
@@ -151,312 +151,29 @@
                   <tr>
                     <th>Acente Kodu</th>
                     <th>Sigorta Şirketi</th>
-                    <th>Tanım</th>
-                    <th style="text-align: right;">Yakalanan</th>
-                    <th>Son Aktivite</th>
-                    <th>Durum</th>
+                    <th>Acente Adı</th>
+                    <th>Dış Acente</th>
+                    <th>Eklenme Tarihi</th>
                     <th style="text-align: center;">İşlemler</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <span class="agency-code agency-code-cyan">AXA-001</span>
-                    </td>
-                    <td>
-                      <div class="company-cell">
-                        <div class="company-logo" style="background: linear-gradient(135deg, #005ca9, #0073cf);">AXA</div>
-                        <span class="company-name">AXA Sigorta</span>
-                      </div>
-                    </td>
-                    <td><span class="text-muted">Ana acente kodu</span></td>
-                    <td style="text-align: right;"><span class="mono-value">324</span></td>
-                    <td><span class="text-muted">13.01.2026 14:30</span></td>
-                    <td><span class="status-badge status-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="action-btn" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-warning" title="Pasif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-danger" title="Sil">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <span class="agency-code agency-code-emerald">ALLIANZ-002</span>
-                    </td>
-                    <td>
-                      <div class="company-cell">
-                        <div class="company-logo" style="background: linear-gradient(135deg, #003781, #0066b3);">ALZ</div>
-                        <span class="company-name">Allianz Sigorta</span>
-                      </div>
-                    </td>
-                    <td><span class="text-muted">Birincil kod</span></td>
-                    <td style="text-align: right;"><span class="mono-value">287</span></td>
-                    <td><span class="text-muted">13.01.2026 12:15</span></td>
-                    <td><span class="status-badge status-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="action-btn" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-warning" title="Pasif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-danger" title="Sil">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <span class="agency-code agency-code-rose">ANADOLU-003</span>
-                    </td>
-                    <td>
-                      <div class="company-cell">
-                        <div class="company-logo" style="background: linear-gradient(135deg, #e31e24, #ff4444);">ANA</div>
-                        <span class="company-name">Anadolu Sigorta</span>
-                      </div>
-                    </td>
-                    <td><span class="text-muted">Merkez acente</span></td>
-                    <td style="text-align: right;"><span class="mono-value">256</span></td>
-                    <td><span class="text-muted">12.01.2026 18:45</span></td>
-                    <td><span class="status-badge status-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="action-btn" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-warning" title="Pasif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-danger" title="Sil">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <span class="agency-code agency-code-amber">MAPFRE-004</span>
-                    </td>
-                    <td>
-                      <div class="company-cell">
-                        <div class="company-logo" style="background: linear-gradient(135deg, #cc0000, #ff0000);">MAP</div>
-                        <span class="company-name">Mapfre Sigorta</span>
-                      </div>
-                    </td>
-                    <td><span class="text-muted">Ana kanal</span></td>
-                    <td style="text-align: right;"><span class="mono-value">198</span></td>
-                    <td><span class="text-muted">11.01.2026 09:30</span></td>
-                    <td><span class="status-badge status-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="action-btn" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-warning" title="Pasif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-danger" title="Sil">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <span class="agency-code agency-code-violet">SOMPO-005</span>
-                    </td>
-                    <td>
-                      <div class="company-cell">
-                        <div class="company-logo" style="background: linear-gradient(135deg, #003399, #0055cc);">SMP</div>
-                        <span class="company-name">Sompo Japan Sigorta</span>
-                      </div>
-                    </td>
-                    <td><span class="text-muted">Kasko acente</span></td>
-                    <td style="text-align: right;"><span class="mono-value">112</span></td>
-                    <td><span class="text-muted">10.01.2026 16:20</span></td>
-                    <td><span class="status-badge status-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="action-btn" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-warning" title="Pasif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-danger" title="Sil">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <span class="agency-code agency-code-pink">HDI-006</span>
-                    </td>
-                    <td>
-                      <div class="company-cell">
-                        <div class="company-logo" style="background: linear-gradient(135deg, #003366, #004488);">HDI</div>
-                        <span class="company-name">HDI Sigorta</span>
-                      </div>
-                    </td>
-                    <td><span class="text-muted">Sağlık acente</span></td>
-                    <td style="text-align: right;"><span class="mono-value">70</span></td>
-                    <td><span class="text-muted">08.01.2026 11:00</span></td>
-                    <td><span class="status-badge status-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="action-btn" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-warning" title="Pasif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-danger" title="Sil">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="row-inactive">
-                    <td>
-                      <span class="agency-code agency-code-muted">ZURICH-007</span>
-                    </td>
-                    <td>
-                      <div class="company-cell">
-                        <div class="company-logo" style="background: linear-gradient(135deg, #666, #888);">ZUR</div>
-                        <span class="company-name">Zurich Sigorta</span>
-                      </div>
-                    </td>
-                    <td><span class="text-muted">Eski kod</span></td>
-                    <td style="text-align: right;"><span class="mono-value">0</span></td>
-                    <td><span class="text-muted">01.12.2025 10:00</span></td>
-                    <td><span class="status-badge status-default">Pasif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="action-btn" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-success" title="Aktif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                            <polyline points="22,4 12,14.01 9,11.01"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-danger" title="Sil">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="row-inactive">
-                    <td>
-                      <span class="agency-code agency-code-muted">TURK-008</span>
-                    </td>
-                    <td>
-                      <div class="company-cell">
-                        <div class="company-logo" style="background: linear-gradient(135deg, #666, #888);">TRK</div>
-                        <span class="company-name">Türk Sigorta</span>
-                      </div>
-                    </td>
-                    <td><span class="text-muted">Test kod</span></td>
-                    <td style="text-align: right;"><span class="mono-value">0</span></td>
-                    <td><span class="text-muted">15.11.2025 14:30</span></td>
-                    <td><span class="status-badge status-default">Pasif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="action-btn" title="Düzenle">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-success" title="Aktif Yap">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                            <polyline points="22,4 12,14.01 9,11.01"/>
-                          </svg>
-                        </button>
-                        <button class="action-btn action-danger" title="Sil">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3,6 5,6 21,6"/>
-                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                <tbody id="agencyTableBody">
+                  <!-- Dinamik olarak doldurulacak -->
                 </tbody>
               </table>
+            </div>
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state" style="display: none;">
+              <div class="loading-spinner"></div>
+              <p>Yükleniyor...</p>
+            </div>
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M20 7h-7m7 10h-7m4-5h-4M6 18l4-8-4-8"/>
+              </svg>
+              <p>Henüz acente kodu eklenmemiş</p>
+              <button class="btn btn-primary btn-sm" onclick="openAddModal()">İlk Kodu Ekle</button>
             </div>
           </div>
         </div>
@@ -465,55 +182,66 @@
     </main>
   </div>
 
-  <!-- Add Agency Modal -->
-  <div class="modal-overlay" id="addAgencyModal">
+  <!-- Add/Edit Agency Modal -->
+  <div class="modal-overlay" id="agencyModal">
     <div class="modal" style="max-width: 500px;">
       <div class="modal-header">
-        <h3 class="modal-title">Yeni Acente Kodu Ekle</h3>
-        <button class="modal-close" data-modal-close>&times;</button>
+        <h3 class="modal-title" id="modalTitle">Yeni Acente Kodu Ekle</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <div class="modal-body">
+        <input type="hidden" id="editingId" value="">
         <div class="form-group">
           <label class="form-label">Acente Kodu *</label>
-          <input type="text" class="form-input" placeholder="ÖRN: SIRKET-001">
+          <input type="text" class="form-input" id="agencyCodeInput" placeholder="ÖRN: SIRKET-001">
           <span class="form-hint">Benzersiz bir kod girin (örn: AXA-001)</span>
         </div>
         <div class="form-group">
           <label class="form-label">Sigorta Şirketi *</label>
-          <select class="form-select">
+          <select class="form-select" id="companySelect">
             <option value="">Şirket seçin...</option>
-            <option>AXA Sigorta</option>
-            <option>Allianz Sigorta</option>
-            <option>Anadolu Sigorta</option>
-            <option>Mapfre Sigorta</option>
-            <option>Sompo Japan Sigorta</option>
-            <option>HDI Sigorta</option>
-            <option>Zurich Sigorta</option>
-            <option>Türk Sigorta</option>
-            <option>Diğer</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Tanım</label>
-          <input type="text" class="form-input" placeholder="Bu kodun kullanım amacı...">
+          <label class="form-label">Acente Adı *</label>
+          <input type="text" class="form-input" id="agencyNameInput" placeholder="Acente adını girin...">
         </div>
         <div class="form-group">
-          <label class="form-label">Durum</label>
+          <label class="form-label">Dış Acente</label>
           <div class="radio-group">
             <label class="radio-option">
-              <input type="radio" name="status" value="active" checked>
-              <span>Aktif</span>
+              <input type="radio" name="disAcente" value="0" checked>
+              <span>Hayır</span>
             </label>
             <label class="radio-option">
-              <input type="radio" name="status" value="passive">
-              <span>Pasif</span>
+              <input type="radio" name="disAcente" value="1">
+              <span>Evet</span>
             </label>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" data-modal-close>İptal</button>
-        <button class="btn btn-primary">Kaydet</button>
+        <button class="btn btn-ghost" onclick="closeModal()">İptal</button>
+        <button class="btn btn-primary" id="saveBtn" onclick="saveAgencyCode()">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirmation Modal -->
+  <div class="confirm-modal-overlay" id="confirmModal">
+    <div class="confirm-modal">
+      <div class="confirm-modal-icon" id="confirmIcon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h3 class="confirm-modal-title" id="confirmTitle">Emin misiniz?</h3>
+      <p class="confirm-modal-message" id="confirmMessage">Bu işlemi geri alamazsınız.</p>
+      <div class="confirm-modal-actions">
+        <button class="btn btn-ghost" id="confirmCancel">İptal</button>
+        <button class="btn btn-danger" id="confirmOk">Onayla</button>
       </div>
     </div>
   </div>
@@ -636,6 +364,7 @@
       font-size: 0.625rem;
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
     }
     .company-name {
       font-weight: 500;
@@ -648,23 +377,14 @@
       font-size: 0.8125rem;
       padding: 0.375rem 0.75rem;
       border-radius: 0.375rem;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
     }
-    .agency-code-cyan { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-    .agency-code-emerald { background: rgba(16, 185, 129, 0.1); color: #059669; }
-    .agency-code-rose { background: rgba(239, 68, 68, 0.1); color: #dc2626; }
-    .agency-code-amber { background: rgba(245, 158, 11, 0.1); color: #d97706; }
-    .agency-code-violet { background: rgba(99, 102, 241, 0.1); color: #4f46e5; }
-    .agency-code-pink { background: rgba(168, 85, 247, 0.1); color: #9333ea; }
-    .agency-code-muted { background: var(--bg-elevated); color: var(--text-muted); }
 
     .mono-value {
       font-family: 'JetBrains Mono', monospace;
       font-weight: 600;
       color: var(--text-primary);
-    }
-
-    .row-inactive {
-      opacity: 0.6;
     }
 
     .action-btn {
@@ -689,18 +409,21 @@
       width: 16px;
       height: 16px;
     }
-    .action-btn.action-success:hover { color: #10b981; }
-    .action-btn.action-warning:hover { color: #f59e0b; }
     .action-btn.action-danger:hover { color: #ef4444; }
 
     .table-actions {
       display: flex;
       gap: 0.25rem;
+      justify-content: center;
     }
 
-    .status-badge.status-default {
-      background: var(--bg-elevated);
-      color: var(--text-muted);
+    .status-badge.status-external {
+      background: rgba(168, 85, 247, 0.1);
+      color: #9333ea;
+    }
+    .status-badge.status-internal {
+      background: rgba(16, 185, 129, 0.1);
+      color: #059669;
     }
 
     .radio-group {
@@ -715,6 +438,104 @@
       color: var(--text-primary);
     }
 
+    .loading-state, .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+      color: var(--text-muted);
+      gap: 1rem;
+    }
+    .loading-spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid var(--border-default);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .empty-state svg {
+      opacity: 0.5;
+    }
+
+    /* Confirmation Modal Styles */
+    .confirm-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+    .confirm-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .confirm-modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .confirm-modal-overlay.active .confirm-modal {
+      transform: scale(1) translateY(0);
+    }
+    .confirm-modal-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    .confirm-modal-icon svg {
+      width: 32px;
+      height: 32px;
+      color: #ef4444;
+    }
+    .confirm-modal-icon.warning { background: rgba(245, 158, 11, 0.1); }
+    .confirm-modal-icon.warning svg { color: #f59e0b; }
+    .confirm-modal-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+    .confirm-modal-message {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .confirm-modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+    }
+    .confirm-modal-actions .btn {
+      min-width: 100px;
+    }
+
     @media (max-width: 1200px) {
       .stats-row {
         grid-template-columns: repeat(2, 1fr);
@@ -726,6 +547,358 @@
       }
     }
   </style>
+
+  <script>
+    // Global state
+    let allAgencyCodes = [];
+    let insuranceCompanies = [];
+    let confirmResolve = null;
+
+    // Helper functions from config
+    const { apiGet, apiPost, apiPut, apiDelete, showToast } = APP_CONFIG.API;
+
+    // Page initialization
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadInsuranceCompanies();
+      await loadAgencyCodes();
+    });
+
+    // Load insurance companies for dropdown
+    async function loadInsuranceCompanies() {
+      try {
+        insuranceCompanies = await apiGet('insurance-companies', { sadeceFaal: true });
+        const select = document.getElementById('companySelect');
+        select.innerHTML = '<option value="">Şirket seçin...</option>';
+        insuranceCompanies.forEach(company => {
+          select.innerHTML += `<option value="${company.id}">${company.ad}</option>`;
+        });
+      } catch (error) {
+        console.error('Sigorta şirketleri yüklenemedi:', error);
+        showToast('Sigorta şirketleri yüklenemedi', 'error');
+      }
+    }
+
+    // Load agency codes from API
+    async function loadAgencyCodes() {
+      const tbody = document.getElementById('agencyTableBody');
+      const loadingState = document.getElementById('loadingState');
+      const emptyState = document.getElementById('emptyState');
+
+      tbody.innerHTML = '';
+      loadingState.style.display = 'flex';
+      emptyState.style.display = 'none';
+
+      try {
+        const user = APP_CONFIG.AUTH.getUser();
+        const params = user?.firmaId ? { firmaId: user.firmaId } : {};
+        allAgencyCodes = await apiGet('agency-codes', params);
+
+        loadingState.style.display = 'none';
+
+        if (allAgencyCodes.length === 0) {
+          emptyState.style.display = 'flex';
+        } else {
+          renderAgencyCodes(allAgencyCodes);
+        }
+
+        updateStats(allAgencyCodes);
+      } catch (error) {
+        loadingState.style.display = 'none';
+        console.error('Acente kodları yüklenemedi:', error);
+        showToast('Acente kodları yüklenemedi', 'error');
+      }
+    }
+
+    // Render agency codes table
+    function renderAgencyCodes(codes) {
+      const tbody = document.getElementById('agencyTableBody');
+      const emptyState = document.getElementById('emptyState');
+
+      if (codes.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.style.display = 'flex';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      tbody.innerHTML = codes.map(code => {
+        const companyInitials = getCompanyInitials(code.sigortaSirketiAdi);
+        const formattedDate = code.eklenmeTarihi ? formatDate(code.eklenmeTarihi) : '-';
+
+        return `
+          <tr>
+            <td>
+              <span class="agency-code">${escapeHtml(code.acenteKoduDeger)}</span>
+            </td>
+            <td>
+              <div class="company-cell">
+                <div class="company-logo">${companyInitials}</div>
+                <span class="company-name">${escapeHtml(code.sigortaSirketiAdi)}</span>
+              </div>
+            </td>
+            <td><span class="text-muted">${escapeHtml(code.acenteAdi)}</span></td>
+            <td>
+              <span class="status-badge ${code.disAcente === 1 ? 'status-external' : 'status-internal'}">
+                ${code.disAcente === 1 ? 'Evet' : 'Hayır'}
+              </span>
+            </td>
+            <td><span class="text-muted">${formattedDate}</span></td>
+            <td>
+              <div class="table-actions">
+                <button class="action-btn" title="Düzenle" onclick="editAgencyCode(${code.id})">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button class="action-btn action-danger" title="Sil" onclick="deleteAgencyCode(${code.id}, '${escapeHtml(code.acenteKoduDeger)}')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3,6 5,6 21,6"/>
+                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Update stats
+    function updateStats(codes) {
+      const total = codes.length;
+      const active = codes.filter(c => c.disAcente === 0).length;
+      const external = codes.filter(c => c.disAcente === 1).length;
+
+      document.getElementById('totalCodesCount').textContent = total;
+      document.getElementById('activeCodesCount').textContent = active;
+      document.getElementById('passiveCodesCount').textContent = total - active;
+      document.getElementById('externalCodesCount').textContent = external;
+    }
+
+    // Filter agency codes
+    function filterAgencyCodes() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      if (!searchTerm) {
+        renderAgencyCodes(allAgencyCodes);
+        return;
+      }
+
+      const filtered = allAgencyCodes.filter(code =>
+        code.acenteKoduDeger.toLowerCase().includes(searchTerm) ||
+        code.acenteAdi.toLowerCase().includes(searchTerm) ||
+        code.sigortaSirketiAdi.toLowerCase().includes(searchTerm)
+      );
+
+      renderAgencyCodes(filtered);
+    }
+
+    // Open add modal
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'Yeni Acente Kodu Ekle';
+      document.getElementById('editingId').value = '';
+      document.getElementById('agencyCodeInput').value = '';
+      document.getElementById('companySelect').value = '';
+      document.getElementById('agencyNameInput').value = '';
+      document.querySelector('input[name="disAcente"][value="0"]').checked = true;
+      document.getElementById('saveBtn').textContent = 'Kaydet';
+
+      document.getElementById('agencyModal').classList.add('active');
+    }
+
+    // Edit agency code
+    function editAgencyCode(id) {
+      const code = allAgencyCodes.find(c => c.id === id);
+      if (!code) return;
+
+      document.getElementById('modalTitle').textContent = 'Acente Kodunu Düzenle';
+      document.getElementById('editingId').value = id;
+      document.getElementById('agencyCodeInput').value = code.acenteKoduDeger;
+      document.getElementById('companySelect').value = code.sigortaSirketiId;
+      document.getElementById('agencyNameInput').value = code.acenteAdi;
+      document.querySelector(`input[name="disAcente"][value="${code.disAcente}"]`).checked = true;
+      document.getElementById('saveBtn').textContent = 'Güncelle';
+
+      document.getElementById('agencyModal').classList.add('active');
+    }
+
+    // Save agency code (create or update)
+    async function saveAgencyCode() {
+      const editingId = document.getElementById('editingId').value;
+      const acenteKoduDeger = document.getElementById('agencyCodeInput').value.trim();
+      const sigortaSirketiId = document.getElementById('companySelect').value;
+      const acenteAdi = document.getElementById('agencyNameInput').value.trim();
+      const disAcente = parseInt(document.querySelector('input[name="disAcente"]:checked').value);
+
+      // Validation
+      if (!acenteKoduDeger) {
+        showToast('Acente kodu zorunludur', 'error');
+        return;
+      }
+      if (!sigortaSirketiId) {
+        showToast('Sigorta şirketi seçmelisiniz', 'error');
+        return;
+      }
+      if (!acenteAdi) {
+        showToast('Acente adı zorunludur', 'error');
+        return;
+      }
+
+      const user = APP_CONFIG.AUTH.getUser();
+
+      try {
+        if (editingId) {
+          // Update existing
+          await apiPut(`agency-codes/${editingId}`, {
+            sigortaSirketiId: parseInt(sigortaSirketiId),
+            acenteKoduDeger,
+            acenteAdi,
+            disAcente
+          });
+          showToast('Acente kodu güncellendi', 'success');
+        } else {
+          // Create new
+          await apiPost('agency-codes', {
+            sigortaSirketiId: parseInt(sigortaSirketiId),
+            acenteKoduDeger,
+            acenteAdi,
+            firmaId: user?.firmaId || 1,
+            disAcente
+          });
+          showToast('Acente kodu oluşturuldu', 'success');
+        }
+
+        closeModal();
+        await loadAgencyCodes();
+      } catch (error) {
+        console.error('Kaydetme hatası:', error);
+        showToast('Kaydetme sırasında hata oluştu', 'error');
+      }
+    }
+
+    // Delete agency code
+    async function deleteAgencyCode(id, kodDeger) {
+      const confirmed = await showConfirmDialog({
+        title: 'Acente Kodunu Sil',
+        message: `"${kodDeger}" kodunu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`,
+        variant: 'danger'
+      });
+
+      if (!confirmed) return;
+
+      try {
+        await apiDelete(`agency-codes/${id}`);
+        showToast('Acente kodu silindi', 'success');
+
+        // Remove from local array and re-render
+        allAgencyCodes = allAgencyCodes.filter(c => c.id !== id);
+        renderAgencyCodes(allAgencyCodes);
+        updateStats(allAgencyCodes);
+      } catch (error) {
+        console.error('Silme hatası:', error);
+        showToast('Silme sırasında hata oluştu', 'error');
+      }
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('agencyModal').classList.remove('active');
+    }
+
+    // Custom confirmation dialog
+    function showConfirmDialog({ title, message, variant = 'danger' }) {
+      return new Promise((resolve) => {
+        confirmResolve = resolve;
+
+        const modal = document.getElementById('confirmModal');
+        const icon = document.getElementById('confirmIcon');
+        const okBtn = document.getElementById('confirmOk');
+
+        document.getElementById('confirmTitle').textContent = title;
+        document.getElementById('confirmMessage').textContent = message;
+
+        // Set variant styles
+        icon.className = 'confirm-modal-icon';
+        okBtn.className = 'btn';
+
+        if (variant === 'warning') {
+          icon.classList.add('warning');
+          okBtn.classList.add('btn-warning');
+        } else {
+          okBtn.classList.add('btn-danger');
+        }
+
+        modal.classList.add('active');
+      });
+    }
+
+    // Confirmation modal handlers
+    document.getElementById('confirmCancel').addEventListener('click', () => {
+      document.getElementById('confirmModal').classList.remove('active');
+      if (confirmResolve) {
+        confirmResolve(false);
+        confirmResolve = null;
+      }
+    });
+
+    document.getElementById('confirmOk').addEventListener('click', () => {
+      document.getElementById('confirmModal').classList.remove('active');
+      if (confirmResolve) {
+        confirmResolve(true);
+        confirmResolve = null;
+      }
+    });
+
+    // Helper functions
+    function getCompanyInitials(name) {
+      if (!name) return '?';
+      return name.split(' ')
+        .filter(word => word.length > 0)
+        .map(word => word[0].toUpperCase())
+        .slice(0, 3)
+        .join('');
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('tr-TR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Close modal on overlay click
+    document.getElementById('agencyModal').addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        closeModal();
+      }
+    });
+
+    // Close modal on ESC key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.getElementById('confirmModal').classList.remove('active');
+        if (confirmResolve) {
+          confirmResolve(false);
+          confirmResolve = null;
+        }
+      }
+    });
+  </script>
   <script src="../../components/sidebar.js"></script>
 </body>
 </html>
