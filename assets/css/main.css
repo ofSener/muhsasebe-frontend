@@ -480,6 +480,51 @@ h6 { font-size: 0.8125rem; }
   background: var(--sidebar-active);
 }
 
+/* Sidebar toggle icons */
+.sidebar-toggle .expand-icon {
+  display: none;
+}
+
+.sidebar-toggle .collapse-icon {
+  display: block;
+}
+
+.sidebar.collapsed .sidebar-toggle .expand-icon {
+  display: block;
+}
+
+.sidebar.collapsed .sidebar-toggle .collapse-icon {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-footer {
+  padding: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius-md);
+}
+
+.sidebar.collapsed .sidebar-toggle:hover {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+.sidebar.collapsed .sidebar-toggle svg {
+  width: 40px !important;
+  height: 40px !important;
+  stroke-width: 2.5;
+  margin: 0 auto;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MAIN CONTENT
    ═══════════════════════════════════════════════════════════════ */
