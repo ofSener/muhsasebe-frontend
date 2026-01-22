@@ -622,9 +622,19 @@
   // DATE RANGE HANDLING
   // ═══════════════════════════════════════════════════════════════
 
+  // Tarihi yerel formata çevir (YYYY-MM-DD)
+  function formatDateForApi(date) {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
   function setDateRange(startDate, endDate) {
-    currentDateRange.startDate = startDate ? startDate.toISOString().split('T')[0] : null;
-    currentDateRange.endDate = endDate ? endDate.toISOString().split('T')[0] : null;
+    currentDateRange.startDate = formatDateForApi(startDate);
+    currentDateRange.endDate = formatDateForApi(endDate);
+    console.log('[Dashboard] Tarih aralığı güncellendi:', currentDateRange);
     loadAllData();
   }
 
@@ -633,15 +643,29 @@
   // ═══════════════════════════════════════════════════════════════
 
   async function loadAllData() {
+    console.log('[Dashboard] Veriler yükleniyor...', currentDateRange);
+
+    // Loading state göster
+    const loadingElements = ['performersBody', 'activityList'];
+    loadingElements.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Yükleniyor...</td></tr>';
+    });
+
     // Tüm API çağrılarını paralel yap
-    await Promise.all([
-      fetchDashboardStats(),
-      fetchBransDagilim(),
-      fetchAylikTrend(),
-      fetchTopPerformers(),
-      fetchSonAktiviteler(),
-      fetchSirketDagilim()
-    ]);
+    try {
+      await Promise.all([
+        fetchDashboardStats(),
+        fetchBransDagilim(),
+        fetchAylikTrend(),
+        fetchTopPerformers(),
+        fetchSonAktiviteler(),
+        fetchSirketDagilim()
+      ]);
+      console.log('[Dashboard] Tüm veriler yüklendi');
+    } catch (error) {
+      console.error('[Dashboard] Veri yüklenirken hata:', error);
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════
