@@ -76,11 +76,11 @@
               </div>
             </div>
             <div class="page-header-filter">
-              <div class="date-presets">
-                <button class="date-preset-btn active" data-range="today">Bugün</button>
-                <button class="date-preset-btn" data-range="yesterday">Dün</button>
-                <button class="date-preset-btn" data-range="thisWeek">Bu Hafta</button>
-                <button class="date-preset-btn" data-range="thisMonth">Bu Ay</button>
+              <div class="date-presets" id="datePresets">
+                <button type="button" class="date-preset-btn active" data-range="today" onclick="handlePresetClick(this, 'today')">Bugün</button>
+                <button type="button" class="date-preset-btn" data-range="yesterday" onclick="handlePresetClick(this, 'yesterday')">Dün</button>
+                <button type="button" class="date-preset-btn" data-range="thisWeek" onclick="handlePresetClick(this, 'thisWeek')">Bu Hafta</button>
+                <button type="button" class="date-preset-btn" data-range="thisMonth" onclick="handlePresetClick(this, 'thisMonth')">Bu Ay</button>
               </div>
               <div class="date-range-picker" id="dateRangePicker">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -129,7 +129,54 @@
                 <div class="kpi-label">Bekleyen Poliçe</div>
               </div>
               <div class="kpi-footer">
-                <span class="kpi-sub">Bugün yakalanan</span>
+                <span class="kpi-sub" id="kpiPeriodLabel">Bugün yakalanan poliçeler</span>
+              </div>
+            </div>
+
+            <!-- Gönderilen -->
+            <div class="kpi-card kpi-cyan">
+              <div class="kpi-card-bg"></div>
+              <div class="kpi-header">
+                <div class="kpi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M9 12l2 2 4-4"/>
+                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                </div>
+                <div class="kpi-trend kpi-trend-up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+                    <polyline points="17,6 23,6 23,12"/>
+                  </svg>
+                  <span>+24</span>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-value" id="statSent">847</div>
+                <div class="kpi-label">Gönderilen</div>
+              </div>
+              <div class="kpi-footer">
+                <span class="kpi-sub" id="kpiSentPeriodLabel">Bugün gönderilen</span>
+              </div>
+            </div>
+
+            <!-- Prodüktör -->
+            <div class="kpi-card kpi-emerald">
+              <div class="kpi-card-bg"></div>
+              <div class="kpi-header">
+                <div class="kpi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 00-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                  </svg>
+                </div>
+                <div class="kpi-badge">Aktif</div>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-value" id="statProducers">4</div>
+                <div class="kpi-label">Prodüktör</div>
               </div>
             </div>
 
@@ -162,58 +209,6 @@
                   <div class="kpi-progress-bar" style="width: 72%"></div>
                 </div>
                 <span class="kpi-sub">Aylık hedefin %72'si</span>
-              </div>
-            </div>
-
-            <!-- Prodüktör -->
-            <div class="kpi-card kpi-emerald">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-header">
-                <div class="kpi-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M22 21v-2a4 4 0 00-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 010 7.75"/>
-                  </svg>
-                </div>
-                <div class="kpi-badge">Aktif</div>
-              </div>
-              <div class="kpi-body">
-                <div class="kpi-value" id="statProducers">4</div>
-                <div class="kpi-label">Prodüktör</div>
-              </div>
-              <div class="kpi-footer">
-                <div class="kpi-avatars" id="kpiAvatars">
-                  <!-- Dinamik olarak updateKPIAvatars() ile doldurulacak -->
-                </div>
-              </div>
-            </div>
-
-            <!-- Gönderilen -->
-            <div class="kpi-card kpi-cyan">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-header">
-                <div class="kpi-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M9 12l2 2 4-4"/>
-                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                </div>
-                <div class="kpi-trend kpi-trend-up">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
-                    <polyline points="17,6 23,6 23,12"/>
-                  </svg>
-                  <span>+24</span>
-                </div>
-              </div>
-              <div class="kpi-body">
-                <div class="kpi-value" id="statSent">847</div>
-                <div class="kpi-label">Gönderilen</div>
-              </div>
-              <div class="kpi-footer">
-                <span class="kpi-sub">Bu ay toplam</span>
               </div>
             </div>
           </div>
@@ -260,10 +255,31 @@
                   </svg>
                   <input type="text" id="searchInput" placeholder="Ara..." onkeyup="filterTable()">
                 </div>
-                <select id="producerFilter" class="form-select form-select-sm" onchange="filterTable()">
-                  <option value="">Tüm Prodüktörler</option>
-                  <!-- Dinamik olarak populateProducerFilter() ile doldurulacak -->
-                </select>
+                <div class="custom-dropdown" id="producerDropdown">
+                  <button class="dropdown-trigger" onclick="toggleProducerDropdown(event)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                      <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <span id="producerFilterText">Tüm Prodüktörler</span>
+                    <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6,9 12,15 18,9"/>
+                    </svg>
+                  </button>
+                  <div class="dropdown-panel" id="producerPanel">
+                    <div class="dropdown-search">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                      </svg>
+                      <input type="text" id="producerSearchInput" placeholder="Prodüktör ara..." oninput="filterProducerList()">
+                    </div>
+                    <div class="dropdown-list" id="producerList">
+                      <!-- Dinamik olarak doldurulacak -->
+                    </div>
+                  </div>
+                </div>
+                <input type="hidden" id="producerFilter" value="">
               </div>
             </div>
             <div class="edit-mode-banner" id="editModeBanner">
@@ -567,9 +583,12 @@
     }
 
     .date-preset-btn.active {
-      color: var(--primary);
-      background: var(--primary-glow);
-      border-color: var(--primary);
+      color: #ffffff !important;
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+      border-color: #6366f1 !important;
+      font-weight: 600 !important;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4), 0 2px 4px rgba(99, 102, 241, 0.2) !important;
+      transform: translateY(-1px);
     }
 
     .date-preset-btn .ripple {
@@ -675,10 +694,187 @@
       outline: none;
     }
 
-    .form-select-sm {
-      padding: 0.5rem 2rem 0.5rem 0.75rem;
-      font-size: 0.8rem;
+    /* Custom Dropdown */
+    .custom-dropdown {
+      position: relative;
+    }
+
+    .dropdown-trigger {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
       border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 160px;
+    }
+
+    .dropdown-trigger:hover {
+      border-color: var(--primary);
+      background: var(--bg-card);
+    }
+
+    .dropdown-trigger svg:first-child {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .dropdown-trigger span {
+      flex: 1;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dropdown-arrow {
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .custom-dropdown.open .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-panel {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      width: 240px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+    }
+
+    .custom-dropdown.open .dropdown-panel {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-search {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .dropdown-search svg {
+      color: #94a3b8;
+      flex-shrink: 0;
+    }
+
+    .dropdown-search input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 0.8rem;
+      color: #1e293b;
+      outline: none;
+    }
+
+    .dropdown-search input::placeholder {
+      color: #94a3b8;
+    }
+
+    .dropdown-list {
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+
+    .dropdown-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .dropdown-list::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
+
+    .dropdown-list::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .dropdown-list::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #334155;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+      background: #f1f5f9;
+    }
+
+    .dropdown-item.selected {
+      background: #eef2ff;
+      color: #4f46e5;
+    }
+
+    .dropdown-item-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .dropdown-item-avatar.all {
+      background: linear-gradient(135deg, #64748b, #475569);
+    }
+
+    .dropdown-item-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dropdown-item-check {
+      opacity: 0;
+      color: #6366f1;
+      flex-shrink: 0;
+    }
+
+    .dropdown-item.selected .dropdown-item-check {
+      opacity: 1;
+    }
+
+    .dropdown-empty {
+      padding: 1.5rem;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.8rem;
     }
 
     /* Table Styles */
@@ -1696,37 +1892,6 @@
       transition: width 0.5s ease;
     }
 
-    /* Mini avatars */
-    .kpi-avatars {
-      display: flex;
-      gap: 0;
-    }
-
-    .kpi-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: white;
-      margin-left: -6px;
-      border: 2px solid var(--bg-surface, #ffffff);
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .kpi-avatar:first-child {
-      margin-left: 0;
-    }
-
-    .kpi-avatar:hover {
-      transform: translateY(-2px) scale(1.1);
-      z-index: 10;
-    }
-
     /* Responsive */
     @media (max-width: 1280px) {
       .kpi-grid {
@@ -2291,6 +2456,50 @@
 
   <script>
     // ═══════════════════════════════════════════════════════════════
+    // DATE PRESET HANDLERS (Global)
+    // ═══════════════════════════════════════════════════════════════
+
+    // Global date ranges
+    let dateRanges = {};
+    let flatpickrInstance = null;
+
+    function handlePresetClick(btn, rangeKey) {
+      console.log('Preset clicked:', rangeKey);
+
+      // Update active state
+      document.querySelectorAll('.date-preset-btn').forEach(b => {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+
+      // Update KPI labels
+      updateKpiPeriodLabel(rangeKey);
+
+      // Get range and filter
+      const range = dateRanges[rangeKey];
+      if (range && flatpickrInstance) {
+        flatpickrInstance.setDate(range, true);
+
+        const formatDateTR = (date) => {
+          return date.toLocaleDateString('tr-TR', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+          });
+        };
+
+        const dateRangeInput = document.getElementById('dateRangeInput');
+        if (range[0].getTime() === range[1].getTime()) {
+          dateRangeInput.value = formatDateTR(range[0]);
+        } else {
+          dateRangeInput.value = formatDateTR(range[0]) + ' - ' + formatDateTR(range[1]);
+        }
+
+        filterByDateRange(range[0], range[1]);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // PERMISSION SYSTEM
     // ═══════════════════════════════════════════════════════════════
 
@@ -2386,13 +2595,19 @@
       }
     }
 
-    // Prodüktör listesi yükle
+    // Prodüktör listesi yükle (kullanıcılar endpoint'inden - firmaId ile filtrelenmiş)
     async function loadProducers() {
       try {
-        const data = await apiGet('producers', { active: true });
-        producersList = data || [];
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+        const endpoint = firmaId ? `kullanicilar?firmaId=${firmaId}` : 'kullanicilar';
+        const data = await apiGet(endpoint);
+        producersList = (data || []).map(u => ({
+          id: u.id,
+          name: `${u.adi || ''} ${u.soyadi || ''}`.trim() || `Kullanıcı #${u.id}`
+        }));
         populateProducerFilter();
-        return data;
+        return producersList;
       } catch (error) {
         console.error('Prodüktör listesi alınamadı:', error);
         producersList = [];
@@ -2403,14 +2618,59 @@
     // Şube listesi yükle
     async function loadBranches() {
       try {
-        const data = await apiGet('branches');
-        branchesList = (data || []).map(b => b.name);
+        const data = await apiGet('subeler');
+        branchesList = (data || []).map(b => b.subeAdi || b.name);
         return data;
       } catch (error) {
         console.error('Şube listesi alınamadı:', error);
         branchesList = [];
         return [];
       }
+    }
+
+    // Poliçe türü için CSS class belirle
+    function getTypeClass(typeName) {
+      const name = (typeName || '').toLowerCase();
+      if (name.includes('kasko')) return 'kasko';
+      if (name.includes('trafik')) return 'trafik';
+      if (name.includes('dask')) return 'dask';
+      if (name.includes('konut')) return 'konut';
+      if (name.includes('sağlık') || name.includes('saglik')) return 'saglik';
+      return '';
+    }
+
+    // API response'u frontend formatına dönüştür
+    function mapPolicyFromApi(p) {
+      // Prodüktör adını bul
+      const producer = producersList.find(pr => pr.id === p.produktorId);
+      const producerName = producer ? producer.name : `Prodüktör #${p.produktorId}`;
+
+      // Poliçe türünü API'den gelen listeden bul
+      const policyType = policyTypes.find(pt => pt.id === p.policeTuru);
+      const typeName = policyType ? (policyType.turu || policyType.value || `Tür ${p.policeTuru}`) : `Tür ${p.policeTuru}`;
+      const typeClass = getTypeClass(typeName);
+
+      // Şube adını bul
+      const branch = branchesList[p.subeId - 1] || `Şube #${p.subeId}`;
+
+      return {
+        id: p.id,
+        policyNo: p.policeNumarasi || '',
+        customer: p.sigortaliAdi || 'Bilinmiyor',
+        type: typeName,
+        typeClass: typeClass,
+        netPremium: p.netPrim || 0,
+        grossPremium: p.brutPrim || 0,
+        producer: producerName,
+        producerId: p.produktorId,
+        branch: branch,
+        branchId: p.subeId,
+        date: p.tanzimTarihi ? new Date(p.tanzimTarihi) : new Date(),
+        dateFormatted: p.tanzimTarihi ? new Date(p.tanzimTarihi).toLocaleDateString('tr-TR') : '-',
+        plaka: p.plaka || '',
+        acenteAdi: p.acenteAdi || '',
+        acenteNo: p.acenteNo || ''
+      };
     }
 
     // Yakalanan poliçeler yükle
@@ -2425,13 +2685,16 @@
 
         const result = await apiGet('policies/captured', params);
 
+        let rawPolicies = [];
         if (result.data) {
-          policies = result.data;
-          filteredPolicies = [...policies];
+          rawPolicies = result.data;
         } else if (Array.isArray(result)) {
-          policies = result;
-          filteredPolicies = [...policies];
+          rawPolicies = result;
         }
+
+        // API response'u frontend formatına dönüştür
+        policies = rawPolicies.map(mapPolicyFromApi);
+        filteredPolicies = [...policies];
 
         renderTable();
         updateStats();
@@ -2471,11 +2734,6 @@
           if (sentEl) sentEl.textContent = stats.sentCount;
         }
 
-        // Avatarları güncelle
-        if (stats.activeProducers && stats.activeProducers.length > 0) {
-          updateKPIAvatars(stats.activeProducers);
-        }
-
         return stats;
       } catch (error) {
         console.error('KPI istatistikleri alınamadı:', error);
@@ -2485,36 +2743,111 @@
 
     // Prodüktör dropdown'unu doldur
     function populateProducerFilter() {
-      const select = document.getElementById('producerFilter');
-      if (!select) return;
+      const list = document.getElementById('producerList');
+      if (!list) return;
 
-      select.innerHTML = '<option value="">Tüm Prodüktörler</option>';
-      producersList.forEach(p => {
-        const option = document.createElement('option');
-        option.value = p.name;
-        option.textContent = p.name;
-        select.appendChild(option);
+      const avatarColors = [
+        'linear-gradient(135deg, #10b981, #059669)',
+        'linear-gradient(135deg, #06b6d4, #0891b2)',
+        'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        'linear-gradient(135deg, #f59e0b, #d97706)',
+        'linear-gradient(135deg, #f43f5e, #e11d48)',
+        'linear-gradient(135deg, #3b82f6, #2563eb)',
+        'linear-gradient(135deg, #ec4899, #db2777)',
+        'linear-gradient(135deg, #14b8a6, #0d9488)'
+      ];
+
+      // "Tüm Prodüktörler" seçeneği
+      let html = `
+        <div class="dropdown-item selected" data-value="" onclick="selectProducer(this, '', 'Tüm Prodüktörler')">
+          <span class="dropdown-item-avatar" style="background: linear-gradient(135deg, #64748b, #475569);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+              <path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </span>
+          <span class="dropdown-item-name">Tüm Prodüktörler</span>
+        </div>
+      `;
+
+      // Prodüktörleri ekle
+      producersList.forEach((p, index) => {
+        const initials = p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        const color = avatarColors[index % avatarColors.length];
+        const escapedName = p.name.replace(/'/g, "\\'");
+        html += `
+          <div class="dropdown-item" data-value="${p.name}" onclick="selectProducer(this, '${escapedName}', '${escapedName}')">
+            <span class="dropdown-item-avatar" style="background: ${color};">${initials}</span>
+            <span class="dropdown-item-name">${p.name}</span>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html;
+    }
+
+    // Dropdown aç/kapat
+    function toggleProducerDropdown(event) {
+      event.stopPropagation();
+      const dropdown = document.getElementById('producerDropdown');
+      const searchInput = document.getElementById('producerSearchInput');
+
+      dropdown.classList.toggle('open');
+
+      if (dropdown.classList.contains('open')) {
+        searchInput.value = '';
+        filterProducerList();
+        searchInput.focus();
+      }
+    }
+
+    // Prodüktör listesini filtrele
+    function filterProducerList() {
+      const searchInput = document.getElementById('producerSearchInput');
+      const searchTerm = searchInput.value.toLowerCase();
+      const items = document.querySelectorAll('#producerList .dropdown-item');
+
+      items.forEach(item => {
+        const name = item.getAttribute('data-value').toLowerCase();
+        const text = item.textContent.toLowerCase();
+        if (name.includes(searchTerm) || text.includes(searchTerm)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
       });
     }
 
-    // KPI kartındaki avatarları güncelle
-    function updateKPIAvatars(producers) {
-      const container = document.getElementById('kpiAvatars');
-      if (!container || !producers) return;
+    // Prodüktör seç
+    function selectProducer(element, value, displayText) {
+      // Hidden input güncelle
+      document.getElementById('producerFilter').value = value;
 
-      const colors = {
-        emerald: 'linear-gradient(135deg, #10b981, #059669)',
-        cyan: 'linear-gradient(135deg, #06b6d4, #0891b2)',
-        violet: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
-        amber: 'linear-gradient(135deg, #f59e0b, #d97706)',
-        rose: 'linear-gradient(135deg, #f43f5e, #e11d48)',
-        blue: 'linear-gradient(135deg, #3b82f6, #2563eb)'
-      };
+      // Görünen text güncelle
+      document.getElementById('producerFilterText').textContent = displayText;
 
-      container.innerHTML = producers.slice(0, 4).map(p =>
-        `<span class="kpi-avatar" style="background: ${colors[p.color] || colors.emerald};" title="${p.name}">${p.initials}</span>`
-      ).join('');
+      // Seçili durumu güncelle
+      document.querySelectorAll('#producerList .dropdown-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      element.classList.add('selected');
+
+      // Dropdown kapat
+      document.getElementById('producerDropdown').classList.remove('open');
+
+      // Filtreleme uygula
+      filterTable();
     }
+
+    // Click outside to close dropdown
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('producerDropdown');
+      if (dropdown && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
 
     // Tarih formatla (ISO)
     function formatDateISO(date) {
@@ -2821,7 +3154,13 @@
       const dateRangeInput = document.getElementById('dateRangeInput');
       const dateRangePicker = document.getElementById('dateRangePicker');
 
+      if (!dateRangeInput || !dateRangePicker) {
+        console.error('Date picker elements not found');
+        return;
+      }
+
       const today = new Date();
+
       const formatDateTR = (date) => {
         return date.toLocaleDateString('tr-TR', {
           day: '2-digit',
@@ -2830,27 +3169,26 @@
         });
       };
 
-      const getDateRanges = () => {
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
+      // Date ranges - set globally
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
 
-        const thisWeekStart = new Date(today);
-        thisWeekStart.setDate(today.getDate() - today.getDay() + 1);
+      const thisWeekStart = new Date();
+      thisWeekStart.setDate(today.getDate() - today.getDay() + 1);
 
-        const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+      const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
-        return {
-          today: [today, today],
-          yesterday: [yesterday, yesterday],
-          thisWeek: [thisWeekStart, today],
-          thisMonth: [thisMonthStart, today]
-        };
+      dateRanges = {
+        today: [new Date(), new Date()],
+        yesterday: [yesterday, yesterday],
+        thisWeek: [thisWeekStart, new Date()],
+        thisMonth: [thisMonthStart, new Date()]
       };
 
-      const ranges = getDateRanges();
-      let currentRange = ranges.today;
+      let currentRange = dateRanges.today;
 
-      const fp = flatpickr(dateRangeInput, {
+      // Initialize Flatpickr - store globally
+      flatpickrInstance = flatpickr(dateRangeInput, {
         mode: 'range',
         dateFormat: 'd M Y',
         locale: 'tr',
@@ -2865,47 +3203,52 @@
         },
         onChange: function(selectedDates, dateStr) {
           if (selectedDates.length === 2) {
+            // Clear active state from preset buttons
             document.querySelectorAll('.date-preset-btn').forEach(btn => {
               btn.classList.remove('active');
             });
+            updateKpiPeriodLabel('custom');
             filterByDateRange(selectedDates[0], selectedDates[1]);
           }
         }
       });
 
+      // Set initial display
       dateRangeInput.value = formatDateTR(currentRange[0]);
 
-      // Preset button handlers
-      document.querySelectorAll('.date-preset-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-          // Ripple effect
-          const ripple = document.createElement('span');
-          ripple.classList.add('ripple');
-          const rect = this.getBoundingClientRect();
-          ripple.style.left = (e.clientX - rect.left) + 'px';
-          ripple.style.top = (e.clientY - rect.top) + 'px';
-          this.appendChild(ripple);
-          setTimeout(() => ripple.remove(), 600);
+      // Başlangıçta "Bugün" seçili - label güncelle
+      updateKpiPeriodLabel('today');
 
-          const rangeKey = this.dataset.range;
-          const range = ranges[rangeKey];
+      console.log('Date picker initialized, ranges:', Object.keys(dateRanges));
+    }
 
-          if (range) {
-            document.querySelectorAll('.date-preset-btn').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+    // KPI period label güncelle
+    function updateKpiPeriodLabel(rangeKey) {
+      const pendingLabel = document.getElementById('kpiPeriodLabel');
+      const sentLabel = document.getElementById('kpiSentPeriodLabel');
 
-            fp.setDate(range, true);
+      const pendingLabels = {
+        'today': 'Bugün yakalanan poliçeler',
+        'yesterday': 'Dün yakalanan poliçeler',
+        'thisWeek': 'Bu hafta yakalanan poliçeler',
+        'thisMonth': 'Bu ay yakalanan poliçeler',
+        'custom': 'Seçilen dönemde yakalanan'
+      };
 
-            if (range[0].getTime() === range[1].getTime()) {
-              dateRangeInput.value = formatDateTR(range[0]);
-            } else {
-              dateRangeInput.value = formatDateTR(range[0]) + ' - ' + formatDateTR(range[1]);
-            }
+      const sentLabels = {
+        'today': 'Bugün gönderilen',
+        'yesterday': 'Dün gönderilen',
+        'thisWeek': 'Bu hafta gönderilen',
+        'thisMonth': 'Bu ay gönderilen',
+        'custom': 'Seçilen dönemde gönderilen'
+      };
 
-            filterByDateRange(range[0], range[1]);
-          }
-        });
-      });
+      if (pendingLabel) {
+        pendingLabel.textContent = pendingLabels[rangeKey] || pendingLabels['custom'];
+      }
+      if (sentLabel) {
+        sentLabel.textContent = sentLabels[rangeKey] || sentLabels['custom'];
+      }
     }
 
     // Filter by date range
