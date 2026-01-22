@@ -6,9 +6,8 @@
   <title>Drive Entegrasyonu - IHSAN AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../../assets/css/main.css">
-  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
 <body>
   <div class="gradient-mesh"></div>
@@ -190,191 +189,133 @@
 
       <!-- Page Wrapper -->
       <div class="page-wrapper">
-        <div class="page-content">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Drive Entegrasyonu</h1>
-            <p class="page-subtitle">Google Drive baglantisi ve dosya senkronizasyon ayarlarini yonetin.</p>
+        <div class="page-content drive-page">
+
+          <!-- Header -->
+          <div class="drive-header">
+            <div class="drive-header-content">
+              <div class="drive-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#4285F4"/>
+                  <path d="M2 17l10 5 10-5" stroke="#34A853" stroke-width="2" fill="none"/>
+                  <path d="M2 12l10 5 10-5" stroke="#FBBC05" stroke-width="2" fill="none"/>
+                </svg>
+              </div>
+              <div>
+                <h1 class="drive-title">Google Drive</h1>
+                <p class="drive-subtitle">PDF dosyalarinizi otomatik olarak Drive'a yedekleyin</p>
+              </div>
+            </div>
           </div>
-          <div class="page-actions">
-            <button class="btn btn-primary" id="connectDriveBtn" onclick="connectGoogleDrive()">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29 29 0 001 11.75a29 29 0 00.46 5.33A2.78 2.78 0 003.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 001.94-2 29 29 0 00.46-5.25 29 29 0 00-.46-5.33z"/>
-                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"/>
+
+          <!-- Connection Card -->
+          <div class="drive-card drive-connection-card" id="connectionCard">
+            <div class="connection-status" id="connectionStatus">
+              <div class="status-indicator disconnected" id="statusIndicator"></div>
+              <div class="status-info">
+                <span class="status-label" id="statusLabel">Bagli Degil</span>
+                <span class="status-email" id="statusEmail"></span>
+              </div>
+            </div>
+            <button class="drive-btn drive-btn-primary" id="connectBtn" onclick="connectGoogleDrive()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+                <polyline points="10,17 15,12 10,7"/>
+                <line x1="15" y1="12" x2="3" y2="12"/>
               </svg>
               Drive'a Baglan
             </button>
           </div>
-        </div>
 
-        <!-- Connection Status -->
-        <div class="info-alert info-alert-blue" id="connectionStatus">
-          <div class="info-alert-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-          </div>
-          <div class="info-alert-content">
-            <p class="info-alert-title">Baglanti Durumu</p>
-            <p class="info-alert-desc">Google Drive hesabiniz henuz bagli degil. Dosya senkronizasyonu icin Drive hesabinizi baglayin.</p>
-          </div>
-        </div>
-
-        <!-- Stats Row -->
-        <div class="stats-row">
-          <div class="stat-card stat-card-mini stat-cyan">
-            <div class="stat-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Senkronize Klasor</p>
-              <h4 class="stat-value" id="syncedFolders">0</h4>
-            </div>
-          </div>
-          <div class="stat-card stat-card-mini stat-emerald">
-            <div class="stat-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                <polyline points="14,2 14,8 20,8"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Yuklenen Dosya</p>
-              <h4 class="stat-value" id="uploadedFiles">0</h4>
-            </div>
-          </div>
-          <div class="stat-card stat-card-mini stat-amber">
-            <div class="stat-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 4 23 10 17 10"/>
-                <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Son Senkronizasyon</p>
-              <h4 class="stat-value" id="lastSync">-</h4>
-            </div>
-          </div>
-          <div class="stat-card stat-card-mini stat-violet">
-            <div class="stat-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
-                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
-                <line x1="6" y1="6" x2="6.01" y2="6"/>
-                <line x1="6" y1="18" x2="6.01" y2="18"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Kullanilan Alan</p>
-              <h4 class="stat-value" id="usedStorage">0 MB</h4>
-            </div>
-          </div>
-        </div>
-
-        <!-- Settings Card -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Senkronizasyon Ayarlari</h3>
-          </div>
-          <div class="card-body">
-            <div class="settings-group">
-              <div class="setting-item">
-                <div class="setting-info">
-                  <h4 class="setting-title">Otomatik Senkronizasyon</h4>
-                  <p class="setting-desc">Police dosyalarini otomatik olarak Drive'a yukle</p>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="autoSync" checked>
-                  <span class="toggle-slider"></span>
-                </label>
+          <!-- Stats Grid -->
+          <div class="drive-stats" id="statsSection" style="display: none;">
+            <div class="stat-item">
+              <div class="stat-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                </svg>
               </div>
-
-              <div class="setting-item">
-                <div class="setting-info">
-                  <h4 class="setting-title">PDF Donusumu</h4>
-                  <p class="setting-desc">Dosyalari yuklemeden once PDF formatina donustur</p>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="convertToPdf">
-                  <span class="toggle-slider"></span>
-                </label>
+              <div class="stat-data">
+                <span class="stat-number" id="uploadedFiles">0</span>
+                <span class="stat-label">Yuklenen Dosya</span>
               </div>
-
-              <div class="setting-item">
-                <div class="setting-info">
-                  <h4 class="setting-title">Klasor Yapisi</h4>
-                  <p class="setting-desc">Dosyalarin Drive'da nasil organize edilecegini secin</p>
-                </div>
-                <select class="form-select" id="folderStructure" style="width: 200px;">
-                  <option value="year-month">Yil / Ay</option>
-                  <option value="company">Sigorta Sirketi</option>
-                  <option value="customer">Musteri</option>
-                  <option value="branch">Brans</option>
-                </select>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                  <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                  <line x1="6" y1="6" x2="6.01" y2="6"/>
+                  <line x1="6" y1="18" x2="6.01" y2="18"/>
+                </svg>
               </div>
-
-              <div class="setting-item">
-                <div class="setting-info">
-                  <h4 class="setting-title">Hedef Klasor</h4>
-                  <p class="setting-desc">Drive'da ana klasor yolunu belirtin</p>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                  <input type="text" class="form-input" id="targetFolder" value="/IHSAN AI/Policeler" style="width: 250px;">
-                  <button class="btn btn-secondary btn-sm" onclick="browseFolder()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
-                    </svg>
-                  </button>
-                </div>
+              <div class="stat-data">
+                <span class="stat-number" id="usedStorage">0 B</span>
+                <span class="stat-label">Kullanilan Alan</span>
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-icon-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12,6 12,12 16,14"/>
+                </svg>
+              </div>
+              <div class="stat-data">
+                <span class="stat-number" id="lastSync">-</span>
+                <span class="stat-label">Son Yukleme</span>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Sync History -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Senkronizasyon Gecmisi</h3>
-            <div class="card-actions">
-              <button class="btn btn-secondary btn-sm" onclick="refreshSyncHistory()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <!-- Settings Card -->
+          <div class="drive-card" id="settingsSection" style="display: none;">
+            <h3 class="drive-card-title">Ayarlar</h3>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <span class="setting-name">Klasor Yapisi</span>
+                <span class="setting-desc">Dosyalarin Drive'da nasil organize edilecegi</span>
+              </div>
+              <select class="drive-select" id="folderStructure">
+                <option value="year-month" selected>Yil / Ay</option>
+                <option value="company">Sigorta Sirketi</option>
+                <option value="customer">Musteri</option>
+                <option value="branch">Brans</option>
+              </select>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-label">
+                <span class="setting-name">Hedef Klasor</span>
+                <span class="setting-desc">Drive'daki ana klasor yolu</span>
+              </div>
+              <input type="text" class="drive-input" id="targetFolder" value="/IHSAN AI/Policeler" readonly>
+            </div>
+          </div>
+
+          <!-- Upload History -->
+          <div class="drive-card" id="historySection" style="display: none;">
+            <div class="drive-card-header">
+              <h3 class="drive-card-title">Son Yuklemeler</h3>
+              <button class="drive-btn-icon" onclick="refreshHistory()" title="Yenile">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="23 4 23 10 17 10"/>
                   <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
                 </svg>
-                Yenile
               </button>
             </div>
-          </div>
-          <div class="card-body" style="padding: 0;">
-            <div class="table-wrapper">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Tarih</th>
-                    <th>Dosya Adi</th>
-                    <th>Boyut</th>
-                    <th>Durum</th>
-                    <th>Islem</th>
-                  </tr>
-                </thead>
-                <tbody id="syncHistoryTable">
-                  <tr>
-                    <td colspan="5" class="text-center" style="padding: 40px; color: #64748b;">
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 12px; display: block; opacity: 0.5;">
-                        <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
-                      </svg>
-                      Henuz senkronizasyon yapilmadi
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="history-list" id="historyList">
+              <div class="history-empty">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                </svg>
+                <span>Henuz yukleme yapilmadi</span>
+              </div>
             </div>
           </div>
-        </div>
 
         </div>
       </div>
@@ -385,170 +326,566 @@
   <script src="../../assets/js/sidebar.js"></script>
 
   <style>
-    .settings-group {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
+    .drive-page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 32px 24px;
     }
 
-    .setting-item {
+    /* Header */
+    .drive-header {
+      margin-bottom: 32px;
+    }
+
+    .drive-header-content {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 16px 0;
-      border-bottom: 1px solid #e2e8f0;
+      gap: 16px;
     }
 
-    .setting-item:last-child {
-      border-bottom: none;
+    .drive-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .setting-info {
-      flex: 1;
-    }
-
-    .setting-title {
-      font-size: 14px;
+    .drive-title {
+      font-size: 24px;
       font-weight: 600;
       color: #1e293b;
       margin: 0 0 4px 0;
     }
 
-    .setting-desc {
-      font-size: 13px;
+    .drive-subtitle {
+      font-size: 14px;
       color: #64748b;
       margin: 0;
     }
 
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 48px;
-      height: 24px;
+    /* Cards */
+    .drive-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
     }
 
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
+    .drive-card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0 0 20px 0;
     }
 
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #cbd5e1;
-      transition: 0.3s;
-      border-radius: 24px;
+    .drive-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
     }
 
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.3s;
+    .drive-card-header .drive-card-title {
+      margin: 0;
+    }
+
+    /* Connection Card */
+    .drive-connection-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+      border: 1px solid #e2e8f0;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-indicator {
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      background: #cbd5e1;
     }
 
-    input:checked + .toggle-slider {
-      background-color: #10b981;
+    .status-indicator.connected {
+      background: #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
     }
 
-    input:checked + .toggle-slider:before {
-      transform: translateX(24px);
+    .status-indicator.disconnected {
+      background: #cbd5e1;
     }
 
-    .form-select {
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 14px;
-      color: #1e293b;
-      background: white;
-      cursor: pointer;
+    .status-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
-    .form-select:focus {
-      outline: none;
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    .form-input {
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      font-size: 14px;
+    .status-label {
+      font-size: 15px;
+      font-weight: 500;
       color: #1e293b;
     }
 
-    .form-input:focus {
-      outline: none;
-      border-color: #6366f1;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    .btn-sm {
-      padding: 6px 12px;
+    .status-email {
       font-size: 13px;
+      color: #64748b;
     }
 
-    .info-alert-blue {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
-      border-left: 4px solid #3b82f6;
+    /* Buttons */
+    .drive-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
     }
 
-    .info-alert-blue .info-alert-icon {
+    .drive-btn-primary {
+      background: #4285F4;
+      color: white;
+    }
+
+    .drive-btn-primary:hover {
+      background: #3367D6;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3);
+    }
+
+    .drive-btn-danger {
+      background: #fff;
+      color: #ef4444;
+      border: 1px solid #fecaca;
+    }
+
+    .drive-btn-danger:hover {
+      background: #fef2f2;
+    }
+
+    .drive-btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+
+    .drive-btn-icon:hover {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+
+    /* Stats */
+    .drive-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .stat-icon-wrap {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       color: #3b82f6;
     }
 
-    .info-alert-green {
-      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
-      border-left: 4px solid #10b981;
+    .stat-data {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
-    .info-alert-green .info-alert-icon {
+    .stat-number {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .stat-data .stat-label {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* Settings */
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .setting-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .setting-row:first-child {
+      padding-top: 0;
+    }
+
+    .setting-label {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .setting-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1e293b;
+    }
+
+    .setting-desc {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .drive-select, .drive-input {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #1e293b;
+      background: #fff;
+      min-width: 180px;
+    }
+
+    .drive-select:focus, .drive-input:focus {
+      outline: none;
+      border-color: #4285F4;
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+    }
+
+    /* History */
+    .history-list {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .history-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      color: #94a3b8;
+      gap: 12px;
+    }
+
+    .history-empty svg {
+      opacity: 0.5;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-item-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .history-item-icon {
+      width: 36px;
+      height: 36px;
+      background: #fef2f2;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ef4444;
+    }
+
+    .history-item-icon.success {
+      background: #f0fdf4;
       color: #10b981;
+    }
+
+    .history-item-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .history-item-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1e293b;
+    }
+
+    .history-item-meta {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    .history-item-status {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .history-item-status.success {
+      background: #f0fdf4;
+      color: #10b981;
+    }
+
+    .history-item-status.failed {
+      background: #fef2f2;
+      color: #ef4444;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .drive-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .drive-connection-card {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+
+      .connection-status {
+        flex-direction: column;
+      }
+
+      .setting-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .drive-select, .drive-input {
+        width: 100%;
+      }
     }
   </style>
 
   <script>
-    // Yetki kontrolu
+    let isConnected = false;
+
     document.addEventListener('DOMContentLoaded', function() {
       if (!requireAuth()) return;
       if (!requirePermission('driveEntegrasyonuGorebilsin', '../../index.html')) return;
 
-      // Baglanti durumunu kontrol et
-      checkConnectionStatus();
+      // URL parametrelerini kontrol et
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('connected') === 'true') {
+        showToast('Google Drive baglantisi basarili!', 'success');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      if (urlParams.get('error')) {
+        showToast('Baglanti hatasi: ' + decodeURIComponent(urlParams.get('error')), 'error');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      loadDriveStatus();
     });
 
-    // Google Drive baglantisi
+    async function loadDriveStatus() {
+      try {
+        const status = await getDriveStatus();
+        isConnected = status.isConnected;
+        updateUI(status);
+      } catch (error) {
+        // Hata durumunda sessizce "bagli degil" goster
+        console.log('Drive status:', error.message);
+        updateUI({ isConnected: false });
+      }
+    }
+
+    function updateUI(status) {
+      const indicator = document.getElementById('statusIndicator');
+      const label = document.getElementById('statusLabel');
+      const email = document.getElementById('statusEmail');
+      const btn = document.getElementById('connectBtn');
+      const statsSection = document.getElementById('statsSection');
+      const settingsSection = document.getElementById('settingsSection');
+      const historySection = document.getElementById('historySection');
+
+      if (status.isConnected) {
+        indicator.className = 'status-indicator connected';
+        label.textContent = 'Bagli';
+        email.textContent = status.connectedEmail || '';
+
+        btn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+            <polyline points="16,17 21,12 16,7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Baglantiyi Kes
+        `;
+        btn.className = 'drive-btn drive-btn-danger';
+        btn.onclick = disconnectFromDrive;
+
+        // Istatistikleri guncelle
+        document.getElementById('uploadedFiles').textContent = status.uploadedFiles || 0;
+        document.getElementById('usedStorage').textContent = status.usedStorage || '0 B';
+        document.getElementById('lastSync').textContent = status.lastSyncAt
+          ? new Date(status.lastSyncAt).toLocaleDateString('tr-TR')
+          : '-';
+
+        // Sectionlari goster
+        statsSection.style.display = 'grid';
+        settingsSection.style.display = 'block';
+        historySection.style.display = 'block';
+
+        // Gecmisi yukle
+        loadHistory();
+      } else {
+        indicator.className = 'status-indicator disconnected';
+        label.textContent = 'Bagli Degil';
+        email.textContent = '';
+
+        btn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+            <polyline points="10,17 15,12 10,7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          Drive'a Baglan
+        `;
+        btn.className = 'drive-btn drive-btn-primary';
+        btn.onclick = connectGoogleDrive;
+
+        // Sectionlari gizle
+        statsSection.style.display = 'none';
+        settingsSection.style.display = 'none';
+        historySection.style.display = 'none';
+      }
+    }
+
     async function connectGoogleDrive() {
-      showToast('Google Drive entegrasyonu yaklinda...', 'info');
+      try {
+        showLoading(true);
+        const result = await initiateDriveConnection();
+        if (result.authorizationUrl) {
+          window.location.href = result.authorizationUrl;
+        }
+      } catch (error) {
+        showToast('Baglanti baslatilamadi: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
     }
 
-    // Baglanti durumunu kontrol et
-    async function checkConnectionStatus() {
-      // API'den baglanti durumunu cek
-      // Simdilik placeholder
+    async function disconnectFromDrive() {
+      if (!confirm('Google Drive baglantisini kesmek istediginizden emin misiniz?')) return;
+
+      try {
+        showLoading(true);
+        await disconnectDrive();
+        showToast('Baglanti kesildi', 'success');
+        loadDriveStatus();
+      } catch (error) {
+        showToast('Baglanti kesilemedi: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
     }
 
-    // Klasor secimi
-    function browseFolder() {
-      showToast('Klasor secimi yaklinda...', 'info');
+    async function loadHistory() {
+      try {
+        const history = await getDriveHistory(1, 10);
+        renderHistory(history.items);
+      } catch (error) {
+        console.log('History error:', error.message);
+      }
     }
 
-    // Senkronizasyon gecmisini yenile
-    function refreshSyncHistory() {
-      showToast('Gecmis yenileniyor...', 'info');
+    function renderHistory(items) {
+      const container = document.getElementById('historyList');
+
+      if (!items || items.length === 0) {
+        container.innerHTML = `
+          <div class="history-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+            </svg>
+            <span>Henuz yukleme yapilmadi</span>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = items.map(item => `
+        <div class="history-item">
+          <div class="history-item-info">
+            <div class="history-item-icon ${item.status === 'Success' ? 'success' : ''}">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+            </div>
+            <div class="history-item-details">
+              <span class="history-item-name">${escapeHtml(item.fileName)}</span>
+              <span class="history-item-meta">${item.fileSizeFormatted} • ${new Date(item.uploadedAt).toLocaleDateString('tr-TR')}</span>
+            </div>
+          </div>
+          <span class="history-item-status ${item.status === 'Success' ? 'success' : 'failed'}">
+            ${item.status === 'Success' ? 'Basarili' : 'Basarisiz'}
+          </span>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function refreshHistory() {
+      loadHistory();
     }
   </script>
 </body>

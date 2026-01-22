@@ -89,8 +89,8 @@ const APP_CONFIG = {
     // Omer:  https://localhost:36100 (http://localhost:36101)
     // Musti: https://localhost:36200 (http://localhost:36201)
     // Production: https://muhasebeapi.sigorta.teklifi.al
-    // NOT: Şu an için her zaman production API kullanılıyor
-    BASE_URL: 'https://muhasebeapi.sigorta.teklifi.al',
+    // localhost ise dev profil URL'i kullan, değilse production
+    BASE_URL: isLocalhost ? DEV_PROFILES[currentDev].https : 'https://muhasebeapi.sigorta.teklifi.al',
     VERSION: 'v1',
     TIMEOUT: 30000, // 30 saniye
 
@@ -894,3 +894,97 @@ document.addEventListener('DOMContentLoaded', function() {
   updateNavbarUser();
   applyPermissions();
 });
+
+// ═══════════════════════════════════════════════════════════════
+// GOOGLE DRIVE API FONKSİYONLARI
+// ═══════════════════════════════════════════════════════════════
+
+/**
+ * Google Drive bağlantı durumunu al
+ * @returns {Promise<object>} - { isConnected, connectedEmail, connectedAt, syncedFolders, uploadedFiles, usedStorage, lastSyncAt }
+ */
+async function getDriveStatus() {
+  return apiGet('drive/status');
+}
+
+/**
+ * Google Drive OAuth bağlantısını başlat
+ * @returns {Promise<object>} - { authorizationUrl, state }
+ */
+async function initiateDriveConnection() {
+  return apiPost('drive/connect');
+}
+
+/**
+ * Google Drive bağlantısını kes
+ * @returns {Promise<object>} - { success: boolean }
+ */
+async function disconnectDrive() {
+  return apiDelete('drive/disconnect');
+}
+
+/**
+ * Drive yükleme geçmişini al
+ * @param {number} page - Sayfa numarası
+ * @param {number} pageSize - Sayfa başına kayıt
+ * @returns {Promise<object>} - { items, totalCount, page, pageSize }
+ */
+async function getDriveHistory(page = 1, pageSize = 20) {
+  return apiGet(`drive/history?page=${page}&pageSize=${pageSize}`);
+}
+
+/**
+ * PDF dosyasını Google Drive'a yükle
+ * @param {File} file - Yüklenecek PDF dosyası
+ * @returns {Promise<object>} - { success, fileId, webViewLink, drivePath, errorMessage }
+ */
+async function uploadFileToDrive(file) {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const token = APP_CONFIG.AUTH.getToken();
+  const url = APP_CONFIG.API.getUrl('drive/upload');
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 saniye timeout (dosya yükleme için)
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+        // Content-Type header'ı eklemeyin - browser FormData için otomatik ayarlar
+      },
+      body: formData,
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.status === 401) {
+      APP_CONFIG.AUTH.clearToken();
+      APP_CONFIG.AUTH.redirectToLogin();
+      throw new Error('Oturum süresi doldu');
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.errorMessage || data.error || 'Yükleme başarısız');
+    }
+
+    return data;
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Yükleme zaman aşımına uğradı');
+    }
+    throw error;
+  }
+}
+
+// Global scope'a ekle
+window.getDriveStatus = getDriveStatus;
+window.initiateDriveConnection = initiateDriveConnection;
+window.disconnectDrive = disconnectDrive;
+window.getDriveHistory = getDriveHistory;
+window.uploadFileToDrive = uploadFileToDrive;
