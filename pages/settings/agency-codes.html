@@ -554,9 +554,6 @@
     let insuranceCompanies = [];
     let confirmResolve = null;
 
-    // Helper functions from config
-    const { apiGet, apiPost, apiPut, apiDelete, showToast } = APP_CONFIG.API;
-
     // Page initialization
     document.addEventListener('DOMContentLoaded', async function() {
       await loadInsuranceCompanies();
