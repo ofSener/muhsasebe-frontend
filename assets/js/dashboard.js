@@ -237,11 +237,42 @@
   }
 
   function updateBransDagilimChart(data) {
+    const chartEl = document.getElementById('policyDistChart');
+    if (!chartEl) return;
+
+    // Empty state container'ı kontrol et veya oluştur
+    let emptyStateEl = chartEl.parentElement.querySelector('.empty-chart-overlay');
+
     if (!data || !data.dagilim || data.dagilim.length === 0) {
+      // Boş durum için overlay göster
+      if (!emptyStateEl) {
+        emptyStateEl = document.createElement('div');
+        emptyStateEl.className = 'empty-chart-overlay';
+        emptyStateEl.innerHTML = `
+          <div class="empty-chart-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+              <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+            </svg>
+            <p class="empty-chart-title">Veri Bulunamadı</p>
+            <p class="empty-chart-text">Seçilen tarih aralığında poliçe verisi bulunmuyor</p>
+          </div>
+        `;
+        chartEl.parentElement.style.position = 'relative';
+        chartEl.parentElement.appendChild(emptyStateEl);
+      }
+      emptyStateEl.style.display = 'flex';
+
+      // Chart'ı gizle
       if (charts.policyDist) {
         charts.policyDist.updateSeries([]);
       }
       return;
+    }
+
+    // Veri varsa empty state'i gizle
+    if (emptyStateEl) {
+      emptyStateEl.style.display = 'none';
     }
 
     const labels = data.dagilim.map(d => d.bransAdi);

@@ -535,7 +535,7 @@
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Çalışan Performansı</h3>
-              <span class="badge badge-primary">Bu Dönem</span>
+              <span class="badge badge-primary" id="performersPeriodBadge">Bu Yıl</span>
             </div>
             <div class="card-body">
               <table class="data-table">
@@ -636,6 +636,14 @@
               btn.classList.remove('active');
             });
 
+            // Update performers period badge with custom date range
+            const periodBadge = document.getElementById('performersPeriodBadge');
+            if (periodBadge) {
+              const start = selectedDates[0].toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
+              const end = selectedDates[1].toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' });
+              periodBadge.textContent = `${start} - ${end}`;
+            }
+
             console.log('Seçilen tarih aralığı:', dateStr);
             // Dashboard verilerini güncelle
             if (window.Dashboard) {
@@ -647,6 +655,16 @@
 
       // Set initial display
       dateRangeInput.value = formatDateTR(currentRange[0]) + ' - ' + formatDateTR(currentRange[1]);
+
+      // Preset label mapping
+      const presetLabels = {
+        today: 'Bugün',
+        yesterday: 'Dün',
+        thisWeek: 'Bu Hafta',
+        thisMonth: 'Bu Ay',
+        last30: 'Son 30 Gün',
+        thisYear: 'Bu Yıl'
+      };
 
       // Preset button handlers with ripple effect
       document.querySelectorAll('.date-preset-btn').forEach(btn => {
@@ -676,6 +694,12 @@
               dateRangeInput.value = formatDateTR(range[0]);
             } else {
               dateRangeInput.value = formatDateTR(range[0]) + ' - ' + formatDateTR(range[1]);
+            }
+
+            // Update performers period badge
+            const periodBadge = document.getElementById('performersPeriodBadge');
+            if (periodBadge) {
+              periodBadge.textContent = presetLabels[rangeKey] || 'Seçili Dönem';
             }
 
             console.log('Preset seçildi:', rangeKey, dateRangeInput.value);
