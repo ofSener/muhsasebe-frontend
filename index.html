@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="assets/js/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="assets/js/dashboard.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 </head>
@@ -400,19 +401,19 @@
             <p class="progress-card-subtitle">Bu dönem içinde üretilen toplam prim tutarı</p>
             <div class="progress-card-total">
               <span class="label">Toplam:</span>
-              <span class="value">₺2,450,000</span>
+              <span class="value" id="progressPrimTotal">Yükleniyor...</span>
             </div>
             <div class="progress-card-bar">
               <div class="progress-card-bar-fill success" style="width: 100%"></div>
             </div>
             <div class="progress-card-stats">
               <div class="progress-card-stat">
-                <span class="stat-label">Bu Ay</span>
-                <span class="stat-value">₺245,000</span>
+                <span class="stat-label">Değişim</span>
+                <span class="stat-value" id="primChange">-</span>
               </div>
               <div class="progress-card-stat">
-                <span class="stat-label">Geçen Ay</span>
-                <span class="stat-value muted">₺218,500</span>
+                <span class="stat-label">Poliçe</span>
+                <span class="stat-value" id="totalPoliciesCard">-</span>
               </div>
             </div>
           </div>
@@ -426,45 +427,45 @@
             <p class="progress-card-subtitle">Toplam prim üzerinden hesaplanan komisyon</p>
             <div class="progress-card-total">
               <span class="label">Toplam Komisyon:</span>
-              <span class="value">₺186,200</span>
+              <span class="value" id="progressKomisyonTotal">Yükleniyor...</span>
             </div>
             <div class="progress-card-bar">
               <div class="progress-card-bar-fill primary" style="width: 72%"></div>
             </div>
             <div class="progress-card-stats">
               <div class="progress-card-stat">
-                <span class="stat-label">Ödenen</span>
-                <span class="stat-value">₺134,064</span>
+                <span class="stat-label">Değişim</span>
+                <span class="stat-value" id="komisyonChange">-</span>
               </div>
               <div class="progress-card-stat">
-                <span class="stat-label">Kalan</span>
-                <span class="stat-value muted">₺52,136</span>
+                <span class="stat-label">Müşteri</span>
+                <span class="stat-value" id="totalCustomersCard">-</span>
               </div>
             </div>
           </div>
 
-          <!-- Ödemeler -->
+          <!-- Bekleyen Poliçeler -->
           <div class="progress-card">
             <div class="progress-card-header">
-              <span class="progress-card-title">Ödemeler</span>
-              <a href="pages/finance/collections.html" class="progress-card-link">Raporu Görüntüle</a>
+              <span class="progress-card-title">Bekleyen Poliçeler</span>
+              <a href="pages/policies/captured.html" class="progress-card-link">Raporu Görüntüle</a>
             </div>
-            <p class="progress-card-subtitle">Müşterilerden tahsil edilen ödemeler</p>
+            <p class="progress-card-subtitle">Yakalanan ama işlenmemiş poliçeler</p>
             <div class="progress-card-total">
-              <span class="label">Toplam Tahsilat:</span>
-              <span class="value">₺1,890,500</span>
+              <span class="label">Bekleyen Prim:</span>
+              <span class="value" id="progressBekleyen">Yükleniyor...</span>
             </div>
             <div class="progress-card-bar">
-              <div class="progress-card-bar-fill warning" style="width: 77%"></div>
+              <div class="progress-card-bar-fill warning" style="width: 50%"></div>
             </div>
             <div class="progress-card-stats">
               <div class="progress-card-stat">
-                <span class="stat-label">Tahsil Edilen</span>
-                <span class="stat-value">₺1,890,500</span>
+                <span class="stat-label">Poliçe Sayısı</span>
+                <span class="stat-value" id="bekleyenPolice">-</span>
               </div>
               <div class="progress-card-stat">
-                <span class="stat-label">Bekleyen</span>
-                <span class="stat-value muted">₺559,500</span>
+                <span class="stat-label">Aktif Çalışan</span>
+                <span class="stat-value" id="aktifCalisan">-</span>
               </div>
             </div>
           </div>
@@ -521,57 +522,11 @@
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Son İşlemler</h3>
-              <a href="#" class="progress-card-link">Tümünü Gör</a>
+              <a href="pages/policies/my-policies.html" class="progress-card-link">Tümünü Gör</a>
             </div>
             <div class="card-body">
-              <div class="activity-list">
-                <div class="activity-item">
-                  <div class="activity-icon" style="background: var(--success-glow); color: var(--success);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="20,6 9,17 4,12"/>
-                    </svg>
-                  </div>
-                  <div class="activity-content">
-                    <div class="activity-text"><strong>Yeni Poliçe</strong> - Mehmet Demir için Kasko poliçesi oluşturuldu</div>
-                    <div class="activity-time">2 dakika önce</div>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-icon" style="background: var(--primary-glow); color: var(--primary);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                      <polyline points="14,2 14,8 20,8"/>
-                    </svg>
-                  </div>
-                  <div class="activity-content">
-                    <div class="activity-text"><strong>Poliçe Yakalandı</strong> - #POL-2024-1284 otomatik yakalandı</div>
-                    <div class="activity-time">15 dakika önce</div>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-icon" style="background: var(--warning-glow); color: var(--warning);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <polyline points="12,6 12,12 16,14"/>
-                    </svg>
-                  </div>
-                  <div class="activity-content">
-                    <div class="activity-text"><strong>Yenileme Hatırlatması</strong> - Ayşe Kaya'nın DASK poliçesi 5 gün içinde bitiyor</div>
-                    <div class="activity-time">1 saat önce</div>
-                  </div>
-                </div>
-                <div class="activity-item">
-                  <div class="activity-icon" style="background: var(--info-glow); color: var(--info);">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="12" y1="1" x2="12" y2="23"/>
-                      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                    </svg>
-                  </div>
-                  <div class="activity-content">
-                    <div class="activity-text"><strong>Tahsilat</strong> - ₺12,450 ödeme alındı (#POL-2024-1180)</div>
-                    <div class="activity-time">3 saat önce</div>
-                  </div>
-                </div>
+              <div class="activity-list" id="activityList">
+                <div class="text-center text-muted py-4">Yükleniyor...</div>
               </div>
             </div>
           </div>
@@ -580,7 +535,7 @@
           <div class="card">
             <div class="card-header">
               <h3 class="card-title">Çalışan Performansı</h3>
-              <span class="badge badge-primary">Bu Ay</span>
+              <span class="badge badge-primary">Bu Dönem</span>
             </div>
             <div class="card-body">
               <table class="data-table">
@@ -589,93 +544,12 @@
                     <th>Çalışan</th>
                     <th>Poliçe</th>
                     <th>Prim</th>
-                    <th>Hedef</th>
+                    <th>Oran</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="performersBody">
                   <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-cyan">ZA</div>
-                        <div>
-                          <div class="cell-main">Zeynep Aydın</div>
-                          <div class="cell-sub">Kıdemli Uzman</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="font-semibold">87</td>
-                    <td class="font-mono">₺245K</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar cyan" style="width: 92%"></div>
-                        </div>
-                        <span class="text-primary font-semibold">92%</span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-emerald">MK</div>
-                        <div>
-                          <div class="cell-main">Mehmet Kaya</div>
-                          <div class="cell-sub">Uzman</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="font-semibold">72</td>
-                    <td class="font-mono">₺198K</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar emerald" style="width: 85%"></div>
-                        </div>
-                        <span class="text-success font-semibold">85%</span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-amber">AY</div>
-                        <div>
-                          <div class="cell-main">Ayşe Yılmaz</div>
-                          <div class="cell-sub">Uzman</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="font-semibold">68</td>
-                    <td class="font-mono">₺175K</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar amber" style="width: 78%"></div>
-                        </div>
-                        <span class="text-warning font-semibold">78%</span>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-violet">CD</div>
-                        <div>
-                          <div class="cell-main">Can Demir</div>
-                          <div class="cell-sub">Jr. Uzman</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="font-semibold">45</td>
-                    <td class="font-mono">₺112K</td>
-                    <td>
-                      <div class="flex items-center gap-2">
-                        <div class="progress" style="width: 80px;">
-                          <div class="progress-bar violet" style="width: 65%"></div>
-                        </div>
-                        <span style="color: var(--info);" class="font-semibold">65%</span>
-                      </div>
-                    </td>
+                    <td colspan="4" class="text-center text-muted">Yükleniyor...</td>
                   </tr>
                 </tbody>
               </table>
@@ -967,7 +841,10 @@
             });
 
             console.log('Seçilen tarih aralığı:', dateStr);
-            // Here you would refresh dashboard data
+            // Dashboard verilerini güncelle
+            if (window.Dashboard) {
+              window.Dashboard.setDateRange(selectedDates[0], selectedDates[1]);
+            }
           }
         }
       });
@@ -1006,7 +883,10 @@
             }
 
             console.log('Preset seçildi:', rangeKey, dateRangeInput.value);
-            // Here you would refresh dashboard data
+            // Dashboard verilerini güncelle
+            if (window.Dashboard) {
+              window.Dashboard.setDateRange(range[0], range[1]);
+            }
             // Müşteri üretim verilerini de güncelle
             updateCustomerProduction(rangeKey);
           }
