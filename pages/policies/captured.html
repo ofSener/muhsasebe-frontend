@@ -2595,12 +2595,12 @@
       }
     }
 
-    // Prodüktör listesi yükle (kullanıcılar endpoint'inden - firmaId ile filtrelenmiş)
+    // Prodüktör listesi yükle (sadece aktif kullanıcılar - firmaId ile filtrelenmiş)
     async function loadProducers() {
       try {
         const user = APP_CONFIG.AUTH.getUser();
         const firmaId = user?.firmaId;
-        const endpoint = firmaId ? `kullanicilar?firmaId=${firmaId}` : 'kullanicilar';
+        const endpoint = firmaId ? `kullanicilar/aktif?firmaId=${firmaId}` : 'kullanicilar/aktif';
         const data = await apiGet(endpoint);
         producersList = (data || []).map(u => ({
           id: u.id,
