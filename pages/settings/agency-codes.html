@@ -365,6 +365,15 @@
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
       background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      overflow: hidden;
+    }
+    .company-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: white;
+      padding: 4px;
+      border-radius: 0.5rem;
     }
     .company-name {
       font-weight: 500;
@@ -552,7 +561,12 @@
     // Global state
     let allAgencyCodes = [];
     let insuranceCompanies = [];
+    let companyCodeMap = {}; // id -> kod mapping
     let confirmResolve = null;
+
+    // Logo path constants
+    const LOGO_BASE_PATH = '../../assets/images/logos/insurance-companies/';
+    const LOGO_EXTENSION = '.png';
 
     // Page initialization
     document.addEventListener('DOMContentLoaded', async function() {
@@ -568,6 +582,8 @@
         select.innerHTML = '<option value="">Şirket seçin...</option>';
         insuranceCompanies.forEach(company => {
           select.innerHTML += `<option value="${company.id}">${company.ad}</option>`;
+          // Store company code mapping
+          companyCodeMap[company.id] = company.kod;
         });
       } catch (error) {
         console.error('Sigorta şirketleri yüklenemedi:', error);
@@ -620,7 +636,9 @@
       emptyState.style.display = 'none';
 
       tbody.innerHTML = codes.map(code => {
+        const companyCode = companyCodeMap[code.sigortaSirketiId] || '';
         const companyInitials = getCompanyInitials(code.sigortaSirketiAdi);
+        const logoPath = companyCode ? `${LOGO_BASE_PATH}${companyCode.toLowerCase()}${LOGO_EXTENSION}` : '';
         const formattedDate = code.eklenmeTarihi ? formatDate(code.eklenmeTarihi) : '-';
 
         return `
@@ -630,7 +648,9 @@
             </td>
             <td>
               <div class="company-cell">
-                <div class="company-logo">${companyInitials}</div>
+                <div class="company-logo" data-company-code="${escapeHtml(companyCode)}" data-initials="${companyInitials}">
+                  ${logoPath ? `<img src="${logoPath}" alt="${escapeHtml(code.sigortaSirketiAdi)}" onerror="this.parentElement.innerHTML='${companyInitials}'">` : companyInitials}
+                </div>
                 <span class="company-name">${escapeHtml(code.sigortaSirketiAdi)}</span>
               </div>
             </td>

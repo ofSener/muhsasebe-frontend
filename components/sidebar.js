@@ -29,7 +29,7 @@
   const sidebarHTML = `
     <div class="sidebar-header">
       <div class="sidebar-logo">
-        <img src="${basePath}logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
+        <img src="${basePath}assets/images/logos/ihsanai-logo.png" alt="IHSAN AI" onerror="this.style.display='none'; this.parentElement.innerHTML='IA';">
       </div>
       <div class="sidebar-brand">
         <h1>IHSAN AI</h1>
