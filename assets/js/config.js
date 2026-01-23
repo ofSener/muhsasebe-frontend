@@ -111,6 +111,7 @@ const APP_CONFIG = {
   AUTH: {
     _accessToken: null,            // Memory'de tutulan access token
     _tokenExpiry: null,            // Token expiry timestamp
+    _refreshPromise: null,         // Devam eden refresh isteği (race condition önleme)
     REFRESH_TOKEN_KEY: 'refresh_token',  // localStorage'da refresh token
     USER_KEY: 'current_user',      // localStorage'da user info
     LOGIN_PAGE: '/pages/login.html',
@@ -150,6 +151,7 @@ const APP_CONFIG = {
     clearToken: function() {
       this._accessToken = null;
       this._tokenExpiry = null;
+      this._refreshPromise = null;
       localStorage.removeItem(this.REFRESH_TOKEN_KEY);
       localStorage.removeItem(this.USER_KEY);
     },
@@ -173,8 +175,29 @@ const APP_CONFIG = {
     },
 
     // Refresh token ile yeni access token al
-    // Refresh token localStorage'dan alınır ve request body'de gönderilir
+    // MUTEX: Aynı anda sadece bir refresh isteği yapılır, diğerleri bekler
+    // Bu token rotation race condition'ı önler
     refreshToken: async function() {
+      // Zaten devam eden bir refresh varsa, onu bekle
+      if (this._refreshPromise) {
+        console.log('[Auth] Devam eden refresh isteği bekleniyor...');
+        return this._refreshPromise;
+      }
+
+      // Yeni refresh isteği başlat ve promise'i kaydet
+      this._refreshPromise = this._doRefresh();
+
+      try {
+        const result = await this._refreshPromise;
+        return result;
+      } finally {
+        // İstek tamamlandığında (başarılı veya başarısız) lock'u serbest bırak
+        this._refreshPromise = null;
+      }
+    },
+
+    // Gerçek refresh işlemi (internal)
+    _doRefresh: async function() {
       try {
         const refreshToken = this.getRefreshToken();
         if (!refreshToken) {
@@ -182,6 +205,7 @@ const APP_CONFIG = {
           return false;
         }
 
+        console.log('[Auth] Token refresh başlatılıyor...');
         const response = await fetch(APP_CONFIG.API.getUrl('auth/refresh'), {
           method: 'POST',
           headers: {
@@ -191,6 +215,7 @@ const APP_CONFIG = {
         });
 
         if (!response.ok) {
+          console.log('[Auth] Token refresh başarısız:', response.status);
           this.clearToken();
           return false;
         }
@@ -202,6 +227,7 @@ const APP_CONFIG = {
           if (data.refreshToken) {
             this.setRefreshToken(data.refreshToken);
           }
+          console.log('[Auth] Token refresh başarılı');
           return true;
         }
 
