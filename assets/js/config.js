@@ -101,32 +101,43 @@ const APP_CONFIG = {
   },
 
   // ═══════════════════════════════════════════════════════════════
-  // AUTHENTICATION
+  // AUTHENTICATION (GÜVENLİK: Memory-based token storage)
   // ═══════════════════════════════════════════════════════════════
   AUTH: {
-    TOKEN_KEY: 'auth_token',
-    REFRESH_TOKEN_KEY: 'refresh_token',
-    USER_KEY: 'current_user',
+    // GÜVENLİK: Access token artık localStorage'da DEĞİL, memory'de tutuluyor
+    // Bu sayede XSS saldırıları token'ı çalamaz
+    _accessToken: null,        // Memory'de tutulan access token
+    _tokenExpiry: null,        // Token expiry timestamp
+    USER_KEY: 'current_user',  // Sadece non-sensitive user info localStorage'da
     LOGIN_PAGE: '/pages/login.html',
 
-    // Token'ı localStorage'dan al
+    // Token'ı memory'den al
     getToken: function() {
-      return localStorage.getItem(this.TOKEN_KEY);
+      // Token expire olduysa null döndür
+      if (this._tokenExpiry && Date.now() > this._tokenExpiry) {
+        this._accessToken = null;
+        this._tokenExpiry = null;
+      }
+      return this._accessToken;
     },
 
-    // Token'ı kaydet
-    setToken: function(token) {
-      localStorage.setItem(this.TOKEN_KEY, token);
+    // Token'ı memory'ye kaydet (localStorage'a DEĞİL!)
+    setToken: function(token, expiresIn) {
+      this._accessToken = token;
+      // expiresIn saniye cinsinden, biraz erken expire olarak kabul et (güvenlik marjı)
+      if (expiresIn) {
+        this._tokenExpiry = Date.now() + (expiresIn * 1000) - 60000; // 1 dk erken
+      }
     },
 
     // Token'ı sil (logout)
     clearToken: function() {
-      localStorage.removeItem(this.TOKEN_KEY);
-      localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+      this._accessToken = null;
+      this._tokenExpiry = null;
       localStorage.removeItem(this.USER_KEY);
     },
 
-    // Kullanıcı bilgisini al
+    // Kullanıcı bilgisini al (non-sensitive data)
     getUser: function() {
       const user = localStorage.getItem(this.USER_KEY);
       return user ? JSON.parse(user) : null;
@@ -137,9 +148,47 @@ const APP_CONFIG = {
       localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     },
 
+    // Token expire olmuş mu veya olmak üzere mi?
+    isTokenExpired: function() {
+      if (!this._tokenExpiry) return true;
+      // 30 saniye kala expire kabul et
+      return Date.now() > (this._tokenExpiry - 30000);
+    },
+
+    // Refresh token ile yeni access token al
+    // Refresh token HttpOnly cookie'de, backend otomatik okur
+    refreshToken: async function() {
+      try {
+        const response = await fetch(APP_CONFIG.API.getUrl('auth/refresh'), {
+          method: 'POST',
+          credentials: 'include',  // HttpOnly cookie gönderilir
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          this.clearToken();
+          return false;
+        }
+
+        const data = await response.json();
+        if (data.success && data.token) {
+          this.setToken(data.token, data.expiresIn);
+          return true;
+        }
+
+        return false;
+      } catch (error) {
+        console.error('[Auth] Token refresh error:', error);
+        return false;
+      }
+    },
+
     // Giriş yapılmış mı kontrol et
     isLoggedIn: function() {
-      return !!this.getToken();
+      // Memory'de token varsa veya user bilgisi varsa (sayfa yenilenmiş olabilir)
+      return !!this.getToken() || !!this.getUser();
     },
 
     // Login sayfasına yönlendir
@@ -312,15 +361,27 @@ const APP_CONFIG = {
  * @param {object} options - Fetch options
  * @returns {Promise<object>} - API yanıtı
  */
-async function apiRequest(endpoint, options = {}) {
+async function apiRequest(endpoint, options = {}, _isRetry = false) {
   const url = APP_CONFIG.API.getUrl(endpoint);
-  const token = APP_CONFIG.AUTH.getToken();
 
   // skipAuthRedirect: true ise 401'de otomatik login'e yönlendirme yapma
   const skipAuthRedirect = options.skipAuthRedirect || false;
   delete options.skipAuthRedirect;
 
+  // GÜVENLİK: Token expire olmuşsa önce refresh dene
+  if (!skipAuthRedirect && APP_CONFIG.AUTH.isTokenExpired() && APP_CONFIG.AUTH.getUser()) {
+    const refreshed = await APP_CONFIG.AUTH.refreshToken();
+    if (!refreshed) {
+      APP_CONFIG.AUTH.clearToken();
+      APP_CONFIG.AUTH.redirectToLogin();
+      throw new Error('Oturum süresi doldu');
+    }
+  }
+
+  const token = APP_CONFIG.AUTH.getToken();
+
   const defaultOptions = {
+    credentials: 'include',  // GÜVENLİK: HttpOnly cookie'ler için gerekli
     headers: {
       'Content-Type': 'application/json',
       ...(token && { 'Authorization': `Bearer ${token}` })
@@ -349,11 +410,17 @@ async function apiRequest(endpoint, options = {}) {
 
     // 401 Unauthorized - Token geçersiz
     if (response.status === 401) {
-      if (!skipAuthRedirect) {
+      // Retry olmadıysa ve skip değilse, refresh dene
+      if (!_isRetry && !skipAuthRedirect) {
+        const refreshed = await APP_CONFIG.AUTH.refreshToken();
+        if (refreshed) {
+          // Yeni token ile tekrar dene
+          return apiRequest(endpoint, options, true);
+        }
         APP_CONFIG.AUTH.clearToken();
         APP_CONFIG.AUTH.redirectToLogin();
         throw new Error('Oturum süresi doldu');
-      } else {
+      } else if (skipAuthRedirect) {
         // Login gibi istekler için: backend'den gelen hatayı kullan
         try {
           const text = await response.text();
@@ -365,6 +432,10 @@ async function apiRequest(endpoint, options = {}) {
           // JSON parse hatası - varsayılan mesaj kullan
         }
         throw new Error('E-posta veya parola hatalı');
+      } else {
+        APP_CONFIG.AUTH.clearToken();
+        APP_CONFIG.AUTH.redirectToLogin();
+        throw new Error('Oturum süresi doldu');
       }
     }
 
@@ -868,16 +939,30 @@ if (TEST_MODE.BYPASS_LOGIN) {
 // OTOMATİK AUTH KONTROLÜ
 // ═══════════════════════════════════════════════════════════════
 // Login sayfası hariç tüm sayfalarda token kontrolü yap
-(function() {
+(async function() {
   const currentPath = window.location.pathname;
   const isLoginPage = currentPath.includes('login.html');
 
   // TEST ORTAMI: localhost'ta otomatik test kullanıcısı ile giriş
   if (TEST_MODE.BYPASS_LOGIN && !isLoginPage && !APP_CONFIG.AUTH.isLoggedIn()) {
     console.log('[Test Mode] Otomatik test kullanıcısı ayarlanıyor...');
-    APP_CONFIG.AUTH.setToken(TEST_MODE.TEST_TOKEN);
+    APP_CONFIG.AUTH.setToken(TEST_MODE.TEST_TOKEN, 7200);
     APP_CONFIG.AUTH.setUser(TEST_MODE.TEST_USER);
     return;
+  }
+
+  // GÜVENLİK: Sayfa yenilendiğinde memory'deki token kaybolur
+  // Refresh token (HttpOnly cookie) ile yeni access token al
+  if (!isLoginPage && !APP_CONFIG.AUTH.getToken() && APP_CONFIG.AUTH.getUser()) {
+    console.log('[Auth] Sayfa yenilendi, token refresh deneniyor...');
+    const refreshed = await APP_CONFIG.AUTH.refreshToken();
+    if (!refreshed) {
+      console.log('[Auth] Token refresh başarısız, login\'e yönlendiriliyor...');
+      APP_CONFIG.AUTH.clearToken();
+      APP_CONFIG.AUTH.redirectToLogin();
+      return;
+    }
+    console.log('[Auth] Token refresh başarılı');
   }
 
   if (!isLoginPage && !APP_CONFIG.AUTH.isLoggedIn()) {

@@ -212,6 +212,14 @@
     updateElement('bekleyenPrim', formatCurrency(data.bekleyenPrim));
     updateElement('aktifCalisan', data.aktifCalisanSayisi?.toLocaleString('tr-TR') || '0');
 
+    // Yeni Üretim kartları
+    updateElement('yakalinanPolice', data.toplamPoliceSayisi?.toLocaleString('tr-TR') || '0');
+    updateElement('havuzdaBekleyen', data.bekleyenPoliceSayisi?.toLocaleString('tr-TR') || '0');
+    updateElement('toplamBrutPrim', formatCurrency(data.toplamBrutPrim));
+    updateElement('aktifCalisanSayisi', data.aktifCalisanSayisi?.toLocaleString('tr-TR') || '0');
+    updateElement('totalPoliciesCard', data.toplamPoliceSayisi?.toLocaleString('tr-TR') || '0');
+    updateElement('totalCustomersCard', data.toplamMusteriSayisi?.toLocaleString('tr-TR') || '0');
+
     // Önceki dönem karşılaştırmaları
     const primChange = calculateChange(data.toplamBrutPrim, data.oncekiDonemBrutPrim);
     const komisyonChange = calculateChange(data.toplamKomisyon, data.oncekiDonemKomisyon);
