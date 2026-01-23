@@ -975,8 +975,13 @@
         }, { skipAuthRedirect: true });
 
         if (response.success && response.token) {
-          // GÜVENLİK: Token memory'de saklanır, refreshToken HttpOnly cookie'de (backend set eder)
+          // Access token memory'de, refresh token localStorage'da saklanır
           APP_CONFIG.AUTH.setToken(response.token, response.expiresIn);
+
+          // Refresh token'ı localStorage'a kaydet
+          if (response.refreshToken) {
+            APP_CONFIG.AUTH.setRefreshToken(response.refreshToken);
+          }
 
           APP_CONFIG.AUTH.setUser({
             id: response.user.id,
