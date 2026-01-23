@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo 3: Yüzde Kolonu</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    body {
+      padding: 2rem;
+      background: var(--bg-base);
+    }
+
+    .demo-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .demo-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .demo-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-nav a {
+      padding: 0.5rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .demo-nav a:hover, .demo-nav a.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Production Card */
+    .production-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .production-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%);
+    }
+
+    .production-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .production-card-title svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .header-total {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.15);
+      padding: 0.3rem 0.6rem;
+      border-radius: var(--radius-sm);
+    }
+
+    /* Table Styles */
+    .production-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .production-table thead {
+      background: var(--bg-elevated);
+    }
+
+    .production-table th {
+      padding: 0.7rem 0.75rem;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .production-table th:first-child {
+      width: 50px;
+      text-align: center;
+    }
+
+    .production-table th.col-tutar,
+    .production-table th.col-pay,
+    .production-table th.col-adet {
+      text-align: right;
+    }
+
+    .production-table th.col-tutar { width: 110px; }
+    .production-table th.col-pay { width: 90px; }
+    .production-table th.col-adet { width: 60px; }
+
+    .production-table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.15s;
+    }
+
+    .production-table tbody tr:nth-child(odd) {
+      background: var(--bg-surface);
+    }
+
+    .production-table tbody tr:nth-child(even) {
+      background: var(--bg-base);
+    }
+
+    .production-table tbody tr:hover {
+      background: var(--primary-glow);
+    }
+
+    .production-table td {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .production-table td:first-child {
+      text-align: center;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .production-table td.col-tutar,
+    .production-table td.col-pay,
+    .production-table td.col-adet {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+
+    .production-table td.col-tutar {
+      color: var(--success);
+    }
+
+    /* Percentage Badge */
+    .pct-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .pct-badge.high {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .pct-badge.medium {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .pct-badge.low {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+
+    .pct-bar {
+      width: 40px;
+      height: 4px;
+      background: var(--bg-elevated);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .pct-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    .pct-badge.high .pct-bar-fill {
+      background: var(--success);
+    }
+
+    .pct-badge.medium .pct-bar-fill {
+      background: var(--warning);
+    }
+
+    .pct-badge.low .pct-bar-fill {
+      background: var(--text-muted);
+    }
+
+    /* Name link */
+    .name-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .name-link:hover {
+      color: var(--primary);
+    }
+
+    /* Grid Layout */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .tables-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-header">
+    <h1 class="demo-title">Demo 3: Yüzde Kolonu</h1>
+    <p class="demo-desc">Toplama göre yüzdelik pay gösterimi. Renkli badge ve mini bar ile görselleştirilmiş oranlar.</p>
+    <nav class="demo-nav">
+      <a href="1-kompakt-kart.html">1. Kompakt Kart</a>
+      <a href="2-deger-vurgulama.html">2. Değer Vurgulama</a>
+      <a href="3-yuzde-kolonu.html" class="active">3. Yüzde Kolonu</a>
+      <a href="4-hover-detay.html">4. Hover Detay</a>
+      <a href="5-sparkline.html">5. Sparkline</a>
+    </nav>
+  </div>
+
+  <div class="tables-grid">
+    <!-- Branşa Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3"/>
+            <path d="M7 14.5L11.5 10L14.5 13L20 7.5"/>
+          </svg>
+          Branşa Göre Üretimler
+        </h3>
+        <span class="header-total">₺1.245.890</span>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Branş</th>
+            <th class="col-tutar">Tutar</th>
+            <th class="col-pay">Pay</th>
+            <th class="col-adet">Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="name-link">Kasko</a></td>
+            <td class="col-tutar">₺618.697</td>
+            <td class="col-pay">
+              <span class="pct-badge high">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 100%"></span></span>
+                49.6%
+              </span>
+            </td>
+            <td class="col-adet">24</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="name-link">Trafik</a></td>
+            <td class="col-tutar">₺245.320</td>
+            <td class="col-pay">
+              <span class="pct-badge medium">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 39%"></span></span>
+                19.7%
+              </span>
+            </td>
+            <td class="col-adet">18</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="name-link">DASK</a></td>
+            <td class="col-tutar">₺189.450</td>
+            <td class="col-pay">
+              <span class="pct-badge medium">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 30%"></span></span>
+                15.2%
+              </span>
+            </td>
+            <td class="col-adet">32</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Konut</a></td>
+            <td class="col-tutar">₺112.890</td>
+            <td class="col-pay">
+              <span class="pct-badge low">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 18%"></span></span>
+                9.1%
+              </span>
+            </td>
+            <td class="col-adet">8</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a href="#" class="name-link">Sağlık</a></td>
+            <td class="col-tutar">₺79.533</td>
+            <td class="col-pay">
+              <span class="pct-badge low">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 12%"></span></span>
+                6.4%
+              </span>
+            </td>
+            <td class="col-adet">5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sigorta Şirketine Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+          </svg>
+          Sigorta Şirketine Göre
+        </h3>
+        <span class="header-total">₺1.245.890</span>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Şirket</th>
+            <th class="col-tutar">Tutar</th>
+            <th class="col-pay">Pay</th>
+            <th class="col-adet">Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="name-link">Allianz Sigorta</a></td>
+            <td class="col-tutar">₺456.780</td>
+            <td class="col-pay">
+              <span class="pct-badge high">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 100%"></span></span>
+                36.7%
+              </span>
+            </td>
+            <td class="col-adet">35</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="name-link">Axa Sigorta</a></td>
+            <td class="col-tutar">₺312.450</td>
+            <td class="col-pay">
+              <span class="pct-badge high">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 68%"></span></span>
+                25.1%
+              </span>
+            </td>
+            <td class="col-adet">28</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="name-link">HDI Sigorta</a></td>
+            <td class="col-tutar">₺245.670</td>
+            <td class="col-pay">
+              <span class="pct-badge medium">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 53%"></span></span>
+                19.7%
+              </span>
+            </td>
+            <td class="col-adet">22</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Mapfre Sigorta</a></td>
+            <td class="col-tutar">₺230.990</td>
+            <td class="col-pay">
+              <span class="pct-badge medium">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 50%"></span></span>
+                18.5%
+              </span>
+            </td>
+            <td class="col-adet">15</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Şubelere Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"/>
+            <path d="M5 21V7l8-4v18"/>
+            <path d="M19 21V11l-6-4"/>
+          </svg>
+          Şubelere Göre Üretimler
+        </h3>
+        <span class="header-total">₺1.245.890</span>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Şube</th>
+            <th class="col-tutar">Tutar</th>
+            <th class="col-pay">Pay</th>
+            <th class="col-adet">Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="name-link">İstanbul Merkez</a></td>
+            <td class="col-tutar">₺534.120</td>
+            <td class="col-pay">
+              <span class="pct-badge high">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 100%"></span></span>
+                42.9%
+              </span>
+            </td>
+            <td class="col-adet">42</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="name-link">Ankara Şube</a></td>
+            <td class="col-tutar">₺378.450</td>
+            <td class="col-pay">
+              <span class="pct-badge high">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 70%"></span></span>
+                30.4%
+              </span>
+            </td>
+            <td class="col-adet">31</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="name-link">İzmir Şube</a></td>
+            <td class="col-tutar">₺333.320</td>
+            <td class="col-pay">
+              <span class="pct-badge high">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 62%"></span></span>
+                26.7%
+              </span>
+            </td>
+            <td class="col-adet">27</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Kullanıcılara Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Kullanıcılara Göre
+        </h3>
+        <span class="header-total">₺1.245.890</span>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Kullanıcı</th>
+            <th class="col-tutar">Tutar</th>
+            <th class="col-pay">Pay</th>
+            <th class="col-adet">Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="name-link">Ahmet Yılmaz</a></td>
+            <td class="col-tutar">₺289.450</td>
+            <td class="col-pay">
+              <span class="pct-badge high">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 100%"></span></span>
+                23.2%
+              </span>
+            </td>
+            <td class="col-adet">18</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="name-link">Mehmet Demir</a></td>
+            <td class="col-tutar">₺245.780</td>
+            <td class="col-pay">
+              <span class="pct-badge medium">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 84%"></span></span>
+                19.7%
+              </span>
+            </td>
+            <td class="col-adet">15</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="name-link">Ayşe Kaya</a></td>
+            <td class="col-tutar">₺198.340</td>
+            <td class="col-pay">
+              <span class="pct-badge medium">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 68%"></span></span>
+                15.9%
+              </span>
+            </td>
+            <td class="col-adet">12</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Fatma Şahin</a></td>
+            <td class="col-tutar">₺178.990</td>
+            <td class="col-pay">
+              <span class="pct-badge medium">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 61%"></span></span>
+                14.4%
+              </span>
+            </td>
+            <td class="col-adet">11</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a href="#" class="name-link">Ali Öztürk</a></td>
+            <td class="col-tutar">₺156.230</td>
+            <td class="col-pay">
+              <span class="pct-badge low">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 54%"></span></span>
+                12.5%
+              </span>
+            </td>
+            <td class="col-adet">9</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><a href="#" class="name-link">Zeynep Aydın</a></td>
+            <td class="col-tutar">₺177.100</td>
+            <td class="col-pay">
+              <span class="pct-badge low">
+                <span class="pct-bar"><span class="pct-bar-fill" style="width: 49%"></span></span>
+                14.2%
+              </span>
+            </td>
+            <td class="col-adet">10</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo 1: Kompakt Kart Görünümü</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    body {
+      padding: 2rem;
+      background: var(--bg-base);
+    }
+
+    .demo-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .demo-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .demo-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-nav a {
+      padding: 0.5rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .demo-nav a:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .demo-nav a.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Kompakt Kart Styles */
+    .production-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%);
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .section-total {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.15);
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.75rem;
+      padding: 1rem;
+    }
+
+    .compact-card {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .compact-card:hover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+      transform: translateY(-1px);
+    }
+
+    .card-rank {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .card-rank.gold {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1f2937;
+    }
+
+    .card-rank.silver {
+      background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+      color: #1f2937;
+    }
+
+    .card-rank.bronze {
+      background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+      color: white;
+    }
+
+    .card-rank.normal {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+    }
+
+    .card-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .card-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .card-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .card-value {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .card-amount {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .card-count {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    /* Grid Layout for Sections */
+    .sections-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .sections-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-header">
+    <h1 class="demo-title">Demo 1: Kompakt Kart Görünümü</h1>
+    <p class="demo-desc">Her satır yerine küçük kartlar. Mobile-friendly, daha görsel.</p>
+    <nav class="demo-nav">
+      <a href="1-kompakt-kart.html" class="active">1. Kompakt Kart</a>
+      <a href="2-deger-vurgulama.html">2. Değer Vurgulama</a>
+      <a href="3-yuzde-kolonu.html">3. Yüzde Kolonu</a>
+      <a href="4-hover-detay.html">4. Hover Detay</a>
+      <a href="5-sparkline.html">5. Sparkline</a>
+    </nav>
+  </div>
+
+  <div class="sections-grid">
+    <!-- Branşa Göre -->
+    <div class="production-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3"/>
+            <path d="M7 14.5L11.5 10L14.5 13L20 7.5"/>
+          </svg>
+          Branşa Göre Üretimler
+        </h3>
+        <span class="section-total">Toplam: ₺1.245.890</span>
+      </div>
+      <div class="card-grid">
+        <div class="compact-card">
+          <span class="card-rank gold">1</span>
+          <div class="card-content">
+            <div class="card-name">Kasko</div>
+            <div class="card-meta">En yüksek üretim</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺618.697</div>
+            <div class="card-count">24 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank silver">2</span>
+          <div class="card-content">
+            <div class="card-name">Trafik</div>
+            <div class="card-meta">%16 pay</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺245.320</div>
+            <div class="card-count">18 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank bronze">3</span>
+          <div class="card-content">
+            <div class="card-name">DASK</div>
+            <div class="card-meta">%12 pay</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺189.450</div>
+            <div class="card-count">32 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank normal">4</span>
+          <div class="card-content">
+            <div class="card-name">Konut</div>
+            <div class="card-meta">%8 pay</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺112.890</div>
+            <div class="card-count">8 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank normal">5</span>
+          <div class="card-content">
+            <div class="card-name">Sağlık</div>
+            <div class="card-meta">%5 pay</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺79.533</div>
+            <div class="card-count">5 poliçe</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sigorta Şirketine Göre -->
+    <div class="production-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+          </svg>
+          Sigorta Şirketine Göre
+        </h3>
+        <span class="section-total">Toplam: ₺1.245.890</span>
+      </div>
+      <div class="card-grid">
+        <div class="compact-card">
+          <span class="card-rank gold">1</span>
+          <div class="card-content">
+            <div class="card-name">Allianz Sigorta</div>
+            <div class="card-meta">Partner şirket</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺456.780</div>
+            <div class="card-count">35 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank silver">2</span>
+          <div class="card-content">
+            <div class="card-name">Axa Sigorta</div>
+            <div class="card-meta">Premium partner</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺312.450</div>
+            <div class="card-count">28 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank bronze">3</span>
+          <div class="card-content">
+            <div class="card-name">HDI Sigorta</div>
+            <div class="card-meta">Standart partner</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺245.670</div>
+            <div class="card-count">22 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank normal">4</span>
+          <div class="card-content">
+            <div class="card-name">Mapfre Sigorta</div>
+            <div class="card-meta">Standart partner</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺230.990</div>
+            <div class="card-count">15 poliçe</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Şubelere Göre -->
+    <div class="production-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"/>
+            <path d="M5 21V7l8-4v18"/>
+            <path d="M19 21V11l-6-4"/>
+          </svg>
+          Şubelere Göre Üretimler
+        </h3>
+        <span class="section-total">Toplam: ₺1.245.890</span>
+      </div>
+      <div class="card-grid">
+        <div class="compact-card">
+          <span class="card-rank gold">1</span>
+          <div class="card-content">
+            <div class="card-name">İstanbul Merkez</div>
+            <div class="card-meta">Ana şube</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺534.120</div>
+            <div class="card-count">42 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank silver">2</span>
+          <div class="card-content">
+            <div class="card-name">Ankara Şube</div>
+            <div class="card-meta">Bölge şubesi</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺378.450</div>
+            <div class="card-count">31 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank bronze">3</span>
+          <div class="card-content">
+            <div class="card-name">İzmir Şube</div>
+            <div class="card-meta">Bölge şubesi</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺333.320</div>
+            <div class="card-count">27 poliçe</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kullanıcılara Göre -->
+    <div class="production-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Kullanıcılara Göre
+        </h3>
+        <span class="section-total">Toplam: ₺1.245.890</span>
+      </div>
+      <div class="card-grid">
+        <div class="compact-card">
+          <span class="card-rank gold">1</span>
+          <div class="card-content">
+            <div class="card-name">Ahmet Yılmaz</div>
+            <div class="card-meta">İstanbul Merkez</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺289.450</div>
+            <div class="card-count">18 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank silver">2</span>
+          <div class="card-content">
+            <div class="card-name">Mehmet Demir</div>
+            <div class="card-meta">Ankara Şube</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺245.780</div>
+            <div class="card-count">15 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank bronze">3</span>
+          <div class="card-content">
+            <div class="card-name">Ayşe Kaya</div>
+            <div class="card-meta">İzmir Şube</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺198.340</div>
+            <div class="card-count">12 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank normal">4</span>
+          <div class="card-content">
+            <div class="card-name">Fatma Şahin</div>
+            <div class="card-meta">İstanbul Merkez</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺178.990</div>
+            <div class="card-count">11 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank normal">5</span>
+          <div class="card-content">
+            <div class="card-name">Ali Öztürk</div>
+            <div class="card-meta">Ankara Şube</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺156.230</div>
+            <div class="card-count">9 poliçe</div>
+          </div>
+        </div>
+        <div class="compact-card">
+          <span class="card-rank normal">6</span>
+          <div class="card-content">
+            <div class="card-name">Zeynep Aydın</div>
+            <div class="card-meta">İzmir Şube</div>
+          </div>
+          <div class="card-value">
+            <div class="card-amount">₺177.100</div>
+            <div class="card-count">10 poliçe</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

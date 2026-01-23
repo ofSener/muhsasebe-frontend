@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo 2: Değer Vurgulama</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    body {
+      padding: 2rem;
+      background: var(--bg-base);
+    }
+
+    .demo-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .demo-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .demo-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-nav a {
+      padding: 0.5rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .demo-nav a:hover, .demo-nav a.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Production Card */
+    .production-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .production-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%);
+    }
+
+    .production-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .production-card-title svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Table Styles */
+    .production-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .production-table thead {
+      background: var(--bg-elevated);
+    }
+
+    .production-table th {
+      padding: 0.7rem 0.75rem;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .production-table th:first-child {
+      width: 50px;
+      text-align: center;
+    }
+
+    .production-table th:last-child,
+    .production-table th:nth-last-child(2) {
+      text-align: right;
+      width: 100px;
+    }
+
+    .production-table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.15s;
+    }
+
+    .production-table tbody tr:nth-child(odd) {
+      background: var(--bg-surface);
+    }
+
+    .production-table tbody tr:nth-child(even) {
+      background: var(--bg-base);
+    }
+
+    .production-table tbody tr:hover {
+      background: var(--primary-glow);
+    }
+
+    .production-table td {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .production-table td:first-child {
+      text-align: center;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .production-table td:last-child,
+    .production-table td:nth-last-child(2) {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+
+    /* Vurgulama Styles */
+    .rank-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rank-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .rank-badge.gold {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      color: #1f2937;
+      box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+    }
+
+    .rank-badge.silver {
+      background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+      color: #1f2937;
+    }
+
+    .rank-badge.bronze {
+      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+      color: white;
+    }
+
+    /* Top row highlight */
+    .production-table tbody tr.top-row {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, transparent 100%);
+    }
+
+    .production-table tbody tr.top-row:hover {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, var(--primary-glow) 100%);
+    }
+
+    .production-table tbody tr.top-row td:nth-last-child(2) {
+      color: var(--success);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* Second row subtle highlight */
+    .production-table tbody tr.second-row td:nth-last-child(2) {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    /* Third row subtle highlight */
+    .production-table tbody tr.third-row td:nth-last-child(2) {
+      color: var(--success);
+    }
+
+    /* Name link */
+    .name-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .name-link:hover {
+      color: var(--primary);
+    }
+
+    /* Trend indicator */
+    .trend-up {
+      color: var(--success);
+      font-size: 0.7rem;
+      margin-left: 0.25rem;
+    }
+
+    .trend-down {
+      color: var(--danger);
+      font-size: 0.7rem;
+      margin-left: 0.25rem;
+    }
+
+    /* Grid Layout */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .tables-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-header">
+    <h1 class="demo-title">Demo 2: Inline Değer Vurgulama</h1>
+    <p class="demo-desc">İlk 3 sıradaki değerler vurgulanır. En yüksek tutar kalın ve yeşil. Sıra rozetleri ile görsel hiyerarşi.</p>
+    <nav class="demo-nav">
+      <a href="1-kompakt-kart.html">1. Kompakt Kart</a>
+      <a href="2-deger-vurgulama.html" class="active">2. Değer Vurgulama</a>
+      <a href="3-yuzde-kolonu.html">3. Yüzde Kolonu</a>
+      <a href="4-hover-detay.html">4. Hover Detay</a>
+      <a href="5-sparkline.html">5. Sparkline</a>
+    </nav>
+  </div>
+
+  <div class="tables-grid">
+    <!-- Branşa Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3"/>
+            <path d="M7 14.5L11.5 10L14.5 13L20 7.5"/>
+          </svg>
+          Branşa Göre Üretimler
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Branş</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="top-row">
+            <td><div class="rank-cell"><span class="rank-badge gold">1</span></div></td>
+            <td><a href="#" class="name-link">Kasko</a></td>
+            <td>₺618.697 <span class="trend-up">↑</span></td>
+            <td>24</td>
+          </tr>
+          <tr class="second-row">
+            <td><div class="rank-cell"><span class="rank-badge silver">2</span></div></td>
+            <td><a href="#" class="name-link">Trafik</a></td>
+            <td>₺245.320</td>
+            <td>18</td>
+          </tr>
+          <tr class="third-row">
+            <td><div class="rank-cell"><span class="rank-badge bronze">3</span></div></td>
+            <td><a href="#" class="name-link">DASK</a></td>
+            <td>₺189.450</td>
+            <td>32</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Konut</a></td>
+            <td>₺112.890</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a href="#" class="name-link">Sağlık</a></td>
+            <td>₺79.533</td>
+            <td>5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Sigorta Şirketine Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+          </svg>
+          Sigorta Şirketine Göre
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Şirket</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="top-row">
+            <td><div class="rank-cell"><span class="rank-badge gold">1</span></div></td>
+            <td><a href="#" class="name-link">Allianz Sigorta</a></td>
+            <td>₺456.780 <span class="trend-up">↑</span></td>
+            <td>35</td>
+          </tr>
+          <tr class="second-row">
+            <td><div class="rank-cell"><span class="rank-badge silver">2</span></div></td>
+            <td><a href="#" class="name-link">Axa Sigorta</a></td>
+            <td>₺312.450</td>
+            <td>28</td>
+          </tr>
+          <tr class="third-row">
+            <td><div class="rank-cell"><span class="rank-badge bronze">3</span></div></td>
+            <td><a href="#" class="name-link">HDI Sigorta</a></td>
+            <td>₺245.670</td>
+            <td>22</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Mapfre Sigorta</a></td>
+            <td>₺230.990</td>
+            <td>15</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Şubelere Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"/>
+            <path d="M5 21V7l8-4v18"/>
+            <path d="M19 21V11l-6-4"/>
+          </svg>
+          Şubelere Göre Üretimler
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Şube</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="top-row">
+            <td><div class="rank-cell"><span class="rank-badge gold">1</span></div></td>
+            <td><a href="#" class="name-link">İstanbul Merkez</a></td>
+            <td>₺534.120 <span class="trend-up">↑</span></td>
+            <td>42</td>
+          </tr>
+          <tr class="second-row">
+            <td><div class="rank-cell"><span class="rank-badge silver">2</span></div></td>
+            <td><a href="#" class="name-link">Ankara Şube</a></td>
+            <td>₺378.450</td>
+            <td>31</td>
+          </tr>
+          <tr class="third-row">
+            <td><div class="rank-cell"><span class="rank-badge bronze">3</span></div></td>
+            <td><a href="#" class="name-link">İzmir Şube</a></td>
+            <td>₺333.320 <span class="trend-down">↓</span></td>
+            <td>27</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Kullanıcılara Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Kullanıcılara Göre
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Kullanıcı</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="top-row">
+            <td><div class="rank-cell"><span class="rank-badge gold">1</span></div></td>
+            <td><a href="#" class="name-link">Ahmet Yılmaz</a></td>
+            <td>₺289.450 <span class="trend-up">↑</span></td>
+            <td>18</td>
+          </tr>
+          <tr class="second-row">
+            <td><div class="rank-cell"><span class="rank-badge silver">2</span></div></td>
+            <td><a href="#" class="name-link">Mehmet Demir</a></td>
+            <td>₺245.780</td>
+            <td>15</td>
+          </tr>
+          <tr class="third-row">
+            <td><div class="rank-cell"><span class="rank-badge bronze">3</span></div></td>
+            <td><a href="#" class="name-link">Ayşe Kaya</a></td>
+            <td>₺198.340</td>
+            <td>12</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Fatma Şahin</a></td>
+            <td>₺178.990</td>
+            <td>11</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a href="#" class="name-link">Ali Öztürk</a></td>
+            <td>₺156.230</td>
+            <td>9</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

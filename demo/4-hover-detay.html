@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo 4: Hover Detay</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    body {
+      padding: 2rem;
+      background: var(--bg-base);
+    }
+
+    .demo-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .demo-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .demo-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-nav a {
+      padding: 0.5rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .demo-nav a:hover, .demo-nav a.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Production Card */
+    .production-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .production-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%);
+    }
+
+    .production-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .production-card-title svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Table Styles */
+    .production-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .production-table thead {
+      background: var(--bg-elevated);
+    }
+
+    .production-table th {
+      padding: 0.7rem 0.75rem;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .production-table th:first-child {
+      width: 50px;
+      text-align: center;
+    }
+
+    .production-table th:last-child,
+    .production-table th:nth-last-child(2) {
+      text-align: right;
+      width: 100px;
+    }
+
+    .production-table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.15s;
+      position: relative;
+    }
+
+    .production-table tbody tr:nth-child(odd) {
+      background: var(--bg-surface);
+    }
+
+    .production-table tbody tr:nth-child(even) {
+      background: var(--bg-base);
+    }
+
+    .production-table tbody tr:hover {
+      background: var(--primary-glow);
+      transform: scale(1.01);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10;
+    }
+
+    .production-table td {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .production-table td:first-child {
+      text-align: center;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .production-table td:last-child,
+    .production-table td:nth-last-child(2) {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+
+    .production-table td.tutar-col {
+      color: var(--success);
+    }
+
+    /* Name link */
+    .name-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .name-link:hover {
+      color: var(--primary);
+    }
+
+    /* Hover Detail Panel */
+    .row-detail {
+      display: none;
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      min-width: 200px;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      margin-right: 0.5rem;
+    }
+
+    .production-table tbody tr:hover .row-detail {
+      display: block;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-50%) translateX(10px); }
+      to { opacity: 1; transform: translateY(-50%) translateX(0); }
+    }
+
+    .detail-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      padding: 0.25rem 0;
+    }
+
+    .detail-label {
+      color: var(--text-muted);
+    }
+
+    .detail-value {
+      color: var(--text-primary);
+      font-weight: 500;
+      font-family: var(--font-mono);
+    }
+
+    .detail-value.success {
+      color: var(--success);
+    }
+
+    .detail-value.warning {
+      color: var(--warning);
+    }
+
+    /* Expandable Row (Alternative) */
+    .expandable-row {
+      cursor: pointer;
+    }
+
+    .expandable-row .expand-icon {
+      display: inline-flex;
+      width: 18px;
+      height: 18px;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-elevated);
+      border-radius: 4px;
+      margin-right: 0.5rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .expandable-row:hover .expand-icon {
+      background: var(--primary);
+      color: white;
+    }
+
+    .expanded-content {
+      display: none;
+      background: var(--bg-elevated);
+    }
+
+    .expanded-content td {
+      padding: 0 !important;
+    }
+
+    .expanded-inner {
+      padding: 1rem 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    .expanded-stat {
+      text-align: center;
+    }
+
+    .expanded-stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .expanded-stat-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    .expanded-stat-value.success {
+      color: var(--success);
+    }
+
+    /* Expandable toggle */
+    .expandable-row.open + .expanded-content {
+      display: table-row;
+    }
+
+    .expandable-row.open .expand-icon {
+      transform: rotate(90deg);
+    }
+
+    /* Grid Layout */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .tables-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .info-box {
+      background: var(--primary-glow);
+      border: 1px solid var(--primary-light);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .info-box svg {
+      width: 20px;
+      height: 20px;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .info-box p {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-header">
+    <h1 class="demo-title">Demo 4: Hover Detay</h1>
+    <p class="demo-desc">Satır üzerine gelince detaylı bilgi paneli. İki alternatif: yan panel veya genişleyen satır.</p>
+    <nav class="demo-nav">
+      <a href="1-kompakt-kart.html">1. Kompakt Kart</a>
+      <a href="2-deger-vurgulama.html">2. Değer Vurgulama</a>
+      <a href="3-yuzde-kolonu.html">3. Yüzde Kolonu</a>
+      <a href="4-hover-detay.html" class="active">4. Hover Detay</a>
+      <a href="5-sparkline.html">5. Sparkline</a>
+    </nav>
+  </div>
+
+  <div class="info-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="16" x2="12" y2="12"/>
+      <line x1="12" y1="8" x2="12.01" y2="8"/>
+    </svg>
+    <p>Satırların üzerine gelerek detayları görün. Alt tabloda satırlara tıklayarak genişletebilirsiniz.</p>
+  </div>
+
+  <div class="tables-grid">
+    <!-- Hover Panel Example -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3"/>
+            <path d="M7 14.5L11.5 10L14.5 13L20 7.5"/>
+          </svg>
+          Branşa Göre (Hover Panel)
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Branş</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>
+              <a href="#" class="name-link">Kasko</a>
+              <div class="row-detail">
+                <div class="detail-title">Kasko Detayları</div>
+                <div class="detail-row">
+                  <span class="detail-label">Toplam Prim:</span>
+                  <span class="detail-value success">₺618.697</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Poliçe Sayısı:</span>
+                  <span class="detail-value">24</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Ort. Prim:</span>
+                  <span class="detail-value">₺25.779</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Geçen Ay:</span>
+                  <span class="detail-value warning">₺542.120</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Değişim:</span>
+                  <span class="detail-value success">+14.1%</span>
+                </div>
+              </div>
+            </td>
+            <td class="tutar-col">₺618.697</td>
+            <td>24</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>
+              <a href="#" class="name-link">Trafik</a>
+              <div class="row-detail">
+                <div class="detail-title">Trafik Detayları</div>
+                <div class="detail-row">
+                  <span class="detail-label">Toplam Prim:</span>
+                  <span class="detail-value success">₺245.320</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Poliçe Sayısı:</span>
+                  <span class="detail-value">18</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Ort. Prim:</span>
+                  <span class="detail-value">₺13.629</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Geçen Ay:</span>
+                  <span class="detail-value warning">₺268.450</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Değişim:</span>
+                  <span class="detail-value warning">-8.6%</span>
+                </div>
+              </div>
+            </td>
+            <td class="tutar-col">₺245.320</td>
+            <td>18</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>
+              <a href="#" class="name-link">DASK</a>
+              <div class="row-detail">
+                <div class="detail-title">DASK Detayları</div>
+                <div class="detail-row">
+                  <span class="detail-label">Toplam Prim:</span>
+                  <span class="detail-value success">₺189.450</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Poliçe Sayısı:</span>
+                  <span class="detail-value">32</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Ort. Prim:</span>
+                  <span class="detail-value">₺5.920</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Geçen Ay:</span>
+                  <span class="detail-value warning">₺175.890</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Değişim:</span>
+                  <span class="detail-value success">+7.7%</span>
+                </div>
+              </div>
+            </td>
+            <td class="tutar-col">₺189.450</td>
+            <td>32</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>
+              <a href="#" class="name-link">Konut</a>
+              <div class="row-detail">
+                <div class="detail-title">Konut Detayları</div>
+                <div class="detail-row">
+                  <span class="detail-label">Toplam Prim:</span>
+                  <span class="detail-value success">₺112.890</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Poliçe Sayısı:</span>
+                  <span class="detail-value">8</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Ort. Prim:</span>
+                  <span class="detail-value">₺14.111</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Geçen Ay:</span>
+                  <span class="detail-value warning">₺98.450</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Değişim:</span>
+                  <span class="detail-value success">+14.7%</span>
+                </div>
+              </div>
+            </td>
+            <td class="tutar-col">₺112.890</td>
+            <td>8</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Expandable Row Example -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Kullanıcılara Göre (Expandable)
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Kullanıcı</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="expandable-row" onclick="this.classList.toggle('open')">
+            <td>1</td>
+            <td><span class="expand-icon">▶</span> Ahmet Yılmaz</td>
+            <td class="tutar-col">₺289.450</td>
+            <td>18</td>
+          </tr>
+          <tr class="expanded-content">
+            <td colspan="4">
+              <div class="expanded-inner">
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Şube</div>
+                  <div class="expanded-stat-value">İstanbul Merkez</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Ort. Prim</div>
+                  <div class="expanded-stat-value">₺16.081</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Geçen Ay</div>
+                  <div class="expanded-stat-value">₺245.780</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Değişim</div>
+                  <div class="expanded-stat-value success">+17.8%</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr class="expandable-row" onclick="this.classList.toggle('open')">
+            <td>2</td>
+            <td><span class="expand-icon">▶</span> Mehmet Demir</td>
+            <td class="tutar-col">₺245.780</td>
+            <td>15</td>
+          </tr>
+          <tr class="expanded-content">
+            <td colspan="4">
+              <div class="expanded-inner">
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Şube</div>
+                  <div class="expanded-stat-value">Ankara Şube</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Ort. Prim</div>
+                  <div class="expanded-stat-value">₺16.385</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Geçen Ay</div>
+                  <div class="expanded-stat-value">₺232.450</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Değişim</div>
+                  <div class="expanded-stat-value success">+5.7%</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr class="expandable-row" onclick="this.classList.toggle('open')">
+            <td>3</td>
+            <td><span class="expand-icon">▶</span> Ayşe Kaya</td>
+            <td class="tutar-col">₺198.340</td>
+            <td>12</td>
+          </tr>
+          <tr class="expanded-content">
+            <td colspan="4">
+              <div class="expanded-inner">
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Şube</div>
+                  <div class="expanded-stat-value">İzmir Şube</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Ort. Prim</div>
+                  <div class="expanded-stat-value">₺16.528</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Geçen Ay</div>
+                  <div class="expanded-stat-value">₺212.670</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Değişim</div>
+                  <div class="expanded-stat-value warning">-6.7%</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr class="expandable-row" onclick="this.classList.toggle('open')">
+            <td>4</td>
+            <td><span class="expand-icon">▶</span> Fatma Şahin</td>
+            <td class="tutar-col">₺178.990</td>
+            <td>11</td>
+          </tr>
+          <tr class="expanded-content">
+            <td colspan="4">
+              <div class="expanded-inner">
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Şube</div>
+                  <div class="expanded-stat-value">İstanbul Merkez</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Ort. Prim</div>
+                  <div class="expanded-stat-value">₺16.272</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Geçen Ay</div>
+                  <div class="expanded-stat-value">₺165.340</div>
+                </div>
+                <div class="expanded-stat">
+                  <div class="expanded-stat-label">Değişim</div>
+                  <div class="expanded-stat-value success">+8.3%</div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

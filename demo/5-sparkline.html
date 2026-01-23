@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo 5: Sparkline</title>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <style>
+    body {
+      padding: 2rem;
+      background: var(--bg-base);
+    }
+
+    .demo-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .demo-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .demo-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .demo-nav {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .demo-nav a {
+      padding: 0.5rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .demo-nav a:hover, .demo-nav a.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Production Card */
+    .production-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+
+    .production-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%);
+    }
+
+    .production-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .production-card-title svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Table Styles */
+    .production-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .production-table thead {
+      background: var(--bg-elevated);
+    }
+
+    .production-table th {
+      padding: 0.7rem 0.75rem;
+      text-align: left;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .production-table th:first-child {
+      width: 50px;
+      text-align: center;
+    }
+
+    .production-table th.col-trend {
+      width: 100px;
+      text-align: center;
+    }
+
+    .production-table th:last-child,
+    .production-table th:nth-last-child(2) {
+      text-align: right;
+      width: 100px;
+    }
+
+    .production-table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all 0.15s;
+    }
+
+    .production-table tbody tr:nth-child(odd) {
+      background: var(--bg-surface);
+    }
+
+    .production-table tbody tr:nth-child(even) {
+      background: var(--bg-base);
+    }
+
+    .production-table tbody tr:hover {
+      background: var(--primary-glow);
+    }
+
+    .production-table td {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    .production-table td:first-child {
+      text-align: center;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .production-table td:last-child,
+    .production-table td:nth-last-child(2) {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+
+    .production-table td.tutar-col {
+      color: var(--success);
+    }
+
+    /* Name link */
+    .name-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .name-link:hover {
+      color: var(--primary);
+    }
+
+    /* Sparkline Cell */
+    .sparkline-cell {
+      width: 100px;
+      height: 35px;
+    }
+
+    /* Text Sparkline (CSS only alternative) */
+    .text-sparkline {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 24px;
+    }
+
+    .text-sparkline .bar {
+      width: 6px;
+      background: var(--primary);
+      border-radius: 2px;
+      transition: height 0.3s;
+    }
+
+    .text-sparkline.up .bar:last-child {
+      background: var(--success);
+    }
+
+    .text-sparkline.down .bar:last-child {
+      background: var(--danger);
+    }
+
+    /* Trend Badge */
+    .trend-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.4rem;
+      border-radius: 10px;
+    }
+
+    .trend-badge.up {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .trend-badge.down {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .trend-badge svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    /* Grid Layout */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .tables-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-header">
+    <h1 class="demo-title">Demo 5: Sparkline Mini Chart</h1>
+    <p class="demo-desc">Her satırda son 7 günün trend göstergesi. ApexCharts sparkline veya CSS-only bar chart alternatifleri.</p>
+    <nav class="demo-nav">
+      <a href="1-kompakt-kart.html">1. Kompakt Kart</a>
+      <a href="2-deger-vurgulama.html">2. Değer Vurgulama</a>
+      <a href="3-yuzde-kolonu.html">3. Yüzde Kolonu</a>
+      <a href="4-hover-detay.html">4. Hover Detay</a>
+      <a href="5-sparkline.html" class="active">5. Sparkline</a>
+    </nav>
+  </div>
+
+  <div class="tables-grid">
+    <!-- ApexCharts Sparkline -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3"/>
+            <path d="M7 14.5L11.5 10L14.5 13L20 7.5"/>
+          </svg>
+          Branşa Göre (ApexCharts Sparkline)
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Branş</th>
+            <th class="col-trend">Son 7 Gün</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="name-link">Kasko</a></td>
+            <td><div id="spark1" class="sparkline-cell"></div></td>
+            <td class="tutar-col">₺618.697</td>
+            <td>24</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="name-link">Trafik</a></td>
+            <td><div id="spark2" class="sparkline-cell"></div></td>
+            <td class="tutar-col">₺245.320</td>
+            <td>18</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="name-link">DASK</a></td>
+            <td><div id="spark3" class="sparkline-cell"></div></td>
+            <td class="tutar-col">₺189.450</td>
+            <td>32</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Konut</a></td>
+            <td><div id="spark4" class="sparkline-cell"></div></td>
+            <td class="tutar-col">₺112.890</td>
+            <td>8</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a href="#" class="name-link">Sağlık</a></td>
+            <td><div id="spark5" class="sparkline-cell"></div></td>
+            <td class="tutar-col">₺79.533</td>
+            <td>5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CSS-Only Bar Sparkline -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+          </svg>
+          Sigorta Şirketine Göre (CSS Bar)
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Şirket</th>
+            <th class="col-trend">Trend</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="name-link">Allianz Sigorta</a></td>
+            <td>
+              <div class="text-sparkline up">
+                <span class="bar" style="height: 40%"></span>
+                <span class="bar" style="height: 55%"></span>
+                <span class="bar" style="height: 45%"></span>
+                <span class="bar" style="height: 70%"></span>
+                <span class="bar" style="height: 60%"></span>
+                <span class="bar" style="height: 85%"></span>
+                <span class="bar" style="height: 100%"></span>
+              </div>
+            </td>
+            <td class="tutar-col">₺456.780</td>
+            <td>35</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="name-link">Axa Sigorta</a></td>
+            <td>
+              <div class="text-sparkline up">
+                <span class="bar" style="height: 60%"></span>
+                <span class="bar" style="height: 50%"></span>
+                <span class="bar" style="height: 70%"></span>
+                <span class="bar" style="height: 55%"></span>
+                <span class="bar" style="height: 80%"></span>
+                <span class="bar" style="height: 75%"></span>
+                <span class="bar" style="height: 90%"></span>
+              </div>
+            </td>
+            <td class="tutar-col">₺312.450</td>
+            <td>28</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="name-link">HDI Sigorta</a></td>
+            <td>
+              <div class="text-sparkline down">
+                <span class="bar" style="height: 80%"></span>
+                <span class="bar" style="height: 90%"></span>
+                <span class="bar" style="height: 70%"></span>
+                <span class="bar" style="height: 85%"></span>
+                <span class="bar" style="height: 60%"></span>
+                <span class="bar" style="height: 55%"></span>
+                <span class="bar" style="height: 45%"></span>
+              </div>
+            </td>
+            <td class="tutar-col">₺245.670</td>
+            <td>22</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Mapfre Sigorta</a></td>
+            <td>
+              <div class="text-sparkline up">
+                <span class="bar" style="height: 30%"></span>
+                <span class="bar" style="height: 45%"></span>
+                <span class="bar" style="height: 40%"></span>
+                <span class="bar" style="height: 60%"></span>
+                <span class="bar" style="height: 55%"></span>
+                <span class="bar" style="height: 70%"></span>
+                <span class="bar" style="height: 80%"></span>
+              </div>
+            </td>
+            <td class="tutar-col">₺230.990</td>
+            <td>15</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- With Trend Badge -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Kullanıcılara Göre (Sparkline + Badge)
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Kullanıcı</th>
+            <th class="col-trend">Trend</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="name-link">Ahmet Yılmaz</a></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="text-sparkline up" style="width: 50px;">
+                  <span class="bar" style="height: 50%"></span>
+                  <span class="bar" style="height: 65%"></span>
+                  <span class="bar" style="height: 55%"></span>
+                  <span class="bar" style="height: 80%"></span>
+                  <span class="bar" style="height: 100%"></span>
+                </div>
+                <span class="trend-badge up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
+                  +18%
+                </span>
+              </div>
+            </td>
+            <td class="tutar-col">₺289.450</td>
+            <td>18</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="name-link">Mehmet Demir</a></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="text-sparkline up" style="width: 50px;">
+                  <span class="bar" style="height: 60%"></span>
+                  <span class="bar" style="height: 70%"></span>
+                  <span class="bar" style="height: 65%"></span>
+                  <span class="bar" style="height: 75%"></span>
+                  <span class="bar" style="height: 85%"></span>
+                </div>
+                <span class="trend-badge up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
+                  +6%
+                </span>
+              </div>
+            </td>
+            <td class="tutar-col">₺245.780</td>
+            <td>15</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="name-link">Ayşe Kaya</a></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="text-sparkline down" style="width: 50px;">
+                  <span class="bar" style="height: 90%"></span>
+                  <span class="bar" style="height: 85%"></span>
+                  <span class="bar" style="height: 70%"></span>
+                  <span class="bar" style="height: 65%"></span>
+                  <span class="bar" style="height: 55%"></span>
+                </div>
+                <span class="trend-badge down">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>
+                  -7%
+                </span>
+              </div>
+            </td>
+            <td class="tutar-col">₺198.340</td>
+            <td>12</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a href="#" class="name-link">Fatma Şahin</a></td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="text-sparkline up" style="width: 50px;">
+                  <span class="bar" style="height: 40%"></span>
+                  <span class="bar" style="height: 55%"></span>
+                  <span class="bar" style="height: 60%"></span>
+                  <span class="bar" style="height: 70%"></span>
+                  <span class="bar" style="height: 85%"></span>
+                </div>
+                <span class="trend-badge up">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>
+                  +8%
+                </span>
+              </div>
+            </td>
+            <td class="tutar-col">₺178.990</td>
+            <td>11</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Şubelere Göre -->
+    <div class="production-card">
+      <div class="production-card-header">
+        <h3 class="production-card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"/>
+            <path d="M5 21V7l8-4v18"/>
+            <path d="M19 21V11l-6-4"/>
+          </svg>
+          Şubelere Göre (Line Sparkline)
+        </h3>
+      </div>
+      <table class="production-table">
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Şube</th>
+            <th class="col-trend">Son 7 Gün</th>
+            <th>Tutar</th>
+            <th>Adet</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a href="#" class="name-link">İstanbul Merkez</a></td>
+            <td><div id="sparkLine1" class="sparkline-cell"></div></td>
+            <td class="tutar-col">₺534.120</td>
+            <td>42</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a href="#" class="name-link">Ankara Şube</a></td>
+            <td><div id="sparkLine2" class="sparkline-cell"></div></td>
+            <td class="tutar-col">₺378.450</td>
+            <td>31</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a href="#" class="name-link">İzmir Şube</a></td>
+            <td><div id="sparkLine3" class="sparkline-cell"></div></td>
+            <td class="tutar-col">₺333.320</td>
+            <td>27</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // ApexCharts Sparkline Configuration
+    function createSparkline(elementId, data, color = '#00d4ff') {
+      const options = {
+        chart: {
+          type: 'area',
+          height: 35,
+          width: 100,
+          sparkline: { enabled: true },
+          animations: { enabled: true, speed: 400 }
+        },
+        series: [{ data: data }],
+        colors: [color],
+        stroke: { curve: 'smooth', width: 2 },
+        fill: {
+          type: 'gradient',
+          gradient: {
+            shadeIntensity: 1,
+            opacityFrom: 0.4,
+            opacityTo: 0,
+            stops: [0, 100]
+          }
+        },
+        tooltip: { enabled: false }
+      };
+
+      new ApexCharts(document.getElementById(elementId), options).render();
+    }
+
+    // Line Sparkline
+    function createLineSparkline(elementId, data, color = '#10b981') {
+      const options = {
+        chart: {
+          type: 'line',
+          height: 35,
+          width: 100,
+          sparkline: { enabled: true },
+          animations: { enabled: true, speed: 400 }
+        },
+        series: [{ data: data }],
+        colors: [color],
+        stroke: { curve: 'smooth', width: 2 },
+        tooltip: { enabled: false }
+      };
+
+      new ApexCharts(document.getElementById(elementId), options).render();
+    }
+
+    // Initialize sparklines
+    document.addEventListener('DOMContentLoaded', function() {
+      // Area sparklines (Branş tablosu)
+      createSparkline('spark1', [40, 55, 45, 70, 60, 85, 95], '#10b981');
+      createSparkline('spark2', [60, 50, 70, 55, 45, 65, 55], '#f59e0b');
+      createSparkline('spark3', [30, 45, 55, 50, 65, 70, 80], '#10b981');
+      createSparkline('spark4', [50, 40, 55, 45, 60, 65, 75], '#10b981');
+      createSparkline('spark5', [70, 65, 55, 50, 45, 40, 35], '#ef4444');
+
+      // Line sparklines (Şube tablosu)
+      createLineSparkline('sparkLine1', [45, 52, 48, 65, 58, 72, 85], '#10b981');
+      createLineSparkline('sparkLine2', [55, 60, 52, 58, 65, 62, 70], '#10b981');
+      createLineSparkline('sparkLine3', [65, 58, 62, 55, 50, 48, 42], '#ef4444');
+    });
+  </script>
+</body>
+</html>

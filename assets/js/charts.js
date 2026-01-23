@@ -291,7 +291,14 @@ function createDonutChart(containerId, data, options = {}) {
       fontSize: '12px',
       fontFamily: "'Manrope', sans-serif",
       markers: { width: 10, height: 10, radius: 2 },
-      itemMargin: { horizontal: 12, vertical: 6 }
+      itemMargin: { horizontal: 8, vertical: 4 },
+      formatter: function(seriesName, opts) {
+        // Truncate long names (max 20 characters)
+        if (seriesName && seriesName.length > 20) {
+          return seriesName.substring(0, 17) + '...';
+        }
+        return seriesName;
+      }
     },
     tooltip: {
       enabled: true,

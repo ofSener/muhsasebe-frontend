@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <style>
     /* Dashboard Filters */
     .dashboard-filters {
@@ -16,10 +17,11 @@
       align-items: center;
       gap: 0.75rem;
       padding: 1rem 1.25rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
       margin-bottom: 1.5rem;
+      box-shadow: var(--card-shadow);
     }
 
     .filter-group {
@@ -33,27 +35,29 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-weight: 600;
     }
 
     .filter-input {
       min-width: 160px;
       padding: 0.5rem 0.75rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 6px;
-      color: var(--text);
+      background: var(--bg-base);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
       font-size: 0.85rem;
+      transition: all var(--transition-fast);
     }
 
     .filter-input:focus {
       outline: none;
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.1);
+      box-shadow: 0 0 0 3px var(--primary-glow);
     }
 
     .filter-input option {
-      background: #1e293b;
-      color: var(--text);
+      background: var(--bg-surface);
+      color: var(--text-primary);
     }
 
     .filter-buttons {
@@ -65,32 +69,37 @@
     .btn-filter {
       padding: 0.5rem 1rem;
       border: none;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       font-size: 0.85rem;
       font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      transition: all 0.2s;
+      transition: all var(--transition-fast);
     }
 
     .btn-filter-primary {
-      background: #10b981;
+      background: var(--success);
       color: white;
+      box-shadow: 0 2px 6px var(--success-glow);
     }
 
     .btn-filter-primary:hover {
-      background: #059669;
+      background: var(--success-dim);
+      transform: translateY(-1px);
     }
 
     .btn-filter-danger {
-      background: #ef4444;
-      color: white;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-default);
     }
 
     .btn-filter-danger:hover {
-      background: #dc2626;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-color: var(--danger);
     }
 
     /* Production Tables Grid */
@@ -106,19 +115,25 @@
 
     /* Production Card */
     .production-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
       overflow: hidden;
+      box-shadow: var(--card-shadow);
+      transition: all var(--transition-base);
+    }
+
+    .production-card:hover {
+      box-shadow: var(--card-shadow-hover);
     }
 
     .production-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.75rem 1rem;
-      background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 0.85rem 1rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dim) 100%);
+      border-bottom: none;
     }
 
     .production-card-title {
@@ -126,6 +141,16 @@
       font-weight: 600;
       color: white;
       margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .production-card-title .title-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      color: rgba(255, 255, 255, 0.9);
     }
 
     .production-card-actions {
@@ -140,22 +165,22 @@
       align-items: center;
       gap: 0.4rem;
       font-size: 0.75rem;
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, 0.85);
     }
 
     .toggle-switch input[type="checkbox"] {
       width: 32px;
       height: 18px;
       appearance: none;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.25);
       border-radius: 10px;
       position: relative;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all var(--transition-fast);
     }
 
     .toggle-switch input[type="checkbox"]:checked {
-      background: #10b981;
+      background: var(--success);
     }
 
     .toggle-switch input[type="checkbox"]::before {
@@ -167,7 +192,8 @@
       border-radius: 50%;
       top: 2px;
       left: 2px;
-      transition: transform 0.2s;
+      transition: transform var(--transition-fast);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .toggle-switch input[type="checkbox"]:checked::before {
@@ -181,17 +207,18 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.15);
       border: none;
-      border-radius: 4px;
-      color: rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-sm);
+      color: rgba(255, 255, 255, 0.85);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all var(--transition-fast);
     }
 
     .card-action-btn:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.25);
       color: white;
+      transform: scale(1.05);
     }
 
     .card-action-btn svg {
@@ -206,16 +233,19 @@
     }
 
     .production-table thead {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      background: var(--bg-elevated);
     }
 
     .production-table th {
-      padding: 0.6rem 0.75rem;
+      padding: 0.7rem 0.75rem;
       text-align: left;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       font-weight: 600;
-      color: white;
+      color: var(--text-muted);
       white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
     .production-table th:first-child {
@@ -230,22 +260,26 @@
     }
 
     .production-table tbody tr {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      transition: background 0.15s;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: all var(--transition-fast);
     }
 
     .production-table tbody tr:nth-child(odd) {
-      background: rgba(59, 130, 246, 0.03);
+      background: var(--bg-surface);
+    }
+
+    .production-table tbody tr:nth-child(even) {
+      background: var(--bg-base);
     }
 
     .production-table tbody tr:hover {
-      background: rgba(59, 130, 246, 0.08);
+      background: var(--primary-glow);
     }
 
     .production-table td {
-      padding: 0.55rem 0.75rem;
+      padding: 0.65rem 0.75rem;
       font-size: 0.8rem;
-      color: var(--text);
+      color: var(--text-primary);
     }
 
     .production-table td:first-child {
@@ -257,12 +291,40 @@
     .production-table td:last-child,
     .production-table td:nth-last-child(2) {
       text-align: right;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-mono);
       font-weight: 500;
     }
 
     .production-table .tutar-col {
-      color: #10b981;
+      color: var(--success);
+    }
+
+    /* Table Link Styles */
+    .table-link {
+      color: var(--text-primary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all var(--transition-fast);
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .table-link:hover {
+      color: var(--primary);
+    }
+
+    .table-link .link-arrow {
+      opacity: 0;
+      transition: all var(--transition-fast);
+      font-size: 0.75em;
+      color: var(--primary);
+    }
+
+    .table-link:hover .link-arrow {
+      opacity: 1;
+      transform: translateX(3px);
     }
 
     /* Empty State */
@@ -271,6 +333,7 @@
       text-align: center;
       color: var(--text-muted);
       font-size: 0.85rem;
+      background: var(--bg-base);
     }
 
     /* Loading State */
@@ -280,10 +343,10 @@
 
     .skeleton-line {
       height: 16px;
-      background: linear-gradient(90deg, rgba(148, 163, 184, 0.1) 25%, rgba(148, 163, 184, 0.2) 50%, rgba(148, 163, 184, 0.1) 75%);
+      background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-overlay) 50%, var(--bg-elevated) 75%);
       background-size: 200% 100%;
       animation: skeleton-loading 1.5s infinite;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
     }
 
     @keyframes skeleton-loading {
@@ -323,20 +386,21 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 10px;
+      padding: 0.4rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
     }
 
     .mode-toggle-btn {
       padding: 0.6rem 1.25rem;
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.25s ease;
+      transition: all var(--transition-base);
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -345,21 +409,21 @@
     }
 
     .mode-toggle-btn:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text);
+      background: var(--bg-elevated);
+      color: var(--text-primary);
     }
 
     .mode-toggle-btn.active {
       color: white;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      box-shadow: var(--shadow-md);
     }
 
     .mode-toggle-btn.active.onayli {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      background: linear-gradient(135deg, var(--success) 0%, var(--success-dim) 100%);
     }
 
     .mode-toggle-btn.active.yakalama {
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: linear-gradient(135deg, var(--warning) 0%, var(--warning-dim) 100%);
     }
 
     .mode-toggle-btn svg {
@@ -373,20 +437,20 @@
       gap: 0.4rem;
       padding: 0.3rem 0.75rem;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
 
     .mode-indicator.onayli {
-      background: rgba(16, 185, 129, 0.15);
-      color: #10b981;
+      background: var(--success-bg);
+      color: var(--success);
     }
 
     .mode-indicator.yakalama {
-      background: rgba(245, 158, 11, 0.15);
-      color: #f59e0b;
+      background: var(--warning-bg);
+      color: var(--warning);
     }
 
     .mode-indicator::before {
@@ -398,11 +462,11 @@
     }
 
     .mode-indicator.onayli::before {
-      background: #10b981;
+      background: var(--success);
     }
 
     .mode-indicator.yakalama::before {
-      background: #f59e0b;
+      background: var(--warning);
     }
 
     @keyframes pulse {
@@ -427,6 +491,502 @@
       .mode-toggle-btn {
         flex: 1;
         justify-content: center;
+      }
+    }
+
+    /* KPI Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      transition: all var(--transition-base);
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: var(--border-default);
+    }
+
+    /* Emerald Card (Toplam Prim) */
+    .stat-card.stat-emerald::before { background: linear-gradient(180deg, #10b981 0%, #059669 100%); }
+
+    /* Cyan Card (Poliçe Sayısı) */
+    .stat-card.stat-cyan::before { background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%); }
+
+    /* Violet Card (Bu Ay Üretim) */
+    .stat-card.stat-violet::before { background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%); }
+
+    /* Amber Card (Top Performer) */
+    .stat-card.stat-amber::before { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-card.stat-emerald .stat-icon {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .stat-card.stat-cyan .stat-icon {
+      background: rgba(6, 182, 212, 0.1);
+      color: #06b6d4;
+    }
+
+    .stat-card.stat-violet .stat-icon {
+      background: var(--primary-glow);
+      color: var(--primary);
+    }
+
+    .stat-card.stat-amber .stat-icon {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .stat-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+      font-weight: 600;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    .stat-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      margin-top: 0.35rem;
+      font-weight: 500;
+    }
+
+    .stat-change.positive {
+      color: var(--success);
+    }
+
+    .stat-change.negative {
+      color: var(--danger);
+    }
+
+    .stat-change svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .stat-info {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1000px) {
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+
+    .chart-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      transition: all var(--transition-base);
+    }
+
+    .chart-card:hover {
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    .chart-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+    }
+
+    .chart-card-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .chart-card-body {
+      padding: 1rem;
+    }
+
+    /* Quick Date Presets */
+    .quick-dates {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .quick-date-btn {
+      padding: 0.4rem 0.85rem;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      background: var(--bg-base);
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .quick-date-btn:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .quick-date-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    /* Active Filter Chips */
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      min-height: 28px;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.5rem 0.25rem 0.75rem;
+      background: var(--primary-glow);
+      border: 1px solid var(--primary-light);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .filter-chip button {
+      width: 16px;
+      height: 16px;
+      border: none;
+      background: var(--primary-glow);
+      border-radius: 50%;
+      color: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      line-height: 1;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-chip button:hover {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    /* Sortable Table Headers */
+    .production-table th.sortable {
+      cursor: pointer;
+      user-select: none;
+      transition: all var(--transition-fast);
+    }
+
+    .production-table th.sortable:hover {
+      background: var(--border-subtle);
+      color: var(--text-primary);
+    }
+
+    .sort-icon {
+      margin-left: 0.35rem;
+      opacity: 0.5;
+      font-size: 0.65rem;
+    }
+
+    .production-table th.sorted-asc .sort-icon,
+    .production-table th.sorted-desc .sort-icon {
+      opacity: 1;
+      color: var(--primary);
+    }
+
+    .production-table th.sorted-asc .sort-icon::after {
+      content: '▲';
+    }
+
+    .production-table th.sorted-desc .sort-icon::after {
+      content: '▼';
+    }
+
+    .production-table th:not(.sorted-asc):not(.sorted-desc) .sort-icon::after {
+      content: '↕';
+    }
+
+    /* Trend Column */
+    .production-table th.col-trend {
+      width: 120px;
+      text-align: center;
+    }
+
+    /* Expandable Row Styles */
+    .production-table tbody tr.data-row {
+      cursor: pointer;
+    }
+
+    .production-table tbody tr.data-row:hover {
+      background: var(--primary-glow);
+    }
+
+    .production-table tbody tr.data-row.open {
+      background: var(--primary-glow);
+    }
+
+    /* Name Cell with Expand Icon */
+    .name-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .expand-icon {
+      display: inline-flex;
+      width: 18px;
+      height: 18px;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-elevated);
+      border-radius: 4px;
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    tr.data-row:hover .expand-icon {
+      background: var(--primary);
+      color: white;
+    }
+
+    tr.data-row.open .expand-icon {
+      background: var(--primary);
+      color: white;
+      transform: rotate(90deg);
+    }
+
+    /* Trend Cell */
+    .trend-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    /* CSS Sparkline Bars */
+    .spark-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 20px;
+    }
+
+    .spark-bars .bar {
+      width: 5px;
+      background: var(--primary);
+      border-radius: 2px;
+      transition: height 0.3s;
+    }
+
+    .spark-bars.up .bar:last-child {
+      background: var(--success);
+    }
+
+    .spark-bars.down .bar:last-child {
+      background: var(--danger);
+    }
+
+    /* Trend Badge */
+    .trend-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.15rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.15rem 0.35rem;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .trend-badge.up {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .trend-badge.down {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+
+    .trend-badge svg {
+      width: 8px;
+      height: 8px;
+    }
+
+    /* Expanded Content Row */
+    .expanded-content {
+      display: none;
+      background: var(--bg-elevated);
+    }
+
+    tr.data-row.open + .expanded-content {
+      display: table-row;
+    }
+
+    .expanded-content td {
+      padding: 0 !important;
+      border-bottom: 2px solid var(--primary-light);
+    }
+
+    .expanded-inner {
+      padding: 1rem 1.25rem;
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .expanded-chart {
+      width: 180px;
+      height: 60px;
+      flex-shrink: 0;
+    }
+
+    .expanded-stats {
+      display: flex;
+      gap: 1.5rem;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
+    .expanded-stat {
+      text-align: center;
+      min-width: 80px;
+    }
+
+    .expanded-stat-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.2rem;
+    }
+
+    .expanded-stat-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+
+    .expanded-stat-value.success {
+      color: var(--success);
+    }
+
+    .expanded-stat-value.warning {
+      color: var(--warning);
+    }
+
+    .expanded-stat-value.danger {
+      color: var(--danger);
+    }
+
+    .expanded-stat-sub {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    @media (max-width: 768px) {
+      .expanded-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .expanded-chart {
+        width: 100%;
+      }
+      .expanded-stats {
+        width: 100%;
+        justify-content: space-between;
       }
     }
   </style>
@@ -502,8 +1062,82 @@
             </div>
           </div>
 
+          <!-- KPI Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card stat-emerald">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <p class="stat-label">Toplam Prim</p>
+                <h3 class="stat-value" id="statToplamPrim">₺0</h3>
+                <span class="stat-change positive" id="statPrimChange">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+                  +0%
+                </span>
+              </div>
+            </div>
+
+            <div class="stat-card stat-cyan">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <p class="stat-label">Poliçe Sayısı</p>
+                <h3 class="stat-value" id="statPoliceSayisi">0</h3>
+                <span class="stat-info" id="statPoliceInfo">Bu dönem</span>
+              </div>
+            </div>
+
+            <div class="stat-card stat-violet">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+                  <polyline points="17,6 23,6 23,12"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <p class="stat-label">Bu Ay Üretim</p>
+                <h3 class="stat-value" id="statBuAyUretim">₺0</h3>
+                <span class="stat-change positive" id="statUretimChange">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+                  +0% geçen aya göre
+                </span>
+              </div>
+            </div>
+
+            <div class="stat-card stat-amber">
+              <div class="stat-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <p class="stat-label">Top Performer</p>
+                <h3 class="stat-value" id="statTopPerformer" style="font-size: 1.1rem;">-</h3>
+                <span class="stat-info" id="statTopPerformerInfo">En yüksek üretim</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Filters Bar -->
           <div class="dashboard-filters">
+            <!-- Quick Date Presets -->
+            <div class="quick-dates">
+              <button class="quick-date-btn" onclick="setQuickDate('today')">Bugün</button>
+              <button class="quick-date-btn" onclick="setQuickDate('week')">Bu Hafta</button>
+              <button class="quick-date-btn active" onclick="setQuickDate('month')">Bu Ay</button>
+              <button class="quick-date-btn" onclick="setQuickDate('year')">Bu Yıl</button>
+            </div>
+
             <div class="filter-group">
               <span class="filter-label">Tanzim Tarihi</span>
               <input type="text" id="dateRangeFilter" class="filter-input" placeholder="Tarih seçin" readonly>
@@ -550,8 +1184,32 @@
                   <line x1="15" y1="9" x2="9" y2="15"/>
                   <line x1="9" y1="9" x2="15" y2="15"/>
                 </svg>
-                Filtreleri Temizle
+                Temizle
               </button>
+            </div>
+          </div>
+
+          <!-- Active Filter Chips -->
+          <div class="active-filters" id="activeFilters"></div>
+
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3 class="chart-card-title">Branş Dağılımı</h3>
+              </div>
+              <div class="chart-card-body">
+                <div id="bransDonutChart" style="height: 320px;"></div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <div class="chart-card-header">
+                <h3 class="chart-card-title">Günlük Üretim Trendi</h3>
+              </div>
+              <div class="chart-card-body">
+                <div id="gunlukTrendChart" style="height: 280px;"></div>
+              </div>
             </div>
           </div>
 
@@ -560,7 +1218,13 @@
             <!-- 1. Branşa Göre Üretimler -->
             <div class="production-card">
               <div class="production-card-header">
-                <h3 class="production-card-title">Branşa Göre Üretimler</h3>
+                <h3 class="production-card-title">
+                  <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 21H4.6C4.03995 21 3.75992 21 3.54601 20.891C3.35785 20.7951 3.20487 20.6422 3.10899 20.454C3 20.2401 3 19.9601 3 19.4V3"/>
+                    <path d="M7 14.5L11.5 10L14.5 13L20 7.5"/>
+                  </svg>
+                  Branşa Göre Üretimler
+                </h3>
                 <div class="production-card-actions">
                   <label class="toggle-switch">
                     <input type="checkbox" id="bransTutarToggle" checked>
@@ -582,17 +1246,18 @@
                   </button>
                 </div>
               </div>
-              <table class="production-table">
+              <table class="production-table" id="bransTable">
                 <thead>
                   <tr>
                     <th>Sıra</th>
-                    <th>Branş</th>
-                    <th>Tutar</th>
-                    <th>Adet</th>
+                    <th class="sortable" data-column="name" data-table="brans">Branş <span class="sort-icon"></span></th>
+                    <th class="col-trend">Trend</th>
+                    <th class="sortable sorted-desc" data-column="tutar" data-table="brans">Tutar <span class="sort-icon"></span></th>
+                    <th class="sortable" data-column="adet" data-table="brans">Adet <span class="sort-icon"></span></th>
                   </tr>
                 </thead>
                 <tbody id="bransTableBody">
-                  <tr><td colspan="4" class="empty-state">Üretim Bulunamadı</td></tr>
+                  <tr><td colspan="5" class="empty-state">Üretim Bulunamadı</td></tr>
                 </tbody>
               </table>
             </div>
@@ -600,7 +1265,18 @@
             <!-- 2. Sigorta Şirketine Göre Üretimler -->
             <div class="production-card">
               <div class="production-card-header">
-                <h3 class="production-card-title">Sigorta Şirketine Göre Üretimler</h3>
+                <h3 class="production-card-title">
+                  <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/>
+                    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/>
+                    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/>
+                    <path d="M10 6h4"/>
+                    <path d="M10 10h4"/>
+                    <path d="M10 14h4"/>
+                    <path d="M10 18h4"/>
+                  </svg>
+                  Sigorta Şirketine Göre Üretimler
+                </h3>
                 <div class="production-card-actions">
                   <label class="toggle-switch">
                     <input type="checkbox" id="sirketTutarToggle" checked>
@@ -622,17 +1298,18 @@
                   </button>
                 </div>
               </div>
-              <table class="production-table">
+              <table class="production-table" id="sirketTable">
                 <thead>
                   <tr>
                     <th>Sıra</th>
-                    <th>Sigorta Şirketi</th>
-                    <th>Tutar</th>
-                    <th>Adet</th>
+                    <th class="sortable" data-column="name" data-table="sirket">Sigorta Şirketi <span class="sort-icon"></span></th>
+                    <th class="col-trend">Trend</th>
+                    <th class="sortable sorted-desc" data-column="tutar" data-table="sirket">Tutar <span class="sort-icon"></span></th>
+                    <th class="sortable" data-column="adet" data-table="sirket">Adet <span class="sort-icon"></span></th>
                   </tr>
                 </thead>
                 <tbody id="sirketTableBody">
-                  <tr><td colspan="4" class="empty-state">Üretim Bulunamadı</td></tr>
+                  <tr><td colspan="5" class="empty-state">Üretim Bulunamadı</td></tr>
                 </tbody>
               </table>
             </div>
@@ -640,7 +1317,18 @@
             <!-- 3. Şubelere Göre Üretimler -->
             <div class="production-card">
               <div class="production-card-header">
-                <h3 class="production-card-title">Şubelere Göre Üretimler</h3>
+                <h3 class="production-card-title">
+                  <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18"/>
+                    <path d="M5 21V7l8-4v18"/>
+                    <path d="M19 21V11l-6-4"/>
+                    <path d="M9 9v.01"/>
+                    <path d="M9 12v.01"/>
+                    <path d="M9 15v.01"/>
+                    <path d="M9 18v.01"/>
+                  </svg>
+                  Şubelere Göre Üretimler
+                </h3>
                 <div class="production-card-actions">
                   <label class="toggle-switch">
                     <input type="checkbox" id="subeTutarToggle" checked>
@@ -662,17 +1350,18 @@
                   </button>
                 </div>
               </div>
-              <table class="production-table">
+              <table class="production-table" id="subeTable">
                 <thead>
                   <tr>
                     <th>Sıra</th>
-                    <th>Şube</th>
-                    <th>Tutar</th>
-                    <th>Adet</th>
+                    <th class="sortable" data-column="name" data-table="sube">Şube <span class="sort-icon"></span></th>
+                    <th class="col-trend">Trend</th>
+                    <th class="sortable sorted-desc" data-column="tutar" data-table="sube">Tutar <span class="sort-icon"></span></th>
+                    <th class="sortable" data-column="adet" data-table="sube">Adet <span class="sort-icon"></span></th>
                   </tr>
                 </thead>
                 <tbody id="subeTableBody">
-                  <tr><td colspan="4" class="empty-state">Üretim Bulunamadı</td></tr>
+                  <tr><td colspan="5" class="empty-state">Üretim Bulunamadı</td></tr>
                 </tbody>
               </table>
             </div>
@@ -680,7 +1369,15 @@
             <!-- 4. Kullanıcılara Göre Üretimler -->
             <div class="production-card">
               <div class="production-card-header">
-                <h3 class="production-card-title">Kullanıcılara Göre Üretimler</h3>
+                <h3 class="production-card-title">
+                  <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                  Kullanıcılara Göre Üretimler
+                </h3>
                 <div class="production-card-actions">
                   <label class="toggle-switch">
                     <input type="checkbox" id="kullaniciTutarToggle" checked>
@@ -702,14 +1399,14 @@
                   </button>
                 </div>
               </div>
-              <table class="production-table">
+              <table class="production-table" id="kullaniciTable">
                 <thead>
                   <tr>
                     <th>Sıra</th>
-                    <th>Şube Adı</th>
-                    <th>Kullanıcı</th>
-                    <th>Tutar</th>
-                    <th>Adet</th>
+                    <th class="sortable" data-column="name" data-table="kullanici">Kullanıcı <span class="sort-icon"></span></th>
+                    <th class="col-trend">Trend</th>
+                    <th class="sortable sorted-desc" data-column="tutar" data-table="kullanici">Tutar <span class="sort-icon"></span></th>
+                    <th class="sortable" data-column="adet" data-table="kullanici">Adet <span class="sort-icon"></span></th>
                   </tr>
                 </thead>
                 <tbody id="kullaniciTableBody">
@@ -721,7 +1418,21 @@
             <!-- 5. Güne Göre Üretimler -->
             <div class="production-card">
               <div class="production-card-header">
-                <h3 class="production-card-title">Güne Göre Üretimler</h3>
+                <h3 class="production-card-title">
+                  <svg class="title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <path d="M8 14h.01"/>
+                    <path d="M12 14h.01"/>
+                    <path d="M16 14h.01"/>
+                    <path d="M8 18h.01"/>
+                    <path d="M12 18h.01"/>
+                    <path d="M16 18h.01"/>
+                  </svg>
+                  Güne Göre Üretimler
+                </h3>
                 <div class="production-card-actions">
                   <label class="toggle-switch">
                     <input type="checkbox" id="gunTutarToggle" checked>
@@ -743,13 +1454,13 @@
                   </button>
                 </div>
               </div>
-              <table class="production-table">
+              <table class="production-table" id="gunTable">
                 <thead>
                   <tr>
                     <th>Sıra</th>
-                    <th>Gün</th>
-                    <th>Tutar</th>
-                    <th>Adet</th>
+                    <th class="sortable" data-column="gun" data-table="gun">Gün <span class="sort-icon"></span></th>
+                    <th class="sortable sorted-desc" data-column="tutar" data-table="gun">Tutar <span class="sort-icon"></span></th>
+                    <th class="sortable" data-column="adet" data-table="gun">Adet <span class="sort-icon"></span></th>
                   </tr>
                 </thead>
                 <tbody id="gunTableBody">
@@ -765,6 +1476,7 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/app.js"></script>
+  <script src="assets/js/charts.js"></script>
   <script>
     // ═══════════════════════════════════════════════════════════════
     // GLOBAL STATE
@@ -787,6 +1499,26 @@
     let kullanicilarCache = [];
     let subelerCache = [];
     let sirketlerCache = [];
+
+    // Cached data for tables (for sorting)
+    let bransData = [];
+    let sirketData = [];
+    let subeData = [];
+    let kullaniciData = [];
+    let gunData = [];
+
+    // Chart instances
+    let bransDonutChart = null;
+    let gunlukTrendChart = null;
+
+    // Current sort state
+    let sortState = {
+      brans: { column: 'tutar', direction: 'desc' },
+      sirket: { column: 'tutar', direction: 'desc' },
+      sube: { column: 'tutar', direction: 'desc' },
+      kullanici: { column: 'tutar', direction: 'desc' },
+      gun: { column: 'tutar', direction: 'desc' }
+    };
 
     // ═══════════════════════════════════════════════════════════════
     // HELPER FUNCTIONS
@@ -826,7 +1558,400 @@
     function showEmptyState(tbodyId, colspan = 4) {
       const tbody = document.getElementById(tbodyId);
       if (!tbody) return;
-      tbody.innerHTML = `<tr><td colspan="${colspan}" class="empty-state">Üretim Bulunamadı</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${colspan}" class="empty-state">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.4; margin-bottom: 0.5rem;">
+          <path d="M20 7h-9"/>
+          <path d="M14 17H5"/>
+          <circle cx="17" cy="17" r="3"/>
+          <circle cx="7" cy="7" r="3"/>
+        </svg>
+        <div>Üretim Bulunamadı</div>
+      </td></tr>`;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // KPI STATS FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+    function updateKPIStats(bransRes, sirketRes, performersRes) {
+      // Calculate totals
+      const toplamPrim = (bransRes.dagilim || []).reduce((sum, item) => sum + (item.toplamBrutPrim || 0), 0);
+      const toplamPolice = (bransRes.dagilim || []).reduce((sum, item) => sum + (item.policeSayisi || 0), 0);
+
+      // Update Toplam Prim
+      document.getElementById('statToplamPrim').textContent = formatCurrency(toplamPrim);
+
+      // Update Poliçe Sayısı
+      document.getElementById('statPoliceSayisi').textContent = formatNumber(toplamPolice);
+
+      // Update Bu Ay Üretim (same as toplam for now, can be refined with API)
+      document.getElementById('statBuAyUretim').textContent = formatCurrency(toplamPrim);
+
+      // Update Top Performer
+      const performers = performersRes.performers || [];
+      if (performers.length > 0) {
+        const topPerformer = performers[0];
+        document.getElementById('statTopPerformer').textContent = topPerformer.adSoyad || '-';
+        document.getElementById('statTopPerformerInfo').textContent = formatCurrency(topPerformer.toplamBrutPrim) + ' üretim';
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // QUICK DATE PRESETS
+    // ═══════════════════════════════════════════════════════════════
+    function setQuickDate(preset) {
+      const today = new Date();
+      let startDate, endDate;
+
+      switch (preset) {
+        case 'today':
+          startDate = endDate = today;
+          break;
+        case 'week':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - today.getDay() + 1); // Monday
+          endDate = today;
+          break;
+        case 'month':
+          startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+          endDate = today;
+          break;
+        case 'year':
+          startDate = new Date(today.getFullYear(), 0, 1);
+          endDate = today;
+          break;
+        default:
+          return;
+      }
+
+      // Update flatpickr
+      const dateInput = document.getElementById('dateRangeFilter');
+      if (dateInput._flatpickr) {
+        dateInput._flatpickr.setDate([startDate, endDate]);
+      }
+
+      // Update active button
+      document.querySelectorAll('.quick-date-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Apply filters
+      applyFilters();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ACTIVE FILTER CHIPS
+    // ═══════════════════════════════════════════════════════════════
+    function updateFilterChips() {
+      const container = document.getElementById('activeFilters');
+      if (!container) return;
+
+      const chips = [];
+
+      // Date range chip
+      if (currentFilters.startDate && currentFilters.endDate) {
+        const startFormatted = new Date(currentFilters.startDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+        const endFormatted = new Date(currentFilters.endDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+        chips.push({ label: `${startFormatted} - ${endFormatted}`, type: 'date' });
+      }
+
+      // Brans chip
+      if (currentFilters.bransId) {
+        const brans = branslarCache.find(b => b.id == currentFilters.bransId);
+        if (brans) chips.push({ label: brans.bransAdi || brans.adi, type: 'brans' });
+      }
+
+      // Kullanıcı chip
+      if (currentFilters.kullaniciId) {
+        const kullanici = kullanicilarCache.find(k => k.id == currentFilters.kullaniciId);
+        if (kullanici) chips.push({ label: `${kullanici.adi} ${kullanici.soyadi}`, type: 'kullanici' });
+      }
+
+      // Şube chip
+      if (currentFilters.subeId) {
+        chips.push({ label: currentFilters.subeId, type: 'sube' });
+      }
+
+      // Şirket chip
+      if (currentFilters.sirketId) {
+        const sirket = sirketlerCache.find(s => s.id == currentFilters.sirketId);
+        if (sirket) chips.push({ label: sirket.sirketAdi || sirket.adi, type: 'sirket' });
+      }
+
+      container.innerHTML = chips.map(chip => `
+        <span class="filter-chip">
+          ${chip.label}
+          <button onclick="removeFilter('${chip.type}')" title="Kaldır">×</button>
+        </span>
+      `).join('');
+    }
+
+    function removeFilter(type) {
+      switch (type) {
+        case 'date':
+          currentFilters.startDate = null;
+          currentFilters.endDate = null;
+          const dateInput = document.getElementById('dateRangeFilter');
+          if (dateInput._flatpickr) dateInput._flatpickr.clear();
+          document.querySelectorAll('.quick-date-btn').forEach(btn => btn.classList.remove('active'));
+          break;
+        case 'brans':
+          currentFilters.bransId = null;
+          document.getElementById('bransFilter').value = '';
+          break;
+        case 'kullanici':
+          currentFilters.kullaniciId = null;
+          document.getElementById('kullaniciFilter').value = '';
+          break;
+        case 'sube':
+          currentFilters.subeId = null;
+          document.getElementById('subeFilter').value = '';
+          break;
+        case 'sirket':
+          currentFilters.sirketId = null;
+          document.getElementById('sirketFilter').value = '';
+          break;
+      }
+      updateFilterChips();
+      loadAllTables();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CHART FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+    function renderBransDonutChart(data) {
+      if (!data || data.length === 0) {
+        document.getElementById('bransDonutChart').innerHTML = '<div class="empty-state">Veri bulunamadı</div>';
+        return;
+      }
+
+      const chartData = {
+        labels: data.slice(0, 6).map(item => item.bransAdi || 'Diğer'),
+        values: data.slice(0, 6).map(item => item.toplamBrutPrim || 0)
+      };
+
+      // Destroy existing chart
+      if (bransDonutChart) {
+        bransDonutChart.destroy();
+      }
+
+      bransDonutChart = createDonutChart('bransDonutChart', chartData, {
+        height: 320,
+        legendPosition: 'bottom'
+      });
+    }
+
+    function renderGunlukTrendChart(data) {
+      if (!data || data.length === 0) {
+        document.getElementById('gunlukTrendChart').innerHTML = '<div class="empty-state">Veri bulunamadı</div>';
+        return;
+      }
+
+      // Sort by date and prepare data
+      const sortedData = [...data].sort((a, b) => {
+        const dateA = new Date(a.gun.split('.').reverse().join('-'));
+        const dateB = new Date(b.gun.split('.').reverse().join('-'));
+        return dateA - dateB;
+      });
+
+      const chartData = {
+        labels: sortedData.map(item => item.gun),
+        values: sortedData.map(item => item.tutar || 0)
+      };
+
+      // Destroy existing chart
+      if (gunlukTrendChart) {
+        gunlukTrendChart.destroy();
+      }
+
+      gunlukTrendChart = createAreaChart('gunlukTrendChart', chartData, {
+        height: 260,
+        seriesName: 'Üretim',
+        color: '#10b981',
+        formatter: (val) => formatCurrency(val)
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // TABLE SORTING FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+    function sortTableData(data, column, direction, tableType) {
+      return [...data].sort((a, b) => {
+        let valA, valB;
+
+        switch (column) {
+          case 'name':
+            valA = (a.bransAdi || a.sirketAdi || a.subeAdi || a.adSoyad || '').toLowerCase();
+            valB = (b.bransAdi || b.sirketAdi || b.subeAdi || b.adSoyad || '').toLowerCase();
+            break;
+          case 'sube':
+            valA = (a.subeAdi || '').toLowerCase();
+            valB = (b.subeAdi || '').toLowerCase();
+            break;
+          case 'tutar':
+            valA = a.toplamBrutPrim || a.tutar || 0;
+            valB = b.toplamBrutPrim || b.tutar || 0;
+            break;
+          case 'adet':
+            valA = a.policeSayisi || a.adet || 0;
+            valB = b.policeSayisi || b.adet || 0;
+            break;
+          case 'gun':
+            valA = new Date(a.gun.split('.').reverse().join('-'));
+            valB = new Date(b.gun.split('.').reverse().join('-'));
+            break;
+          default:
+            return 0;
+        }
+
+        if (valA < valB) return direction === 'asc' ? -1 : 1;
+        if (valA > valB) return direction === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    function handleSort(tableType, column) {
+      // Toggle direction if same column
+      if (sortState[tableType].column === column) {
+        sortState[tableType].direction = sortState[tableType].direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortState[tableType].column = column;
+        sortState[tableType].direction = 'desc';
+      }
+
+      // Update header classes
+      const table = document.getElementById(`${tableType}Table`);
+      if (table) {
+        table.querySelectorAll('th.sortable').forEach(th => {
+          th.classList.remove('sorted-asc', 'sorted-desc');
+          if (th.dataset.column === column) {
+            th.classList.add(sortState[tableType].direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+          }
+        });
+      }
+
+      // Re-render table with sorted data
+      let data, renderFn;
+      switch (tableType) {
+        case 'brans':
+          data = sortTableData(bransData, column, sortState[tableType].direction, tableType);
+          renderBransTable(data);
+          break;
+        case 'sirket':
+          data = sortTableData(sirketData, column, sortState[tableType].direction, tableType);
+          renderSirketTable(data);
+          break;
+        case 'sube':
+          data = sortTableData(subeData, column, sortState[tableType].direction, tableType);
+          renderSubeTable(data);
+          break;
+        case 'kullanici':
+          data = sortTableData(kullaniciData, column, sortState[tableType].direction, tableType);
+          renderKullaniciTable(data);
+          break;
+        case 'gun':
+          data = sortTableData(gunData, column, sortState[tableType].direction, tableType);
+          renderGunTable(data);
+          break;
+      }
+    }
+
+    function setupSortHandlers() {
+      document.querySelectorAll('.production-table th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+          handleSort(th.dataset.table, th.dataset.column);
+        });
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // RENDER HELPER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    // Generate random trend data (in real app, this would come from API)
+    function generateTrendData(seed) {
+      const bars = [];
+      let val = 40 + (seed % 30);
+      for (let i = 0; i < 7; i++) {
+        val = Math.max(20, Math.min(100, val + (Math.random() - 0.4) * 25));
+        bars.push(Math.round(val));
+      }
+      return bars;
+    }
+
+    // Generate trend percentage
+    function getTrendPercentage(seed) {
+      const base = ((seed * 7) % 30) - 10;
+      return base;
+    }
+
+    // Render sparkline bars HTML
+    function renderSparkBars(bars, isUp) {
+      return `
+        <div class="spark-bars ${isUp ? 'up' : 'down'}">
+          ${bars.map(h => `<span class="bar" style="height: ${h}%"></span>`).join('')}
+        </div>
+      `;
+    }
+
+    // Render trend badge HTML
+    function renderTrendBadge(pct) {
+      const isUp = pct >= 0;
+      const icon = isUp
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>';
+      return `
+        <span class="trend-badge ${isUp ? 'up' : 'down'}">
+          ${icon}
+          ${isUp ? '+' : ''}${pct}%
+        </span>
+      `;
+    }
+
+    // Toggle row expansion
+    function toggleRow(row) {
+      row.classList.toggle('open');
+      // Initialize chart if opening
+      const nextRow = row.nextElementSibling;
+      if (row.classList.contains('open') && nextRow && nextRow.classList.contains('expanded-content')) {
+        const chartContainer = nextRow.querySelector('.expanded-chart');
+        if (chartContainer && !chartContainer.hasAttribute('data-rendered')) {
+          createExpandedChart(chartContainer.id);
+          chartContainer.setAttribute('data-rendered', 'true');
+        }
+      }
+    }
+
+    // Create expanded area chart
+    function createExpandedChart(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container || typeof ApexCharts === 'undefined') return;
+
+      const data = [];
+      let base = 50000 + Math.random() * 30000;
+      for (let i = 0; i < 14; i++) {
+        base = base + (Math.random() - 0.4) * 8000;
+        data.push(Math.max(20000, Math.round(base)));
+      }
+      const isUp = data[data.length - 1] > data[0];
+
+      const options = {
+        chart: {
+          type: 'area',
+          height: 60,
+          width: 180,
+          sparkline: { enabled: true },
+          animations: { enabled: true, speed: 400 }
+        },
+        series: [{ data: data }],
+        colors: [isUp ? '#10b981' : '#ef4444'],
+        stroke: { curve: 'smooth', width: 2 },
+        fill: {
+          type: 'gradient',
+          gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 100] }
+        },
+        tooltip: { enabled: false }
+      };
+
+      new ApexCharts(container, options).render();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -837,18 +1962,66 @@
       if (!tbody) return;
 
       if (!data || data.length === 0) {
-        showEmptyState('bransTableBody');
+        showEmptyState('bransTableBody', 5);
         return;
       }
 
-      tbody.innerHTML = data.map((item, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${item.bransAdi || 'Belirsiz'}</td>
-          <td class="tutar-col">${formatCurrency(item.toplamBrutPrim)}</td>
-          <td>${formatNumber(item.policeSayisi)}</td>
-        </tr>
-      `).join('');
+      const maxTutar = Math.max(...data.map(item => item.toplamBrutPrim || 0));
+
+      tbody.innerHTML = data.map((item, i) => {
+        const tutar = item.toplamBrutPrim || 0;
+        const adet = item.policeSayisi || 0;
+        const avgPrim = adet > 0 ? Math.round(tutar / adet) : 0;
+        const trendPct = getTrendPercentage(i + tutar);
+        const isUp = trendPct >= 0;
+        const bars = generateTrendData(i + tutar);
+        const hedefOran = Math.min(100, Math.round((tutar / (maxTutar * 1.2)) * 100));
+
+        return `
+          <tr class="data-row" onclick="toggleRow(this)">
+            <td>${i + 1}</td>
+            <td>
+              <div class="name-cell">
+                <span class="expand-icon">▶</span>
+                <a href="pages/policies/list.html?brans=${item.bransId || ''}" class="table-link" onclick="event.stopPropagation()">
+                  ${item.bransAdi || 'Belirsiz'}
+                </a>
+              </div>
+            </td>
+            <td>
+              <div class="trend-cell">
+                ${renderSparkBars(bars, isUp)}
+                ${renderTrendBadge(trendPct)}
+              </div>
+            </td>
+            <td class="tutar-col">${formatCurrency(tutar)}</td>
+            <td>${formatNumber(adet)}</td>
+          </tr>
+          <tr class="expanded-content">
+            <td colspan="5">
+              <div class="expanded-inner">
+                <div class="expanded-chart" id="chart-brans-${i}"></div>
+                <div class="expanded-stats">
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Ort. Prim</div>
+                    <div class="expanded-stat-value">${formatCurrency(avgPrim)}</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Değişim</div>
+                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${trendPct}%</div>
+                    <div class="expanded-stat-sub">Geçen aya göre</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Hedef</div>
+                    <div class="expanded-stat-value">${formatCurrency(Math.round(maxTutar * 1.2))}</div>
+                    <div class="expanded-stat-sub">${hedefOran}% tamamlandı</div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function renderSirketTable(data) {
@@ -856,18 +2029,66 @@
       if (!tbody) return;
 
       if (!data || data.length === 0) {
-        showEmptyState('sirketTableBody');
+        showEmptyState('sirketTableBody', 5);
         return;
       }
 
-      tbody.innerHTML = data.map((item, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${item.sirketAdi || 'Belirsiz'}</td>
-          <td class="tutar-col">${formatCurrency(item.toplamBrutPrim)}</td>
-          <td>${formatNumber(item.policeSayisi)}</td>
-        </tr>
-      `).join('');
+      const totalTutar = data.reduce((sum, item) => sum + (item.toplamBrutPrim || 0), 0);
+
+      tbody.innerHTML = data.map((item, i) => {
+        const tutar = item.toplamBrutPrim || 0;
+        const adet = item.policeSayisi || 0;
+        const avgPrim = adet > 0 ? Math.round(tutar / adet) : 0;
+        const komisyon = Math.round(tutar * 0.1);
+        const pazarPayi = totalTutar > 0 ? ((tutar / totalTutar) * 100).toFixed(1) : 0;
+        const trendPct = getTrendPercentage(i + tutar);
+        const isUp = trendPct >= 0;
+        const bars = generateTrendData(i + tutar);
+
+        return `
+          <tr class="data-row" onclick="toggleRow(this)">
+            <td>${i + 1}</td>
+            <td>
+              <div class="name-cell">
+                <span class="expand-icon">▶</span>
+                <a href="pages/policies/list.html?sirket=${item.sirketId || ''}" class="table-link" onclick="event.stopPropagation()">
+                  ${item.sirketAdi || 'Belirsiz'}
+                </a>
+              </div>
+            </td>
+            <td>
+              <div class="trend-cell">
+                ${renderSparkBars(bars, isUp)}
+                ${renderTrendBadge(trendPct)}
+              </div>
+            </td>
+            <td class="tutar-col">${formatCurrency(tutar)}</td>
+            <td>${formatNumber(adet)}</td>
+          </tr>
+          <tr class="expanded-content">
+            <td colspan="5">
+              <div class="expanded-inner">
+                <div class="expanded-chart" id="chart-sirket-${i}"></div>
+                <div class="expanded-stats">
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Ort. Prim</div>
+                    <div class="expanded-stat-value">${formatCurrency(avgPrim)}</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Komisyon</div>
+                    <div class="expanded-stat-value success">${formatCurrency(komisyon)}</div>
+                    <div class="expanded-stat-sub">%10 oran</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Pazar Payı</div>
+                    <div class="expanded-stat-value">${pazarPayi}%</div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function renderSubeTable(data) {
@@ -875,18 +2096,65 @@
       if (!tbody) return;
 
       if (!data || data.length === 0) {
-        showEmptyState('subeTableBody');
+        showEmptyState('subeTableBody', 5);
         return;
       }
 
-      tbody.innerHTML = data.map((item, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${item.subeAdi || 'Belirsiz'}</td>
-          <td class="tutar-col">${formatCurrency(item.tutar)}</td>
-          <td>${formatNumber(item.adet)}</td>
-        </tr>
-      `).join('');
+      const totalTutar = data.reduce((sum, item) => sum + (item.tutar || 0), 0);
+
+      tbody.innerHTML = data.map((item, i) => {
+        const tutar = item.tutar || 0;
+        const adet = item.adet || 0;
+        const avgPrim = adet > 0 ? Math.round(tutar / adet) : 0;
+        const pazarPayi = totalTutar > 0 ? ((tutar / totalTutar) * 100).toFixed(1) : 0;
+        const trendPct = getTrendPercentage(i + tutar);
+        const isUp = trendPct >= 0;
+        const bars = generateTrendData(i + tutar);
+
+        return `
+          <tr class="data-row" onclick="toggleRow(this)">
+            <td>${i + 1}</td>
+            <td>
+              <div class="name-cell">
+                <span class="expand-icon">▶</span>
+                <a href="pages/policies/list.html?sube=${encodeURIComponent(item.subeAdi || '')}" class="table-link" onclick="event.stopPropagation()">
+                  ${item.subeAdi || 'Belirsiz'}
+                </a>
+              </div>
+            </td>
+            <td>
+              <div class="trend-cell">
+                ${renderSparkBars(bars, isUp)}
+                ${renderTrendBadge(trendPct)}
+              </div>
+            </td>
+            <td class="tutar-col">${formatCurrency(tutar)}</td>
+            <td>${formatNumber(adet)}</td>
+          </tr>
+          <tr class="expanded-content">
+            <td colspan="5">
+              <div class="expanded-inner">
+                <div class="expanded-chart" id="chart-sube-${i}"></div>
+                <div class="expanded-stats">
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Ort. Prim</div>
+                    <div class="expanded-stat-value">${formatCurrency(avgPrim)}</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Değişim</div>
+                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${trendPct}%</div>
+                    <div class="expanded-stat-sub">Geçen aya göre</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Pazar Payı</div>
+                    <div class="expanded-stat-value">${pazarPayi}%</div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function renderKullaniciTable(data) {
@@ -898,15 +2166,66 @@
         return;
       }
 
-      tbody.innerHTML = data.map((item, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${item.subeAdi || '-'}</td>
-          <td>${item.adSoyad || 'Belirsiz'}</td>
-          <td class="tutar-col">${formatCurrency(item.toplamBrutPrim)}</td>
-          <td>${formatNumber(item.policeSayisi)}</td>
-        </tr>
-      `).join('');
+      const maxTutar = Math.max(...data.map(item => item.toplamBrutPrim || 0));
+
+      tbody.innerHTML = data.map((item, i) => {
+        const tutar = item.toplamBrutPrim || 0;
+        const adet = item.policeSayisi || 0;
+        const avgPrim = adet > 0 ? Math.round(tutar / adet) : 0;
+        const hedefOran = Math.min(100, Math.round((tutar / (maxTutar * 1.1)) * 100));
+        const trendPct = getTrendPercentage(i + tutar);
+        const isUp = trendPct >= 0;
+        const bars = generateTrendData(i + tutar);
+
+        return `
+          <tr class="data-row" onclick="toggleRow(this)">
+            <td>${i + 1}</td>
+            <td>
+              <div class="name-cell">
+                <span class="expand-icon">▶</span>
+                <a href="pages/employees/detail.html?id=${item.kullaniciId || ''}" class="table-link" onclick="event.stopPropagation()">
+                  ${item.adSoyad || 'Belirsiz'}
+                </a>
+              </div>
+            </td>
+            <td>
+              <div class="trend-cell">
+                ${renderSparkBars(bars, isUp)}
+                ${renderTrendBadge(trendPct)}
+              </div>
+            </td>
+            <td class="tutar-col">${formatCurrency(tutar)}</td>
+            <td>${formatNumber(adet)}</td>
+          </tr>
+          <tr class="expanded-content">
+            <td colspan="5">
+              <div class="expanded-inner">
+                <div class="expanded-chart" id="chart-user-${i}"></div>
+                <div class="expanded-stats">
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Şube</div>
+                    <div class="expanded-stat-value">${item.subeAdi || '-'}</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Ort. Prim</div>
+                    <div class="expanded-stat-value">${formatCurrency(avgPrim)}</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Hedef</div>
+                    <div class="expanded-stat-value">${formatCurrency(Math.round(maxTutar * 1.1))}</div>
+                    <div class="expanded-stat-sub">${hedefOran}% tamamlandı</div>
+                  </div>
+                  <div class="expanded-stat">
+                    <div class="expanded-stat-label">Sıralama</div>
+                    <div class="expanded-stat-value ${i < 3 ? 'success' : ''}">#${i + 1}</div>
+                    <div class="expanded-stat-sub">Bu ay</div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     function renderGunTable(data) {
@@ -918,14 +2237,25 @@
         return;
       }
 
-      tbody.innerHTML = data.map((item, i) => `
-        <tr>
-          <td>${i + 1}</td>
-          <td>${item.gun || 'Belirsiz'}</td>
-          <td class="tutar-col">${formatCurrency(item.tutar)}</td>
-          <td>${formatNumber(item.adet)}</td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = data.map((item, i) => {
+        // Convert dd.mm.yyyy to yyyy-mm-dd for URL
+        const dateParts = (item.gun || '').split('.');
+        const dateParam = dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : '';
+
+        return `
+          <tr>
+            <td>${i + 1}</td>
+            <td>
+              <a href="pages/policies/list.html?tarih=${dateParam}" class="table-link">
+                ${item.gun || 'Belirsiz'}
+                <span class="link-arrow">→</span>
+              </a>
+            </td>
+            <td class="tutar-col">${formatCurrency(item.tutar)}</td>
+            <td>${formatNumber(item.adet)}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1054,17 +2384,26 @@
 
         console.log('API Responses:', { bransRes, sirketRes, performersRes, aktivitelerRes });
 
+        // Cache data for sorting
+        bransData = bransRes.dagilim || [];
+        sirketData = sirketRes.dagilim || [];
+        kullaniciData = performersRes.performers || [];
+        subeData = groupBySubeFromPerformers(performersRes.performers || []);
+        gunData = groupByDayFromAktiviteler(aktivitelerRes.aktiviteler || []);
+
         // Render tables
-        renderBransTable(bransRes.dagilim || []);
-        renderSirketTable(sirketRes.dagilim || []);
-        renderKullaniciTable(performersRes.performers || []);
-
-        // Group data for sube and gun tables
-        const subeData = groupBySubeFromPerformers(performersRes.performers || []);
+        renderBransTable(bransData);
+        renderSirketTable(sirketData);
+        renderKullaniciTable(kullaniciData);
         renderSubeTable(subeData);
-
-        const gunData = groupByDayFromAktiviteler(aktivitelerRes.aktiviteler || []);
         renderGunTable(gunData);
+
+        // Update KPI stats
+        updateKPIStats(bransRes, sirketRes, performersRes);
+
+        // Render charts
+        renderBransDonutChart(bransData);
+        renderGunlukTrendChart(gunData);
 
         console.log(`Dashboard loaded successfully (${modeLabel} mode)`);
 
@@ -1117,6 +2456,7 @@
       currentFilters.sirketId = document.getElementById('sirketFilter')?.value || null;
 
       console.log('Applying filters:', currentFilters);
+      updateFilterChips();
       loadAllTables();
     }
 
@@ -1141,6 +2481,12 @@
         sirketId: null
       };
 
+      // Clear quick date buttons
+      document.querySelectorAll('.quick-date-btn').forEach(btn => btn.classList.remove('active'));
+
+      // Clear filter chips
+      updateFilterChips();
+
       loadAllTables();
     }
 
@@ -1158,13 +2504,21 @@
     // ═══════════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', function() {
       // Initialize Flatpickr for date range
+      const today = new Date();
+      const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
       flatpickr('#dateRangeFilter', {
         mode: 'range',
         dateFormat: 'd.m.Y',
         locale: 'tr',
         allowInput: false,
-        disableMobile: true
+        disableMobile: true,
+        defaultDate: [firstDayOfMonth, today]
       });
+
+      // Set default filters to current month
+      currentFilters.startDate = firstDayOfMonth.toISOString().split('T')[0];
+      currentFilters.endDate = today.toISOString().split('T')[0];
 
       // Load filter options
       loadFilterOptions();
@@ -1174,6 +2528,12 @@
 
       // Setup toggle handlers
       setupToggleHandlers();
+
+      // Setup sort handlers
+      setupSortHandlers();
+
+      // Update filter chips
+      updateFilterChips();
     });
   </script>
   <script src="./components/sidebar.js"></script>
