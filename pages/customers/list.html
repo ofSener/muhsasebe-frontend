@@ -17,6 +17,11 @@
     <main class="main-content">
       <nav class="navbar">
         <div class="navbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menü">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
           <div class="navbar-breadcrumb">
             <span class="breadcrumb-item">Yönetim</span>
             <span class="breadcrumb-separator">/</span>
@@ -137,8 +142,8 @@
                 <option value="bireysel">Bireysel</option>
                 <option value="kurumsal">Kurumsal</option>
               </select>
-              <input type="text" class="form-input" placeholder="TC / VKN" style="width: 180px;">
-              <input type="text" class="form-input" placeholder="Ad Soyad / Ünvan" style="width: 200px;">
+              <input type="text" class="form-input filter-input-flex" placeholder="TC / VKN">
+              <input type="text" class="form-input filter-input-flex" placeholder="Ad Soyad / Ünvan">
               <button class="btn btn-secondary">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/>
@@ -154,7 +159,7 @@
         <div class="card">
           <div class="card-body" style="padding: 0;">
             <div class="table-container">
-              <table class="data-table">
+              <table class="data-table mobile-cards">
                 <thead>
                   <tr>
                     <th>Müşteri</th>

@@ -69,6 +69,46 @@ function initSidebar() {
       }
     }
   });
+
+  // Swipe gesture support for sidebar
+  let touchStartX = 0;
+  let touchStartY = 0;
+  const SWIPE_THRESHOLD = 50;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+    const swipeDistanceX = touchEndX - touchStartX;
+    const swipeDistanceY = Math.abs(touchEndY - touchStartY);
+
+    // Only trigger horizontal swipe if vertical movement is minimal
+    if (swipeDistanceY < 100) {
+      // Swipe right to open (from left edge)
+      if (swipeDistanceX > SWIPE_THRESHOLD && touchStartX < 50) {
+        sidebar?.classList.add('open');
+      }
+
+      // Swipe left to close
+      if (swipeDistanceX < -SWIPE_THRESHOLD && sidebar?.classList.contains('open')) {
+        sidebar?.classList.remove('open');
+      }
+    }
+  }, { passive: true });
+
+  // Add overlay element dynamically for mobile sidebar
+  if (!document.querySelector('.sidebar-overlay')) {
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    overlay.addEventListener('click', () => {
+      sidebar?.classList.remove('open');
+    });
+    document.querySelector('.app-container')?.appendChild(overlay);
+  }
 }
 
 /**

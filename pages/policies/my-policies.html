@@ -18,6 +18,11 @@
       <!-- Navbar -->
       <nav class="navbar">
         <div class="navbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menü">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
           <div class="navbar-breadcrumb">
             <span class="breadcrumb-item">Poliçe İşlemleri</span>
             <span class="breadcrumb-separator">/</span>
@@ -75,7 +80,7 @@
         <div class="card mb-4">
           <div class="card-body">
             <div class="flex flex-wrap gap-3 items-center">
-              <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
+              <div class="form-group filter-group-flex">
                 <select class="form-select">
                   <option value="">Tüm Poliçe Tipleri</option>
                   <option value="kasko">Kasko</option>
@@ -86,7 +91,7 @@
                   <option value="isyeri">İşyeri</option>
                 </select>
               </div>
-              <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
+              <div class="form-group filter-group-flex">
                 <select class="form-select">
                   <option value="">Tüm Durumlar</option>
                   <option value="aktif">Aktif</option>
@@ -94,7 +99,7 @@
                   <option value="iptal">İptal</option>
                 </select>
               </div>
-              <div class="form-group" style="margin-bottom: 0; min-width: 200px;">
+              <div class="form-group filter-group-flex">
                 <input type="text" class="form-input" placeholder="Poliçe No veya Müşteri Ara...">
               </div>
               <button class="btn btn-secondary">
@@ -114,7 +119,7 @@
             <span class="badge badge-neutral">1,284 poliçe</span>
           </div>
           <div class="table-container">
-            <table class="data-table">
+            <table class="data-table mobile-cards">
               <thead>
                 <tr>
                   <th>Poliçe No</th>
