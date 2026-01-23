@@ -6,6 +6,7 @@
 // Ortam tespiti: localhost ise local backend, değilse production
 const isLocalhost = window.location.hostname === 'localhost' ||
                     window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname === '[::1]' ||  // IPv6 localhost
                     window.location.protocol === 'file:';
 
 // ═══════════════════════════════════════════════════════════════
@@ -164,7 +165,8 @@ const APP_CONFIG = {
           credentials: 'include',  // HttpOnly cookie gönderilir
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          body: '{}'  // Boş body - bazı proxy'ler için gerekli
         });
 
         if (!response.ok) {

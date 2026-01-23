@@ -1008,7 +1008,7 @@
         }
 
         // Sigorta Şirketleri
-        const sirketRes = await apiGet('sigorta-sirketleri').catch(() => []);
+        const sirketRes = await apiGet('insurance-companies').catch(() => []);
         sirketlerCache = sirketRes || [];
         const sirketSelect = document.getElementById('sirketFilter');
         if (sirketSelect && sirketlerCache.length > 0) {
