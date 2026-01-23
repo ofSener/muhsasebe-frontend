@@ -317,6 +317,118 @@
         margin-top: 0.5rem;
       }
     }
+
+    /* Mode Toggle Styles */
+    .mode-toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+    }
+
+    .mode-toggle-btn {
+      padding: 0.6rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .mode-toggle-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .mode-toggle-btn.active {
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .mode-toggle-btn.active.onayli {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .mode-toggle-btn.active.yakalama {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .mode-toggle-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .mode-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-indicator.onayli {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+
+    .mode-indicator.yakalama {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .mode-indicator::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .mode-indicator.onayli::before {
+      background: #10b981;
+    }
+
+    .mode-indicator.yakalama::before {
+      background: #f59e0b;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Page header with mode toggle */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .mode-toggle-container {
+        width: 100%;
+        justify-content: center;
+      }
+      .mode-toggle-btn {
+        flex: 1;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -364,7 +476,24 @@
           <div class="page-header" style="margin-bottom: 1rem;">
             <div>
               <h1 class="page-title">Üretim Dashboard</h1>
-              <p class="page-subtitle">Üretim verilerinizi analiz edin ve karşılaştırın.</p>
+              <p class="page-subtitle">Üretim verilerinizi analiz edin ve karşılaştırın. <span id="modeIndicator" class="mode-indicator onayli">Onaylı Poliçeler</span></p>
+            </div>
+            <div class="mode-toggle-container">
+              <button id="btnOnayliMode" class="mode-toggle-btn active onayli" onclick="switchMode(0)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                Onaylı Poliçeler
+              </button>
+              <button id="btnYakalamaMode" class="mode-toggle-btn yakalama" onclick="switchMode(1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                Yakalanan Poliçeler
+              </button>
             </div>
           </div>
 
@@ -635,6 +764,10 @@
     // ═══════════════════════════════════════════════════════════════
     // GLOBAL STATE
     // ═══════════════════════════════════════════════════════════════
+
+    // Dashboard Mode: 0 = Onaylı Poliçeler, 1 = Yakalanan Poliçeler
+    let currentMode = 0;
+
     let currentFilters = {
       startDate: null,
       endDate: null,
@@ -891,8 +1024,8 @@
     async function loadAllTables() {
       const firmaId = getCurrentFirmaId();
 
-      // Build query params
-      const params = { firmaId };
+      // Build query params with mode
+      const params = { firmaId, mode: currentMode };
       if (currentFilters.startDate) params.startDate = currentFilters.startDate;
       if (currentFilters.endDate) params.endDate = currentFilters.endDate;
 
@@ -904,7 +1037,8 @@
       showTableLoading('gunTableBody');
 
       try {
-        console.log('Loading dashboard data with params:', params);
+        const modeLabel = currentMode === 0 ? 'Onaylı' : 'Yakalama';
+        console.log(`Loading dashboard data (${modeLabel} mode) with params:`, params);
 
         const [bransRes, sirketRes, performersRes, aktivitelerRes] = await Promise.all([
           apiGet('dashboard/brans-dagilim', params).catch(e => { console.error('Brans error:', e); return { dagilim: [] }; }),
@@ -927,12 +1061,41 @@
         const gunData = groupByDayFromAktiviteler(aktivitelerRes.aktiviteler || []);
         renderGunTable(gunData);
 
-        console.log('Dashboard loaded successfully');
+        console.log(`Dashboard loaded successfully (${modeLabel} mode)`);
 
       } catch (error) {
         console.error('Dashboard load error:', error);
         showToast('Veriler yüklenirken hata oluştu', 'error');
       }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // MODE SWITCH FUNCTION
+    // ═══════════════════════════════════════════════════════════════
+    function switchMode(mode) {
+      if (currentMode === mode) return;
+
+      currentMode = mode;
+
+      // Update button states
+      const btnOnayli = document.getElementById('btnOnayliMode');
+      const btnYakalama = document.getElementById('btnYakalamaMode');
+      const modeIndicator = document.getElementById('modeIndicator');
+
+      if (mode === 0) {
+        btnOnayli.classList.add('active');
+        btnYakalama.classList.remove('active');
+        modeIndicator.className = 'mode-indicator onayli';
+        modeIndicator.textContent = 'Onaylı Poliçeler';
+      } else {
+        btnOnayli.classList.remove('active');
+        btnYakalama.classList.add('active');
+        modeIndicator.className = 'mode-indicator yakalama';
+        modeIndicator.textContent = 'Yakalanan Poliçeler';
+      }
+
+      // Reload all tables with new mode
+      loadAllTables();
     }
 
     // ═══════════════════════════════════════════════════════════════
