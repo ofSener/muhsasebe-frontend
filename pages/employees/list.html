@@ -1411,8 +1411,13 @@
         case 'police':
           return Number(item.policeSayisi) || 0;
         case 'tarih':
-          if (!item.kayitTarihi) return null;
+          console.log('[SORT DEBUG] kayitTarihi:', item.kayitTarihi, '| tipi:', typeof item.kayitTarihi);
+          if (!item.kayitTarihi) {
+            console.log('[SORT DEBUG] → null döndürülüyor (boş değer)');
+            return null;
+          }
           const timestamp = new Date(item.kayitTarihi).getTime();
+          console.log('[SORT DEBUG] → timestamp:', timestamp, '| isNaN:', isNaN(timestamp));
           return isNaN(timestamp) ? null : timestamp;
         default:
           return '';
@@ -1421,9 +1426,12 @@
 
     // Veri sıralama fonksiyonu
     function sortData(data, field, direction) {
+      console.log('[SORT DEBUG] ===== SIRALAMA BAŞLIYOR =====');
+      console.log('[SORT DEBUG] field:', field, '| direction:', direction, '| kayıt sayısı:', data.length);
+
       if (!field || !direction) return data;
 
-      return [...data].sort((a, b) => {
+      const sorted = [...data].sort((a, b) => {
         const valueA = getSortValue(a, field);
         const valueB = getSortValue(b, field);
 
@@ -1451,6 +1459,15 @@
 
         return direction === 'desc' ? -comparison : comparison;
       });
+
+      // Debug: sıralanmış sonuçları göster
+      console.log('[SORT DEBUG] ===== SIRALAMA SONUCU =====');
+      sorted.slice(0, 10).forEach((item, idx) => {
+        console.log(`[SORT DEBUG] ${idx + 1}. kayitTarihi: ${item.kayitTarihi || '(boş)'}`);
+      });
+      if (sorted.length > 10) console.log('[SORT DEBUG] ... ve ' + (sorted.length - 10) + ' kayıt daha');
+
+      return sorted;
     }
 
     // Tablo sıralama fonksiyonu (3 aşamalı: asc → desc → kapalı)

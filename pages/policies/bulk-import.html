@@ -17,13 +17,13 @@
       <!-- Navbar -->
       <nav class="navbar">
         <div class="navbar-left">
-          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menü">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
           </button>
           <div class="navbar-breadcrumb">
-            <span class="breadcrumb-item">Poliçe İşlemleri</span>
+            <span class="breadcrumb-item">Police Islemleri</span>
             <span class="breadcrumb-separator">/</span>
             <span class="breadcrumb-item active">Toplu Aktar</span>
           </div>
@@ -38,10 +38,10 @@
           </button>
           <div class="navbar-divider"></div>
           <div class="navbar-user">
-            <div class="navbar-avatar">AY</div>
+            <div class="navbar-avatar" id="userAvatar">AY</div>
             <div class="navbar-user-info">
-              <div class="navbar-user-name">Ahmet Yılmaz</div>
-              <div class="navbar-user-role">Yönetici</div>
+              <div class="navbar-user-name" id="userName">Kullanici</div>
+              <div class="navbar-user-role" id="userRole">Rol</div>
             </div>
           </div>
         </div>
@@ -53,18 +53,8 @@
         <div class="page-content">
         <div class="page-header">
           <div>
-            <h1 class="page-title">Toplu Poliçe Aktarımı</h1>
-            <p class="page-subtitle">Excel veya CSV dosyasından toplu poliçe yükleyin</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-secondary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                <polyline points="7,10 12,15 17,10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Şablon İndir
-            </button>
+            <h1 class="page-title">Toplu Police Aktarimi</h1>
+            <p class="page-subtitle">Sigorta sirketlerinden gelen Excel dosyalarindan toplu police yukleyin</p>
           </div>
         </div>
 
@@ -72,27 +62,27 @@
         <div class="card mb-4">
           <div class="card-body">
             <div class="steps">
-              <div class="step step-active">
+              <div class="step step-active" id="step1">
                 <div class="step-number">1</div>
                 <div class="step-content">
-                  <div class="step-title">Dosya Yükle</div>
-                  <div class="step-desc">Excel veya CSV seçin</div>
+                  <div class="step-title">Dosya Yukle</div>
+                  <div class="step-desc">Excel dosyasi secin</div>
                 </div>
               </div>
               <div class="step-connector"></div>
-              <div class="step">
+              <div class="step" id="step2">
                 <div class="step-number">2</div>
                 <div class="step-content">
-                  <div class="step-title">Önizleme</div>
+                  <div class="step-title">Onizleme</div>
                   <div class="step-desc">Verileri kontrol edin</div>
                 </div>
               </div>
               <div class="step-connector"></div>
-              <div class="step">
+              <div class="step" id="step3">
                 <div class="step-number">3</div>
                 <div class="step-content">
-                  <div class="step-title">İçeri Aktar</div>
-                  <div class="step-desc">Poliçeleri kaydedin</div>
+                  <div class="step-title">Iceri Aktar</div>
+                  <div class="step-desc">Policeleri kaydedin</div>
                 </div>
               </div>
             </div>
@@ -100,13 +90,22 @@
         </div>
 
         <!-- Upload Area -->
-        <div class="card mb-4">
+        <div class="card mb-4" id="uploadCard">
           <div class="card-header">
-            <h3 class="card-title">Dosya Yükle</h3>
+            <h3 class="card-title">Dosya Yukle</h3>
           </div>
           <div class="card-body">
+            <!-- Sigorta Sirketi Secimi -->
+            <div class="form-group mb-4">
+              <label class="form-label">Sigorta Sirketi (Otomatik tespit edilir, degistirebilirsiniz)</label>
+              <select class="form-control" id="sigortaSirketiSelect">
+                <option value="">-- Otomatik Tespit --</option>
+              </select>
+              <small class="text-muted">Dosya adindan sirket otomatik tespit edilir. Manuel degistirebilirsiniz.</small>
+            </div>
+
             <div class="file-upload" id="fileUpload">
-              <input type="file" accept=".xlsx,.xls,.csv" style="display: none;">
+              <input type="file" accept=".xlsx,.xls,.csv" style="display: none;" id="fileInput">
               <div class="file-upload-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
@@ -114,183 +113,180 @@
                   <line x1="12" y1="3" x2="12" y2="15"/>
                 </svg>
               </div>
-              <div class="file-upload-title">Dosyayı buraya sürükleyin veya tıklayın</div>
-              <p class="file-upload-text">Excel (.xlsx, .xls) veya CSV dosyası yükleyebilirsiniz</p>
+              <div class="file-upload-title">Dosyayi buraya surukleyin veya tiklayin</div>
+              <p class="file-upload-text">Excel (.xlsx, .xls) veya CSV dosyasi yukleyebilirsiniz</p>
+              <div id="selectedFileName" class="text-primary font-semibold mt-2" style="display: none;"></div>
             </div>
 
             <div class="requirements-list">
-              <h4 class="requirements-title">Dosya Gereksinimleri</h4>
+              <h4 class="requirements-title">Desteklenen Formatlar</h4>
               <ul>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  İlk satır başlık satırı olmalı
+                  <strong>Ankara Sigorta</strong> - Police No, Brut Prim, Baslangic Tarihi
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  Zorunlu alanlar: Poliçe No, Müşteri TC/VKN, Tip, Başlangıç Tarihi, Bitiş Tarihi, Prim
+                  <strong>Quick Sigorta</strong> - PoliceNo, BrutPrimTL, BaslamaTarihi
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  Tarih formatı: GG.AA.YYYY veya YYYY-AA-GG
+                  <strong>Hepiyi Sigorta</strong> - Police No, Brut Prim, Police Tarih
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  Maksimum 1000 satır yüklenebilir
+                  <strong>Neova Sigorta</strong> - POLICE NO, BRUT PRIM, BASLANGIC TARIHI
+                </li>
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  <strong>Unico Sigorta</strong> - Police No, Brut Prim, Baslama Tarihi
+                </li>
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  <strong>Sompo Sigorta</strong> - Ozel format (Header 2. satirda)
                 </li>
               </ul>
+            </div>
+
+            <!-- Upload button -->
+            <div class="mt-4">
+              <button class="btn btn-primary" id="uploadBtn" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="17,8 12,3 7,8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                Dosyayi Yukle ve Analiz Et
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Preview Table (Hidden initially) -->
+        <!-- Loading -->
+        <div class="card mb-4" id="loadingCard" style="display: none;">
+          <div class="card-body text-center py-5">
+            <div class="spinner mb-3"></div>
+            <p class="text-muted">Excel dosyasi isleniyor...</p>
+          </div>
+        </div>
+
+        <!-- Preview Table -->
         <div class="card mb-4" id="previewCard" style="display: none;">
           <div class="card-header">
-            <h3 class="card-title">Önizleme</h3>
+            <h3 class="card-title">Onizleme - <span id="detectedFormat"></span></h3>
             <div class="flex gap-2">
-              <span class="badge badge-success">Geçerli: 48</span>
-              <span class="badge badge-danger">Hatalı: 2</span>
+              <span class="badge badge-success" id="validCountBadge">Gecerli: 0</span>
+              <span class="badge badge-danger" id="invalidCountBadge">Hatali: 0</span>
             </div>
           </div>
           <div class="table-container">
             <table class="data-table mobile-cards">
               <thead>
                 <tr>
-                  <th>Satır</th>
-                  <th>Poliçe No</th>
-                  <th>Müşteri TC</th>
-                  <th>Tip</th>
-                  <th>Başlangıç</th>
-                  <th>Bitiş</th>
-                  <th>Prim</th>
+                  <th>Satir</th>
+                  <th>Police No</th>
+                  <th>Sigortali</th>
+                  <th>TC/VKN</th>
+                  <th>Urun</th>
+                  <th>Baslangic</th>
+                  <th>Bitis</th>
+                  <th>Brut Prim</th>
                   <th>Durum</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td class="font-mono">POL-2024-5001</td>
-                  <td class="font-mono">12345678901</td>
-                  <td><span class="badge badge-primary">Kasko</span></td>
-                  <td>15.01.2024</td>
-                  <td>15.01.2025</td>
-                  <td class="font-mono">₺12,500</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Geçerli</span></td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td class="font-mono">POL-2024-5002</td>
-                  <td class="font-mono">98765432109</td>
-                  <td><span class="badge badge-success">Trafik</span></td>
-                  <td>10.01.2024</td>
-                  <td>10.01.2025</td>
-                  <td class="font-mono">₺3,200</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Geçerli</span></td>
-                </tr>
-                <tr class="row-error">
-                  <td>3</td>
-                  <td class="font-mono text-danger">POL-2024-5003</td>
-                  <td class="font-mono">12345</td>
-                  <td><span class="badge badge-warning">DASK</span></td>
-                  <td>01.01.2024</td>
-                  <td>01.01.2025</td>
-                  <td class="font-mono">₺850</td>
-                  <td><span class="status-badge status-danger"><span class="badge-dot"></span> TC Hatalı</span></td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td class="font-mono">POL-2024-5004</td>
-                  <td class="font-mono">55566677788</td>
-                  <td><span class="badge" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;">Sağlık</span></td>
-                  <td>05.01.2024</td>
-                  <td>05.01.2025</td>
-                  <td class="font-mono">₺8,900</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Geçerli</span></td>
-                </tr>
+              <tbody id="previewTableBody">
               </tbody>
             </table>
           </div>
           <div class="card-footer">
             <div class="flex items-center justify-between">
-              <span class="text-muted">Toplam 50 satır okundu</span>
+              <span class="text-muted" id="totalRowsInfo">Toplam 0 satir okundu</span>
               <div class="flex gap-3">
-                <button class="btn btn-secondary">
+                <button class="btn btn-secondary" id="cancelBtn">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/>
                     <line x1="6" y1="6" x2="18" y2="18"/>
                   </svg>
-                  İptal
+                  Iptal
                 </button>
-                <button class="btn btn-primary">
+                <button class="btn btn-primary" id="confirmBtn">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                    <polyline points="17,8 12,3 7,8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
+                    <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  48 Geçerli Kaydı İçeri Aktar
+                  <span id="confirmBtnText">0 Gecerli Kaydi Iceri Aktar</span>
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Recent Imports -->
-        <div class="card">
+        <!-- Result Card -->
+        <div class="card mb-4" id="resultCard" style="display: none;">
           <div class="card-header">
-            <h3 class="card-title">Son Aktarımlar</h3>
+            <h3 class="card-title">Import Sonucu</h3>
           </div>
-          <div class="table-container">
-            <table class="data-table mobile-cards">
-              <thead>
-                <tr>
-                  <th>Tarih</th>
-                  <th>Dosya</th>
-                  <th>Toplam</th>
-                  <th>Başarılı</th>
-                  <th>Hatalı</th>
-                  <th>Durum</th>
-                  <th>İşlem</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>12 Oca 2024, 14:32</td>
-                  <td class="font-mono">policeler_ocak.xlsx</td>
-                  <td class="font-mono">120</td>
-                  <td class="font-mono text-success font-semibold">118</td>
-                  <td class="font-mono text-danger font-semibold">2</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Tamamlandı</span></td>
-                  <td><button class="btn btn-sm btn-ghost">Detay</button></td>
-                </tr>
-                <tr>
-                  <td>10 Oca 2024, 09:15</td>
-                  <td class="font-mono">yeni_musteriler.csv</td>
-                  <td class="font-mono">45</td>
-                  <td class="font-mono text-success font-semibold">45</td>
-                  <td class="font-mono text-danger font-semibold">0</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Tamamlandı</span></td>
-                  <td><button class="btn btn-sm btn-ghost">Detay</button></td>
-                </tr>
-                <tr>
-                  <td>05 Oca 2024, 16:48</td>
-                  <td class="font-mono">aralik_policeleri.xlsx</td>
-                  <td class="font-mono">200</td>
-                  <td class="font-mono text-success font-semibold">195</td>
-                  <td class="font-mono text-danger font-semibold">5</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Tamamlandı</span></td>
-                  <td><button class="btn btn-sm btn-ghost">Detay</button></td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="card-body">
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+              <div class="stat-card">
+                <div class="stat-value text-primary" id="resultTotal">0</div>
+                <div class="stat-label">Toplam Islenen</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value text-success" id="resultSuccess">0</div>
+                <div class="stat-label">Basarili</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value text-danger" id="resultFailed">0</div>
+                <div class="stat-label">Hatali</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value text-warning" id="resultDuplicate">0</div>
+                <div class="stat-label">Tekrar (Duplicate)</div>
+              </div>
+            </div>
+            <div id="newCustomersInfo" class="mt-3 text-muted" style="display: none;"></div>
+            <div id="resultErrors" class="mt-4" style="display: none;">
+              <h4 class="mb-2">Hatali Satirlar</h4>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Satir</th>
+                      <th>Police No</th>
+                      <th>Hata</th>
+                    </tr>
+                  </thead>
+                  <tbody id="errorTableBody">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="mt-4">
+              <button class="btn btn-primary" id="newImportBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Yeni Import
+              </button>
+              <a href="pool.html" class="btn btn-secondary ml-2">
+                Police Havuzuna Git
+              </a>
+            </div>
           </div>
         </div>
+
         </div>
       </div>
     </main>
@@ -299,19 +295,412 @@
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
   <script>
-    // File upload click handler
-    document.getElementById('fileUpload').addEventListener('click', function() {
-      this.querySelector('input[type="file"]').click();
+    // State
+    let currentSessionId = null;
+    let currentPreviewData = null;
+
+    // Elements
+    const fileUpload = document.getElementById('fileUpload');
+    const fileInput = document.getElementById('fileInput');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const sigortaSirketiSelect = document.getElementById('sigortaSirketiSelect');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadCard = document.getElementById('uploadCard');
+    const loadingCard = document.getElementById('loadingCard');
+    const previewCard = document.getElementById('previewCard');
+    const resultCard = document.getElementById('resultCard');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const newImportBtn = document.getElementById('newImportBtn');
+
+    // Step elements
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async function() {
+      await loadSigortaSirketleri();
+      setupEventListeners();
     });
 
-    // Show preview when file is uploaded
-    document.getElementById('fileUpload').querySelector('input').addEventListener('change', function(e) {
-      if (e.target.files.length > 0) {
-        document.getElementById('previewCard').style.display = 'block';
-        document.getElementById('previewCard').scrollIntoView({ behavior: 'smooth' });
+    // Load sigorta sirketleri for dropdown
+    async function loadSigortaSirketleri() {
+      try {
+        const response = await apiGet('excel-import/formats');
+        if (response && response.formats) {
+          response.formats.forEach(format => {
+            const option = document.createElement('option');
+            option.value = format.sigortaSirketiId;
+            option.textContent = format.sigortaSirketiAdi;
+            sigortaSirketiSelect.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Sigorta sirketleri yuklenemedi:', error);
       }
-    });
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // File upload click
+      fileUpload.addEventListener('click', function(e) {
+        if (e.target !== fileInput) {
+          fileInput.click();
+        }
+      });
+
+      // File input change
+      fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+          const file = e.target.files[0];
+          selectedFileName.textContent = file.name;
+          selectedFileName.style.display = 'block';
+          uploadBtn.disabled = false;
+        }
+      });
+
+      // Drag and drop
+      fileUpload.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        fileUpload.classList.add('dragover');
+      });
+
+      fileUpload.addEventListener('dragleave', function() {
+        fileUpload.classList.remove('dragover');
+      });
+
+      fileUpload.addEventListener('drop', function(e) {
+        e.preventDefault();
+        fileUpload.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+          fileInput.files = e.dataTransfer.files;
+          const file = e.dataTransfer.files[0];
+          selectedFileName.textContent = file.name;
+          selectedFileName.style.display = 'block';
+          uploadBtn.disabled = false;
+        }
+      });
+
+      // Upload button
+      uploadBtn.addEventListener('click', uploadFile);
+
+      // Cancel button
+      cancelBtn.addEventListener('click', resetToUpload);
+
+      // Confirm button
+      confirmBtn.addEventListener('click', confirmImport);
+
+      // New import button
+      newImportBtn.addEventListener('click', resetToUpload);
+    }
+
+    // Upload file
+    async function uploadFile() {
+      const file = fileInput.files[0];
+      if (!file) {
+        showToast('Lutfen bir dosya secin', 'warning');
+        return;
+      }
+
+      // Show loading
+      uploadCard.style.display = 'none';
+      loadingCard.style.display = 'block';
+      previewCard.style.display = 'none';
+      resultCard.style.display = 'none';
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const sigortaSirketiId = sigortaSirketiSelect.value;
+        if (sigortaSirketiId) {
+          formData.append('sigortaSirketiId', sigortaSirketiId);
+        }
+
+        // API call
+        const url = APP_CONFIG.API.getUrl('excel-import/upload');
+        const token = APP_CONFIG.AUTH.getToken();
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            ...(token && { 'Authorization': `Bearer ${token}` })
+          },
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Dosya islenirken hata olustu');
+        }
+
+        // Store session data
+        currentSessionId = data.importSessionId;
+        currentPreviewData = data;
+
+        // Show preview
+        showPreview(data);
+
+      } catch (error) {
+        console.error('Upload error:', error);
+        showToast(error.message || 'Dosya yuklenirken hata olustu', 'error');
+        resetToUpload();
+      }
+    }
+
+    // Show preview
+    function showPreview(data) {
+      loadingCard.style.display = 'none';
+      previewCard.style.display = 'block';
+
+      // Update steps
+      step1.classList.remove('step-active');
+      step1.classList.add('step-completed');
+      step2.classList.add('step-active');
+
+      // Update header
+      document.getElementById('detectedFormat').textContent = data.sigortaSirketiAdi || 'Bilinmeyen Format';
+      document.getElementById('validCountBadge').textContent = `Gecerli: ${data.validRows}`;
+      document.getElementById('invalidCountBadge').textContent = `Hatali: ${data.invalidRows}`;
+      document.getElementById('totalRowsInfo').textContent = `Toplam ${data.totalRows} satir okundu`;
+      document.getElementById('confirmBtnText').textContent = `${data.validRows} Gecerli Kaydi Iceri Aktar`;
+
+      // Populate table
+      const tbody = document.getElementById('previewTableBody');
+      tbody.innerHTML = '';
+
+      data.rows.forEach(row => {
+        const tr = document.createElement('tr');
+        if (!row.isValid) {
+          tr.classList.add('row-error');
+        }
+
+        tr.innerHTML = `
+          <td>${row.rowNumber}</td>
+          <td class="font-mono">${row.policeNo || '-'}</td>
+          <td>${row.sigortaliAdi || '-'}</td>
+          <td class="font-mono">${row.tcVkn || '-'}</td>
+          <td><span class="badge badge-primary">${row.urunAdi || '-'}</span></td>
+          <td>${formatDate(row.baslangicTarihi)}</td>
+          <td>${formatDate(row.bitisTarihi)}</td>
+          <td class="font-mono">${formatCurrency(row.brutPrim)}</td>
+          <td>
+            ${row.isValid
+              ? '<span class="status-badge status-success"><span class="badge-dot"></span> Gecerli</span>'
+              : `<span class="status-badge status-danger"><span class="badge-dot"></span> ${row.validationErrors?.join(', ') || 'Hatali'}</span>`
+            }
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Confirm import
+    async function confirmImport() {
+      if (!currentSessionId) {
+        showToast('Oturum bulunamadi', 'error');
+        return;
+      }
+
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<span class="spinner-sm"></span> Kaydediliyor...';
+
+      try {
+        const response = await apiPost('excel-import/confirm', {
+          sessionId: currentSessionId
+        });
+
+        if (!response.success) {
+          throw new Error(response.errorMessage || 'Import basarisiz');
+        }
+
+        // Show result
+        showResult(response);
+
+      } catch (error) {
+        console.error('Confirm error:', error);
+        showToast(error.message || 'Import sirasinda hata olustu', 'error');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">${currentPreviewData?.validRows || 0} Gecerli Kaydi Iceri Aktar</span>`;
+      }
+    }
+
+    // Show result
+    function showResult(data) {
+      previewCard.style.display = 'none';
+      resultCard.style.display = 'block';
+
+      // Update steps
+      step2.classList.remove('step-active');
+      step2.classList.add('step-completed');
+      step3.classList.add('step-active');
+      step3.classList.add('step-completed');
+
+      // Update stats
+      document.getElementById('resultTotal').textContent = data.totalProcessed;
+      document.getElementById('resultSuccess').textContent = data.successCount;
+      document.getElementById('resultFailed').textContent = data.failedCount;
+      document.getElementById('resultDuplicate').textContent = data.duplicateCount;
+
+      // New customers info
+      if (data.newCustomersCreated > 0) {
+        const info = document.getElementById('newCustomersInfo');
+        info.textContent = `${data.newCustomersCreated} yeni musteri kaydi olusturuldu.`;
+        info.style.display = 'block';
+      }
+
+      // Show errors if any
+      if (data.errors && data.errors.length > 0) {
+        const errorsDiv = document.getElementById('resultErrors');
+        const errorTbody = document.getElementById('errorTableBody');
+
+        errorTbody.innerHTML = '';
+        data.errors.forEach(err => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${err.rowNumber}</td>
+            <td class="font-mono">${err.policeNo || '-'}</td>
+            <td class="text-danger">${err.errorMessage}</td>
+          `;
+          errorTbody.appendChild(tr);
+        });
+
+        errorsDiv.style.display = 'block';
+      }
+
+      showToast(`${data.successCount} police basariyla eklendi`, 'success');
+    }
+
+    // Reset to upload
+    function resetToUpload() {
+      currentSessionId = null;
+      currentPreviewData = null;
+
+      uploadCard.style.display = 'block';
+      loadingCard.style.display = 'none';
+      previewCard.style.display = 'none';
+      resultCard.style.display = 'none';
+
+      // Reset steps
+      step1.classList.add('step-active');
+      step1.classList.remove('step-completed');
+      step2.classList.remove('step-active', 'step-completed');
+      step3.classList.remove('step-active', 'step-completed');
+
+      // Reset form
+      fileInput.value = '';
+      selectedFileName.style.display = 'none';
+      uploadBtn.disabled = true;
+      confirmBtn.disabled = false;
+      confirmBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">0 Gecerli Kaydi Iceri Aktar</span>';
+    }
+
+    // Helper functions
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toLocaleDateString('tr-TR');
+    }
+
+    function formatCurrency(amount) {
+      if (amount == null) return '-';
+      return new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY'
+      }).format(amount);
+    }
   </script>
   <script src="../../components/sidebar.js"></script>
+
+  <style>
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--border-default);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    .spinner-sm {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .row-error {
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .stat-card {
+      background: var(--bg-elevated);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      text-align: center;
+      border: 1px solid var(--border-default);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .requirements-list {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+    }
+
+    .requirements-title {
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    .requirements-list ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .requirements-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0;
+      color: var(--text-secondary);
+    }
+
+    .file-upload.dragover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .step-completed .step-number {
+      background: var(--success);
+      border-color: var(--success);
+    }
+  </style>
 </body>
 </html>

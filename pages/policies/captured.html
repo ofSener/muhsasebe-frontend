@@ -2701,15 +2701,15 @@
         policies = rawPolicies.map(mapPolicyFromApi);
         filteredPolicies = [...policies];
 
-        renderTable();
-        updateStats();
+        // applyFilters kullan - sorting dahil tüm işlemler yapılsın
+        applyFilters();
         return policies;
       } catch (error) {
         console.error('Poliçeler alınamadı:', error);
         showToast('Poliçeler yüklenirken hata oluştu', 'error');
         policies = [];
         filteredPolicies = [];
-        renderTable();
+        applyFilters();
         return [];
       }
     }
@@ -3364,6 +3364,9 @@
         console.log('After sort (first 3):', result.slice(0, 3).map(p => ({ [currentSort.field]: p[currentSort.field] })));
       }
 
+      // Sıralanmış veriyi kaydet (pagination için)
+      filteredPolicies = result;
+
       renderTableWithData(result);
       updateStats(result);
     }
@@ -3437,9 +3440,63 @@
         currentPage = 1;
       }
 
+      // SAVUNMACI SIRALAMA: Slice'dan ÖNCE tüm veriyi sırala (bug fix)
+      // Bu, applyFilters'da sıralama yapılsa bile, burada tekrar garanti eder
+      let sortedData = [...data]; // Kopya al, orijinali değiştirme
+      if (currentSort.field && currentSort.direction) {
+        sortedData.sort((a, b) => {
+          const aVal = a[currentSort.field];
+          const bVal = b[currentSort.field];
+
+          // NULL/UNDEFINED KONTROLÜ
+          const aIsNull = aVal == null;
+          const bIsNull = bVal == null;
+          if (aIsNull && bIsNull) return 0;
+          if (aIsNull) return 1;
+          if (bIsNull) return -1;
+
+          let comparison = 0;
+
+          // SAYISAL SÜTUNLAR
+          if (currentSort.field === 'netPremium' || currentSort.field === 'grossPremium') {
+            const aNum = Number(aVal);
+            const bNum = Number(bVal);
+            if (isNaN(aNum) && isNaN(bNum)) return 0;
+            if (isNaN(aNum)) return 1;
+            if (isNaN(bNum)) return -1;
+            comparison = aNum - bNum;
+          }
+          // TARİH SÜTUNU
+          else if (currentSort.field === 'date') {
+            const aTime = aVal instanceof Date ? aVal.getTime() : new Date(aVal).getTime();
+            const bTime = bVal instanceof Date ? bVal.getTime() : new Date(bVal).getTime();
+            if (isNaN(aTime) && isNaN(bTime)) return 0;
+            if (isNaN(aTime)) return 1;
+            if (isNaN(bTime)) return -1;
+            comparison = aTime - bTime;
+          }
+          // STRING SÜTUNLAR
+          else {
+            const aStr = String(aVal || '').toLocaleLowerCase('tr');
+            const bStr = String(bVal || '').toLocaleLowerCase('tr');
+            comparison = aStr.localeCompare(bStr, 'tr', { sensitivity: 'base', numeric: true });
+          }
+
+          return currentSort.direction === 'asc' ? comparison : -comparison;
+        });
+      }
+
       const startIndex = (currentPage - 1) * pageSize;
-      const endIndex = Math.min(startIndex + pageSize, data.length);
-      const paginatedData = data.slice(startIndex, endIndex);
+      const endIndex = Math.min(startIndex + pageSize, sortedData.length);
+      const paginatedData = sortedData.slice(startIndex, endIndex);
+
+      console.log('renderTableWithData - currentPage:', currentPage, 'startIndex:', startIndex);
+      console.log('renderTableWithData - sortedData first 3:', sortedData.slice(0, 3).map(p => ({ grossPremium: p.grossPremium, netPremium: p.netPremium })));
+      console.log('renderTableWithData - paginatedData first 3:', paginatedData.slice(0, 3).map(p => ({ grossPremium: p.grossPremium, netPremium: p.netPremium })));
+
+      // FINAL RENDER ORDER - DOM'a yazılmadan hemen önceki son kontrol
+      console.log('🔴 FINAL RENDER ORDER (grossPremium):', paginatedData.map(p => p.grossPremium));
+      console.log('🔴 FINAL RENDER ORDER (id):', paginatedData.map(p => p.id));
 
       // Helper function to generate editable cell HTML
       function editableCell(policyId, field, displayContent, rawValue, extraClass = '') {
@@ -3452,7 +3509,11 @@
         return `<span class="${cellClass} ${extraClass}" ${clickHandler}>${displayContent}</span>`;
       }
 
-      tbody.innerHTML = paginatedData.map(p => {
+      // Önce tbody'yi temizle
+      tbody.innerHTML = '';
+
+      // HTML içeriğini oluştur
+      const rowsHtml = paginatedData.map(p => {
         // Check which fields have pending changes
         const policyChanges = pendingChanges.get(p.id) || {};
         const hasChanges = Object.keys(policyChanges).length > 0;
@@ -3542,6 +3603,16 @@
           </td>
         </tr>
       `}).join('');
+
+      // HTML'i ata ve doğrula
+      tbody.innerHTML = rowsHtml;
+
+      // DOM doğrulama - ilk satırın ID'sini kontrol et
+      const firstRow = tbody.querySelector('tr[data-id]');
+      const lastRow = tbody.querySelector('tr:last-child');
+      console.log('🟢 DOM FIRST ROW data-id:', firstRow?.dataset.id);
+      console.log('🟢 DOM LAST ROW data-id:', lastRow?.dataset.id);
+      console.log('🟢 Expected first id:', paginatedData[0]?.id, 'Expected last id:', paginatedData[paginatedData.length - 1]?.id);
 
       // Update table info text
       document.getElementById('tableInfo').textContent = `${startIndex + 1}-${endIndex} / ${data.length} poliçe`;
