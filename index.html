@@ -1895,13 +1895,14 @@
     // Render trend badge HTML
     function renderTrendBadge(pct) {
       const isUp = pct >= 0;
+      const formattedPct = Number(pct).toFixed(1);
       const icon = isUp
         ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 15l-6-6-6 6"/></svg>'
         : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 9l6 6 6-6"/></svg>';
       return `
         <span class="trend-badge ${isUp ? 'up' : 'down'}">
           ${icon}
-          ${isUp ? '+' : ''}${pct}%
+          ${isUp ? '+' : ''}${formattedPct}%
         </span>
       `;
     }
@@ -2008,7 +2009,7 @@
                   </div>
                   <div class="expanded-stat">
                     <div class="expanded-stat-label">Değişim</div>
-                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${trendPct}%</div>
+                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${Number(trendPct).toFixed(1)}%</div>
                     <div class="expanded-stat-sub">Geçen aya göre</div>
                   </div>
                   <div class="expanded-stat">
@@ -2142,7 +2143,7 @@
                   </div>
                   <div class="expanded-stat">
                     <div class="expanded-stat-label">Değişim</div>
-                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${trendPct}%</div>
+                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${Number(trendPct).toFixed(1)}%</div>
                     <div class="expanded-stat-sub">Geçen aya göre</div>
                   </div>
                   <div class="expanded-stat">
