@@ -4,8 +4,7 @@
  */
 
 // Ortam tespiti: localhost ise local backend, değilse production
-// NOT: Şu an her zaman production API kullanılıyor
-const isLocalhost = false;  // Production API'yi kullan
+const isLocalhost = true;  // Local API'yi kullan
 /*
 const isLocalhost = window.location.hostname === 'localhost' ||
                     window.location.hostname === '127.0.0.1' ||

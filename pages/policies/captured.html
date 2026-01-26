@@ -2655,8 +2655,8 @@
       const typeName = policyType ? (policyType.turu || policyType.value || `Tür ${p.policeTuru}`) : `Tür ${p.policeTuru}`;
       const typeClass = getTypeClass(typeName);
 
-      // Şube adını bul
-      const branch = branchesList[p.subeId - 1] || `Şube #${p.subeId}`;
+      // Şube adını al (API'dan doğrudan geliyor)
+      const branch = p.subeAdi || `Şube #${p.subeId}`;
 
       return {
         id: p.id,
