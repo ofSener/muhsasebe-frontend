@@ -109,18 +109,6 @@
               <h4 class="stat-value" id="activeCodesCount">0</h4>
             </div>
           </div>
-          <div class="stat-card stat-card-mini stat-amber">
-            <div class="stat-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
-              </svg>
-            </div>
-            <div class="stat-content">
-              <p class="stat-label">Pasif Kod</p>
-              <h4 class="stat-value" id="passiveCodesCount">0</h4>
-            </div>
-          </div>
           <div class="stat-card stat-card-mini stat-violet">
             <div class="stat-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -281,7 +269,7 @@
 
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 1rem;
       margin-bottom: 1.5rem;
     }
@@ -695,7 +683,6 @@
 
       document.getElementById('totalCodesCount').textContent = total;
       document.getElementById('activeCodesCount').textContent = active;
-      document.getElementById('passiveCodesCount').textContent = total - active;
       document.getElementById('externalCodesCount').textContent = external;
     }
 
@@ -722,10 +709,16 @@
       document.getElementById('modalTitle').textContent = 'Yeni Acente Kodu Ekle';
       document.getElementById('editingId').value = '';
       document.getElementById('agencyCodeInput').value = '';
-      document.getElementById('companySelect').value = '';
       document.getElementById('agencyNameInput').value = '';
       document.querySelector('input[name="disAcente"][value="0"]').checked = true;
       document.getElementById('saveBtn').textContent = 'Kaydet';
+
+      // Dropdown'ı alfabetik sıraya geri döndür
+      const select = document.getElementById('companySelect');
+      select.innerHTML = '<option value="">Şirket seçin...</option>';
+      insuranceCompanies.forEach(company => {
+        select.innerHTML += `<option value="${company.id}">${company.ad}</option>`;
+      });
 
       document.getElementById('agencyModal').classList.add('active');
     }
@@ -738,17 +731,41 @@
       document.getElementById('modalTitle').textContent = 'Acente Kodunu Düzenle';
       document.getElementById('editingId').value = id;
       document.getElementById('agencyCodeInput').value = code.acenteKoduDeger;
-      document.getElementById('companySelect').value = code.sigortaSirketiId;
       document.getElementById('agencyNameInput').value = code.acenteAdi;
       document.querySelector(`input[name="disAcente"][value="${code.disAcente}"]`).checked = true;
       document.getElementById('saveBtn').textContent = 'Güncelle';
+
+      // Dropdown'ı seçili değerle yeniden düzenle - seçili şirket en üstte
+      const select = document.getElementById('companySelect');
+      const selectedCompanyId = code.sigortaSirketiId;
+      const selectedCompany = insuranceCompanies.find(c => c.id === selectedCompanyId);
+
+      select.innerHTML = '<option value="">Şirket seçin...</option>';
+
+      // Önce seçili şirketi ekle (varsa)
+      if (selectedCompany) {
+        select.innerHTML += `<option value="${selectedCompany.id}" selected>${selectedCompany.ad}</option>`;
+      }
+
+      // Diğer şirketleri ekle (seçili olanı atla)
+      insuranceCompanies.forEach(company => {
+        if (company.id !== selectedCompanyId) {
+          select.innerHTML += `<option value="${company.id}">${company.ad}</option>`;
+        }
+      });
 
       document.getElementById('agencyModal').classList.add('active');
     }
 
     // Save agency code (create or update)
     async function saveAgencyCode() {
-      const editingId = document.getElementById('editingId').value;
+      const editingIdElement = document.getElementById('editingId');
+      const editingIdValue = editingIdElement.value ? parseInt(editingIdElement.value) : null;
+      const editingId = (editingIdValue && editingIdValue > 0) ? editingIdValue : null;
+
+      // Debug log
+      console.log('saveAgencyCode - editingId:', editingId, 'raw value:', editingIdElement.value);
+
       const acenteKoduDeger = document.getElementById('agencyCodeInput').value.trim();
       const sigortaSirketiId = document.getElementById('companySelect').value;
       const acenteAdi = document.getElementById('agencyNameInput').value.trim();
@@ -771,8 +788,9 @@
       const user = APP_CONFIG.AUTH.getUser();
 
       try {
-        if (editingId) {
+        if (editingId && editingId > 0) {
           // Update existing
+          console.log('Updating agency code with ID:', editingId);
           await apiPut(`agency-codes/${editingId}`, {
             sigortaSirketiId: parseInt(sigortaSirketiId),
             acenteKoduDeger,
@@ -782,6 +800,7 @@
           showToast('Acente kodu güncellendi', 'success');
         } else {
           // Create new
+          console.log('Creating new agency code');
           await apiPost('agency-codes', {
             sigortaSirketiId: parseInt(sigortaSirketiId),
             acenteKoduDeger,
@@ -814,10 +833,8 @@
         await apiDelete(`agency-codes/${id}`);
         showToast('Acente kodu silindi', 'success');
 
-        // Remove from local array and re-render
-        allAgencyCodes = allAgencyCodes.filter(c => c.id !== id);
-        renderAgencyCodes(allAgencyCodes);
-        updateStats(allAgencyCodes);
+        // Tam yenileme yap (lokal filtreleme yerine)
+        await loadAgencyCodes();
       } catch (error) {
         console.error('Silme hatası:', error);
         showToast('Silme sırasında hata oluştu', 'error');

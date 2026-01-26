@@ -3309,21 +3309,55 @@
       }
 
       // Sort
-      result.sort((a, b) => {
-        let aVal = a[currentSort.field];
-        let bVal = b[currentSort.field];
+      if (currentSort.field && currentSort.direction) {
+        result.sort((a, b) => {
+          const aVal = a[currentSort.field];
+          const bVal = b[currentSort.field];
 
-        if (currentSort.field === 'premium') {
-          aVal = parseFloat(aVal);
-          bVal = parseFloat(bVal);
-        }
+          // NULL/UNDEFINED KONTROLÜ - null değerler sona
+          const aIsNull = aVal == null;
+          const bIsNull = bVal == null;
+          if (aIsNull && bIsNull) return 0;
+          if (aIsNull) return 1;
+          if (bIsNull) return -1;
 
-        if (currentSort.direction === 'asc') {
-          return aVal > bVal ? 1 : -1;
-        } else {
-          return aVal < bVal ? 1 : -1;
-        }
-      });
+          let comparison = 0;
+
+          // SAYISAL SÜTUNLAR (netPremium, grossPremium)
+          if (currentSort.field === 'netPremium' || currentSort.field === 'grossPremium') {
+            const aNum = Number(aVal);
+            const bNum = Number(bVal);
+
+            // NaN kontrolü
+            if (isNaN(aNum) && isNaN(bNum)) return 0;
+            if (isNaN(aNum)) return 1;
+            if (isNaN(bNum)) return -1;
+
+            comparison = aNum - bNum;
+          }
+          // TARİH SÜTUNU (date) - date ZATEN Date object!
+          else if (currentSort.field === 'date') {
+            // Date object ise direkt getTime(), değilse parse et
+            const aTime = aVal instanceof Date ? aVal.getTime() : new Date(aVal).getTime();
+            const bTime = bVal instanceof Date ? bVal.getTime() : new Date(bVal).getTime();
+
+            // Invalid Date kontrolü
+            if (isNaN(aTime) && isNaN(bTime)) return 0;
+            if (isNaN(aTime)) return 1;
+            if (isNaN(bTime)) return -1;
+
+            comparison = aTime - bTime;
+          }
+          // STRING SÜTUNLAR (policyNo, customer, producer, type, branch)
+          else {
+            const aStr = String(aVal || '').toLocaleLowerCase('tr');
+            const bStr = String(bVal || '').toLocaleLowerCase('tr');
+            comparison = aStr.localeCompare(bStr, 'tr', { sensitivity: 'base', numeric: true });
+          }
+
+          return currentSort.direction === 'asc' ? comparison : -comparison;
+        });
+      }
 
       renderTableWithData(result);
       updateStats(result);
