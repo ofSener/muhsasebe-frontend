@@ -3310,6 +3310,9 @@
 
       // Sort
       if (currentSort.field && currentSort.direction) {
+        console.log('Sorting by:', currentSort.field, currentSort.direction);
+        console.log('Before sort (first 3):', result.slice(0, 3).map(p => ({ [currentSort.field]: p[currentSort.field] })));
+
         result.sort((a, b) => {
           const aVal = a[currentSort.field];
           const bVal = b[currentSort.field];
@@ -3357,6 +3360,8 @@
 
           return currentSort.direction === 'asc' ? comparison : -comparison;
         });
+
+        console.log('After sort (first 3):', result.slice(0, 3).map(p => ({ [currentSort.field]: p[currentSort.field] })));
       }
 
       renderTableWithData(result);
@@ -3377,6 +3382,9 @@
         currentSort.field = field;
         currentSort.direction = 'asc';
       }
+
+      // Reset to first page when sorting
+      currentPage = 1;
 
       // Update sort indicators
       document.querySelectorAll('.sortable').forEach(th => {

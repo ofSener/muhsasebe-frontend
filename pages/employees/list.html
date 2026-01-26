@@ -1411,7 +1411,9 @@
         case 'police':
           return Number(item.policeSayisi) || 0;
         case 'tarih':
-          return item.kayitTarihi ? new Date(item.kayitTarihi).getTime() : 0;
+          if (!item.kayitTarihi) return null;
+          const timestamp = new Date(item.kayitTarihi).getTime();
+          return isNaN(timestamp) ? null : timestamp;
         default:
           return '';
       }
@@ -1425,13 +1427,19 @@
         const valueA = getSortValue(a, field);
         const valueB = getSortValue(b, field);
 
-        // Tarih sıralamasında null/0 değerleri her zaman sona at
+        // Tarih sıralamasında null değerleri her zaman sona at
         if (field === 'tarih') {
-          const aIsEmpty = !valueA || valueA === 0;
-          const bIsEmpty = !valueB || valueB === 0;
-          if (aIsEmpty && !bIsEmpty) return 1;  // a sona
-          if (!aIsEmpty && bIsEmpty) return -1; // b sona
-          if (aIsEmpty && bIsEmpty) return 0;   // ikisi de boş
+          const aIsNull = valueA === null;
+          const bIsNull = valueB === null;
+
+          // Null değerler her zaman sona gider
+          if (aIsNull && bIsNull) return 0;
+          if (aIsNull) return 1;
+          if (bIsNull) return -1;
+
+          // Her iki değer de geçerli tarih - doğrudan karşılaştır
+          const comparison = valueA - valueB;
+          return direction === 'desc' ? -comparison : comparison;
         }
 
         let comparison = 0;
