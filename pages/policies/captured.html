@@ -285,6 +285,31 @@
                   </div>
                 </div>
                 <input type="hidden" id="producerFilter" value="">
+                <div class="custom-dropdown" id="branchDropdown">
+                  <button class="dropdown-trigger" onclick="toggleBranchDropdown(event)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                      <polyline points="9,22 9,12 15,12 15,22"/>
+                    </svg>
+                    <span id="branchFilterText">Tüm Şubeler</span>
+                    <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6,9 12,15 18,9"/>
+                    </svg>
+                  </button>
+                  <div class="dropdown-panel" id="branchPanel">
+                    <div class="dropdown-search">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                      </svg>
+                      <input type="text" id="branchSearchInput" placeholder="Şube ara..." oninput="filterBranchList()">
+                    </div>
+                    <div class="dropdown-list" id="branchList">
+                      <!-- Dinamik olarak doldurulacak -->
+                    </div>
+                  </div>
+                </div>
+                <input type="hidden" id="branchFilter" value="">
               </div>
             </div>
             <div class="edit-mode-banner" id="editModeBanner">
@@ -2620,11 +2645,15 @@
       }
     }
 
-    // Şube listesi yükle
+    // Şube listesi yükle (firmaId ile filtrelenmiş)
     async function loadBranches() {
       try {
-        const data = await apiGet('subeler');
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+        const endpoint = firmaId ? `branches?firmaId=${firmaId}` : 'branches';
+        const data = await apiGet(endpoint);
         branchesList = (data || []).map(b => b.subeAdi || b.name);
+        populateBranchFilter();
         return data;
       } catch (error) {
         console.error('Şube listesi alınamadı:', error);
@@ -2848,11 +2877,115 @@
 
     // Click outside to close dropdown
     document.addEventListener('click', function(event) {
-      const dropdown = document.getElementById('producerDropdown');
-      if (dropdown && !dropdown.contains(event.target)) {
-        dropdown.classList.remove('open');
+      const producerDropdown = document.getElementById('producerDropdown');
+      if (producerDropdown && !producerDropdown.contains(event.target)) {
+        producerDropdown.classList.remove('open');
+      }
+      const branchDropdown = document.getElementById('branchDropdown');
+      if (branchDropdown && !branchDropdown.contains(event.target)) {
+        branchDropdown.classList.remove('open');
       }
     });
+
+    // ═══════════════════════════════════════════════════════════════
+    // ŞUBE DROPDOWN FONKSİYONLARI
+    // ═══════════════════════════════════════════════════════════════
+
+    // Şube dropdown'unu doldur
+    function populateBranchFilter() {
+      const list = document.getElementById('branchList');
+      if (!list) return;
+
+      const avatarColors = [
+        'linear-gradient(135deg, #10b981, #059669)',
+        'linear-gradient(135deg, #06b6d4, #0891b2)',
+        'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        'linear-gradient(135deg, #f59e0b, #d97706)',
+        'linear-gradient(135deg, #f43f5e, #e11d48)',
+        'linear-gradient(135deg, #3b82f6, #2563eb)'
+      ];
+
+      // "Tüm Şubeler" seçeneği
+      let html = `
+        <div class="dropdown-item selected" data-value="" onclick="selectBranch(this, '', 'Tüm Şubeler')">
+          <span class="dropdown-item-avatar" style="background: linear-gradient(135deg, #64748b, #475569);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9,22 9,12 15,12 15,22"/>
+            </svg>
+          </span>
+          <span class="dropdown-item-name">Tüm Şubeler</span>
+        </div>
+      `;
+
+      // Şubeleri ekle
+      branchesList.forEach((name, index) => {
+        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        const color = avatarColors[index % avatarColors.length];
+        const escapedName = name.replace(/'/g, "\\'");
+        html += `
+          <div class="dropdown-item" data-value="${name}" onclick="selectBranch(this, '${escapedName}', '${escapedName}')">
+            <span class="dropdown-item-avatar" style="background: ${color};">${initials}</span>
+            <span class="dropdown-item-name">${name}</span>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html;
+    }
+
+    // Şube dropdown aç/kapat
+    function toggleBranchDropdown(event) {
+      event.stopPropagation();
+      const dropdown = document.getElementById('branchDropdown');
+      const searchInput = document.getElementById('branchSearchInput');
+
+      dropdown.classList.toggle('open');
+
+      if (dropdown.classList.contains('open')) {
+        searchInput.value = '';
+        filterBranchList();
+        searchInput.focus();
+      }
+    }
+
+    // Şube listesini filtrele
+    function filterBranchList() {
+      const searchInput = document.getElementById('branchSearchInput');
+      const searchTerm = searchInput.value.toLowerCase();
+      const items = document.querySelectorAll('#branchList .dropdown-item');
+
+      items.forEach(item => {
+        const name = item.getAttribute('data-value').toLowerCase();
+        const text = item.textContent.toLowerCase();
+        if (name.includes(searchTerm) || text.includes(searchTerm)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // Şube seç
+    function selectBranch(element, value, displayText) {
+      // Hidden input güncelle
+      document.getElementById('branchFilter').value = value;
+
+      // Görünen text güncelle
+      document.getElementById('branchFilterText').textContent = displayText;
+
+      // Seçili durumu güncelle
+      document.querySelectorAll('#branchList .dropdown-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      element.classList.add('selected');
+
+      // Dropdown kapat
+      document.getElementById('branchDropdown').classList.remove('open');
+
+      // Filtreleme uygula
+      filterTable();
+    }
 
     // Tarih formatla (ISO)
     function formatDateISO(date) {
@@ -3288,6 +3421,7 @@
     function applyFilters() {
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       const producerFilter = document.getElementById('producerFilter').value;
+      const branchFilter = document.getElementById('branchFilter').value;
 
       let result = [...filteredPolicies];
 
@@ -3306,6 +3440,10 @@
 
       if (producerFilter) {
         result = result.filter(p => p.producer === producerFilter);
+      }
+
+      if (branchFilter) {
+        result = result.filter(p => p.branch === branchFilter);
       }
 
       // Sort
