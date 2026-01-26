@@ -1406,16 +1406,17 @@
     function getSortValue(item, field) {
       switch (field) {
         case 'name':
-          return `${item.adi || ''} ${item.soyadi || ''}`.toLowerCase().trim();
+          return `${item.adi || ''} ${item.soyadi || ''}`.toLocaleLowerCase('tr').trim();
         case 'email':
-          return (item.email || '').toLowerCase();
+          return (item.email || '').toLocaleLowerCase('tr');
         case 'yetki':
-          if (item.anaYoneticimi === 0) return '!Ana Yönetici'; // ! ile en başa gelir
-          return (item.yetkiAdi || 'zzz').toLowerCase();
+          if (item.anaYoneticimi === 0) return '00-ana yönetici';
+          if (!item.yetkiAdi) return '99-tanımsız';
+          return `10-${item.yetkiAdi}`.toLocaleLowerCase('tr');
         case 'durum':
           return (item.onay === 1 && !item.isEski) ? 0 : 1;
         case 'police':
-          return item.policeSayisi || 0;
+          return Number(item.policeSayisi) || 0;
         case 'tarih':
           return item.kayitTarihi ? new Date(item.kayitTarihi).getTime() : 0;
         default:
