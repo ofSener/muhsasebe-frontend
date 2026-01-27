@@ -1662,12 +1662,13 @@
       // Kullanıcı chip
       if (currentFilters.kullaniciId) {
         const kullanici = kullanicilarCache.find(k => k.id == currentFilters.kullaniciId);
-        if (kullanici) chips.push({ label: `${kullanici.adi} ${kullanici.soyadi}`, type: 'kullanici' });
+        if (kullanici) chips.push({ label: `${kullanici.adi} ${kullanici.soyadi}`, type: 'kullanici' });s
       }
 
       // Şube chip
       if (currentFilters.subeId) {
-        chips.push({ label: currentFilters.subeId, type: 'sube' });
+        const sube = subelerCache.find(s => s.id == currentFilters.subeId);
+        if (sube) chips.push({ label: sube.subeAdi, type: 'sube' });
       }
 
       // Şirket chip
@@ -2309,10 +2310,11 @@
       const firmaId = getCurrentFirmaId();
 
       try {
-        // Load branslar, kullanicilar, sirketler in parallel
-        const [bransRes, kullaniciRes] = await Promise.all([
-          apiGet('branslar').catch(() => []),
-          apiGet('kullanicilar/aktif', { firmaId }).catch(() => [])
+        // Load branslar, kullanicilar, subeler in parallel
+        const [bransRes, kullaniciRes, subelerRes] = await Promise.all([
+          apiGet('insurance-types').catch(() => []),
+          apiGet('kullanicilar/aktif', { firmaId }).catch(() => []),
+          apiGet('branches', { firmaId }).catch(() => [])
         ]);
 
         // Branslar
@@ -2331,16 +2333,12 @@
             kullanicilarCache.map(k => `<option value="${k.id}">${k.adi} ${k.soyadi}</option>`).join('');
         }
 
-        // Subeler - extract from kullanıcılar or separate endpoint
-        const subeSet = new Set();
-        kullanicilarCache.forEach(k => {
-          if (k.subeAdi) subeSet.add(k.subeAdi);
-        });
-        subelerCache = Array.from(subeSet);
+        // Subeler - from branches endpoint
+        subelerCache = subelerRes || [];
         const subeSelect = document.getElementById('subeFilter');
         if (subeSelect && subelerCache.length > 0) {
           subeSelect.innerHTML = '<option value="">Seçiniz</option>' +
-            subelerCache.map(s => `<option value="${s}">${s}</option>`).join('');
+            subelerCache.map(s => `<option value="${s.id}">${s.subeAdi}</option>`).join('');
         }
 
         // Sigorta Şirketleri
