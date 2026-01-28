@@ -38,10 +38,10 @@
           </button>
           <div class="navbar-divider"></div>
           <div class="navbar-user">
-            <div class="navbar-avatar">AY</div>
+            <div class="navbar-avatar"></div>
             <div class="navbar-user-info">
-              <div class="navbar-user-name">Ahmet Yılmaz</div>
-              <div class="navbar-user-role">Ana Yönetici</div>
+              <div class="navbar-user-name">Yükleniyor...</div>
+              <div class="navbar-user-role"></div>
             </div>
           </div>
         </div>
@@ -59,8 +59,8 @@
               </svg>
             </a>
             <div>
-              <h1 class="page-title">Mehmet Demir</h1>
-              <p class="page-subtitle">Bireysel Müşteri • Kayıt: 15.03.2022</p>
+              <h1 class="page-title">Yükleniyor...</h1>
+              <p class="page-subtitle">Müşteri bilgileri yükleniyor...</p>
             </div>
           </div>
           <div class="page-actions">
@@ -90,16 +90,14 @@
             </div>
             <div class="card-body">
               <div class="customer-profile-header">
-                <div class="avatar avatar-xl avatar-cyan">MD</div>
+                <div class="avatar avatar-xl avatar-cyan">--</div>
                 <div class="customer-profile-info">
-                  <h2 class="customer-name">Mehmet Demir</h2>
+                  <h2 class="customer-name">Yükleniyor...</h2>
                   <div class="customer-badges">
-                    <span class="badge badge-success">Aktif Müşteri</span>
-                    <span class="badge badge-violet">VIP</span>
-                    <span class="badge badge-amber">6 Poliçe</span>
+                    <span class="badge badge-secondary">Yükleniyor...</span>
                   </div>
                   <p class="customer-meta">
-                    Toplam Prim: <strong class="text-emerald">₺45.680</strong> • Son İşlem: 2 gün önce
+                    Toplam Prim: <strong class="text-emerald">--</strong> • Son İşlem: --
                   </p>
                 </div>
               </div>
@@ -107,23 +105,23 @@
               <div class="info-grid">
                 <div class="info-item">
                   <label class="info-label">TC Kimlik No</label>
-                  <span class="info-value font-mono">12345678901</span>
+                  <span class="info-value font-mono" data-field="tcKimlikNo">--</span>
                 </div>
                 <div class="info-item">
                   <label class="info-label">Doğum Tarihi</label>
-                  <span class="info-value">15.06.1985</span>
+                  <span class="info-value" data-field="dogumTarihi">--</span>
                 </div>
                 <div class="info-item">
                   <label class="info-label">Telefon</label>
-                  <span class="info-value">+90 532 123 45 67</span>
+                  <span class="info-value" data-field="telefon">--</span>
                 </div>
                 <div class="info-item">
                   <label class="info-label">E-posta</label>
-                  <span class="info-value">mehmet.demir@email.com</span>
+                  <span class="info-value" data-field="email">--</span>
                 </div>
                 <div class="info-item" style="grid-column: span 2;">
                   <label class="info-label">Adres</label>
-                  <span class="info-value">Atatürk Mah. Cumhuriyet Cad. No:45/3 Kadıköy / İstanbul</span>
+                  <span class="info-value" data-field="adres">--</span>
                 </div>
               </div>
             </div>
@@ -134,7 +132,7 @@
             <div class="stat-mini stat-emerald">
               <div class="stat-mini-content">
                 <p class="stat-mini-label">Aktif Poliçeler</p>
-                <h3 class="stat-mini-value">6</h3>
+                <h3 class="stat-mini-value">--</h3>
               </div>
               <div class="stat-mini-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -147,7 +145,7 @@
             <div class="stat-mini stat-cyan">
               <div class="stat-mini-content">
                 <p class="stat-mini-label">Toplam Prim</p>
-                <h3 class="stat-mini-value font-mono">₺45.680</h3>
+                <h3 class="stat-mini-value font-mono">--</h3>
               </div>
               <div class="stat-mini-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -159,7 +157,7 @@
             <div class="stat-mini stat-amber">
               <div class="stat-mini-content">
                 <p class="stat-mini-label">Yaklaşan Yenileme</p>
-                <h3 class="stat-mini-value">12 Gün</h3>
+                <h3 class="stat-mini-value">--</h3>
               </div>
               <div class="stat-mini-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -171,7 +169,7 @@
             <div class="stat-mini stat-violet">
               <div class="stat-mini-content">
                 <p class="stat-mini-label">Müşteri Skoru</p>
-                <h3 class="stat-mini-value">92/100</h3>
+                <h3 class="stat-mini-value">--</h3>
               </div>
               <div class="stat-mini-icon">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -400,6 +398,7 @@
 
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/customer-detail.js"></script>
 
   <style>
     /* Customer Profile Styles */

@@ -361,9 +361,112 @@ function initSearch() {
   });
 }
 
-function performSearch(query) {
-  // Mock search - in real app, this would call an API
+async function performSearch(query) {
   console.log('Searching for:', query);
+
+  if (!query || query.length < 2) {
+    hideSearchResults();
+    return;
+  }
+
+  // Search results container'ı oluştur veya al
+  let resultsContainer = document.querySelector('.search-results');
+  if (!resultsContainer) {
+    resultsContainer = document.createElement('div');
+    resultsContainer.className = 'search-results';
+    const searchBar = document.querySelector('.navbar-search');
+    if (searchBar) {
+      searchBar.appendChild(resultsContainer);
+    }
+  }
+
+  // Loading state
+  resultsContainer.innerHTML = '<div class="search-loading">Aranıyor...</div>';
+  showSearchResults();
+
+  try {
+    // Müşteri ve poliçe araması paralel yap
+    const [customersResponse, policiesResponse] = await Promise.allSettled([
+      apiGet(`customers/search?name=${encodeURIComponent(query)}`),
+      apiGet(`policies?search=${encodeURIComponent(query)}&pageSize=5`)
+    ]);
+
+    const customers = customersResponse.status === 'fulfilled' ?
+      (Array.isArray(customersResponse.value) ? customersResponse.value : customersResponse.value.customers || []) : [];
+    const policies = policiesResponse.status === 'fulfilled' ?
+      (Array.isArray(policiesResponse.value) ? policiesResponse.value : policiesResponse.value.policies || []) : [];
+
+    // Sonuçları göster
+    displaySearchResults(customers, policies, query);
+
+  } catch (error) {
+    console.error('Search error:', error);
+    resultsContainer.innerHTML = '<div class="search-error">Arama yapılırken bir hata oluştu</div>';
+  }
+}
+
+function displaySearchResults(customers, policies, query) {
+  const resultsContainer = document.querySelector('.search-results');
+  if (!resultsContainer) return;
+
+  if (customers.length === 0 && policies.length === 0) {
+    resultsContainer.innerHTML = `
+      <div class="search-no-results">
+        <p>"${query}" için sonuç bulunamadı</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+
+  // Müşteri sonuçları
+  if (customers.length > 0) {
+    html += `
+      <div class="search-section">
+        <div class="search-section-title">Müşteriler</div>
+        ${customers.slice(0, 5).map(customer => `
+          <a href="pages/customers/detail.html?id=${customer.id || customer.musteriId}" class="search-result-item">
+            <div class="search-result-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="search-result-content">
+              <div class="search-result-title">${customer.adSoyad || customer.musteriAdi || customer.name}</div>
+              <div class="search-result-subtitle">${customer.telefon || customer.email || ''}</div>
+            </div>
+          </a>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // Poliçe sonuçları
+  if (policies.length > 0) {
+    html += `
+      <div class="search-section">
+        <div class="search-section-title">Poliçeler</div>
+        ${policies.slice(0, 5).map(policy => `
+          <a href="pages/policies/detail.html?id=${policy.id || policy.policeId}" class="search-result-item">
+            <div class="search-result-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+            </div>
+            <div class="search-result-content">
+              <div class="search-result-title">#${policy.policeNo || policy.policeNumarasi}</div>
+              <div class="search-result-subtitle">${policy.musteriAdi || ''} - ${policy.bransAdi || policy.brans || ''}</div>
+            </div>
+          </a>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  resultsContainer.innerHTML = html;
 }
 
 function showSearchResults() {

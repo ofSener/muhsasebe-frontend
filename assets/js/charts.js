@@ -452,9 +452,41 @@ function createMixedChart(containerId, data, options = {}) {
 }
 
 /**
- * Generate mock time series data
+ * Generate time series data - API'den veri alır veya fallback mock data üretir
+ * @param {number} days - Gün sayısı (API kullanıldığında ignored)
+ * @param {number} baseValue - Fallback için başlangıç değeri
+ * @param {number} variance - Fallback için varyans
+ * @param {boolean} useMock - true ise mock data, false ise API'den çekmeyi dene
  */
-function generateTimeSeriesData(days = 30, baseValue = 1000, variance = 200) {
+async function generateTimeSeriesData(days = 30, baseValue = 1000, variance = 200, useMock = false) {
+  // useMock true ise direkt mock data dön
+  if (useMock) {
+    return generateMockTimeSeriesData(days, baseValue, variance);
+  }
+
+  // API'den veri çekmeyi dene
+  try {
+    if (typeof apiGet === 'function') {
+      const response = await apiGet('dashboard/aylik-trend?months=12');
+      if (response && response.trend && response.trend.length > 0) {
+        return {
+          labels: response.trend.map(t => t.ay),
+          values: response.trend.map(t => t.brutPrim || 0)
+        };
+      }
+    }
+  } catch (error) {
+    console.warn('API time series verisi alınamadı, mock data kullanılıyor:', error);
+  }
+
+  // Fallback: Mock data
+  return generateMockTimeSeriesData(days, baseValue, variance);
+}
+
+/**
+ * Mock time series data üret (yedek/fallback)
+ */
+function generateMockTimeSeriesData(days = 30, baseValue = 1000, variance = 200) {
   const labels = [];
   const values = [];
   const now = new Date();
@@ -491,9 +523,38 @@ function generateMonthlyData(months = 12) {
 }
 
 /**
- * Policy type distribution data
+ * Policy type distribution data - API'den veri alır veya fallback mock data dönderir
+ * @param {boolean} useMock - true ise mock data, false ise API'den çekmeyi dene
  */
-function getPolicyDistributionData() {
+async function getPolicyDistributionData(useMock = false) {
+  // useMock true ise direkt mock data dön
+  if (useMock) {
+    return getMockPolicyDistributionData();
+  }
+
+  // API'den veri çekmeyi dene
+  try {
+    if (typeof apiGet === 'function') {
+      const response = await apiGet('dashboard/brans-dagilim');
+      if (response && response.dagilim && response.dagilim.length > 0) {
+        return {
+          labels: response.dagilim.map(d => d.bransAdi),
+          values: response.dagilim.map(d => d.policeSayisi || d.yuzde || d.toplamPrim || 0)
+        };
+      }
+    }
+  } catch (error) {
+    console.warn('API branş dağılım verisi alınamadı, mock data kullanılıyor:', error);
+  }
+
+  // Fallback: Mock data
+  return getMockPolicyDistributionData();
+}
+
+/**
+ * Mock policy distribution data (yedek/fallback)
+ */
+function getMockPolicyDistributionData() {
   return {
     labels: ['Kasko', 'Trafik', 'DASK', 'Sağlık', 'Konut', 'İşyeri'],
     values: [320, 280, 150, 120, 90, 60]
@@ -541,8 +602,10 @@ window.createRadialChart = createRadialChart;
 window.createSparkline = createSparkline;
 window.createMixedChart = createMixedChart;
 window.generateTimeSeriesData = generateTimeSeriesData;
+window.generateMockTimeSeriesData = generateMockTimeSeriesData;
 window.generateMonthlyData = generateMonthlyData;
 window.getPolicyDistributionData = getPolicyDistributionData;
+window.getMockPolicyDistributionData = getMockPolicyDistributionData;
 window.formatCompact = formatCompact;
 window.formatNumber = formatNumber;
 window.formatCurrency = formatCurrency;

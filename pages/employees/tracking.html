@@ -39,10 +39,10 @@
           </button>
           <div class="navbar-divider"></div>
           <div class="navbar-user">
-            <div class="navbar-avatar">AY</div>
+            <div class="navbar-avatar"></div>
             <div class="navbar-user-info">
-              <div class="navbar-user-name">Ahmet Yılmaz</div>
-              <div class="navbar-user-role">Ana Yönetici</div>
+              <div class="navbar-user-name">Yükleniyor...</div>
+              <div class="navbar-user-role"></div>
             </div>
           </div>
         </div>
@@ -85,20 +85,13 @@
               <div class="form-group" style="margin-bottom: 1rem;">
                 <label class="form-label">Çalışan</label>
                 <select class="form-select" id="employeeSelect">
-                  <option value="zeynep">Zeynep Arslan</option>
-                  <option value="mehmet">Mehmet Kaya</option>
-                  <option value="ayse">Ayşe Demir</option>
-                  <option value="can">Can Özkan</option>
-                  <option value="elif">Elif Koç</option>
+                  <option value="">Yükleniyor...</option>
                 </select>
               </div>
               <div class="form-group" style="margin-bottom: 1rem;">
                 <label class="form-label">Dönem</label>
                 <select class="form-select" id="periodSelect">
-                  <option value="2024-01">Ocak 2024</option>
-                  <option value="2023-12">Aralık 2023</option>
-                  <option value="2023-11">Kasım 2023</option>
-                  <option value="2023-10">Ekim 2023</option>
+                  <option value="">Yükleniyor...</option>
                 </select>
               </div>
               <button class="btn btn-primary" style="width: 100%;">
@@ -113,33 +106,33 @@
 
           <div class="card" style="grid-column: span 2;">
             <div class="card-header">
-              <h3 class="card-title">Hakediş Özeti - Zeynep Arslan</h3>
-              <span class="badge badge-info">Ocak 2024</span>
+              <h3 class="card-title">Hakediş Özeti - Çalışan Seçin</h3>
+              <span class="badge badge-info">Dönem Seçin</span>
             </div>
             <div class="card-body">
               <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
                 <div class="stat-card stat-cyan" style="padding: 1rem;">
                   <div class="stat-content">
                     <div class="stat-label">Toplam Prim</div>
-                    <div class="stat-value font-mono" style="font-size: 1.5rem;">₺245,000</div>
+                    <div class="stat-value font-mono" style="font-size: 1.5rem;">--</div>
                   </div>
                 </div>
                 <div class="stat-card stat-emerald" style="padding: 1rem;">
                   <div class="stat-content">
                     <div class="stat-label">Toplam Komisyon</div>
-                    <div class="stat-value font-mono" style="font-size: 1.5rem;">₺24,500</div>
+                    <div class="stat-value font-mono" style="font-size: 1.5rem;">--</div>
                   </div>
                 </div>
                 <div class="stat-card stat-violet" style="padding: 1rem;">
                   <div class="stat-content">
                     <div class="stat-label">Ödenen</div>
-                    <div class="stat-value font-mono" style="font-size: 1.5rem;">₺18,000</div>
+                    <div class="stat-value font-mono" style="font-size: 1.5rem;">--</div>
                   </div>
                 </div>
                 <div class="stat-card stat-amber" style="padding: 1rem;">
                   <div class="stat-content">
                     <div class="stat-label">Kalan</div>
-                    <div class="stat-value font-mono" style="font-size: 1.5rem;">₺6,500</div>
+                    <div class="stat-value font-mono" style="font-size: 1.5rem;">--</div>
                   </div>
                 </div>
               </div>
@@ -348,22 +341,11 @@
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
   <script src="../../assets/js/charts.js"></script>
+  <script src="../../assets/js/employee-tracking.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Commission Breakdown by Policy Type
-      createBarChart('commission-chart', {
-        labels: ['Kasko', 'Trafik', 'DASK', 'Sağlık', 'Konut', 'İşyeri'],
-        datasets: [
-          { name: 'Prim', values: [85000, 42000, 12000, 45000, 28000, 33000] },
-          { name: 'Komisyon', values: [8500, 3360, 1800, 5400, 2800, 2640] }
-        ]
-      }, {
-        colors: [chartColors.primary, chartColors.success],
-        height: 280
-      });
-
-      console.log('Tracking charts initialized');
-    });
+    // Employee Tracking artık employee-tracking.js tarafından yönetiliyor
+    // Veriler API'den otomatik yüklenecek
+    console.log('Employee tracking initialized - data loading from API');
   </script>
   <script src="../../components/sidebar.js"></script>
 </body>

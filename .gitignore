@@ -23,3 +23,15 @@ node_modules/
 .env
 .env.local
 .env.*.local
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+tests/.auth/user.json
+
+# Build outputs
+dist/
+
+# TypeScript
+*.tsbuildinfo

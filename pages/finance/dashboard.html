@@ -39,10 +39,10 @@
           </button>
           <div class="navbar-divider"></div>
           <div class="navbar-user">
-            <div class="navbar-avatar">AY</div>
+            <div class="navbar-avatar"></div>
             <div class="navbar-user-info">
-              <div class="navbar-user-name">Ahmet Yilmaz</div>
-              <div class="navbar-user-role">Ana Yonetici</div>
+              <div class="navbar-user-name">Yükleniyor...</div>
+              <div class="navbar-user-role"></div>
             </div>
           </div>
         </div>
@@ -85,10 +85,10 @@
             </div>
             <div class="stat-content">
               <p class="stat-label">Toplam Prim</p>
-              <h3 class="stat-value font-mono">1.248.560 TL</h3>
+              <h3 class="stat-value font-mono">Yükleniyor...</h3>
               <span class="stat-change positive">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
-                +12.5% gecen aya gore
+                -- gecen aya gore
               </span>
             </div>
           </div>
@@ -99,10 +99,10 @@
             </div>
             <div class="stat-content">
               <p class="stat-label">Toplam Komisyon</p>
-              <h3 class="stat-value font-mono">186.420 TL</h3>
+              <h3 class="stat-value font-mono">Yükleniyor...</h3>
               <span class="stat-change positive">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
-                +8.3% gecen aya gore
+                -- gecen aya gore
               </span>
             </div>
           </div>
@@ -113,8 +113,8 @@
             </div>
             <div class="stat-content">
               <p class="stat-label">Tahsil Edilen</p>
-              <h3 class="stat-value font-mono">1.124.800 TL</h3>
-              <span class="stat-info">%90 tahsilat orani</span>
+              <h3 class="stat-value font-mono">Yükleniyor...</h3>
+              <span class="stat-info">-- tahsilat orani</span>
             </div>
           </div>
 
@@ -124,8 +124,8 @@
             </div>
             <div class="stat-content">
               <p class="stat-label">Bekleyen Tahsilat</p>
-              <h3 class="stat-value font-mono">123.760 TL</h3>
-              <span class="stat-info">24 police bekliyor</span>
+              <h3 class="stat-value font-mono">Yükleniyor...</h3>
+              <span class="stat-info">-- police bekliyor</span>
             </div>
           </div>
         </div>
@@ -328,38 +328,11 @@
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
   <script src="../../assets/js/charts.js"></script>
+  <script src="../../assets/js/finance-dashboard.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Revenue Area Chart with ApexCharts
-      const revenueData = generateTimeSeriesData(30, 100000, 30000);
-      createAreaChart('revenueChart', revenueData, {
-        seriesName: 'Prim',
-        color: chartColors.primary,
-        height: 280,
-        formatter: (val) => formatCurrency(val)
-      });
-
-      // Policy Distribution Donut Chart
-      const distributionData = getPolicyDistributionData();
-      createDonutChart('distributionChart', {
-        labels: distributionData.labels,
-        values: [420000, 280000, 150000, 180000, 120000, 98560]
-      }, {
-        height: 280
-      });
-
-      // Employee Commission Bar Chart
-      createBarChart('employeeCommissionChart', {
-        labels: ['Ahmet Y.', 'Fatma K.', 'Mehmet D.', 'Zeynep A.', 'Can B.'],
-        values: [42500, 38200, 35800, 32100, 28400]
-      }, {
-        seriesName: 'Komisyon',
-        colors: [chartColors.success],
-        height: 230
-      });
-
-      console.log('Finance dashboard charts initialized with ApexCharts');
-    });
+    // Finance Dashboard artık finance-dashboard.js tarafından yönetiliyor
+    // Chartlar API'den gelen verilerle otomatik güncellenecek
+    console.log('Finance dashboard initialized - data loading from API');
   </script>
 
   <style>
