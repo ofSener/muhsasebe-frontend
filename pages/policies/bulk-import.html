@@ -173,71 +173,8 @@
                   </svg>
                   <span>Desteklenen Formatlar (8 Sigorta Şirketi)</span>
                 </div>
-                <div class="formats-grid">
-                  <div class="format-item">
-                    <span class="format-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20,6 9,17 4,12"/>
-                      </svg>
-                    </span>
-                    <span class="format-name">Ankara Sigorta</span>
-                  </div>
-                  <div class="format-item">
-                    <span class="format-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20,6 9,17 4,12"/>
-                      </svg>
-                    </span>
-                    <span class="format-name">Unico Sigorta</span>
-                  </div>
-                  <div class="format-item">
-                    <span class="format-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20,6 9,17 4,12"/>
-                      </svg>
-                    </span>
-                    <span class="format-name">Quick Sigorta</span>
-                  </div>
-                  <div class="format-item">
-                    <span class="format-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20,6 9,17 4,12"/>
-                      </svg>
-                    </span>
-                    <span class="format-name">Hepiyi Sigorta</span>
-                  </div>
-                  <div class="format-item">
-                    <span class="format-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20,6 9,17 4,12"/>
-                      </svg>
-                    </span>
-                    <span class="format-name">Neova Sigorta</span>
-                  </div>
-                  <div class="format-item">
-                    <span class="format-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20,6 9,17 4,12"/>
-                      </svg>
-                    </span>
-                    <span class="format-name">Sompo Sigorta</span>
-                  </div>
-                  <div class="format-item">
-                    <span class="format-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20,6 9,17 4,12"/>
-                      </svg>
-                    </span>
-                    <span class="format-name">HDI Sigorta</span>
-                  </div>
-                  <div class="format-item">
-                    <span class="format-check">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20,6 9,17 4,12"/>
-                      </svg>
-                    </span>
-                    <span class="format-name">AK Sigorta (SKAY)</span>
-                  </div>
+                <div class="formats-grid" id="supportedFormatsGrid">
+                  <!-- Logos will be loaded dynamically -->
                 </div>
               </div>
 
@@ -789,26 +726,67 @@
 
     .formats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 0.5rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+    }
+
+    @media (max-width: 992px) {
+      .formats-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .formats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .format-item {
       display: flex;
+      flex-direction: column;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
+      padding: 0.75rem;
       background: var(--bg-surface);
-      border-radius: var(--radius-sm);
-      font-size: 0.8125rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.2s ease;
     }
 
-    .format-check {
-      color: var(--success);
+    .format-item:hover {
+      border-color: var(--primary-light);
+      background: var(--bg-elevated);
+      transform: translateY(-2px);
+    }
+
+    .format-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      object-fit: contain;
+      background: white;
+      padding: 4px;
+    }
+
+    .format-logo-placeholder {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
     }
 
     .format-name {
+      font-size: 0.75rem;
       color: var(--text-secondary);
+      text-align: center;
+      font-weight: 500;
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -1087,21 +1065,90 @@
       setupEventListeners();
     });
 
-    // Load sigorta sirketleri for dropdown
+    // Load sigorta sirketleri for dropdown and supported formats
     async function loadSigortaSirketleri() {
       try {
-        const response = await apiGet('excel-import/formats');
-        if (response && response.formats) {
-          response.formats.forEach(format => {
+        // Load both formats and insurance companies in parallel
+        const [formatsResponse, companiesResponse] = await Promise.all([
+          apiGet('excel-import/formats'),
+          apiGet('insurance-companies', { sadeceFaal: true })
+        ]);
+
+        // Create a map of company id -> company info (including kod for logo)
+        const companyMap = {};
+        if (companiesResponse) {
+          companiesResponse.forEach(company => {
+            companyMap[company.id] = company;
+          });
+        }
+
+        // Populate dropdown and supported formats grid
+        if (formatsResponse && formatsResponse.formats) {
+          const formatsGrid = document.getElementById('supportedFormatsGrid');
+          formatsGrid.innerHTML = '';
+
+          formatsResponse.formats.forEach(format => {
+            // Add to dropdown
             const option = document.createElement('option');
             option.value = format.sigortaSirketiId;
             option.textContent = format.sigortaSirketiAdi;
             sigortaSirketiSelect.appendChild(option);
+
+            // Add to supported formats grid with logo
+            const company = companyMap[format.sigortaSirketiId];
+            const kod = company?.kod?.toLowerCase() || '';
+            const logoPath = kod ? `../../assets/images/logos/insurance-companies/${kod}.png` : '';
+            const initials = getCompanyInitials(format.sigortaSirketiAdi);
+
+            const formatItem = document.createElement('div');
+            formatItem.className = 'format-item';
+            formatItem.innerHTML = `
+              ${logoPath
+                ? `<img class="format-logo" src="${logoPath}" alt="${format.sigortaSirketiAdi}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                   <div class="format-logo-placeholder" style="display: none;">${initials}</div>`
+                : `<div class="format-logo-placeholder">${initials}</div>`
+              }
+              <span class="format-name">${format.sigortaSirketiAdi}</span>
+            `;
+            formatsGrid.appendChild(formatItem);
           });
         }
       } catch (error) {
         console.error('Sigorta şirketleri yüklenemedi:', error);
+        // Show static fallback if API fails
+        renderStaticFormats();
       }
+    }
+
+    // Get company initials for placeholder
+    function getCompanyInitials(name) {
+      return name.split(' ')
+        .filter(word => word.length > 0)
+        .slice(0, 2)
+        .map(word => word[0].toUpperCase())
+        .join('');
+    }
+
+    // Static fallback if API fails
+    function renderStaticFormats() {
+      const formats = [
+        { name: 'Ankara Sigorta', initials: 'AS' },
+        { name: 'Unico Sigorta', initials: 'US' },
+        { name: 'Quick Sigorta', initials: 'QS' },
+        { name: 'Hepiyi Sigorta', initials: 'HS' },
+        { name: 'Neova Sigorta', initials: 'NS' },
+        { name: 'Sompo Sigorta', initials: 'SS' },
+        { name: 'HDI Sigorta', initials: 'HD' },
+        { name: 'AK Sigorta (SKAY)', initials: 'AK' }
+      ];
+
+      const formatsGrid = document.getElementById('supportedFormatsGrid');
+      formatsGrid.innerHTML = formats.map(f => `
+        <div class="format-item">
+          <div class="format-logo-placeholder">${f.initials}</div>
+          <span class="format-name">${f.name}</span>
+        </div>
+      `).join('');
     }
 
     // Setup event listeners

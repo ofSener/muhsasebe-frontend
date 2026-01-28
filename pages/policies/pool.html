@@ -58,6 +58,12 @@
             <p class="page-subtitle">Yakalanan ve aktarılan poliçeleri karşılaştırın ve eşleştirin</p>
           </div>
           <div class="page-actions">
+            <button class="btn btn-success" id="batchApproveBtn" style="display: none;" onclick="approveSelected()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20,6 9,17 4,12"/>
+              </svg>
+              <span class="selected-count">0</span> Seçili Onayla
+            </button>
             <button class="btn btn-secondary" onclick="openImportModal()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
@@ -261,6 +267,110 @@
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
   <style>
+    /* ═══════════════════════════════════════════════════════════════
+       STAT CARDS - Tema ile Uyumlu
+       ═══════════════════════════════════════════════════════════════ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all var(--transition-base);
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: var(--border-default);
+    }
+
+    /* Renk Varyantları */
+    .stat-card.stat-emerald::before { background: linear-gradient(180deg, #10b981 0%, #059669 100%); }
+    .stat-card.stat-cyan::before { background: linear-gradient(180deg, #06b6d4 0%, #0891b2 100%); }
+    .stat-card.stat-violet::before { background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%); }
+    .stat-card.stat-amber::before { background: linear-gradient(180deg, #f59e0b 0%, #d97706 100%); }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stat-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .stat-card.stat-emerald .stat-icon {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .stat-card.stat-cyan .stat-icon {
+      background: rgba(6, 182, 212, 0.1);
+      color: #06b6d4;
+    }
+
+    .stat-card.stat-violet .stat-icon {
+      background: var(--primary-glow);
+      color: var(--primary);
+    }
+
+    .stat-card.stat-amber .stat-icon {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
+      font-family: var(--font-mono);
+    }
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 0.125rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       COMPARISON TABS
+       ═══════════════════════════════════════════════════════════════ */
     .comparison-tabs {
       display: flex;
       gap: 0.5rem;
@@ -443,6 +553,38 @@
       margin-bottom: 1rem;
       opacity: 0.5;
     }
+
+    /* Button Group */
+    .btn-group {
+      display: inline-flex;
+      gap: 0.25rem;
+    }
+
+    /* Success Button */
+    .btn-success {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border: none;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-xs.btn-success {
+      padding: 0.35rem 0.5rem;
+    }
+
+    /* Selected count badge */
+    #batchApproveBtn .selected-count {
+      background: rgba(255,255,255,0.25);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      margin-left: 0.25rem;
+    }
   </style>
   <script>
     // State
@@ -487,6 +629,20 @@
       selectAll.addEventListener('change', function() {
         const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
         checkboxes.forEach(cb => cb.checked = this.checked);
+        updateSelectedCount();
+      });
+
+      // Tekil checkbox değişikliğini dinle (event delegation)
+      document.getElementById('tableBody').addEventListener('change', function(e) {
+        if (e.target.type === 'checkbox') {
+          updateSelectedCount();
+
+          // Tümünü seç checkbox'ını güncelle
+          const allCheckboxes = document.querySelectorAll('#tableBody input[type="checkbox"]');
+          const checkedCheckboxes = document.querySelectorAll('#tableBody input[type="checkbox"]:checked');
+          selectAll.checked = allCheckboxes.length > 0 && allCheckboxes.length === checkedCheckboxes.length;
+          selectAll.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+        }
       });
     }
 
@@ -721,21 +877,36 @@
         `;
       } else if (item.eslesmeDurumu === 'FARK_VAR') {
         return `
-          <button class="btn btn-xs btn-warning" title="İncele" onclick="viewDetail(${item.id})">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-          </button>
+          <div class="btn-group">
+            <button class="btn btn-xs btn-warning" title="İncele" onclick="viewDetail(${item.id})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+            <button class="btn btn-xs btn-success" title="Onayla" onclick="approvePolicy(${item.id})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20,6 9,17 4,12"/>
+              </svg>
+            </button>
+          </div>
         `;
       } else {
+        // AKTARIMDA - Onay butonu göster
         return `
-          <button class="btn btn-xs btn-primary" title="Manuel Eşleştir" onclick="manualMatch(${item.id})">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
-              <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
-            </svg>
-          </button>
+          <div class="btn-group">
+            <button class="btn btn-xs btn-ghost" title="Detay" onclick="viewDetail(${item.id})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+            <button class="btn btn-xs btn-success" title="Poliçe Olarak Kaydet" onclick="approvePolicy(${item.id})">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20,6 9,17 4,12"/>
+              </svg>
+            </button>
+          </div>
         `;
       }
     }
@@ -826,6 +997,85 @@
 
     function manualMatch(id) {
       showToast('Manuel eşleştirme yakında...', 'info');
+    }
+
+    // Tek poliçe onaylama
+    async function approvePolicy(id) {
+      if (!confirm('Bu poliçeyi onaylayıp kaydetmek istediğinize emin misiniz?')) {
+        return;
+      }
+
+      try {
+        showLoading(true);
+        const result = await apiPost(`policies/pool/${id}/approve`);
+
+        if (result.success) {
+          showToast('Poliçe başarıyla onaylandı ve kaydedildi', 'success');
+          loadPolicies(); // Tabloyu yenile
+        } else {
+          showToast(result.errorMessage || 'Onaylama başarısız', 'error');
+        }
+      } catch (error) {
+        console.error('Poliçe onaylama hatası:', error);
+        showToast(error.message || 'Bir hata oluştu', 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Seçili poliçeleri toplu onaylama
+    async function approveSelected() {
+      const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]:checked');
+      const ids = Array.from(checkboxes).map(cb => parseInt(cb.dataset.id));
+
+      if (ids.length === 0) {
+        showToast('Lütfen onaylanacak poliçeleri seçin', 'warning');
+        return;
+      }
+
+      if (!confirm(`${ids.length} poliçeyi onaylayıp kaydetmek istediğinize emin misiniz?`)) {
+        return;
+      }
+
+      try {
+        showLoading(true);
+        const result = await apiPost('policies/pool/batch-approve', { poolPolicyIds: ids });
+
+        if (result.successCount > 0) {
+          showToast(`${result.successCount} poliçe başarıyla onaylandı`, 'success');
+        }
+
+        if (result.failedCount > 0) {
+          console.warn('Başarısız onaylamalar:', result.errors);
+          showToast(`${result.failedCount} poliçe onaylanamadı`, 'warning');
+        }
+
+        // Tümünü seç checkbox'ını temizle
+        document.getElementById('selectAll').checked = false;
+
+        loadPolicies(); // Tabloyu yenile
+      } catch (error) {
+        console.error('Toplu onaylama hatası:', error);
+        showToast(error.message || 'Bir hata oluştu', 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    // Seçilen poliçe sayısını güncelle
+    function updateSelectedCount() {
+      const checkboxes = document.querySelectorAll('#tableBody input[type="checkbox"]:checked');
+      const count = checkboxes.length;
+      const batchBtn = document.getElementById('batchApproveBtn');
+
+      if (batchBtn) {
+        if (count > 0) {
+          batchBtn.style.display = 'inline-flex';
+          batchBtn.querySelector('.selected-count').textContent = count;
+        } else {
+          batchBtn.style.display = 'none';
+        }
+      }
     }
 
     function openImportModal() {
