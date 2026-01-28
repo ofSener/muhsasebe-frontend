@@ -166,7 +166,7 @@
     // Load policies from API
     async function loadPolicies() {
       try {
-        const response = await apiGet('/api/policies?limit=1000');
+        const response = await apiGet('policies?limit=1000');
         policies = response || [];
         filteredPolicies = [...policies];
         renderTable();

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Toplu Aktar - IHSAN AI</title>
+  <title>Toplu Aktarım - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
 </head>
 <body>
@@ -17,15 +17,15 @@
       <!-- Navbar -->
       <nav class="navbar">
         <div class="navbar-left">
-          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menü">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
           </button>
           <div class="navbar-breadcrumb">
-            <span class="breadcrumb-item">Police Islemleri</span>
+            <span class="breadcrumb-item">Poliçe İşlemleri</span>
             <span class="breadcrumb-separator">/</span>
-            <span class="breadcrumb-item active">Toplu Aktar</span>
+            <span class="breadcrumb-item active">Toplu Aktarım</span>
           </div>
         </div>
         <div class="navbar-right">
@@ -49,255 +49,409 @@
 
       <!-- Page Wrapper -->
       <div class="page-wrapper">
-        <!-- Page Content -->
         <div class="page-content">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Toplu Police Aktarimi</h1>
-            <p class="page-subtitle">Sigorta sirketlerinden gelen Excel dosyalarindan toplu police yukleyin</p>
+          <!-- Page Header -->
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Toplu Poliçe Aktarımı</h1>
+              <p class="page-subtitle">Sigorta şirketlerinden gelen Excel dosyalarından toplu poliçe yükleyin</p>
+            </div>
           </div>
-        </div>
 
-        <!-- Steps -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="steps">
-              <div class="step step-active" id="step1">
-                <div class="step-number">1</div>
-                <div class="step-content">
-                  <div class="step-title">Dosya Yukle</div>
-                  <div class="step-desc">Excel dosyasi secin</div>
-                </div>
+          <!-- Step Wizard -->
+          <div class="wizard-steps">
+            <div class="wizard-step active" id="wizardStep1">
+              <div class="wizard-step-number">
+                <span class="step-num">1</span>
+                <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20,6 9,17 4,12"/>
+                </svg>
               </div>
-              <div class="step-connector"></div>
-              <div class="step" id="step2">
-                <div class="step-number">2</div>
-                <div class="step-content">
-                  <div class="step-title">Onizleme</div>
-                  <div class="step-desc">Verileri kontrol edin</div>
-                </div>
+              <div class="wizard-step-content">
+                <div class="wizard-step-title">Dosya Yükle</div>
+                <div class="wizard-step-desc">Excel dosyası seçin</div>
               </div>
-              <div class="step-connector"></div>
-              <div class="step" id="step3">
-                <div class="step-number">3</div>
-                <div class="step-content">
-                  <div class="step-title">Iceri Aktar</div>
-                  <div class="step-desc">Policeleri kaydedin</div>
-                </div>
+            </div>
+            <div class="wizard-connector"></div>
+            <div class="wizard-step" id="wizardStep2">
+              <div class="wizard-step-number">
+                <span class="step-num">2</span>
+                <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20,6 9,17 4,12"/>
+                </svg>
+              </div>
+              <div class="wizard-step-content">
+                <div class="wizard-step-title">Önizleme</div>
+                <div class="wizard-step-desc">Verileri kontrol edin</div>
+              </div>
+            </div>
+            <div class="wizard-connector"></div>
+            <div class="wizard-step" id="wizardStep3">
+              <div class="wizard-step-number">
+                <span class="step-num">3</span>
+                <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20,6 9,17 4,12"/>
+                </svg>
+              </div>
+              <div class="wizard-step-content">
+                <div class="wizard-step-title">Tamamlandı</div>
+                <div class="wizard-step-desc">Poliçeleri kaydedin</div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Upload Area -->
-        <div class="card mb-4" id="uploadCard">
-          <div class="card-header">
-            <h3 class="card-title">Dosya Yukle</h3>
-          </div>
-          <div class="card-body">
-            <!-- Sigorta Sirketi Secimi -->
-            <div class="form-group mb-4">
-              <label class="form-label">Sigorta Sirketi (Otomatik tespit edilir, degistirebilirsiniz)</label>
-              <select class="form-control" id="sigortaSirketiSelect">
-                <option value="">-- Otomatik Tespit --</option>
-              </select>
-              <small class="text-muted">Dosya adindan sirket otomatik tespit edilir. Manuel degistirebilirsiniz.</small>
-            </div>
-
-            <div class="file-upload" id="fileUpload">
-              <input type="file" accept=".xlsx,.xls,.csv" style="display: none;" id="fileInput">
-              <div class="file-upload-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <!-- Step 1: Upload Card -->
+          <div class="card" id="uploadCard">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                   <polyline points="17,8 12,3 7,8"/>
                   <line x1="12" y1="3" x2="12" y2="15"/>
                 </svg>
+                Dosya Yükle
+              </h3>
+            </div>
+            <div class="card-body">
+              <!-- Sigorta Şirketi Seçimi -->
+              <div class="form-group">
+                <label class="form-label">Sigorta Şirketi</label>
+                <select class="form-select" id="sigortaSirketiSelect">
+                  <option value="">Otomatik Tespit (Dosya adından)</option>
+                </select>
+                <span class="form-hint">Dosya adından şirket otomatik tespit edilir. İsterseniz manuel seçebilirsiniz.</span>
               </div>
-              <div class="file-upload-title">Dosyayi buraya surukleyin veya tiklayin</div>
-              <p class="file-upload-text">Excel (.xlsx, .xls) veya CSV dosyasi yukleyebilirsiniz</p>
-              <div id="selectedFileName" class="text-primary font-semibold mt-2" style="display: none;"></div>
-            </div>
 
-            <div class="requirements-list">
-              <h4 class="requirements-title">Desteklenen Formatlar (8 Sigorta Sirketi)</h4>
-              <ul>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-                    <polyline points="20,6 9,17 4,12"/>
-                  </svg>
-                  <strong>Ankara Sigorta</strong> - Tahakkuk/Iptal, Brans kolonlari
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-                    <polyline points="20,6 9,17 4,12"/>
-                  </svg>
-                  <strong>Unico Sigorta</strong> - Tarife Adi, Sigortali Adi/Soyadi
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-                    <polyline points="20,6 9,17 4,12"/>
-                  </svg>
-                  <strong>Quick Sigorta</strong> - Police_Listesi formati
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-                    <polyline points="20,6 9,17 4,12"/>
-                  </svg>
-                  <strong>Hepiyi Sigorta</strong> - Musteri Ad-Soyad, Police Tur Kod
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-                    <polyline points="20,6 9,17 4,12"/>
-                  </svg>
-                  <strong>Neova Sigorta</strong> - KOD, G/T kolonlari
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-                    <polyline points="20,6 9,17 4,12"/>
-                  </svg>
-                  <strong>Sompo Sigorta</strong> - Urun No, Onay Tanzim Tarihi
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-                    <polyline points="20,6 9,17 4,12"/>
-                  </svg>
-                  <strong>HDI Sigorta</strong> - raporSonuc formati, Ipt/Kay kolonu
-                </li>
-                <li>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
-                    <polyline points="20,6 9,17 4,12"/>
-                  </svg>
-                  <strong>AK Sigorta (SKAY)</strong> - Header 8. satirda
-                </li>
-              </ul>
-            </div>
+              <!-- Upload Zone -->
+              <div class="upload-dropzone" id="uploadDropzone">
+                <input type="file" accept=".xlsx,.xls,.csv" id="fileInput">
+                <div class="dropzone-content">
+                  <div class="dropzone-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                      <polyline points="17,8 12,3 7,8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                  </div>
+                  <div class="dropzone-text">
+                    <span class="dropzone-title">Dosyayı buraya sürükleyin</span>
+                    <span class="dropzone-subtitle">veya tıklayarak seçin</span>
+                  </div>
+                  <div class="dropzone-formats">
+                    <span class="format-badge">.xlsx</span>
+                    <span class="format-badge">.xls</span>
+                    <span class="format-badge">.csv</span>
+                  </div>
+                </div>
+                <div class="dropzone-selected" id="selectedFileInfo" style="display: none;">
+                  <div class="selected-file-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                  </div>
+                  <div class="selected-file-info">
+                    <span class="selected-file-name" id="selectedFileName"></span>
+                    <span class="selected-file-size" id="selectedFileSize"></span>
+                  </div>
+                  <button class="selected-file-remove" id="removeFileBtn" type="button">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/>
+                      <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
 
-            <!-- Upload button -->
-            <div class="mt-4">
-              <button class="btn btn-primary" id="uploadBtn" disabled>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                  <polyline points="17,8 12,3 7,8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
+              <!-- Supported Formats -->
+              <div class="supported-formats">
+                <div class="formats-header">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                  </svg>
+                  <span>Desteklenen Formatlar (8 Sigorta Şirketi)</span>
+                </div>
+                <div class="formats-grid">
+                  <div class="format-item">
+                    <span class="format-check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                    </span>
+                    <span class="format-name">Ankara Sigorta</span>
+                  </div>
+                  <div class="format-item">
+                    <span class="format-check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                    </span>
+                    <span class="format-name">Unico Sigorta</span>
+                  </div>
+                  <div class="format-item">
+                    <span class="format-check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                    </span>
+                    <span class="format-name">Quick Sigorta</span>
+                  </div>
+                  <div class="format-item">
+                    <span class="format-check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                    </span>
+                    <span class="format-name">Hepiyi Sigorta</span>
+                  </div>
+                  <div class="format-item">
+                    <span class="format-check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                    </span>
+                    <span class="format-name">Neova Sigorta</span>
+                  </div>
+                  <div class="format-item">
+                    <span class="format-check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                    </span>
+                    <span class="format-name">Sompo Sigorta</span>
+                  </div>
+                  <div class="format-item">
+                    <span class="format-check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                    </span>
+                    <span class="format-name">HDI Sigorta</span>
+                  </div>
+                  <div class="format-item">
+                    <span class="format-check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20,6 9,17 4,12"/>
+                      </svg>
+                    </span>
+                    <span class="format-name">AK Sigorta (SKAY)</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upload Button -->
+              <div class="upload-actions">
+                <button class="btn btn-primary btn-lg" id="uploadBtn" disabled>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                  Dosyayı Yükle ve Analiz Et
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div class="card" id="loadingCard" style="display: none;">
+            <div class="card-body">
+              <div class="loading-state">
+                <div class="loading-spinner-lg">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                  </svg>
+                </div>
+                <div class="loading-text">
+                  <span class="loading-title">Excel dosyası işleniyor...</span>
+                  <span class="loading-subtitle">Lütfen bekleyin, veriler analiz ediliyor</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Preview Card -->
+          <div class="card" id="previewCard" style="display: none;">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
                 </svg>
-                Dosyayi Yukle ve Analiz Et
-              </button>
+                Önizleme - <span id="detectedFormat">Tespit Edilen Format</span>
+              </h3>
+              <div class="card-actions">
+                <span class="status-pill success" id="validCountBadge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  Geçerli: 0
+                </span>
+                <span class="status-pill danger" id="invalidCountBadge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                  Hatalı: 0
+                </span>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Loading -->
-        <div class="card mb-4" id="loadingCard" style="display: none;">
-          <div class="card-body text-center py-5">
-            <div class="spinner mb-3"></div>
-            <p class="text-muted">Excel dosyasi isleniyor...</p>
-          </div>
-        </div>
-
-        <!-- Preview Table -->
-        <div class="card mb-4" id="previewCard" style="display: none;">
-          <div class="card-header">
-            <h3 class="card-title">Onizleme - <span id="detectedFormat"></span></h3>
-            <div class="flex gap-2">
-              <span class="badge badge-success" id="validCountBadge">Gecerli: 0</span>
-              <span class="badge badge-danger" id="invalidCountBadge">Hatali: 0</span>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px;">Satır</th>
+                    <th>Poliçe No</th>
+                    <th>Sigortalı</th>
+                    <th>TC/VKN</th>
+                    <th>Ürün</th>
+                    <th>Başlangıç</th>
+                    <th>Bitiş</th>
+                    <th style="text-align: right;">Brüt Prim</th>
+                    <th style="width: 120px;">Durum</th>
+                  </tr>
+                </thead>
+                <tbody id="previewTableBody">
+                </tbody>
+              </table>
             </div>
-          </div>
-          <div class="table-container">
-            <table class="data-table mobile-cards">
-              <thead>
-                <tr>
-                  <th>Satir</th>
-                  <th>Police No</th>
-                  <th>Sigortali</th>
-                  <th>TC/VKN</th>
-                  <th>Urun</th>
-                  <th>Baslangic</th>
-                  <th>Bitis</th>
-                  <th>Brut Prim</th>
-                  <th>Durum</th>
-                </tr>
-              </thead>
-              <tbody id="previewTableBody">
-              </tbody>
-            </table>
-          </div>
-          <div class="card-footer">
-            <div class="flex items-center justify-between">
-              <span class="text-muted" id="totalRowsInfo">Toplam 0 satir okundu</span>
-              <div class="flex gap-3">
+            <div class="card-footer">
+              <div class="footer-info">
+                <span class="text-muted" id="totalRowsInfo">Toplam 0 satır okundu</span>
+              </div>
+              <div class="footer-actions">
                 <button class="btn btn-secondary" id="cancelBtn">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"/>
                     <line x1="6" y1="6" x2="18" y2="18"/>
                   </svg>
-                  Iptal
+                  İptal
                 </button>
                 <button class="btn btn-primary" id="confirmBtn">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  <span id="confirmBtnText">0 Gecerli Kaydi Iceri Aktar</span>
+                  <span id="confirmBtnText">0 Geçerli Kaydı İçeri Aktar</span>
                 </button>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Result Card -->
-        <div class="card mb-4" id="resultCard" style="display: none;">
-          <div class="card-header">
-            <h3 class="card-title">Import Sonucu</h3>
-          </div>
-          <div class="card-body">
-            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
-              <div class="stat-card">
-                <div class="stat-value text-primary" id="resultTotal">0</div>
-                <div class="stat-label">Toplam Islenen</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value text-success" id="resultSuccess">0</div>
-                <div class="stat-label">Basarili</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value text-danger" id="resultFailed">0</div>
-                <div class="stat-label">Hatali</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-value text-warning" id="resultDuplicate">0</div>
-                <div class="stat-label">Tekrar (Duplicate)</div>
-              </div>
-            </div>
-            <div id="newCustomersInfo" class="mt-3 text-muted" style="display: none;"></div>
-            <div id="resultErrors" class="mt-4" style="display: none;">
-              <h4 class="mb-2">Hatali Satirlar</h4>
-              <div class="table-container">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Satir</th>
-                      <th>Police No</th>
-                      <th>Hata</th>
-                    </tr>
-                  </thead>
-                  <tbody id="errorTableBody">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="mt-4">
-              <button class="btn btn-primary" id="newImportBtn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 5v14M5 12h14"/>
+          <!-- Step 3: Result Card -->
+          <div class="card" id="resultCard" style="display: none;">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                  <polyline points="22,4 12,14.01 9,11.01"/>
                 </svg>
-                Yeni Import
-              </button>
-              <a href="pool.html" class="btn btn-secondary ml-2">
-                Police Havuzuna Git
-              </a>
+                Aktarım Tamamlandı
+              </h3>
+            </div>
+            <div class="card-body">
+              <!-- Result Stats -->
+              <div class="result-stats">
+                <div class="result-stat primary">
+                  <div class="result-stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                  </div>
+                  <div class="result-stat-value" id="resultTotal">0</div>
+                  <div class="result-stat-label">Toplam İşlenen</div>
+                </div>
+                <div class="result-stat success">
+                  <div class="result-stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                      <polyline points="22,4 12,14.01 9,11.01"/>
+                    </svg>
+                  </div>
+                  <div class="result-stat-value" id="resultSuccess">0</div>
+                  <div class="result-stat-label">Başarılı</div>
+                </div>
+                <div class="result-stat danger">
+                  <div class="result-stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="15" y1="9" x2="9" y2="15"/>
+                      <line x1="9" y1="9" x2="15" y2="15"/>
+                    </svg>
+                  </div>
+                  <div class="result-stat-value" id="resultFailed">0</div>
+                  <div class="result-stat-label">Hatalı</div>
+                </div>
+                <div class="result-stat warning">
+                  <div class="result-stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="9" y1="9" x2="15" y2="15"/>
+                      <line x1="15" y1="9" x2="9" y2="15"/>
+                    </svg>
+                  </div>
+                  <div class="result-stat-value" id="resultDuplicate">0</div>
+                  <div class="result-stat-label">Tekrar (Mükerrer)</div>
+                </div>
+              </div>
+
+              <!-- New Customers Info -->
+              <div class="info-banner" id="newCustomersInfo" style="display: none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                  <line x1="20" y1="8" x2="20" y2="14"/>
+                  <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                <span id="newCustomersText"></span>
+              </div>
+
+              <!-- Errors Section -->
+              <div class="errors-section" id="resultErrors" style="display: none;">
+                <div class="errors-header">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                  </svg>
+                  <span>Hatalı Satırlar</span>
+                </div>
+                <div class="table-container">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th style="width: 80px;">Satır</th>
+                        <th style="width: 150px;">Poliçe No</th>
+                        <th>Hata Mesajı</th>
+                      </tr>
+                    </thead>
+                    <tbody id="errorTableBody">
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Result Actions -->
+              <div class="result-actions">
+                <button class="btn btn-primary" id="newImportBtn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14"/>
+                  </svg>
+                  Yeni Aktarım
+                </button>
+                <a href="pool.html" class="btn btn-secondary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                  </svg>
+                  Poliçe Havuzuna Git
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
         </div>
       </div>
@@ -306,15 +460,612 @@
 
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       WIZARD STEPS
+       ═══════════════════════════════════════════════════════════════ */
+    .wizard-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 1.5rem 2rem;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .wizard-step {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      opacity: 0.5;
+      transition: all var(--transition-base);
+    }
+
+    .wizard-step.active {
+      opacity: 1;
+    }
+
+    .wizard-step.completed {
+      opacity: 1;
+    }
+
+    .wizard-step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-elevated);
+      border: 2px solid var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      transition: all var(--transition-base);
+      position: relative;
+    }
+
+    .wizard-step.active .wizard-step-number {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .wizard-step.completed .wizard-step-number {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+
+    .wizard-step-number .step-num {
+      display: block;
+    }
+
+    .wizard-step-number .step-check {
+      display: none;
+    }
+
+    .wizard-step.completed .wizard-step-number .step-num {
+      display: none;
+    }
+
+    .wizard-step.completed .wizard-step-number .step-check {
+      display: block;
+    }
+
+    .wizard-step-content {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wizard-step-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+
+    .wizard-step-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .wizard-connector {
+      width: 60px;
+      height: 2px;
+      background: var(--border-default);
+      margin: 0 0.5rem;
+      transition: background var(--transition-base);
+    }
+
+    .wizard-step.completed + .wizard-connector {
+      background: var(--success);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FORM ELEMENTS
+       ═══════════════════════════════════════════════════════════════ */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .form-select:hover {
+      border-color: var(--primary);
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .form-hint {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       UPLOAD DROPZONE
+       ═══════════════════════════════════════════════════════════════ */
+    .upload-dropzone {
+      position: relative;
+      border: 2px dashed var(--border-default);
+      border-radius: var(--radius-lg);
+      background: var(--bg-elevated);
+      transition: all var(--transition-base);
+      overflow: hidden;
+    }
+
+    .upload-dropzone:hover,
+    .upload-dropzone.dragover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .upload-dropzone input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    .dropzone-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 2rem;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .dropzone-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--primary-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .dropzone-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .dropzone-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    .dropzone-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .dropzone-formats {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .format-badge {
+      padding: 0.25rem 0.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* Selected File State */
+    .dropzone-selected {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--success-glow);
+      border-top: 1px solid var(--success);
+    }
+
+    .selected-file-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--success);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .selected-file-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .selected-file-name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .selected-file-size {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .selected-file-remove {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid var(--border-default);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      position: relative;
+      z-index: 3;
+    }
+
+    .selected-file-remove:hover {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: white;
+    }
+
+    .upload-dropzone.has-file .dropzone-content {
+      display: none;
+    }
+
+    .upload-dropzone.has-file input[type="file"] {
+      pointer-events: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SUPPORTED FORMATS
+       ═══════════════════════════════════════════════════════════════ */
+    .supported-formats {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-md);
+    }
+
+    .formats-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .formats-header svg {
+      color: var(--info);
+    }
+
+    .formats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .format-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.8125rem;
+    }
+
+    .format-check {
+      color: var(--success);
+    }
+
+    .format-name {
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       UPLOAD ACTIONS
+       ═══════════════════════════════════════════════════════════════ */
+    .upload-actions {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-lg {
+      padding: 0.875rem 1.5rem;
+      font-size: 0.9375rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LOADING STATE
+       ═══════════════════════════════════════════════════════════════ */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .loading-spinner-lg {
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+    }
+
+    .loading-spinner-lg svg {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .loading-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    .loading-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       PREVIEW TABLE
+       ═══════════════════════════════════════════════════════════════ */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-pill.success {
+      background: var(--success-glow);
+      color: var(--success);
+    }
+
+    .status-pill.danger {
+      background: var(--danger-glow);
+      color: var(--danger);
+    }
+
+    .row-error {
+      background: var(--danger-bg) !important;
+    }
+
+    .status-badge-sm {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.6875rem;
+      font-weight: 500;
+    }
+
+    .status-badge-sm.success {
+      background: var(--success-glow);
+      color: var(--success);
+    }
+
+    .status-badge-sm.danger {
+      background: var(--danger-glow);
+      color: var(--danger);
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+    }
+
+    .footer-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESULT STATS
+       ═══════════════════════════════════════════════════════════════ */
+    .result-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .result-stat {
+      padding: 1.5rem;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-lg);
+      text-align: center;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .result-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin: 0 auto 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .result-stat.primary .result-stat-icon {
+      background: var(--primary-glow);
+      color: var(--primary);
+    }
+
+    .result-stat.success .result-stat-icon {
+      background: var(--success-glow);
+      color: var(--success);
+    }
+
+    .result-stat.danger .result-stat-icon {
+      background: var(--danger-glow);
+      color: var(--danger);
+    }
+
+    .result-stat.warning .result-stat-icon {
+      background: var(--warning-glow);
+      color: var(--warning);
+    }
+
+    .result-stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .result-stat-label {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    /* Info Banner */
+    .info-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.25rem;
+      background: var(--info-glow);
+      border-radius: var(--radius-md);
+      color: var(--info);
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Errors Section */
+    .errors-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .errors-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--danger);
+      margin-bottom: 0.75rem;
+    }
+
+    /* Result Actions */
+    .result-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .wizard-steps {
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .wizard-connector {
+        display: none;
+      }
+
+      .result-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .card-footer {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .footer-actions {
+        width: 100%;
+        justify-content: flex-end;
+      }
+    }
+  </style>
+
   <script>
     // State
     let currentSessionId = null;
     let currentPreviewData = null;
 
     // Elements
-    const fileUpload = document.getElementById('fileUpload');
     const fileInput = document.getElementById('fileInput');
+    const uploadDropzone = document.getElementById('uploadDropzone');
+    const selectedFileInfo = document.getElementById('selectedFileInfo');
     const selectedFileName = document.getElementById('selectedFileName');
+    const selectedFileSize = document.getElementById('selectedFileSize');
+    const removeFileBtn = document.getElementById('removeFileBtn');
     const sigortaSirketiSelect = document.getElementById('sigortaSirketiSelect');
     const uploadBtn = document.getElementById('uploadBtn');
     const uploadCard = document.getElementById('uploadCard');
@@ -325,10 +1076,10 @@
     const confirmBtn = document.getElementById('confirmBtn');
     const newImportBtn = document.getElementById('newImportBtn');
 
-    // Step elements
-    const step1 = document.getElementById('step1');
-    const step2 = document.getElementById('step2');
-    const step3 = document.getElementById('step3');
+    // Wizard steps
+    const wizardStep1 = document.getElementById('wizardStep1');
+    const wizardStep2 = document.getElementById('wizardStep2');
+    const wizardStep3 = document.getElementById('wizardStep3');
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async function() {
@@ -349,49 +1100,36 @@
           });
         }
       } catch (error) {
-        console.error('Sigorta sirketleri yuklenemedi:', error);
+        console.error('Sigorta şirketleri yüklenemedi:', error);
       }
     }
 
     // Setup event listeners
     function setupEventListeners() {
-      // File upload click
-      fileUpload.addEventListener('click', function(e) {
-        if (e.target !== fileInput) {
-          fileInput.click();
-        }
-      });
+      // File input change - handles both click and drag/drop
+      fileInput.addEventListener('change', handleFileSelect);
 
-      // File input change
-      fileInput.addEventListener('change', function(e) {
-        if (e.target.files.length > 0) {
-          const file = e.target.files[0];
-          selectedFileName.textContent = file.name;
-          selectedFileName.style.display = 'block';
-          uploadBtn.disabled = false;
-        }
-      });
-
-      // Drag and drop
-      fileUpload.addEventListener('dragover', function(e) {
+      // Drag and drop visual feedback
+      uploadDropzone.addEventListener('dragover', (e) => {
         e.preventDefault();
-        fileUpload.classList.add('dragover');
+        uploadDropzone.classList.add('dragover');
       });
 
-      fileUpload.addEventListener('dragleave', function() {
-        fileUpload.classList.remove('dragover');
+      uploadDropzone.addEventListener('dragleave', () => {
+        uploadDropzone.classList.remove('dragover');
       });
 
-      fileUpload.addEventListener('drop', function(e) {
+      uploadDropzone.addEventListener('drop', (e) => {
         e.preventDefault();
-        fileUpload.classList.remove('dragover');
-        if (e.dataTransfer.files.length > 0) {
-          fileInput.files = e.dataTransfer.files;
-          const file = e.dataTransfer.files[0];
-          selectedFileName.textContent = file.name;
-          selectedFileName.style.display = 'block';
-          uploadBtn.disabled = false;
-        }
+        uploadDropzone.classList.remove('dragover');
+        // File will be handled by the input change event
+      });
+
+      // Remove file button
+      removeFileBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        clearSelectedFile();
       });
 
       // Upload button
@@ -407,11 +1145,45 @@
       newImportBtn.addEventListener('click', resetToUpload);
     }
 
+    // Handle file selection
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (file) {
+        showSelectedFile(file);
+      }
+    }
+
+    // Show selected file
+    function showSelectedFile(file) {
+      selectedFileName.textContent = file.name;
+      selectedFileSize.textContent = formatFileSize(file.size);
+      selectedFileInfo.style.display = 'flex';
+      uploadDropzone.classList.add('has-file');
+      uploadBtn.disabled = false;
+    }
+
+    // Clear selected file
+    function clearSelectedFile() {
+      fileInput.value = '';
+      selectedFileInfo.style.display = 'none';
+      uploadDropzone.classList.remove('has-file');
+      uploadBtn.disabled = true;
+    }
+
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
     // Upload file
     async function uploadFile() {
       const file = fileInput.files[0];
       if (!file) {
-        showToast('Lutfen bir dosya secin', 'warning');
+        showToast('Lütfen bir dosya seçin', 'warning');
         return;
       }
 
@@ -445,7 +1217,7 @@
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || 'Dosya islenirken hata olustu');
+          throw new Error(data.error || 'Dosya işlenirken hata oluştu');
         }
 
         // Store session data
@@ -457,7 +1229,7 @@
 
       } catch (error) {
         console.error('Upload error:', error);
-        showToast(error.message || 'Dosya yuklenirken hata olustu', 'error');
+        showToast(error.message || 'Dosya yüklenirken hata oluştu', 'error');
         resetToUpload();
       }
     }
@@ -467,22 +1239,34 @@
       loadingCard.style.display = 'none';
       previewCard.style.display = 'block';
 
-      // Update steps
-      step1.classList.remove('step-active');
-      step1.classList.add('step-completed');
-      step2.classList.add('step-active');
+      // Update wizard steps
+      wizardStep1.classList.remove('active');
+      wizardStep1.classList.add('completed');
+      wizardStep2.classList.add('active');
 
-      // Tespit edilen sirketi dropdown'da sec
+      // Update detected company in dropdown
       if (data.sigortaSirketiId) {
         sigortaSirketiSelect.value = data.sigortaSirketiId;
       }
 
       // Update header
       document.getElementById('detectedFormat').textContent = data.sigortaSirketiAdi || 'Bilinmeyen Format';
-      document.getElementById('validCountBadge').textContent = `Gecerli: ${data.validRows}`;
-      document.getElementById('invalidCountBadge').textContent = `Hatali: ${data.invalidRows}`;
-      document.getElementById('totalRowsInfo').textContent = `Toplam ${data.totalRows} satir okundu`;
-      document.getElementById('confirmBtnText').textContent = `${data.validRows} Gecerli Kaydi Iceri Aktar`;
+      document.getElementById('validCountBadge').innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20,6 9,17 4,12"/>
+        </svg>
+        Geçerli: ${data.validRows}
+      `;
+      document.getElementById('invalidCountBadge').innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+        Hatalı: ${data.invalidRows}
+      `;
+      document.getElementById('totalRowsInfo').textContent = `Toplam ${data.totalRows} satır okundu`;
+      document.getElementById('confirmBtnText').textContent = `${data.validRows} Geçerli Kaydı İçeri Aktar`;
 
       // Populate table
       const tbody = document.getElementById('previewTableBody');
@@ -495,18 +1279,18 @@
         }
 
         tr.innerHTML = `
-          <td>${row.rowNumber}</td>
+          <td class="font-mono">${row.rowNumber}</td>
           <td class="font-mono">${row.policeNo || '-'}</td>
           <td>${row.sigortaliAdi || '-'}</td>
           <td class="font-mono">${row.tcVkn || '-'}</td>
           <td><span class="badge badge-primary">${row.urunAdi || '-'}</span></td>
           <td>${formatDate(row.baslangicTarihi)}</td>
           <td>${formatDate(row.bitisTarihi)}</td>
-          <td class="font-mono">${formatCurrency(row.brutPrim)}</td>
+          <td class="font-mono" style="text-align: right;">${formatCurrency(row.brutPrim)}</td>
           <td>
             ${row.isValid
-              ? '<span class="status-badge status-success"><span class="badge-dot"></span> Gecerli</span>'
-              : `<span class="status-badge status-danger"><span class="badge-dot"></span> ${row.validationErrors?.join(', ') || 'Hatali'}</span>`
+              ? '<span class="status-badge-sm success"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> Geçerli</span>'
+              : `<span class="status-badge-sm danger"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ${row.validationErrors?.join(', ') || 'Hatalı'}</span>`
             }
           </td>
         `;
@@ -518,12 +1302,12 @@
     // Confirm import
     async function confirmImport() {
       if (!currentSessionId) {
-        showToast('Oturum bulunamadi', 'error');
+        showToast('Oturum bulunamadı', 'error');
         return;
       }
 
       confirmBtn.disabled = true;
-      confirmBtn.innerHTML = '<span class="spinner-sm"></span> Kaydediliyor...';
+      confirmBtn.innerHTML = '<span class="btn-spinner"></span> Kaydediliyor...';
 
       try {
         const response = await apiPost('excel-import/confirm', {
@@ -531,7 +1315,7 @@
         });
 
         if (!response.success) {
-          throw new Error(response.errorMessage || 'Import basarisiz');
+          throw new Error(response.errorMessage || 'Aktarım başarısız');
         }
 
         // Show result
@@ -539,9 +1323,9 @@
 
       } catch (error) {
         console.error('Confirm error:', error);
-        showToast(error.message || 'Import sirasinda hata olustu', 'error');
+        showToast(error.message || 'Aktarım sırasında hata oluştu', 'error');
         confirmBtn.disabled = false;
-        confirmBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">${currentPreviewData?.validRows || 0} Gecerli Kaydi Iceri Aktar</span>`;
+        confirmBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">${currentPreviewData?.validRows || 0} Geçerli Kaydı İçeri Aktar</span>`;
       }
     }
 
@@ -550,11 +1334,11 @@
       previewCard.style.display = 'none';
       resultCard.style.display = 'block';
 
-      // Update steps
-      step2.classList.remove('step-active');
-      step2.classList.add('step-completed');
-      step3.classList.add('step-active');
-      step3.classList.add('step-completed');
+      // Update wizard steps
+      wizardStep2.classList.remove('active');
+      wizardStep2.classList.add('completed');
+      wizardStep3.classList.add('active');
+      wizardStep3.classList.add('completed');
 
       // Update stats
       document.getElementById('resultTotal').textContent = data.totalProcessed;
@@ -565,8 +1349,8 @@
       // New customers info
       if (data.newCustomersCreated > 0) {
         const info = document.getElementById('newCustomersInfo');
-        info.textContent = `${data.newCustomersCreated} yeni musteri kaydi olusturuldu.`;
-        info.style.display = 'block';
+        document.getElementById('newCustomersText').textContent = `${data.newCustomersCreated} yeni müşteri kaydı oluşturuldu.`;
+        info.style.display = 'flex';
       }
 
       // Show errors if any
@@ -578,7 +1362,7 @@
         data.errors.forEach(err => {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${err.rowNumber}</td>
+            <td class="font-mono">${err.rowNumber}</td>
             <td class="font-mono">${err.policeNo || '-'}</td>
             <td class="text-danger">${err.errorMessage}</td>
           `;
@@ -588,7 +1372,7 @@
         errorsDiv.style.display = 'block';
       }
 
-      showToast(`${data.successCount} police basariyla eklendi`, 'success');
+      showToast(`${data.successCount} poliçe başarıyla eklendi`, 'success');
     }
 
     // Reset to upload
@@ -601,18 +1385,20 @@
       previewCard.style.display = 'none';
       resultCard.style.display = 'none';
 
-      // Reset steps
-      step1.classList.add('step-active');
-      step1.classList.remove('step-completed');
-      step2.classList.remove('step-active', 'step-completed');
-      step3.classList.remove('step-active', 'step-completed');
+      // Reset wizard steps
+      wizardStep1.classList.add('active');
+      wizardStep1.classList.remove('completed');
+      wizardStep2.classList.remove('active', 'completed');
+      wizardStep3.classList.remove('active', 'completed');
 
       // Reset form
-      fileInput.value = '';
-      selectedFileName.style.display = 'none';
-      uploadBtn.disabled = true;
+      clearSelectedFile();
       confirmBtn.disabled = false;
-      confirmBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">0 Gecerli Kaydi Iceri Aktar</span>';
+      confirmBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">0 Geçerli Kaydı İçeri Aktar</span>';
+
+      // Reset errors section
+      document.getElementById('resultErrors').style.display = 'none';
+      document.getElementById('newCustomersInfo').style.display = 'none';
     }
 
     // Helper functions
@@ -631,93 +1417,7 @@
       }).format(amount);
     }
   </script>
+
   <script src="../../components/sidebar.js"></script>
-
-  <style>
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid var(--border-default);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-
-    .spinner-sm {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-right: 8px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .row-error {
-      background-color: rgba(239, 68, 68, 0.1);
-    }
-
-    .stat-card {
-      background: var(--bg-elevated);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      text-align: center;
-      border: 1px solid var(--border-default);
-    }
-
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .stat-label {
-      color: var(--text-muted);
-      font-size: 0.875rem;
-    }
-
-    .requirements-list {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      background: var(--bg-surface);
-      border-radius: var(--radius-md);
-    }
-
-    .requirements-title {
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      color: var(--text-primary);
-    }
-
-    .requirements-list ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .requirements-list li {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0;
-      color: var(--text-secondary);
-    }
-
-    .file-upload.dragover {
-      border-color: var(--primary);
-      background: var(--primary-glow);
-    }
-
-    .step-completed .step-number {
-      background: var(--success);
-      border-color: var(--success);
-    }
-  </style>
 </body>
 </html>
