@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poliçelerim - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
   <div class="gradient-mesh"></div>
@@ -58,20 +57,13 @@
             <p class="page-subtitle">Tüm poliçelerinizi görüntüleyin ve yönetin</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-secondary">
+            <button class="btn btn-secondary" onclick="exportToExcel()">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                 <polyline points="7,10 12,15 17,10"/>
                 <line x1="12" y1="15" x2="12" y2="3"/>
               </svg>
               Excel İndir
-            </button>
-            <button class="btn btn-primary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
-              </svg>
-              Yeni Poliçe
             </button>
           </div>
         </div>
@@ -81,7 +73,7 @@
           <div class="card-body">
             <div class="flex flex-wrap gap-3 items-center">
               <div class="form-group filter-group-flex">
-                <select class="form-select">
+                <select class="form-select" id="filterPoliceTipi" onchange="applyFilters()">
                   <option value="">Tüm Poliçe Tipleri</option>
                   <option value="kasko">Kasko</option>
                   <option value="trafik">Trafik</option>
@@ -92,17 +84,17 @@
                 </select>
               </div>
               <div class="form-group filter-group-flex">
-                <select class="form-select">
+                <select class="form-select" id="filterDurum" onchange="applyFilters()">
                   <option value="">Tüm Durumlar</option>
-                  <option value="aktif">Aktif</option>
-                  <option value="pasif">Pasif</option>
-                  <option value="iptal">İptal</option>
+                  <option value="0">Beklemede</option>
+                  <option value="1">Onaylı</option>
+                  <option value="2">Reddedildi</option>
                 </select>
               </div>
               <div class="form-group filter-group-flex">
-                <input type="text" class="form-input" placeholder="Poliçe No veya Müşteri Ara...">
+                <input type="text" class="form-input" id="filterSearch" placeholder="Poliçe No veya Plaka Ara..." onkeyup="handleSearchKeyup(event)">
               </div>
-              <button class="btn btn-secondary">
+              <button class="btn btn-secondary" onclick="applyFilters()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
@@ -116,221 +108,28 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title">Poliçe Listesi</h3>
-            <span class="badge badge-neutral">1,284 poliçe</span>
+            <span class="badge badge-neutral" id="totalCount">Yükleniyor...</span>
           </div>
           <div class="table-container">
             <table class="data-table mobile-cards">
               <thead>
                 <tr>
                   <th>Poliçe No</th>
-                  <th>Müşteri</th>
+                  <th>Plaka</th>
                   <th>Tip</th>
                   <th>Başlangıç</th>
                   <th>Bitiş</th>
-                  <th>Prim</th>
+                  <th>Brüt Prim</th>
+                  <th>Komisyon</th>
                   <th>Durum</th>
                   <th>İşlemler</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="policyTableBody">
                 <tr>
-                  <td><span class="font-mono cell-main">#POL-2024-1284</span></td>
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar avatar-sm avatar-cyan">MD</div>
-                      <div>
-                        <div class="cell-main">Mehmet Demir</div>
-                        <div class="cell-sub">12345678901</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td><span class="badge badge-primary">Kasko</span></td>
-                  <td>15.01.2024</td>
-                  <td>15.01.2025</td>
-                  <td class="font-mono font-semibold">₺24,500</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Aktif</span></td>
-                  <td>
-                    <div class="table-actions">
-                      <button class="action-btn" title="Görüntüle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                          <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Düzenle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Yazdır">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polyline points="6,9 6,2 18,2 18,9"/>
-                          <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
-                          <rect x="6" y="14" width="12" height="8"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><span class="font-mono cell-main">#POL-2024-1283</span></td>
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar avatar-sm avatar-emerald">AK</div>
-                      <div>
-                        <div class="cell-main">Ayşe Kaya</div>
-                        <div class="cell-sub">98765432109</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td><span class="badge badge-success">Trafik</span></td>
-                  <td>10.01.2024</td>
-                  <td>10.01.2025</td>
-                  <td class="font-mono font-semibold">₺3,200</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Aktif</span></td>
-                  <td>
-                    <div class="table-actions">
-                      <button class="action-btn" title="Görüntüle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                          <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Düzenle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Yazdır">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polyline points="6,9 6,2 18,2 18,9"/>
-                          <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
-                          <rect x="6" y="14" width="12" height="8"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><span class="font-mono cell-main">#POL-2024-1282</span></td>
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar avatar-sm avatar-amber">AY</div>
-                      <div>
-                        <div class="cell-main">Ali Yıldız</div>
-                        <div class="cell-sub">55544433221</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td><span class="badge badge-warning">DASK</span></td>
-                  <td>05.01.2024</td>
-                  <td>05.01.2025</td>
-                  <td class="font-mono font-semibold">₺850</td>
-                  <td><span class="status-badge status-warning"><span class="badge-dot"></span> Yenileme</span></td>
-                  <td>
-                    <div class="table-actions">
-                      <button class="action-btn" title="Görüntüle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                          <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Düzenle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Yazdır">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polyline points="6,9 6,2 18,2 18,9"/>
-                          <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
-                          <rect x="6" y="14" width="12" height="8"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><span class="font-mono cell-main">#POL-2024-1281</span></td>
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar avatar-sm avatar-violet">ZC</div>
-                      <div>
-                        <div class="cell-main">Zeynep Çelik</div>
-                        <div class="cell-sub">11122233344</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td><span class="badge" style="background: var(--secondary-glow); color: var(--secondary);">Sağlık</span></td>
-                  <td>01.01.2024</td>
-                  <td>01.01.2025</td>
-                  <td class="font-mono font-semibold">₺18,750</td>
-                  <td><span class="status-badge status-success"><span class="badge-dot"></span> Aktif</span></td>
-                  <td>
-                    <div class="table-actions">
-                      <button class="action-btn" title="Görüntüle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                          <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Düzenle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Yazdır">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polyline points="6,9 6,2 18,2 18,9"/>
-                          <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
-                          <rect x="6" y="14" width="12" height="8"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td><span class="font-mono cell-main">#POL-2024-1280</span></td>
-                  <td>
-                    <div class="flex items-center gap-3">
-                      <div class="avatar avatar-sm avatar-rose">CK</div>
-                      <div>
-                        <div class="cell-main">Can Koç</div>
-                        <div class="cell-sub">99988877766</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td><span class="badge badge-primary">Kasko</span></td>
-                  <td>28.12.2023</td>
-                  <td>28.12.2024</td>
-                  <td class="font-mono font-semibold">₺32,100</td>
-                  <td><span class="status-badge status-danger"><span class="badge-dot"></span> İptal</span></td>
-                  <td>
-                    <div class="table-actions">
-                      <button class="action-btn" title="Görüntüle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                          <circle cx="12" cy="12" r="3"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Düzenle">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                      </button>
-                      <button class="action-btn" title="Yazdır">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polyline points="6,9 6,2 18,2 18,9"/>
-                          <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/>
-                          <rect x="6" y="14" width="12" height="8"/>
-                        </svg>
-                      </button>
-                    </div>
+                  <td colspan="9" style="text-align: center; padding: 2rem;">
+                    <div class="loading-spinner"></div>
+                    Yükleniyor...
                   </td>
                 </tr>
               </tbody>
@@ -338,16 +137,8 @@
           </div>
           <div class="card-footer">
             <div class="flex items-center justify-between">
-              <span class="text-muted">1-5 / 1,284 poliçe gösteriliyor</span>
-              <div class="flex gap-2">
-                <button class="btn btn-sm btn-secondary" disabled>Önceki</button>
-                <button class="btn btn-sm btn-primary">1</button>
-                <button class="btn btn-sm btn-secondary">2</button>
-                <button class="btn btn-sm btn-secondary">3</button>
-                <button class="btn btn-sm btn-secondary">...</button>
-                <button class="btn btn-sm btn-secondary">257</button>
-                <button class="btn btn-sm btn-secondary">Sonraki</button>
-              </div>
+              <span class="text-muted" id="tableInfo">-</span>
+              <div class="flex gap-2" id="pagination"></div>
             </div>
           </div>
         </div>
@@ -359,5 +150,217 @@
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
   <script src="../../components/sidebar.js"></script>
+
+  <script>
+    // State
+    let policies = [];
+    let filteredPolicies = [];
+    let currentPage = 1;
+    const pageSize = 20;
+
+    // Load policies on page load
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadPolicies();
+    });
+
+    // Load policies from API
+    async function loadPolicies() {
+      try {
+        const response = await apiGet('/api/policies?limit=1000');
+        policies = response || [];
+        filteredPolicies = [...policies];
+        renderTable();
+        updateStats();
+      } catch (error) {
+        console.error('Poliçeler yüklenirken hata:', error);
+        document.getElementById('policyTableBody').innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 2rem; color: var(--danger);">
+              Poliçeler yüklenirken hata oluştu: ${error.message}
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const policeTipi = document.getElementById('filterPoliceTipi').value.toLowerCase();
+      const durum = document.getElementById('filterDurum').value;
+      const search = document.getElementById('filterSearch').value.toLowerCase();
+
+      filteredPolicies = policies.filter(p => {
+        // Poliçe tipi filtresi
+        if (policeTipi && p.policeTipi?.toLowerCase() !== policeTipi) return false;
+
+        // Durum filtresi
+        if (durum !== '' && p.onayDurumu?.toString() !== durum) return false;
+
+        // Arama filtresi
+        if (search) {
+          const matchPoliceNo = p.policeNo?.toLowerCase().includes(search);
+          const matchPlaka = p.plaka?.toLowerCase().includes(search);
+          if (!matchPoliceNo && !matchPlaka) return false;
+        }
+
+        return true;
+      });
+
+      currentPage = 1;
+      renderTable();
+      updateStats();
+    }
+
+    // Handle search keyup
+    function handleSearchKeyup(event) {
+      if (event.key === 'Enter') {
+        applyFilters();
+      }
+    }
+
+    // Render table
+    function renderTable() {
+      const tbody = document.getElementById('policyTableBody');
+      const totalPages = Math.ceil(filteredPolicies.length / pageSize);
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, filteredPolicies.length);
+      const pageData = filteredPolicies.slice(startIndex, endIndex);
+
+      if (pageData.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+              Poliçe bulunamadı.
+            </td>
+          </tr>
+        `;
+        document.getElementById('tableInfo').textContent = '0 poliçe';
+        document.getElementById('pagination').innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = pageData.map(p => `
+        <tr>
+          <td><span class="font-mono cell-main">${p.policeNo || '-'}</span></td>
+          <td><span class="font-mono">${p.plaka || '-'}</span></td>
+          <td><span class="badge badge-primary">${p.policeTipi || '-'}</span></td>
+          <td>${formatDate(p.baslangicTarihi)}</td>
+          <td>${formatDate(p.bitisTarihi)}</td>
+          <td class="font-mono font-semibold">₺${formatNumber(p.brutPrim)}</td>
+          <td class="font-mono">₺${formatNumber(p.komisyon)}</td>
+          <td>${getStatusBadge(p.onayDurumu)}</td>
+          <td>
+            <div class="table-actions">
+              <button class="action-btn" title="Görüntüle" onclick="viewPolicy(${p.id})">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      // Update table info
+      document.getElementById('tableInfo').textContent = `${startIndex + 1}-${endIndex} / ${filteredPolicies.length} poliçe`;
+
+      // Render pagination
+      renderPagination(totalPages);
+    }
+
+    // Render pagination
+    function renderPagination(totalPages) {
+      const pagination = document.getElementById('pagination');
+
+      if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+
+      // Previous button
+      html += `<button class="btn btn-sm btn-secondary" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">Önceki</button>`;
+
+      // Page numbers
+      const maxVisible = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+
+      if (endPage - startPage < maxVisible - 1) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+      }
+
+      if (startPage > 1) {
+        html += `<button class="btn btn-sm btn-secondary" onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) html += `<span class="btn btn-sm btn-secondary" disabled>...</span>`;
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        html += `<button class="btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="goToPage(${i})">${i}</button>`;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) html += `<span class="btn btn-sm btn-secondary" disabled>...</span>`;
+        html += `<button class="btn btn-sm btn-secondary" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+      }
+
+      // Next button
+      html += `<button class="btn btn-sm btn-secondary" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">Sonraki</button>`;
+
+      pagination.innerHTML = html;
+    }
+
+    // Go to page
+    function goToPage(page) {
+      currentPage = page;
+      renderTable();
+    }
+
+    // Update stats
+    function updateStats() {
+      document.getElementById('totalCount').textContent = `${filteredPolicies.length} poliçe`;
+    }
+
+    // Format date
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('tr-TR');
+    }
+
+    // Format number
+    function formatNumber(num) {
+      if (num === null || num === undefined) return '0';
+      return Number(num).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Get status badge
+    function getStatusBadge(status) {
+      switch (status) {
+        case 0:
+          return '<span class="status-badge status-warning"><span class="badge-dot"></span> Beklemede</span>';
+        case 1:
+          return '<span class="status-badge status-success"><span class="badge-dot"></span> Onaylı</span>';
+        case 2:
+          return '<span class="status-badge status-danger"><span class="badge-dot"></span> Reddedildi</span>';
+        default:
+          return '<span class="status-badge"><span class="badge-dot"></span> Bilinmiyor</span>';
+      }
+    }
+
+    // View policy
+    function viewPolicy(id) {
+      // TODO: Implement policy detail view
+      alert('Poliçe detayı: ' + id);
+    }
+
+    // Export to Excel
+    function exportToExcel() {
+      // TODO: Implement Excel export
+      alert('Excel export henüz uygulanmadı');
+    }
+  </script>
 </body>
 </html>
