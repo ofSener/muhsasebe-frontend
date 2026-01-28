@@ -691,7 +691,7 @@
     let poolData = null;
     let searchTimeout = null;
     let currentSource = 'captured'; // 'captured' veya 'pool'
-    let currentSortBy = 'baslangicTarihi';
+    let currentSortBy = 'tanzimTarihi';
     let currentSortDir = 'desc';
 
     // Sayfa yüklendiğinde
@@ -784,7 +784,7 @@
           <th>Branş</th>
           <th>Sigorta Şirketi</th>
           <th class="sortable" onclick="sortCaptured('brutPrim')">Brüt Prim</th>
-          <th class="sortable active-sort" onclick="sortCaptured('baslangicTarihi')">Başlangıç ↓</th>
+          <th class="sortable active-sort" onclick="sortCaptured('tanzimTarihi')">Tanzim ↓</th>
           <th>Durum</th>
           <th>İşlem</th>
         `;
@@ -936,6 +936,14 @@
         // Main tab count güncelle
         document.getElementById('capturedCount').textContent = data?.length || 0;
 
+        // Pagination info güncelle
+        document.getElementById('paginationInfo').textContent = items.length > 0
+          ? `${items.length} poliçe gösteriliyor`
+          : 'Kayıt bulunamadı';
+
+        // Pagination butonlarını gizle (tüm veri yükleniyor)
+        document.getElementById('paginationButtons').innerHTML = '';
+
       } catch (error) {
         console.error('Yakalanan poliçeler yüklenemedi:', error);
         showTableError(error.message);
@@ -974,7 +982,7 @@
             <td>${item.policeTuruAdi || '-'}</td>
             <td>${item.sigortaSirketiAdi || '-'}</td>
             <td class="font-mono">${formatCurrency(item.brutPrim)}</td>
-            <td class="font-mono">${formatDate(item.baslangicTarihi)}</td>
+            <td class="font-mono">${formatDate(item.tanzimTarihi)}</td>
             <td>
               <span class="status-badge status-import">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
