@@ -2691,9 +2691,9 @@
       const producer = producersList.find(pr => pr.id === p.produktorId);
       const producerName = producer ? producer.name : `Prodüktör #${p.produktorId}`;
 
-      // Poliçe türünü API'den gelen listeden bul
-      const policyType = policyTypes.find(pt => pt.id === p.policeTuru);
-      const typeName = policyType ? (policyType.turu || policyType.value || `Tür ${p.policeTuru}`) : `Tür ${p.policeTuru}`;
+      // Poliçe türü adı doğrudan API'den geliyor (policeTuruAdi)
+      // Fallback olarak eski alan adlarını da kontrol et
+      const typeName = p.policeTuruAdi || p.policeTuru || 'Bilinmiyor';
       const typeClass = getTypeClass(typeName);
 
       // Şube adını al (API'dan doğrudan geliyor)
@@ -2701,7 +2701,7 @@
 
       return {
         id: p.id,
-        policyNo: p.policeNumarasi || '',
+        policyNo: p.policeNo || p.policeNumarasi || '',
         customer: p.sigortaliAdi || 'Bilinmiyor',
         type: typeName,
         typeClass: typeClass,
