@@ -496,10 +496,25 @@ async function apiRequest(endpoint, options = {}, _isRetry = false) {
       throw new Error('Bu işlem için yetkiniz yok');
     }
 
-    const data = await response.json();
+    // Response body'yi güvenli şekilde parse et
+    const text = await response.text();
+    if (!text || text.trim() === '') {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Sunucudan boş yanıt alındı`);
+      }
+      return null; // Boş ama başarılı response
+    }
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      console.error('[API] JSON parse error:', parseError, 'Response text:', text.substring(0, 200));
+      throw new Error('Sunucudan geçersiz yanıt alındı');
+    }
 
     if (!response.ok) {
-      throw new Error(data.error || 'Bir hata oluştu');
+      throw new Error(data.error || data.message || 'Bir hata oluştu');
     }
 
     return data;

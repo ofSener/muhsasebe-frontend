@@ -86,7 +86,6 @@
           </a>
           <div class="nav-submenu">
             <a href="${pagesPath}customers/list.html" class="nav-link" data-page="list.html" data-folder="customers"><span class="nav-text">Musteri Listesi</span></a>
-            <a href="${pagesPath}customers/detail.html" class="nav-link" data-page="detail.html"><span class="nav-text">Musteri Detay</span></a>
             <a href="${pagesPath}customers/renewals.html" class="nav-link" data-page="renewals.html"><span class="nav-text">Yenileme Takibi</span></a>
           </div>
         </div>
