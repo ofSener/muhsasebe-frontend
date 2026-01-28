@@ -119,43 +119,55 @@
             </div>
 
             <div class="requirements-list">
-              <h4 class="requirements-title">Desteklenen Formatlar</h4>
+              <h4 class="requirements-title">Desteklenen Formatlar (8 Sigorta Sirketi)</h4>
               <ul>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  <strong>Ankara Sigorta</strong> - Police No, Brut Prim, Baslangic Tarihi
+                  <strong>Ankara Sigorta</strong> - Tahakkuk/Iptal, Brans kolonlari
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  <strong>Quick Sigorta</strong> - PoliceNo, BrutPrimTL, BaslamaTarihi
+                  <strong>Unico Sigorta</strong> - Tarife Adi, Sigortali Adi/Soyadi
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  <strong>Hepiyi Sigorta</strong> - Police No, Brut Prim, Police Tarih
+                  <strong>Quick Sigorta</strong> - Police_Listesi formati
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  <strong>Neova Sigorta</strong> - POLICE NO, BRUT PRIM, BASLANGIC TARIHI
+                  <strong>Hepiyi Sigorta</strong> - Musteri Ad-Soyad, Police Tur Kod
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  <strong>Unico Sigorta</strong> - Police No, Brut Prim, Baslama Tarihi
+                  <strong>Neova Sigorta</strong> - KOD, G/T kolonlari
                 </li>
                 <li>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
                     <polyline points="20,6 9,17 4,12"/>
                   </svg>
-                  <strong>Sompo Sigorta</strong> - Ozel format (Header 2. satirda)
+                  <strong>Sompo Sigorta</strong> - Urun No, Onay Tanzim Tarihi
+                </li>
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  <strong>HDI Sigorta</strong> - raporSonuc formati, Ipt/Kay kolonu
+                </li>
+                <li>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  <strong>AK Sigorta (SKAY)</strong> - Header 8. satirda
                 </li>
               </ul>
             </div>
@@ -459,6 +471,11 @@
       step1.classList.remove('step-active');
       step1.classList.add('step-completed');
       step2.classList.add('step-active');
+
+      // Tespit edilen sirketi dropdown'da sec
+      if (data.sigortaSirketiId) {
+        sigortaSirketiSelect.value = data.sigortaSirketiId;
+      }
 
       // Update header
       document.getElementById('detectedFormat').textContent = data.sigortaSirketiAdi || 'Bilinmeyen Format';

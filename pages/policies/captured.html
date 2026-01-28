@@ -3653,7 +3653,7 @@
 
       // Yeni pipeline'dan gelen paginationInfo varsa kullan
       // Yoksa eski uyumluluk modu için hesapla
-      let paginatedData, totalItems, totalPages, activePage, startIndex;
+      let paginatedData, totalItems, totalPages, activePage, startIndex, endIndex;
 
       if (paginationInfo) {
         // YENİ PIPELINE MODU - Sıralama ZATEN yapılmış
@@ -3666,6 +3666,7 @@
         // Eski state'i de senkronize tut (uyumluluk)
         currentPage = activePage;
         totalFilteredItems = totalItems;
+        endIndex = Math.min(startIndex + tableState.pagination.pageSize, totalItems);
       } else {
         // ESKİ UYUMLULUK MODU - Sıralama ve pagination burada
         totalItems = data.length;
@@ -3676,7 +3677,7 @@
 
         activePage = currentPage;
         startIndex = (activePage - 1) * pageSize;
-        const endIndex = Math.min(startIndex + pageSize, data.length);
+        endIndex = Math.min(startIndex + pageSize, data.length);
         paginatedData = data.slice(startIndex, endIndex);
         totalFilteredItems = totalItems;
       }
