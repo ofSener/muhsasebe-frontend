@@ -84,15 +84,15 @@
 
         <!-- Ana Sekmeler -->
         <div class="main-tabs">
-          <button class="main-tab active" data-source="captured" onclick="switchMainTab('captured', this)">
+          <a href="captured.html" class="main-tab">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/>
               <polyline points="12,6 12,12 16,14"/>
             </svg>
             Yakalanan Poliçeler
             <span class="main-tab-count" id="capturedCount">-</span>
-          </button>
-          <button class="main-tab" data-source="pool" onclick="switchMainTab('pool', this)">
+          </a>
+          <button class="main-tab active" data-source="pool" onclick="switchMainTab('pool', this)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
               <polyline points="17,8 12,3 7,8"/>
@@ -689,6 +689,7 @@
     let currentBransId = null;
     let pageSize = 20;
     let poolData = null;
+    let capturedData = null; // Yakalanan poliçeler için cache
     let searchTimeout = null;
     let currentSource = 'captured'; // 'captured' veya 'pool'
     let currentSortBy = 'tanzimTarihi';
@@ -711,7 +712,7 @@
         searchTimeout = setTimeout(() => {
           currentSearch = this.value;
           currentPage = 1;
-          loadPolicies();
+          loadData(); // Aktif kaynağa göre yükle
         }, 300);
       });
 
@@ -720,7 +721,7 @@
       bransFilter.addEventListener('change', function() {
         currentBransId = this.value ? parseInt(this.value) : null;
         currentPage = 1;
-        loadPolicies();
+        loadData(); // Aktif kaynağa göre yükle
       });
 
       // Select all checkbox
@@ -752,6 +753,7 @@
       currentSource = source;
       currentPage = 1;
       currentStatus = 'all';
+      capturedData = null; // Cache'i temizle
 
       // Stat label'larını güncelle
       if (source === 'captured') {
@@ -891,29 +893,34 @@
     }
 
     // Yakalanan poliçeleri yükle
-    async function loadCapturedPolicies() {
+    async function loadCapturedPolicies(forceReload = false) {
       showTableLoading();
       try {
-        const params = {
-          limit: 5000,
-          sortBy: currentSortBy,
-          sortDir: currentSortDir
-        };
+        // Cache'den al veya yeniden yükle
+        if (!capturedData || forceReload) {
+          const params = {
+            limit: 10000,
+            sortBy: currentSortBy,
+            sortDir: currentSortDir
+          };
+          capturedData = await apiGet('policies/captured', params) || [];
+        }
 
-        const data = await apiGet('policies/captured', params);
+        let items = [...capturedData];
 
-        // Stats güncelle
-        let items = data || [];
-        const totalPrim = items.reduce((sum, p) => sum + (p.brutPrim || 0), 0);
-
-        document.getElementById('totalCount').textContent = items.length;
-        document.getElementById('matchedCount').textContent = items.length;
+        // Stats güncelle (filtrelenmemiş veriden)
+        const totalPrim = capturedData.reduce((sum, p) => sum + (p.brutPrim || 0), 0);
+        document.getElementById('totalCount').textContent = capturedData.length;
+        document.getElementById('matchedCount').textContent = capturedData.length;
         document.getElementById('differenceCount').textContent = 0;
         document.getElementById('totalPrim').textContent = formatCurrency(totalPrim);
 
         // Tab sayılarını güncelle
         const tabCountAll = document.getElementById('tabCountAll');
-        if (tabCountAll) tabCountAll.textContent = items.length;
+        if (tabCountAll) tabCountAll.textContent = capturedData.length;
+
+        // Main tab count güncelle
+        document.getElementById('capturedCount').textContent = capturedData.length;
 
         // Arama filtresi
         if (currentSearch) {
@@ -930,24 +937,104 @@
           items = items.filter(p => p.policeTuruId === currentBransId);
         }
 
+        // Filtrelenmiş toplam
+        const filteredTotal = items.length;
+
+        // Sayfalama uygula
+        const totalPages = Math.ceil(filteredTotal / pageSize);
+        const startIndex = (currentPage - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        const pagedItems = items.slice(startIndex, endIndex);
+
         // Tablo render
-        renderCapturedTable(items);
+        renderCapturedTable(pagedItems);
 
-        // Main tab count güncelle
-        document.getElementById('capturedCount').textContent = data?.length || 0;
-
-        // Pagination info güncelle
-        document.getElementById('paginationInfo').textContent = items.length > 0
-          ? `${items.length} poliçe gösteriliyor`
-          : 'Kayıt bulunamadı';
-
-        // Pagination butonlarını gizle (tüm veri yükleniyor)
-        document.getElementById('paginationButtons').innerHTML = '';
+        // Pagination render
+        renderCapturedPagination({
+          currentPage: currentPage,
+          pageSize: pageSize,
+          totalCount: filteredTotal,
+          totalPages: totalPages
+        });
 
       } catch (error) {
         console.error('Yakalanan poliçeler yüklenemedi:', error);
         showTableError(error.message);
       }
+    }
+
+    // Yakalananlar için pagination render
+    function renderCapturedPagination(data) {
+      const container = document.getElementById('paginationButtons');
+      const info = document.getElementById('paginationInfo');
+
+      const start = data.totalCount > 0 ? ((data.currentPage - 1) * data.pageSize) + 1 : 0;
+      const end = Math.min(data.currentPage * data.pageSize, data.totalCount);
+
+      info.textContent = data.totalCount > 0
+        ? `${start}-${end} / ${data.totalCount} poliçe gösteriliyor`
+        : 'Kayıt bulunamadı';
+
+      if (data.totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let buttons = [];
+
+      // Previous button
+      buttons.push(`
+        <button class="btn btn-sm btn-secondary" ${data.currentPage <= 1 ? 'disabled' : ''} onclick="goToCapturedPage(${data.currentPage - 1})">
+          Önceki
+        </button>
+      `);
+
+      // Page numbers
+      const maxVisible = 5;
+      let startPage = Math.max(1, data.currentPage - Math.floor(maxVisible / 2));
+      let endPage = Math.min(data.totalPages, startPage + maxVisible - 1);
+
+      if (endPage - startPage + 1 < maxVisible) {
+        startPage = Math.max(1, endPage - maxVisible + 1);
+      }
+
+      if (startPage > 1) {
+        buttons.push(`<button class="btn btn-sm btn-secondary" onclick="goToCapturedPage(1)">1</button>`);
+        if (startPage > 2) {
+          buttons.push(`<span class="px-2">...</span>`);
+        }
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        const isActive = i === data.currentPage;
+        buttons.push(`
+          <button class="btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}" onclick="goToCapturedPage(${i})">
+            ${i}
+          </button>
+        `);
+      }
+
+      if (endPage < data.totalPages) {
+        if (endPage < data.totalPages - 1) {
+          buttons.push(`<span class="px-2">...</span>`);
+        }
+        buttons.push(`<button class="btn btn-sm btn-secondary" onclick="goToCapturedPage(${data.totalPages})">${data.totalPages}</button>`);
+      }
+
+      // Next button
+      buttons.push(`
+        <button class="btn btn-sm btn-secondary" ${data.currentPage >= data.totalPages ? 'disabled' : ''} onclick="goToCapturedPage(${data.currentPage + 1})">
+          Sonraki
+        </button>
+      `);
+
+      container.innerHTML = buttons.join('');
+    }
+
+    // Sayfa değiştir (yakalananlar)
+    function goToCapturedPage(page) {
+      currentPage = page;
+      loadCapturedPolicies(); // Cache'den yükle, forceReload = false
     }
 
     // Yakalanan poliçeler için tablo render
@@ -1043,7 +1130,8 @@
         currentSortBy = column;
         currentSortDir = 'desc';
       }
-      loadCapturedPolicies();
+      currentPage = 1; // Sıralama değişince ilk sayfaya dön
+      loadCapturedPolicies(true); // forceReload = true
     }
 
     // Branşları yükle
