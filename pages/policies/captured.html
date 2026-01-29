@@ -2777,7 +2777,9 @@
             id: u.id,
             name: name,
             initials: initials,
-            color: colors[idx % colors.length]
+            color: colors[idx % colors.length],
+            subeId: u.subeId,
+            branch: u.subeAdi || ''
           };
         });
         populateProducerFilter();
@@ -3606,9 +3608,12 @@
               policy.producer = prod.name;
               policy.producerInitials = prod.initials;
               policy.producerColor = prod.color;
-              policy.branch = prod.branch;
-              // Also record branch change
-              pendingChanges.get(policyId)['branch'] = prod.branch;
+              // Branch'i sadece varsa güncelle
+              if (prod.branch) {
+                policy.branch = prod.branch;
+                pendingChanges.get(policyId)['branch'] = prod.branch;
+              }
+              // Yoksa mevcut branch korunur
             }
           } else if (field === 'date') {
             policy.date = newValue;
@@ -3623,7 +3628,8 @@
       }
 
       currentEditCell = null;
-      applyFilters();
+      // Tabloyu hemen yeniden render etme - değişiklik kaydedilene kadar bekle
+      // applyFilters() kaldırıldı - tablo sadece kaydetme/iptal sonrası yenilenir
     }
 
     function cancelEditing() {
@@ -3656,7 +3662,17 @@
     async function saveAllChanges() {
       const changesArray = [];
       pendingChanges.forEach((changes, policyId) => {
-        changesArray.push({ policyId, changes });
+        // Undefined değerleri filtrele
+        const cleanChanges = {};
+        Object.entries(changes).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            cleanChanges[key] = value;
+          }
+        });
+
+        if (Object.keys(cleanChanges).length > 0) {
+          changesArray.push({ policyId, changes: cleanChanges });
+        }
       });
 
       if (changesArray.length === 0) {
