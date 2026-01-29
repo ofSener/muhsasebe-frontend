@@ -594,6 +594,7 @@
   </div>
 
   <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/date-filter-utils.js"></script>
   <style>
     /* Page Header Extended */
     .page-header-extended {
@@ -2624,52 +2625,6 @@
 
   <script>
     // ═══════════════════════════════════════════════════════════════
-    // DATE PRESET HANDLERS (Global)
-    // ═══════════════════════════════════════════════════════════════
-
-    // Global date ranges
-    let dateRanges = {};
-    let flatpickrInstance = null;
-    let isPresetSelection = false;
-
-    function handlePresetClick(btn, rangeKey) {
-
-      // Update active state
-      document.querySelectorAll('.date-preset-btn').forEach(b => {
-        b.classList.remove('active');
-      });
-      btn.classList.add('active');
-
-      // Update KPI labels
-      updateKpiPeriodLabel(rangeKey);
-
-      // Get range and filter
-      const range = dateRanges[rangeKey];
-      if (range && flatpickrInstance) {
-        isPresetSelection = true;
-        flatpickrInstance.setDate(range, true);
-
-        const formatDateTR = (date) => {
-          return date.toLocaleDateString('tr-TR', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-          });
-        };
-
-        const dateRangeInput = document.getElementById('dateRangeInput');
-        if (range[0].getTime() === range[1].getTime()) {
-          dateRangeInput.value = formatDateTR(range[0]);
-        } else {
-          dateRangeInput.value = formatDateTR(range[0]) + ' - ' + formatDateTR(range[1]);
-        }
-
-        filterByDateRange(range[0], range[1]);
-        isPresetSelection = false;
-      }
-    }
-
-    // ═══════════════════════════════════════════════════════════════
     // PERMISSION SYSTEM
     // ═══════════════════════════════════════════════════════════════
 
@@ -3473,8 +3428,8 @@
           loadInsuranceCompanies()
         ]);
 
-        // 3. Date picker başlat
-        initDatePicker();
+        // 3. Date picker başlat (ortak utils'ten)
+        initDatePicker(filterByDateRange);
 
         // 4. Ana veri ve istatistikler
         await Promise.all([
@@ -3712,7 +3667,7 @@
       showLoading(true);
 
       try {
-        const result = await apiPut('policies/batch-update', { updates: changesArray });
+        const result = await apiPut('policies/captured/batch-update', { updates: changesArray });
 
         if (result.success) {
           pendingChanges.clear();
@@ -3749,110 +3704,7 @@
       }
     }
 
-    // Initialize Flatpickr
-    function initDatePicker() {
-      const dateRangeInput = document.getElementById('dateRangeInput');
-      const dateRangePicker = document.getElementById('dateRangePicker');
-
-      if (!dateRangeInput || !dateRangePicker) {
-        console.error('Date picker elements not found');
-        return;
-      }
-
-      const today = new Date();
-
-      const formatDateTR = (date) => {
-        return date.toLocaleDateString('tr-TR', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric'
-        });
-      };
-
-      // Date ranges - set globally
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-
-      const thisWeekStart = new Date();
-      thisWeekStart.setDate(today.getDate() - today.getDay() + 1);
-
-      const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-
-      dateRanges = {
-        today: [new Date(), new Date()],
-        yesterday: [yesterday, yesterday],
-        thisWeek: [thisWeekStart, new Date()],
-        thisMonth: [thisMonthStart, new Date()]
-      };
-
-      let currentRange = dateRanges.today;
-
-      // Initialize Flatpickr - store globally
-      flatpickrInstance = flatpickr(dateRangeInput, {
-        mode: 'range',
-        dateFormat: 'd M Y',
-        locale: 'tr',
-        defaultDate: currentRange,
-        allowInput: false,
-        disableMobile: true,
-        onOpen: function() {
-          dateRangePicker.classList.add('active');
-        },
-        onClose: function() {
-          dateRangePicker.classList.remove('active');
-        },
-        onChange: function(selectedDates, dateStr) {
-          if (selectedDates.length === 2) {
-            if (!isPresetSelection) {
-              // Clear active state from preset buttons only for manual selection
-              document.querySelectorAll('.date-preset-btn').forEach(btn => {
-                btn.classList.remove('active');
-              });
-              updateKpiPeriodLabel('custom');
-            }
-            filterByDateRange(selectedDates[0], selectedDates[1]);
-          }
-        }
-      });
-
-      // Set initial display
-      dateRangeInput.value = formatDateTR(currentRange[0]);
-
-      // Başlangıçta "Bugün" seçili - label güncelle
-      updateKpiPeriodLabel('today');
-
-    }
-
-    // KPI period label güncelle
-    function updateKpiPeriodLabel(rangeKey) {
-      const pendingLabel = document.getElementById('kpiPeriodLabel');
-      const sentLabel = document.getElementById('kpiSentPeriodLabel');
-
-      const pendingLabels = {
-        'today': 'Bugün yakalanan poliçeler',
-        'yesterday': 'Dün yakalanan poliçeler',
-        'thisWeek': 'Bu hafta yakalanan poliçeler',
-        'thisMonth': 'Bu ay yakalanan poliçeler',
-        'custom': 'Seçilen dönemde yakalanan'
-      };
-
-      const sentLabels = {
-        'today': 'Bugün gönderilen',
-        'yesterday': 'Dün gönderilen',
-        'thisWeek': 'Bu hafta gönderilen',
-        'thisMonth': 'Bu ay gönderilen',
-        'custom': 'Seçilen dönemde gönderilen'
-      };
-
-      if (pendingLabel) {
-        pendingLabel.textContent = pendingLabels[rangeKey] || pendingLabels['custom'];
-      }
-      if (sentLabel) {
-        sentLabel.textContent = sentLabels[rangeKey] || sentLabels['custom'];
-      }
-    }
-
-    // Filter by date range
+    // Filter by date range (sayfa-spesifik - API çağrıları)
     async function filterByDateRange(startDate, endDate) {
       const start = new Date(startDate);
       start.setHours(0, 0, 0, 0);
