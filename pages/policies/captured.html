@@ -379,13 +379,7 @@
                         <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                       </th>
                       <th style="width: 50px;">Şirket</th>
-                      <th class="sortable" data-sort="policyNo" onclick="sortTable('policyNo')">
-                        Poliçe No
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M7 15l5 5 5-5"/>
-                          <path d="M7 9l5-5 5 5"/>
-                        </svg>
-                      </th>
+                      <th>Poliçe No</th>
                       <th class="sortable" data-sort="customer" onclick="sortTable('customer')">
                         Müşteri
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2638,7 +2632,6 @@
     let flatpickrInstance = null;
 
     function handlePresetClick(btn, rangeKey) {
-      console.log('Preset clicked:', rangeKey);
 
       // Update active state
       document.querySelectorAll('.date-preset-btn').forEach(b => {
@@ -2930,9 +2923,8 @@
       try {
         const params = {
           startDate: formatDateISO(currentDateRange.startDate),
-          endDate: formatDateISO(currentDateRange.endDate),
-          sortBy: currentSort.field,
-          sortDir: currentSort.direction
+          endDate: formatDateISO(currentDateRange.endDate)
+          // Sort frontend'de yapılıyor (applyFilters içinde)
         };
 
         const result = await apiGet('policies/captured', params);
@@ -3253,13 +3245,16 @@
       // Eğer policies boşsa insuranceCompanies'dan al
       let companyNames = [];
       if (policies.length > 0) {
-        companyNames = [...new Set(policies.map(p => p.sigortaSirketiAdi))].filter(n => n && n.trim() !== '');
+        companyNames = [...new Set(policies.map(p => p.sigortaSirketiAdi))]
+          .filter(n => n && typeof n === 'string' && n.trim() !== '');
       } else {
-        companyNames = insuranceCompanies.map(c => c.adi || c.ad || '').filter(n => n && n.trim() !== '');
+        companyNames = insuranceCompanies
+          .map(c => c.adi || c.ad || '')
+          .filter(n => n && typeof n === 'string' && n.trim() !== '');
       }
 
-      // Alfabetik sırala
-      companyNames.sort((a, b) => a.localeCompare(b, 'tr'));
+      // Alfabetik sırala (sadece string değerler)
+      companyNames.sort((a, b) => String(a).localeCompare(String(b), 'tr'));
 
       // Şirketleri ekle
       companyNames.forEach((name, index) => {
@@ -3365,13 +3360,16 @@
       // Eğer policies boşsa policyTypes'dan al
       let types = [];
       if (policies.length > 0) {
-        types = [...new Set(policies.map(p => p.type))].filter(t => t && t !== 'Bilinmiyor');
+        types = [...new Set(policies.map(p => p.type))]
+          .filter(t => t && typeof t === 'string' && t !== 'Bilinmiyor');
       } else if (policyTypes.length > 0) {
-        types = policyTypes.map(t => t.value || t.adi || t.name || t).filter(t => t);
+        types = policyTypes
+          .map(t => t.value || t.adi || t.name || (typeof t === 'string' ? t : null))
+          .filter(t => t && typeof t === 'string');
       }
 
-      // Alfabetik sırala
-      types.sort((a, b) => a.localeCompare(b, 'tr'));
+      // Alfabetik sırala (sadece string değerler)
+      types.sort((a, b) => String(a).localeCompare(String(b), 'tr'));
 
       types.forEach((type) => {
         const typeName = typeof type === 'string' ? type : (type.value || type.adi || type.name || 'Bilinmiyor');
@@ -3447,7 +3445,11 @@
     function formatDateISO(date) {
       if (!date) return '';
       const d = new Date(date);
-      return d.toISOString().split('T')[0];
+      // UTC yerine yerel tarihi kullan (timezone sorununu önler)
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -3814,7 +3816,6 @@
       // Başlangıçta "Bugün" seçili - label güncelle
       updateKpiPeriodLabel('today');
 
-      console.log('Date picker initialized, ranges:', Object.keys(dateRanges));
     }
 
     // KPI period label güncelle
@@ -4010,9 +4011,6 @@
 
       // Sort
       if (currentSort.field && currentSort.direction) {
-        console.log('Sorting by:', currentSort.field, currentSort.direction);
-        console.log('Before sort (first 3):', result.slice(0, 3).map(p => ({ [currentSort.field]: p[currentSort.field] })));
-
         result.sort((a, b) => {
           const aVal = a[currentSort.field];
           const bVal = b[currentSort.field];
@@ -4028,13 +4026,18 @@
 
           // SAYISAL SÜTUNLAR (netPremium, grossPremium)
           if (currentSort.field === 'netPremium' || currentSort.field === 'grossPremium') {
-            const aNum = Number(aVal);
-            const bNum = Number(bVal);
+            // Türkçe para formatını veya sayıyı parse et
+            // 12.104,1 = 12104.1 (on iki bin yüz dört lira on kuruş)
+            const parseNumber = (val) => {
+              if (typeof val === 'number' && !isNaN(val)) return val;
+              if (val == null || val === '') return 0;
+              // String ise: binlik ayırıcıyı (.) kaldır, ondalık ayırıcıyı (,) noktaya çevir
+              const str = String(val).replace(/\./g, '').replace(',', '.');
+              return parseFloat(str) || 0;
+            };
 
-            // NaN kontrolü
-            if (isNaN(aNum) && isNaN(bNum)) return 0;
-            if (isNaN(aNum)) return 1;
-            if (isNaN(bNum)) return -1;
+            const aNum = parseNumber(aVal);
+            const bNum = parseNumber(bVal);
 
             comparison = aNum - bNum;
           }
@@ -4051,17 +4054,16 @@
 
             comparison = aTime - bTime;
           }
-          // STRING SÜTUNLAR (policyNo, customer, producer, type, branch)
+          // STRING SÜTUNLAR (customer, producer, type, branch)
           else {
             const aStr = String(aVal || '').toLocaleLowerCase('tr');
             const bStr = String(bVal || '').toLocaleLowerCase('tr');
-            comparison = aStr.localeCompare(bStr, 'tr', { sensitivity: 'base', numeric: true });
+            // localeCompare ters sonuç veriyor, bStr ile aStr karşılaştır
+            comparison = bStr.localeCompare(aStr, 'tr', { sensitivity: 'base', numeric: true });
           }
 
           return currentSort.direction === 'asc' ? comparison : -comparison;
         });
-
-        console.log('After sort (first 3):', result.slice(0, 3).map(p => ({ [currentSort.field]: p[currentSort.field] })));
       }
 
       // Sıralanmış veriyi kaydet (pagination için)
@@ -4080,14 +4082,22 @@
     // Sort table
     function sortTable(field) {
       if (currentSort.field === field) {
+        // Aynı sütuna tekrar tıklandı - yönü değiştir
         currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
       } else {
+        // Yeni sütun - sayısal ve tarih sütunlarında desc ile başla (en büyük önce)
         currentSort.field = field;
-        currentSort.direction = 'asc';
+        const numericOrDateFields = ['netPremium', 'grossPremium', 'date'];
+        currentSort.direction = numericOrDateFields.includes(field) ? 'desc' : 'asc';
       }
+
+      // ÖNEMLİ: tableState.sort'u da senkronize et (pipelineSort için)
+      tableState.sort.field = currentSort.field;
+      tableState.sort.direction = currentSort.direction;
 
       // Reset to first page when sorting
       currentPage = 1;
+      tableState.pagination.currentPage = 1;
 
       // Update sort indicators
       document.querySelectorAll('.sortable').forEach(th => {
@@ -4167,9 +4177,6 @@
 
         return `<span class="${cellClass} ${extraClass}" ${clickHandler}>${displayContent}</span>`;
       }
-
-      // Önce tbody'yi temizle
-      tbody.innerHTML = '';
 
       // HTML içeriğini oluştur
       const rowsHtml = paginatedData.map(p => {
@@ -4273,15 +4280,14 @@
         </tr>
       `}).join('');
 
-      // HTML'i ata ve doğrula
+      // HTML'i ata
       tbody.innerHTML = rowsHtml;
 
-      // DOM doğrulama - ilk satırın ID'sini kontrol et
-      const firstRow = tbody.querySelector('tr[data-id]');
-      const lastRow = tbody.querySelector('tr:last-child');
-      console.log('🟢 DOM FIRST ROW data-id:', firstRow?.dataset.id);
-      console.log('🟢 DOM LAST ROW data-id:', lastRow?.dataset.id);
-      console.log('🟢 Expected first id:', paginatedData[0]?.id, 'Expected last id:', paginatedData[paginatedData.length - 1]?.id);
+      // Browser layer cache'ini bypass et
+      tbody.style.transform = 'translateZ(0)';
+      requestAnimationFrame(() => {
+        tbody.style.transform = '';
+      });
 
       // Update table info text
       document.getElementById('tableInfo').textContent = `${startIndex + 1}-${endIndex} / ${data.length} poliçe`;
