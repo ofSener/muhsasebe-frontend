@@ -237,14 +237,6 @@
                   <option value="editor">Editör</option>
                   <option value="viewer">İzleyici</option>
                 </select>
-                <button class="edit-mode-toggle" id="editModeToggle" onclick="toggleEditMode()">
-                  <span class="toggle-indicator"></span>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                  <span>Düzenleme Modu</span>
-                </button>
               </div>
             </div>
             <div class="card-header">
@@ -360,15 +352,6 @@
                 </div>
                 <input type="hidden" id="insuranceTypeFilter" value="">
               </div>
-            </div>
-            <div class="edit-mode-banner" id="editModeBanner">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-              <span>Düzenleme Modu Aktif — Hücrelere tıklayarak düzenleyin</span>
-              <kbd style="background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">ESC</kbd>
-              <span style="font-weight: 400; opacity: 0.9;">ile çıkın</span>
             </div>
             <div class="card-body" style="padding: 0;">
               <div class="table-container">
@@ -528,20 +511,6 @@
     </div>
   </div>
 
-  <!-- Save Changes Bar -->
-  <div class="save-changes-bar" id="saveChangesBar">
-    <span class="changes-count"><span id="changesCount">0</span> değişiklik bekliyor</span>
-    <button class="btn btn-secondary btn-sm" onclick="discardAllChanges()">İptal</button>
-    <button class="btn btn-primary btn-sm" onclick="saveAllChanges()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-        <polyline points="17,21 17,13 7,13 7,21"/>
-        <polyline points="7,3 7,8 15,8"/>
-      </svg>
-      Tümünü Kaydet
-    </button>
-  </div>
-
   <!-- Customer Modal -->
   <div class="modal-overlay" id="customerModal">
     <div class="modal">
@@ -589,6 +558,87 @@
       </div>
       <div class="modal-body" id="branchModalBody">
         <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Policy Modal -->
+  <div class="modal-overlay" id="editPolicyModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Poliçe Düzenle</h3>
+        <button class="modal-close" onclick="closeEditPolicyModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="editPolicyModalBody">
+        <form id="editPolicyForm" onsubmit="saveEditedPolicy(event)">
+          <input type="hidden" id="editPolicyId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Poliçe No</label>
+              <input type="text" class="form-control mono" id="editPolicyNo" maxlength="25">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Müşteri</label>
+              <input type="text" class="form-control" id="editCustomer" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Poliçe Tipi</label>
+              <select class="form-control" id="editType">
+                <!-- Dinamik doldurulacak -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tanzim Tarihi</label>
+              <input type="date" class="form-control" id="editDate">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Net Prim (₺)</label>
+              <input type="number" step="0.01" class="form-control mono" id="editNetPremium">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Brüt Prim (₺)</label>
+              <input type="number" step="0.01" class="form-control mono" id="editGrossPremium">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prodüktör</label>
+              <select class="form-control" id="editProducer">
+                <!-- Dinamik doldurulacak -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Şube</label>
+              <select class="form-control" id="editBranch">
+                <!-- Dinamik doldurulacak -->
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeEditPolicyModal()">İptal</button>
+            <button type="submit" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17,21 17,13 7,13 7,21"/>
+                <polyline points="7,3 7,8 15,8"/>
+              </svg>
+              Kaydet
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -2864,6 +2914,75 @@
         align-items: flex-start;
       }
     }
+
+    /* Edit Policy Modal Form Styles */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .form-control {
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.15);
+    }
+
+    .form-control.mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    select.form-control {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2.5rem;
+    }
+
+    select.form-control option {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    .action-btn.edit-btn:hover {
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    .action-btn.edit-btn:hover svg {
+      stroke: #818cf8;
+    }
+
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 
   <script>
@@ -2900,8 +3019,6 @@
     // STATE VARIABLES
     // ═══════════════════════════════════════════════════════════════
     let currentUserRole = 'admin';
-    let isEditMode = false;
-    let pendingChanges = new Map();
 
     // Data arrays - API'den doldurulacak
     let policyTypes = [];
@@ -3025,7 +3142,9 @@
             name: name,
             initials: initials,
             color: colors[idx % colors.length],
-            branchId: u.subeId
+            branchId: u.subeId,
+            subeId: u.subeId,
+            branch: u.subeAdi || ''
           };
         });
         populateProducerFilter();
@@ -3704,13 +3823,6 @@
       currentUserRole = role;
       updatePermissionUI();
 
-      // If switching to viewer, disable edit mode
-      if (role === 'viewer' && isEditMode) {
-        isEditMode = false;
-        document.getElementById('editModeToggle').classList.remove('active');
-        document.getElementById('policyCard').classList.remove('edit-mode');
-      }
-
       // Re-render table to reflect permission changes
       applyFilters();
     }
@@ -3720,39 +3832,10 @@
       const badge = document.getElementById('permissionBadge');
       const label = document.getElementById('permissionLabel');
       const text = document.getElementById('permissionText');
-      const editToggle = document.getElementById('editModeToggle');
-
       // Update badge class
       badge.className = 'permission-badge ' + config.badgeClass;
       label.textContent = config.label;
       text.textContent = config.description;
-
-      // Show/hide edit mode toggle based on permission
-      if (config.canEdit) {
-        editToggle.style.display = 'flex';
-      } else {
-        editToggle.style.display = 'none';
-      }
-    }
-
-    function toggleEditMode() {
-      const config = permissionConfig[currentUserRole];
-      if (!config.canEdit) return;
-
-      isEditMode = !isEditMode;
-      const toggle = document.getElementById('editModeToggle');
-      const card = document.getElementById('policyCard');
-
-      if (isEditMode) {
-        toggle.classList.add('active');
-        card.classList.add('edit-mode');
-      } else {
-        toggle.classList.remove('active');
-        card.classList.remove('edit-mode');
-      }
-
-      // Re-render to update cell styles
-      applyFilters();
     }
 
     function canEditField(field) {
@@ -4291,25 +4374,10 @@
         return;
       }
 
-      // Helper function to generate editable cell HTML
-      function editableCell(policyId, field, displayContent, rawValue, extraClass = '') {
-        const canEdit = canEditField(field);
-        const cellClass = canEdit ? 'editable-cell' : 'readonly-cell';
-        const clickHandler = canEdit && isEditMode
-          ? `onclick="event.stopPropagation(); startEditing(this, ${policyId}, '${field}', '${String(rawValue).replace(/'/g, "\\'")}')"`
-          : '';
-
-        return `<span class="${cellClass} ${extraClass}" ${clickHandler}>${displayContent}</span>`;
-      }
-
       // HTML içeriğini oluştur
       const rowsHtml = paginatedData.map(p => {
-        // Check which fields have pending changes
-        const policyChanges = pendingChanges.get(p.id) || {};
-        const hasChanges = Object.keys(policyChanges).length > 0;
-
         return `
-        <tr class="${selectedPolicies.has(p.id) ? 'selected' : ''} ${hasChanges ? 'has-changes' : ''}" data-id="${p.id}" onclick="handleRowClick(event, ${p.id})">
+        <tr class="${selectedPolicies.has(p.id) ? 'selected' : ''}" data-id="${p.id}" onclick="handleRowClick(event, ${p.id})">
           <td>
             <input type="checkbox" ${selectedPolicies.has(p.id) ? 'checked' : ''}>
           </td>
@@ -4321,58 +4389,33 @@
             </div>
           </td>
           <td>
-            ${canEditField('policyNo') && isEditMode ?
-              editableCell(p.id, 'policyNo', `
-                <span class="font-mono" style="font-weight: 600; display: inline-flex; align-items: center; gap: 0.375rem;">
-                  ${p.policyNo}
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity: 0.5;">
-                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                    <polyline points="15,3 21,3 21,9"/>
-                    <line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
-                </span>
-              `, p.policyNo, 'font-mono')
-              : `
-              <span class="clickable-link font-mono" style="font-weight: 600;" onclick="event.stopPropagation(); openPolicyDrive('${p.policyNo}')" title="Google Drive'da aç">
-                ${p.policyNo}
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                  <polyline points="15,3 21,3 21,9"/>
-                  <line x1="10" y1="14" x2="21" y2="3"/>
-                </svg>
-              </span>
-            `}
+            <span class="clickable-link font-mono" style="font-weight: 600;" onclick="event.stopPropagation(); openPolicyDrive('${p.policyNo}')" title="Google Drive'da aç">
+              ${p.policyNo}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                <polyline points="15,3 21,3 21,9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
+            </span>
           </td>
           <td>
-            ${canEditField('customer') && isEditMode ?
-              editableCell(p.id, 'customer', p.customer, p.customer)
-              : `<div class="cell-main clickable-customer" onclick="event.stopPropagation(); openCustomerModal('${p.customer}', ${p.id})">${p.customer}</div>`
-            }
+            <div class="cell-main clickable-customer" onclick="event.stopPropagation(); openCustomerModal('${p.customer}', ${p.id})">${p.customer}</div>
           </td>
           <td>
-            ${canEditField('type') && isEditMode ?
-              editableCell(p.id, 'type', `<span class="policy-type-badge ${p.typeClass}">${p.type}</span>`, p.type)
-              : `<span class="policy-type-badge ${p.typeClass}">${p.type}</span>`
-            }
+            <span class="policy-type-badge ${p.typeClass}">${p.type}</span>
           </td>
           <td>
-            ${editableCell(p.id, 'netPremium', `<span class="font-mono font-semibold">₺${p.netPremium.toLocaleString('tr-TR')}</span>`, p.netPremium, 'font-mono')}
+            <span class="font-mono font-semibold">₺${p.netPremium.toLocaleString('tr-TR')}</span>
           </td>
           <td>
-            ${editableCell(p.id, 'grossPremium', `<span class="font-mono font-semibold">₺${p.grossPremium.toLocaleString('tr-TR')}</span>`, p.grossPremium, 'font-mono')}
+            <span class="font-mono font-semibold">₺${p.grossPremium.toLocaleString('tr-TR')}</span>
           </td>
           <td>
             <div class="producer-cell">
               <div class="producer-avatar ${p.producerColor}">${p.producerInitials}</div>
               <div class="producer-info">
-                ${canEditField('producer') && isEditMode ?
-                  editableCell(p.id, 'producer', `<span class="producer-name">${p.producer}</span>`, p.producer)
-                  : `<span class="producer-name clickable-producer" onclick="event.stopPropagation(); openProducerModal('${p.producer}', '${p.producerInitials}', '${p.producerColor}')">${p.producer}</span>`
-                }
-                ${canEditField('branch') && isEditMode ?
-                  editableCell(p.id, 'branch', `<span class="producer-branch">${p.branch}</span>`, p.branch)
-                  : `<span class="producer-branch clickable-branch" onclick="event.stopPropagation(); openBranchModal('${p.branch}')">${p.branch}</span>`
-                }
+                <span class="producer-name clickable-producer" onclick="event.stopPropagation(); openProducerModal('${p.producer}', '${p.producerInitials}', '${p.producerColor}')">${p.producer}</span>
+                <span class="producer-branch clickable-branch" onclick="event.stopPropagation(); openBranchModal('${p.branch}')">${p.branch}</span>
               </div>
             </div>
           </td>
@@ -4380,20 +4423,23 @@
             <span class="acente-no" data-tooltip="${p.acenteAdi || 'Acente bilgisi yok'}">${p.acenteNo || '-'}</span>
           </td>
           <td>
-            ${canEditField('date') && isEditMode ?
-              editableCell(p.id, 'date', `<span class="cell-sub">${p.dateFormatted}</span>`, p.date)
-              : `<span class="cell-sub">${p.dateFormatted}</span>`
-            }
+            <span class="cell-sub">${p.dateFormatted}</span>
           </td>
           <td onclick="event.stopPropagation()">
             <div class="table-actions">
-              <button class="action-btn view-btn" onclick="viewPolicy(${p.id})">
+              <button class="action-btn view-btn" onclick="viewPolicy(${p.id})" title="Görüntüle">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                   <circle cx="12" cy="12" r="3"/>
                 </svg>
               </button>
-              <button class="action-btn send" onclick="sendToPool(${p.id})">
+              <button class="action-btn edit-btn" onclick="openEditPolicyModal(${p.id})" title="Düzenle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="action-btn send" onclick="sendToPool(${p.id})" title="Havuza Gönder">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M5 12h14"/>
                   <path d="M12 5l7 7-7 7"/>
@@ -5300,6 +5346,134 @@
         'amber': '#f59e0b, #d97706'
       };
       return gradients[color] || '#6366f1, #4f46e5';
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // EDIT POLICY MODAL
+    // ═══════════════════════════════════════════════════════════════
+
+    let currentEditingPolicyId = null;
+
+    function openEditPolicyModal(policyId) {
+      const policy = policies.find(p => p.id === policyId);
+      if (!policy) {
+        showToast('Poliçe bulunamadı', 'error');
+        return;
+      }
+
+      currentEditingPolicyId = policyId;
+
+      // Form alanlarını doldur
+      document.getElementById('editPolicyId').value = policyId;
+      document.getElementById('editPolicyNo').value = policy.policyNo || '';
+      document.getElementById('editCustomer').value = policy.customer || '';
+      document.getElementById('editDate').value = policy.date || '';
+      document.getElementById('editNetPremium').value = policy.netPremium || 0;
+      document.getElementById('editGrossPremium').value = policy.grossPremium || 0;
+
+      // Poliçe tipi dropdown
+      const typeSelect = document.getElementById('editType');
+      typeSelect.innerHTML = policyTypes.map(t =>
+        `<option value="${t.value}" ${t.value === policy.type ? 'selected' : ''}>${t.value}</option>`
+      ).join('');
+
+      // Prodüktör dropdown
+      const producerSelect = document.getElementById('editProducer');
+      producerSelect.innerHTML = producersList.map(p =>
+        `<option value="${p.name}" ${p.name === policy.producer ? 'selected' : ''}>${p.name}</option>`
+      ).join('');
+
+      // Şube dropdown
+      const branchSelect = document.getElementById('editBranch');
+      branchSelect.innerHTML = branchesList.map(b =>
+        `<option value="${b}" ${b === policy.branch ? 'selected' : ''}>${b}</option>`
+      ).join('');
+
+      // Modalı aç
+      document.getElementById('editPolicyModal').classList.add('active');
+    }
+
+    function closeEditPolicyModal() {
+      document.getElementById('editPolicyModal').classList.remove('active');
+      currentEditingPolicyId = null;
+    }
+
+    async function saveEditedPolicy(event) {
+      event.preventDefault();
+
+      const policyId = currentEditingPolicyId;
+      if (!policyId) return;
+
+      const policy = policies.find(p => p.id === policyId);
+      if (!policy) return;
+
+      // Form değerlerini al
+      const newPolicyNo = document.getElementById('editPolicyNo').value.trim();
+      const newType = document.getElementById('editType').value;
+      const newDate = document.getElementById('editDate').value;
+      const newNetPremium = parseFloat(document.getElementById('editNetPremium').value) || 0;
+      const newGrossPremium = parseFloat(document.getElementById('editGrossPremium').value) || 0;
+      const newProducer = document.getElementById('editProducer').value;
+      const newBranch = document.getElementById('editBranch').value;
+
+      // Değişiklikleri topla
+      const changes = {};
+
+      if (newPolicyNo !== policy.policyNo) changes.policyNo = newPolicyNo;
+      if (newType !== policy.type) changes.type = newType;
+      if (newDate !== policy.date) changes.date = newDate;
+      if (newNetPremium !== policy.netPremium) changes.netPremium = newNetPremium;
+      if (newGrossPremium !== policy.grossPremium) changes.grossPremium = newGrossPremium;
+      if (newProducer !== policy.producer) changes.producer = newProducer;
+      if (newBranch !== policy.branch) changes.branch = newBranch;
+
+      // Değişiklik yoksa
+      if (Object.keys(changes).length === 0) {
+        showToast('Değişiklik yapılmadı', 'info');
+        closeEditPolicyModal();
+        return;
+      }
+
+      // API'ye gönder
+      showLoading(true);
+      try {
+        const result = await apiPut('policies/captured/batch-update', {
+          updates: [{ policyId, changes }]
+        });
+
+        if (result.success) {
+          // Yerel veriyi güncelle
+          Object.assign(policy, {
+            policyNo: newPolicyNo,
+            type: newType,
+            typeClass: policyTypes.find(t => t.value === newType)?.class || 'kasko',
+            date: newDate,
+            dateFormatted: new Date(newDate).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+            netPremium: newNetPremium,
+            grossPremium: newGrossPremium,
+            producer: newProducer,
+            branch: newBranch
+          });
+
+          // Prodüktör bilgilerini güncelle
+          const prod = producersList.find(p => p.name === newProducer);
+          if (prod) {
+            policy.producerInitials = prod.initials;
+            policy.producerColor = prod.color;
+          }
+
+          showToast('Poliçe başarıyla güncellendi', 'success');
+          closeEditPolicyModal();
+          applyFilters(); // Tabloyu yenile
+        } else {
+          showToast('Güncelleme başarısız: ' + (result.message || 'Bilinmeyen hata'), 'error');
+        }
+      } catch (error) {
+        console.error('Güncelleme hatası:', error);
+        showToast('Güncelleme sırasında hata oluştu', 'error');
+      } finally {
+        showLoading(false);
+      }
     }
 
     // Close modals when clicking overlay
