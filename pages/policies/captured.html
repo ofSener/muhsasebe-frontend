@@ -310,6 +310,55 @@
                   </div>
                 </div>
                 <input type="hidden" id="branchFilter" value="">
+                <div class="custom-dropdown" id="companyDropdown">
+                  <button class="dropdown-trigger" onclick="toggleCompanyDropdown(event)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                      <path d="M16 3h-8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
+                    </svg>
+                    <span id="companyFilterText">Tüm Şirketler</span>
+                    <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6,9 12,15 18,9"/>
+                    </svg>
+                  </button>
+                  <div class="dropdown-panel" id="companyPanel">
+                    <div class="dropdown-search">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                      </svg>
+                      <input type="text" id="companySearchInput" placeholder="Şirket ara..." oninput="filterCompanyList()">
+                    </div>
+                    <div class="dropdown-list" id="companyList">
+                      <!-- Dinamik olarak doldurulacak -->
+                    </div>
+                  </div>
+                </div>
+                <input type="hidden" id="companyFilter" value="">
+                <div class="custom-dropdown" id="insuranceTypeDropdown">
+                  <button class="dropdown-trigger" onclick="toggleInsuranceTypeDropdown(event)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <span id="insuranceTypeFilterText">Tüm Ürünler</span>
+                    <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6,9 12,15 18,9"/>
+                    </svg>
+                  </button>
+                  <div class="dropdown-panel" id="insuranceTypePanel">
+                    <div class="dropdown-search">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="M21 21l-4.35-4.35"/>
+                      </svg>
+                      <input type="text" id="insuranceTypeSearchInput" placeholder="Ürün tipi ara..." oninput="filterInsuranceTypeList()">
+                    </div>
+                    <div class="dropdown-list" id="insuranceTypeList">
+                      <!-- Dinamik olarak doldurulacak -->
+                    </div>
+                  </div>
+                </div>
+                <input type="hidden" id="insuranceTypeFilter" value="">
               </div>
             </div>
             <div class="edit-mode-banner" id="editModeBanner">
@@ -2726,6 +2775,7 @@
       try {
         const data = await apiGet('policy-types');
         policyTypes = data || [];
+        populateInsuranceTypeFilter();
         return data;
       } catch (error) {
         console.error('Poliçe tipleri alınamadı:', error);
@@ -2737,6 +2787,7 @@
           { value: 'Sağlık', class: 'saglik' },
           { value: 'Konut', class: 'konut' }
         ];
+        populateInsuranceTypeFilter();
         return policyTypes;
       }
     }
@@ -2751,6 +2802,7 @@
         insuranceCompanies.forEach(company => {
           companyCodeMap[company.id] = company.kod;
         });
+        populateCompanyFilter();
         return insuranceCompanies;
       } catch (error) {
         console.error('Sigorta şirketleri alınamadı:', error);
@@ -2898,6 +2950,11 @@
         // API response'u frontend formatına dönüştür
         policies = rawPolicies.map(mapPolicyFromApi);
         filteredPolicies = [...policies];
+
+        // Filtreleri poliçeler yüklendikten sonra tekrar doldur
+        // (policies verisiyle tam eşleşme için)
+        populateCompanyFilter();
+        populateInsuranceTypeFilter();
 
         // applyFilters kullan - sorting dahil tüm işlemler yapılsın
         applyFilters();
@@ -3054,6 +3111,14 @@
       if (branchDropdown && !branchDropdown.contains(event.target)) {
         branchDropdown.classList.remove('open');
       }
+      const companyDropdown = document.getElementById('companyDropdown');
+      if (companyDropdown && !companyDropdown.contains(event.target)) {
+        companyDropdown.classList.remove('open');
+      }
+      const insuranceTypeDropdown = document.getElementById('insuranceTypeDropdown');
+      if (insuranceTypeDropdown && !insuranceTypeDropdown.contains(event.target)) {
+        insuranceTypeDropdown.classList.remove('open');
+      }
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -3151,6 +3216,231 @@
 
       // Dropdown kapat
       document.getElementById('branchDropdown').classList.remove('open');
+
+      // Filtreleme uygula
+      filterTable();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ŞİRKET DROPDOWN FONKSİYONLARI
+    // ═══════════════════════════════════════════════════════════════
+
+    // Şirket dropdown'unu doldur
+    function populateCompanyFilter() {
+      const list = document.getElementById('companyList');
+      if (!list) return;
+
+      const avatarColors = [
+        'linear-gradient(135deg, #10b981, #059669)',
+        'linear-gradient(135deg, #06b6d4, #0891b2)',
+        'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+        'linear-gradient(135deg, #f59e0b, #d97706)',
+        'linear-gradient(135deg, #f43f5e, #e11d48)',
+        'linear-gradient(135deg, #3b82f6, #2563eb)'
+      ];
+
+      // "Tüm Şirketler" seçeneği
+      let html = `
+        <div class="dropdown-item selected" data-value="" onclick="selectCompany(this, '', 'Tüm Şirketler')">
+          <span class="dropdown-item-avatar" style="background: linear-gradient(135deg, #64748b, #475569);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+              <path d="M16 3h-8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
+            </svg>
+          </span>
+          <span class="dropdown-item-name">Tüm Şirketler</span>
+        </div>
+      `;
+
+      // Şirket adlarını mevcut poliçelerden al (API'deki değerlerle tam eşleşme için)
+      // Eğer policies boşsa insuranceCompanies'dan al
+      let companyNames = [];
+      if (policies.length > 0) {
+        companyNames = [...new Set(policies.map(p => p.sigortaSirketiAdi))].filter(n => n && n.trim() !== '');
+      } else {
+        companyNames = insuranceCompanies.map(c => c.adi || c.ad || '').filter(n => n && n.trim() !== '');
+      }
+
+      // Alfabetik sırala
+      companyNames.sort((a, b) => a.localeCompare(b, 'tr'));
+
+      // Şirketleri ekle
+      companyNames.forEach((name, index) => {
+        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        const color = avatarColors[index % avatarColors.length];
+        const escapedName = name.replace(/'/g, "\\'");
+        html += `
+          <div class="dropdown-item" data-value="${name}" onclick="selectCompany(this, '${escapedName}', '${escapedName}')">
+            <span class="dropdown-item-avatar" style="background: ${color};">${initials}</span>
+            <span class="dropdown-item-name">${name}</span>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html;
+    }
+
+    // Şirket dropdown aç/kapat
+    function toggleCompanyDropdown(event) {
+      event.stopPropagation();
+      const dropdown = document.getElementById('companyDropdown');
+      const searchInput = document.getElementById('companySearchInput');
+
+      dropdown.classList.toggle('open');
+
+      if (dropdown.classList.contains('open')) {
+        searchInput.value = '';
+        filterCompanyList();
+        searchInput.focus();
+      }
+    }
+
+    // Şirket listesini filtrele
+    function filterCompanyList() {
+      const searchInput = document.getElementById('companySearchInput');
+      const searchTerm = searchInput.value.toLowerCase();
+      const items = document.querySelectorAll('#companyList .dropdown-item');
+
+      items.forEach(item => {
+        const name = item.getAttribute('data-value').toLowerCase();
+        const text = item.textContent.toLowerCase();
+        if (name.includes(searchTerm) || text.includes(searchTerm)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // Şirket seç
+    function selectCompany(element, value, displayText) {
+      // Hidden input güncelle
+      document.getElementById('companyFilter').value = value;
+
+      // Görünen text güncelle
+      document.getElementById('companyFilterText').textContent = displayText;
+
+      // Seçili durumu güncelle
+      document.querySelectorAll('#companyList .dropdown-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      element.classList.add('selected');
+
+      // Dropdown kapat
+      document.getElementById('companyDropdown').classList.remove('open');
+
+      // Filtreleme uygula
+      filterTable();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // ÜRÜN TİPİ DROPDOWN FONKSİYONLARI
+    // ═══════════════════════════════════════════════════════════════
+
+    // Ürün tipi dropdown'unu doldur
+    function populateInsuranceTypeFilter() {
+      const list = document.getElementById('insuranceTypeList');
+      if (!list) return;
+
+      const typeColors = {
+        'kasko': 'linear-gradient(135deg, #3b82f6, #2563eb)',
+        'trafik': 'linear-gradient(135deg, #f59e0b, #d97706)',
+        'dask': 'linear-gradient(135deg, #ef4444, #dc2626)',
+        'konut': 'linear-gradient(135deg, #10b981, #059669)',
+        'saglik': 'linear-gradient(135deg, #ec4899, #db2777)',
+        'sağlık': 'linear-gradient(135deg, #ec4899, #db2777)',
+        'default': 'linear-gradient(135deg, #8b5cf6, #7c3aed)'
+      };
+
+      // "Tüm Ürünler" seçeneği
+      let html = `
+        <div class="dropdown-item selected" data-value="" onclick="selectInsuranceType(this, '', 'Tüm Ürünler')">
+          <span class="dropdown-item-avatar" style="background: linear-gradient(135deg, #64748b, #475569);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </span>
+          <span class="dropdown-item-name">Tüm Ürünler</span>
+        </div>
+      `;
+
+      // Ürün tiplerini mevcut poliçelerden al (API'deki değerlerle tam eşleşme için)
+      // Eğer policies boşsa policyTypes'dan al
+      let types = [];
+      if (policies.length > 0) {
+        types = [...new Set(policies.map(p => p.type))].filter(t => t && t !== 'Bilinmiyor');
+      } else if (policyTypes.length > 0) {
+        types = policyTypes.map(t => t.value || t.adi || t.name || t).filter(t => t);
+      }
+
+      // Alfabetik sırala
+      types.sort((a, b) => a.localeCompare(b, 'tr'));
+
+      types.forEach((type) => {
+        const typeName = typeof type === 'string' ? type : (type.value || type.adi || type.name || 'Bilinmiyor');
+        const initials = typeName.substring(0, 2).toUpperCase();
+        const colorKey = typeName.toLowerCase().replace('ı', 'i').replace('ğ', 'g').replace('ü', 'u').replace('ş', 's').replace('ö', 'o').replace('ç', 'c');
+        const color = typeColors[colorKey] || typeColors['default'];
+        const escapedName = typeName.replace(/'/g, "\\'");
+        html += `
+          <div class="dropdown-item" data-value="${typeName}" onclick="selectInsuranceType(this, '${escapedName}', '${escapedName}')">
+            <span class="dropdown-item-avatar" style="background: ${color};">${initials}</span>
+            <span class="dropdown-item-name">${typeName}</span>
+          </div>
+        `;
+      });
+
+      list.innerHTML = html;
+    }
+
+    // Ürün tipi dropdown aç/kapat
+    function toggleInsuranceTypeDropdown(event) {
+      event.stopPropagation();
+      const dropdown = document.getElementById('insuranceTypeDropdown');
+      const searchInput = document.getElementById('insuranceTypeSearchInput');
+
+      dropdown.classList.toggle('open');
+
+      if (dropdown.classList.contains('open')) {
+        searchInput.value = '';
+        filterInsuranceTypeList();
+        searchInput.focus();
+      }
+    }
+
+    // Ürün tipi listesini filtrele
+    function filterInsuranceTypeList() {
+      const searchInput = document.getElementById('insuranceTypeSearchInput');
+      const searchTerm = searchInput.value.toLowerCase();
+      const items = document.querySelectorAll('#insuranceTypeList .dropdown-item');
+
+      items.forEach(item => {
+        const name = item.getAttribute('data-value').toLowerCase();
+        const text = item.textContent.toLowerCase();
+        if (name.includes(searchTerm) || text.includes(searchTerm)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // Ürün tipi seç
+    function selectInsuranceType(element, value, displayText) {
+      // Hidden input güncelle
+      document.getElementById('insuranceTypeFilter').value = value;
+
+      // Görünen text güncelle
+      document.getElementById('insuranceTypeFilterText').textContent = displayText;
+
+      // Seçili durumu güncelle
+      document.querySelectorAll('#insuranceTypeList .dropdown-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      element.classList.add('selected');
+
+      // Dropdown kapat
+      document.getElementById('insuranceTypeDropdown').classList.remove('open');
 
       // Filtreleme uygula
       filterTable();
@@ -3686,8 +3976,12 @@
       const searchTerm = document.getElementById('searchInput').value.toLowerCase();
       const producerFilter = document.getElementById('producerFilter').value;
       const branchFilter = document.getElementById('branchFilter').value;
+      const companyFilter = document.getElementById('companyFilter').value;
+      const insuranceTypeFilter = document.getElementById('insuranceTypeFilter').value;
 
-      let result = [...filteredPolicies];
+      // IMPORTANT: Her zaman orijinal policies'den başla, filteredPolicies'den değil!
+      // Aksi halde filtreler kümülatif olur ve filtre kaldırıldığında veri geri gelmez
+      let result = [...policies];
 
       if (searchTerm) {
         result = result.filter(p =>
@@ -3698,7 +3992,8 @@
           p.branch.toLowerCase().includes(searchTerm) ||
           p.dateFormatted.toLowerCase().includes(searchTerm) ||
           p.netPremium.toString().includes(searchTerm) ||
-          p.grossPremium.toString().includes(searchTerm)
+          p.grossPremium.toString().includes(searchTerm) ||
+          (p.sigortaSirketiAdi || '').toLowerCase().includes(searchTerm)
         );
       }
 
@@ -3708,6 +4003,14 @@
 
       if (branchFilter) {
         result = result.filter(p => p.branch === branchFilter);
+      }
+
+      if (companyFilter) {
+        result = result.filter(p => p.sigortaSirketiAdi === companyFilter);
+      }
+
+      if (insuranceTypeFilter) {
+        result = result.filter(p => p.type === insuranceTypeFilter);
       }
 
       // Sort
