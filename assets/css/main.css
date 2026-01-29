@@ -1634,6 +1634,13 @@ h6 { font-size: 0.8125rem; }
   border-color: var(--border-strong);
 }
 
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .btn-success {
   background: var(--success);
   color: white;
