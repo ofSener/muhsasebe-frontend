@@ -2630,6 +2630,7 @@
     // Global date ranges
     let dateRanges = {};
     let flatpickrInstance = null;
+    let isPresetSelection = false;
 
     function handlePresetClick(btn, rangeKey) {
 
@@ -2645,6 +2646,7 @@
       // Get range and filter
       const range = dateRanges[rangeKey];
       if (range && flatpickrInstance) {
+        isPresetSelection = true;
         flatpickrInstance.setDate(range, true);
 
         const formatDateTR = (date) => {
@@ -2663,6 +2665,7 @@
         }
 
         filterByDateRange(range[0], range[1]);
+        isPresetSelection = false;
       }
     }
 
@@ -3800,11 +3803,13 @@
         },
         onChange: function(selectedDates, dateStr) {
           if (selectedDates.length === 2) {
-            // Clear active state from preset buttons
-            document.querySelectorAll('.date-preset-btn').forEach(btn => {
-              btn.classList.remove('active');
-            });
-            updateKpiPeriodLabel('custom');
+            if (!isPresetSelection) {
+              // Clear active state from preset buttons only for manual selection
+              document.querySelectorAll('.date-preset-btn').forEach(btn => {
+                btn.classList.remove('active');
+              });
+              updateKpiPeriodLabel('custom');
+            }
             filterByDateRange(selectedDates[0], selectedDates[1]);
           }
         }
