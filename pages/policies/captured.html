@@ -2722,18 +2722,22 @@
     async function loadPolicyTypes() {
       try {
         const data = await apiGet('policy-types');
-        policyTypes = data || [];
+        policyTypes = (data || []).map(pt => ({
+          id: pt.id,
+          value: pt.turu,
+          class: pt.turu ? pt.turu.toLowerCase().replace(/ı/g, 'i') : 'kasko'
+        }));
         populateInsuranceTypeFilter();
-        return data;
+        return policyTypes;
       } catch (error) {
         console.error('Poliçe tipleri alınamadı:', error);
         // Fallback statik veri
         policyTypes = [
-          { value: 'Kasko', class: 'kasko' },
-          { value: 'Trafik', class: 'trafik' },
-          { value: 'DASK', class: 'dask' },
-          { value: 'Sağlık', class: 'saglik' },
-          { value: 'Konut', class: 'konut' }
+          { id: null, value: 'Kasko', class: 'kasko' },
+          { id: null, value: 'Trafik', class: 'trafik' },
+          { id: null, value: 'DASK', class: 'dask' },
+          { id: null, value: 'Sağlık', class: 'saglik' },
+          { id: null, value: 'Konut', class: 'konut' }
         ];
         populateInsuranceTypeFilter();
         return policyTypes;
@@ -2777,7 +2781,8 @@
             id: u.id,
             name: name,
             initials: initials,
-            color: colors[idx % colors.length]
+            color: colors[idx % colors.length],
+            branchId: u.subeId
           };
         });
         populateProducerFilter();
@@ -3598,17 +3603,25 @@
           if (field === 'netPremium' || field === 'grossPremium') {
             policy[field] = parseFloat(newValue) || 0;
           } else if (field === 'type') {
-            policy[field] = newValue;
-            policy.typeClass = policyTypes.find(t => t.value === newValue)?.class || 'kasko';
+            const policyType = policyTypes.find(t => t.value === newValue);
+            if (policyType) {
+              policy[field] = newValue;
+              policy.typeClass = policyType.class || 'kasko';
+              // Store typeId for backend
+              pendingChanges.get(policyId)['typeId'] = policyType.id;
+            }
           } else if (field === 'producer') {
             const prod = producersList.find(p => p.name === newValue);
             if (prod) {
               policy.producer = prod.name;
               policy.producerInitials = prod.initials;
               policy.producerColor = prod.color;
-              policy.branch = prod.branch;
-              // Also record branch change
-              pendingChanges.get(policyId)['branch'] = prod.branch;
+              // Store producerId for backend
+              pendingChanges.get(policyId)['producerId'] = prod.id;
+              // Also record branchId change if producer has a branch
+              if (prod.branchId) {
+                pendingChanges.get(policyId)['branchId'] = prod.branchId;
+              }
             }
           } else if (field === 'date') {
             policy.date = newValue;
@@ -3656,7 +3669,18 @@
     async function saveAllChanges() {
       const changesArray = [];
       pendingChanges.forEach((changes, policyId) => {
-        changesArray.push({ policyId, changes });
+        // Map camelCase to PascalCase for backend
+        const mappedChanges = {};
+        if (changes.policyNo !== undefined) mappedChanges.PolicyNo = changes.policyNo;
+        if (changes.customer !== undefined) mappedChanges.Customer = changes.customer;
+        if (changes.typeId !== undefined) mappedChanges.TypeId = changes.typeId;
+        if (changes.netPremium !== undefined) mappedChanges.NetPremium = changes.netPremium;
+        if (changes.grossPremium !== undefined) mappedChanges.GrossPremium = changes.grossPremium;
+        if (changes.producerId !== undefined) mappedChanges.ProducerId = changes.producerId;
+        if (changes.branchId !== undefined) mappedChanges.BranchId = changes.branchId;
+        if (changes.date !== undefined) mappedChanges.Date = changes.date;
+
+        changesArray.push({ policyId, changes: mappedChanges });
       });
 
       if (changesArray.length === 0) {
