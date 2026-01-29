@@ -4636,7 +4636,7 @@
       showLoading(true);
 
       try {
-        const result = await apiPut('policies/batch-update', { updates: changesArray });
+        const result = await apiPut('policies/captured/batch-update', { updates: changesArray });
 
         if (result.success) {
           pendingChanges.clear();
