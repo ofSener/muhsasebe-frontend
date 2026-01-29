@@ -86,8 +86,13 @@
           </a>
           <div class="nav-submenu">
             <a href="${pagesPath}customers/list.html" class="nav-link" data-page="list.html" data-folder="customers"><span class="nav-text">Musteri Listesi</span></a>
-            <a href="${pagesPath}customers/renewals.html" class="nav-link" data-page="renewals.html"><span class="nav-text">Yenileme Takibi</span></a>
           </div>
+        </div>
+        <div class="nav-item">
+          <a href="${pagesPath}customers/renewals.html" class="nav-link" data-page="renewals.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c-1.657 0-3-4.03-3-9s1.343-9 3-9m0 18c1.657 0 3-4.03 3-9s-1.343-9-3-9"/></svg>
+            <span class="nav-text">Yenileme Takibi</span>
+          </a>
         </div>
       </div>
       <div class="nav-section">
