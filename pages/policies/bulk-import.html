@@ -196,11 +196,7 @@
           <div class="card" id="loadingCard" style="display: none;">
             <div class="card-body">
               <div class="loading-state">
-                <div class="loading-spinner-lg">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 12a9 9 0 11-6.219-8.56"/>
-                  </svg>
-                </div>
+                <div class="windows-spinner"></div>
                 <div class="loading-text">
                   <span class="loading-title">Excel dosyası işleniyor...</span>
                   <span class="loading-subtitle">Lütfen bekleyin, veriler analiz ediliyor</span>
@@ -245,9 +241,10 @@
                     <th>Sigortalı</th>
                     <th>TC/VKN</th>
                     <th>Ürün</th>
-                    <th>Başlangıç</th>
-                    <th>Bitiş</th>
-                    <th style="text-align: right;">Brüt Prim</th>
+                    <th style="width: 90px;">Başlangıç</th>
+                    <th style="width: 90px;">Bitiş</th>
+                    <th style="width: 110px; text-align: right; white-space: nowrap;">Brüt Prim</th>
+                    <th style="width: 70px;">Tip</th>
                     <th style="width: 120px;">Durum</th>
                   </tr>
                 </thead>
@@ -258,6 +255,23 @@
             <div class="card-footer">
               <div class="footer-info">
                 <span class="text-muted" id="totalRowsInfo">Toplam 0 satır okundu</span>
+              </div>
+              <!-- Pagination -->
+              <div class="pagination" id="paginationContainer">
+                <button class="pagination-btn" id="prevPageBtn" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="15,18 9,12 15,6"/>
+                  </svg>
+                </button>
+                <div class="pagination-pages" id="paginationPages">
+                  <!-- Page buttons will be rendered here -->
+                </div>
+                <button class="pagination-btn" id="nextPageBtn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9,18 15,12 9,6"/>
+                  </svg>
+                </button>
+                <span class="pagination-info" id="paginationInfo">Sayfa 1 / 1</span>
               </div>
               <div class="footer-actions">
                 <button class="btn btn-secondary" id="cancelBtn">
@@ -815,18 +829,39 @@
       text-align: center;
     }
 
-    .loading-spinner-lg {
+    /* Windows 10/11 style Ring Spinner */
+    .windows-spinner {
+      width: 48px;
+      height: 48px;
       margin-bottom: 1.5rem;
-      color: var(--primary);
+      border: 4px solid rgba(99, 102, 241, 0.2);
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      will-change: transform;
+      -webkit-animation: spinner-rotate 1s linear infinite;
+      -moz-animation: spinner-rotate 1s linear infinite;
+      -o-animation: spinner-rotate 1s linear infinite;
+      animation: spinner-rotate 1s linear infinite;
     }
 
-    .loading-spinner-lg svg {
-      animation: spin 1s linear infinite;
+    @-webkit-keyframes spinner-rotate {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
     }
 
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+    @-moz-keyframes spinner-rotate {
+      0% { -moz-transform: rotate(0deg); }
+      100% { -moz-transform: rotate(360deg); }
+    }
+
+    @-o-keyframes spinner-rotate {
+      0% { -o-transform: rotate(0deg); }
+      100% { -o-transform: rotate(360deg); }
+    }
+
+    @keyframes spinner-rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     .loading-text {
@@ -893,6 +928,19 @@
       color: var(--danger);
     }
 
+    /* Zeyil/Yeni Badge Styles */
+    .badge-warning {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.15) 100%);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-success {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(22, 163, 74, 0.15) 100%);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
     .card-footer {
       display: flex;
       align-items: center;
@@ -900,11 +948,95 @@
       padding: 1rem 1.5rem;
       border-top: 1px solid var(--border-subtle);
       background: var(--bg-elevated);
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
     .footer-actions {
       display: flex;
       gap: 0.75rem;
+    }
+
+    /* Pagination Styles */
+    .pagination {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pagination-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pagination-pages {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .pagination-page {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 0.5rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .pagination-page:hover {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .pagination-page.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .pagination-ellipsis {
+      min-width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    .pagination-info {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-left: 0.5rem;
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -1036,6 +1168,8 @@
     // State
     let currentSessionId = null;
     let currentPreviewData = null;
+    let currentPage = 1;
+    const pageSize = 100;
 
     // Elements
     const fileInput = document.getElementById('fileInput');
@@ -1190,6 +1324,22 @@
 
       // New import button
       newImportBtn.addEventListener('click', resetToUpload);
+
+      // Pagination buttons
+      document.getElementById('prevPageBtn').addEventListener('click', () => {
+        if (currentPage > 1) {
+          goToPage(currentPage - 1);
+        }
+      });
+
+      document.getElementById('nextPageBtn').addEventListener('click', () => {
+        if (currentPreviewData && currentPreviewData.rows) {
+          const totalPages = Math.ceil(currentPreviewData.rows.length / pageSize);
+          if (currentPage < totalPages) {
+            goToPage(currentPage + 1);
+          }
+        }
+      });
     }
 
     // Handle file selection
@@ -1239,6 +1389,10 @@
       loadingCard.style.display = 'block';
       previewCard.style.display = 'none';
       resultCard.style.display = 'none';
+
+      // Give browser time to render and start the spinner animation
+      // Without this delay, the main thread blocks before animation can start
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       try {
         const formData = new FormData();
@@ -1315,25 +1469,58 @@
       document.getElementById('totalRowsInfo').textContent = `Toplam ${data.totalRows} satır okundu`;
       document.getElementById('confirmBtnText').textContent = `${data.validRows} Geçerli Kaydı İçeri Aktar`;
 
-      // Populate table
+      // Reset to first page and render
+      currentPage = 1;
+      renderPage();
+      renderPagination();
+    }
+
+    // Render current page of rows
+    function renderPage() {
+      if (!currentPreviewData || !currentPreviewData.rows) return;
+
+      const rows = currentPreviewData.rows;
+      const totalPages = Math.ceil(rows.length / pageSize);
+      const startIndex = (currentPage - 1) * pageSize;
+      const endIndex = Math.min(startIndex + pageSize, rows.length);
+      const pageRows = rows.slice(startIndex, endIndex);
+
       const tbody = document.getElementById('previewTableBody');
       tbody.innerHTML = '';
 
-      data.rows.forEach(row => {
+      pageRows.forEach(row => {
         const tr = document.createElement('tr');
         if (!row.isValid) {
           tr.classList.add('row-error');
         }
 
+        // Determine if it's a zeyil (ZeyilNo != 0 and not empty)
+        const zeyilNoValue = parseInt(row.zeyilNo) || 0;
+        const isZeyil = zeyilNoValue > 0;
+
+        // Build sigortalı display text (Ad Soyad or just Ad)
+        const sigortaliDisplay = row.sigortaliSoyadi
+          ? `${row.sigortaliAdi || ''} ${row.sigortaliSoyadi}`.trim()
+          : (row.sigortaliAdi || '-');
+
+        // TC/VKN - prefer TCKN, fallback to VKN
+        const tcVknDisplay = row.tckn || row.vkn || '-';
+
         tr.innerHTML = `
           <td class="font-mono">${row.rowNumber}</td>
           <td class="font-mono">${row.policeNo || '-'}</td>
-          <td>${row.sigortaliAdi || '-'}</td>
-          <td class="font-mono">${row.tcVkn || '-'}</td>
-          <td><span class="badge badge-primary">${row.urunAdi || '-'}</span></td>
-          <td>${formatDate(row.baslangicTarihi)}</td>
-          <td>${formatDate(row.bitisTarihi)}</td>
-          <td class="font-mono" style="text-align: right;">${formatCurrency(row.brutPrim)}</td>
+          <td>${sigortaliDisplay}</td>
+          <td class="font-mono">${tcVknDisplay}</td>
+          <td><span class="badge badge-primary">${row.brans || '-'}</span></td>
+          <td style="white-space: nowrap;">${formatDate(row.baslangicTarihi)}</td>
+          <td style="white-space: nowrap;">${formatDate(row.bitisTarihi)}</td>
+          <td class="font-mono" style="text-align: right; white-space: nowrap;">${formatCurrency(row.brutPrim)}</td>
+          <td>
+            ${isZeyil
+              ? `<span class="badge badge-warning" title="Zeyil No: ${zeyilNoValue}">Zeyil</span>`
+              : '<span class="badge badge-success">Yeni</span>'
+            }
+          </td>
           <td>
             ${row.isValid
               ? '<span class="status-badge-sm success"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> Geçerli</span>'
@@ -1344,6 +1531,93 @@
 
         tbody.appendChild(tr);
       });
+
+      // Scroll to top of table
+      document.querySelector('.table-container')?.scrollTo(0, 0);
+    }
+
+    // Render pagination controls
+    function renderPagination() {
+      if (!currentPreviewData || !currentPreviewData.rows) return;
+
+      const totalRows = currentPreviewData.rows.length;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      // Update pagination info
+      document.getElementById('paginationInfo').textContent = `Sayfa ${currentPage} / ${totalPages}`;
+
+      // Update prev/next buttons
+      document.getElementById('prevPageBtn').disabled = currentPage === 1;
+      document.getElementById('nextPageBtn').disabled = currentPage === totalPages;
+
+      // Render page buttons
+      const pagesContainer = document.getElementById('paginationPages');
+      pagesContainer.innerHTML = '';
+
+      // Calculate which pages to show
+      const pagesToShow = [];
+      const maxVisiblePages = 7;
+
+      if (totalPages <= maxVisiblePages) {
+        // Show all pages
+        for (let i = 1; i <= totalPages; i++) {
+          pagesToShow.push(i);
+        }
+      } else {
+        // Always show first page
+        pagesToShow.push(1);
+
+        if (currentPage > 3) {
+          pagesToShow.push('...');
+        }
+
+        // Pages around current
+        const start = Math.max(2, currentPage - 1);
+        const end = Math.min(totalPages - 1, currentPage + 1);
+
+        for (let i = start; i <= end; i++) {
+          if (!pagesToShow.includes(i)) {
+            pagesToShow.push(i);
+          }
+        }
+
+        if (currentPage < totalPages - 2) {
+          pagesToShow.push('...');
+        }
+
+        // Always show last page
+        if (!pagesToShow.includes(totalPages)) {
+          pagesToShow.push(totalPages);
+        }
+      }
+
+      // Render page buttons
+      pagesToShow.forEach(page => {
+        if (page === '...') {
+          const ellipsis = document.createElement('span');
+          ellipsis.className = 'pagination-ellipsis';
+          ellipsis.textContent = '...';
+          pagesContainer.appendChild(ellipsis);
+        } else {
+          const btn = document.createElement('button');
+          btn.className = 'pagination-page' + (page === currentPage ? ' active' : '');
+          btn.textContent = page;
+          btn.onclick = () => goToPage(page);
+          pagesContainer.appendChild(btn);
+        }
+      });
+    }
+
+    // Go to specific page
+    function goToPage(page) {
+      if (!currentPreviewData || !currentPreviewData.rows) return;
+
+      const totalPages = Math.ceil(currentPreviewData.rows.length / pageSize);
+      if (page < 1 || page > totalPages) return;
+
+      currentPage = page;
+      renderPage();
+      renderPagination();
     }
 
     // Confirm import
@@ -1426,6 +1700,7 @@
     function resetToUpload() {
       currentSessionId = null;
       currentPreviewData = null;
+      currentPage = 1;
 
       uploadCard.style.display = 'block';
       loadingCard.style.display = 'none';
