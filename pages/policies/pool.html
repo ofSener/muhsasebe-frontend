@@ -3444,9 +3444,6 @@
         poolState.data = data;
         poolState.loading = false;
 
-        // Tab sayısını güncelle
-        document.getElementById('poolTabCount').textContent = data?.totalCount || 0;
-
         if (!data || !data.items || data.items.length === 0) {
           renderPoolEmpty();
           return;
@@ -4610,20 +4607,10 @@
       updatePaginationControls(currentPage, totalPages, data.length);
     }
 
-    // Update stats
+    // Update stats - KPI cards removed, function kept for compatibility
     function updateStats(data = policies) {
-      const totalGrossPremium = data.reduce((sum, p) => sum + p.grossPremium, 0);
-      const producers = [...new Set(data.map(p => p.producer))];
-
-      document.getElementById('statPending').textContent = data.length;
-      document.getElementById('statPremium').textContent = '₺' + totalGrossPremium.toLocaleString('tr-TR');
-      document.getElementById('statProducers').textContent = producers.length;
-
-      // Captured tab count güncelle
-      const capturedTabCount = document.getElementById('capturedTabCount');
-      if (capturedTabCount) {
-        capturedTabCount.textContent = policies.length; // Tüm poliçe sayısı (filtreli değil)
-      }
+      // No-op: KPI stat elements (statPending, statPremium, statProducers) were removed during refactor
+      // Tab counts are now managed by loadTabCounts() function
     }
 
     // ═══════════════════════════════════════════════════════════════
