@@ -59,391 +59,46 @@
           <!-- Ana Sekmeler -->
           <div class="main-tabs-container">
             <div class="main-tabs">
-              <button class="main-tab active" data-source="captured" onclick="switchMainTab('captured', this)">
+              <button class="main-tab active" data-source="pending" onclick="switchMainTab('pending', this)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12,6 12,12 16,14"/>
+                  <path d="M12 6v6l4 2"/>
                 </svg>
-                <span>Yakalanan Poliçeler</span>
-                <span class="main-tab-count" id="capturedTabCount">-</span>
+                <span>Bekleyen İşlemler</span>
+                <span class="main-tab-count" id="pendingTabCount">-</span>
               </button>
-              <button class="main-tab" data-source="pool" onclick="switchMainTab('pool', this)">
+              <button class="main-tab" data-source="matched" onclick="switchMainTab('matched', this)">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                  <polyline points="17,8 12,3 7,8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                  <polyline points="22,4 12,14.01 9,11.01"/>
                 </svg>
-                <span>Aktarım Havuzu</span>
-                <span class="main-tab-count" id="poolTabCount">-</span>
+                <span>Eşleşen Poliçeler</span>
+                <span class="main-tab-count" id="matchedTabCount">-</span>
               </button>
             </div>
           </div>
 
-          <!-- Page Header with Date Filter (Yakalanan için) -->
-          <div class="page-header-extended" id="capturedHeader">
+          <!-- Page Header (Pool için) -->
+          <div class="page-header-extended" id="poolHeader" style="display: block;">
             <div class="page-header-top">
               <div>
-                <h1 class="page-title" id="pageTitle">Yakalanan Poliçeler</h1>
-                <p class="page-subtitle" id="pageSubtitle">Seçilen dönemde yakalanan poliçeler</p>
+                <h1 class="page-title" id="pageTitle">Poliçe Havuzu</h1>
+                <p class="page-subtitle" id="pageSubtitle">Havuzdaki poliçelerin eşleşme durumları</p>
               </div>
               <div class="page-actions">
-                <button class="btn btn-secondary" onclick="refreshData()">
+                <button class="btn btn-secondary" onclick="refreshPoolData()">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="23,4 23,10 17,10"/>
                     <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
                   </svg>
                   Yenile
                 </button>
-                <button class="btn btn-primary" onclick="sendAllToPool()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14"/>
-                    <path d="M12 5l7 7-7 7"/>
-                  </svg>
-                  Tümünü Havuza Gönder
-                </button>
-              </div>
-            </div>
-            <div class="page-header-filter">
-              <div class="date-presets" id="datePresets">
-                <button type="button" class="date-preset-btn active" data-range="today" onclick="handlePresetClick(this, 'today')">Bugün</button>
-                <button type="button" class="date-preset-btn" data-range="yesterday" onclick="handlePresetClick(this, 'yesterday')">Dün</button>
-                <button type="button" class="date-preset-btn" data-range="thisWeek" onclick="handlePresetClick(this, 'thisWeek')">Bu Hafta</button>
-                <button type="button" class="date-preset-btn" data-range="thisMonth" onclick="handlePresetClick(this, 'thisMonth')">Bu Ay</button>
-              </div>
-              <div class="date-range-picker" id="dateRangePicker">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                <input type="text" id="dateRangeInput" placeholder="Tarih aralığı seçin" readonly>
-                <svg class="picker-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6,9 12,15 18,9"/>
-                </svg>
               </div>
             </div>
           </div>
 
-          <!-- Yakalanan Poliçeler İçeriği -->
-          <div id="capturedContent">
-          <!-- KPI Stats - Modern Design -->
-          <!-- KPI değerleri loadKPIStats() ile API'den yüklenir -->
-          <div class="kpi-grid mb-4">
-            <!-- Bekleyen Poliçe -->
-            <div class="kpi-card kpi-amber">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-header">
-                <div class="kpi-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M12 2v4"/>
-                    <path d="M12 18v4"/>
-                    <path d="M4.93 4.93l2.83 2.83"/>
-                    <path d="M16.24 16.24l2.83 2.83"/>
-                    <path d="M2 12h4"/>
-                    <path d="M18 12h4"/>
-                    <path d="M4.93 19.07l2.83-2.83"/>
-                    <path d="M16.24 7.76l2.83-2.83"/>
-                  </svg>
-                </div>
-                <div class="kpi-trend kpi-trend-up">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
-                    <polyline points="17,6 23,6 23,12"/>
-                  </svg>
-                  <span>+3</span>
-                </div>
-              </div>
-              <div class="kpi-body">
-                <div class="kpi-value" id="statPending">12</div>
-                <div class="kpi-label">Bekleyen Poliçe</div>
-              </div>
-              <div class="kpi-footer">
-                <span class="kpi-sub" id="kpiPeriodLabel">Bugün yakalanan poliçeler</span>
-              </div>
-            </div>
 
-            <!-- Gönderilen -->
-            <div class="kpi-card kpi-cyan">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-header">
-                <div class="kpi-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M9 12l2 2 4-4"/>
-                    <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
-                </div>
-                <div class="kpi-trend kpi-trend-up">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
-                    <polyline points="17,6 23,6 23,12"/>
-                  </svg>
-                  <span>+24</span>
-                </div>
-              </div>
-              <div class="kpi-body">
-                <div class="kpi-value" id="statSent">847</div>
-                <div class="kpi-label">Gönderilen</div>
-              </div>
-              <div class="kpi-footer">
-                <span class="kpi-sub" id="kpiSentPeriodLabel">Bugün gönderilen</span>
-              </div>
-            </div>
-
-            <!-- Prodüktör -->
-            <div class="kpi-card kpi-emerald">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-header">
-                <div class="kpi-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M22 21v-2a4 4 0 00-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 010 7.75"/>
-                  </svg>
-                </div>
-                <div class="kpi-badge">Aktif</div>
-              </div>
-              <div class="kpi-body">
-                <div class="kpi-value" id="statProducers">4</div>
-                <div class="kpi-label">Prodüktör</div>
-              </div>
-            </div>
-
-            <!-- Toplam Prim -->
-            <div class="kpi-card kpi-violet">
-              <div class="kpi-card-bg"></div>
-              <div class="kpi-header">
-                <div class="kpi-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-                    <path d="M15 8h-4c-1.1 0-2 .9-2 2s.9 2 2 2h2c1.1 0 2 .9 2 2s-.9 2-2 2H9"/>
-                    <path d="M12 6v2"/>
-                    <path d="M12 16v2"/>
-                  </svg>
-                </div>
-                <div class="kpi-trend kpi-trend-up">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
-                    <polyline points="17,6 23,6 23,12"/>
-                  </svg>
-                  <span>%12</span>
-                </div>
-              </div>
-              <div class="kpi-body">
-                <div class="kpi-value" id="statPremium">₺156,640</div>
-                <div class="kpi-label">Toplam Prim</div>
-              </div>
-              <div class="kpi-footer">
-                <div class="kpi-progress">
-                  <div class="kpi-progress-bar" style="width: 72%"></div>
-                </div>
-                <span class="kpi-sub">Aylık hedefin %72'si</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Policy List Table -->
-          <div class="card" id="policyCard">
-            <!-- Permission Bar -->
-            <div class="permission-bar" id="permissionBar">
-              <div class="permission-info">
-                <span class="permission-badge admin" id="permissionBadge">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                  </svg>
-                  <span id="permissionLabel">Yönetici</span>
-                </span>
-                <span class="permission-text" id="permissionText">Tüm alanları düzenleyebilirsiniz</span>
-              </div>
-              <div class="permission-actions">
-                <select id="roleSelector" class="form-select form-select-sm" onchange="changeUserRole(this.value)" style="width: auto;">
-                  <option value="admin">Yönetici</option>
-                  <option value="editor">Editör</option>
-                  <option value="viewer">İzleyici</option>
-                </select>
-              </div>
-            </div>
-            <div class="card-header">
-              <div class="card-header-left">
-                <h3 class="card-title">Poliçe Listesi</h3>
-                <span class="badge badge-warning" id="selectedCount" style="display: none;">0 seçili</span>
-              </div>
-              <div class="card-header-right">
-                <div class="table-search">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"/>
-                    <path d="M21 21l-4.35-4.35"/>
-                  </svg>
-                  <input type="text" id="searchInput" placeholder="Ara..." onkeyup="filterTable()">
-                </div>
-                <div class="custom-dropdown" id="producerDropdown">
-                  <button class="dropdown-trigger" onclick="toggleProducerDropdown(event)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                    </svg>
-                    <span id="producerFilterText">Tüm Prodüktörler</span>
-                    <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="6,9 12,15 18,9"/>
-                    </svg>
-                  </button>
-                  <div class="dropdown-panel" id="producerPanel">
-                    <div class="dropdown-search">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="M21 21l-4.35-4.35"/>
-                      </svg>
-                      <input type="text" id="producerSearchInput" placeholder="Prodüktör ara..." oninput="filterProducerList()">
-                    </div>
-                    <div class="dropdown-list" id="producerList">
-                      <!-- Dinamik olarak doldurulacak -->
-                    </div>
-                  </div>
-                </div>
-                <input type="hidden" id="producerFilter" value="">
-                <div class="custom-dropdown" id="branchDropdown">
-                  <button class="dropdown-trigger" onclick="toggleBranchDropdown(event)">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                      <polyline points="9,22 9,12 15,12 15,22"/>
-                    </svg>
-                    <span id="branchFilterText">Tüm Şubeler</span>
-                    <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="6,9 12,15 18,9"/>
-                    </svg>
-                  </button>
-                  <div class="dropdown-panel" id="branchPanel">
-                    <div class="dropdown-search">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"/>
-                        <path d="M21 21l-4.35-4.35"/>
-                      </svg>
-                      <input type="text" id="branchSearchInput" placeholder="Şube ara..." oninput="filterBranchList()">
-                    </div>
-                    <div class="dropdown-list" id="branchList">
-                      <!-- Dinamik olarak doldurulacak -->
-                    </div>
-                  </div>
-                </div>
-                <input type="hidden" id="branchFilter" value="">
-              </div>
-            </div>
-            <div class="card-body" style="padding: 0;">
-              <div class="table-container">
-                <table class="data-table mobile-cards" id="policyTable">
-                  <thead>
-                    <tr>
-                      <th style="width: 40px;">
-                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-                      </th>
-                      <th class="sortable" data-sort="policyNo" onclick="sortTable('policyNo')">
-                        Poliçe No
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M7 15l5 5 5-5"/>
-                          <path d="M7 9l5-5 5 5"/>
-                        </svg>
-                      </th>
-                      <th class="sortable" data-sort="customer" onclick="sortTable('customer')">
-                        Müşteri
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M7 15l5 5 5-5"/>
-                          <path d="M7 9l5-5 5 5"/>
-                        </svg>
-                      </th>
-                      <th>Tip</th>
-                      <th class="sortable" data-sort="netPremium" onclick="sortTable('netPremium')">
-                        Net Prim
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M7 15l5 5 5-5"/>
-                          <path d="M7 9l5-5 5 5"/>
-                        </svg>
-                      </th>
-                      <th class="sortable" data-sort="grossPremium" onclick="sortTable('grossPremium')">
-                        Brüt Prim
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M7 15l5 5 5-5"/>
-                          <path d="M7 9l5-5 5 5"/>
-                        </svg>
-                      </th>
-                      <th class="sortable" data-sort="producer" onclick="sortTable('producer')">
-                        Prodüktör / Şube
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M7 15l5 5 5-5"/>
-                          <path d="M7 9l5-5 5 5"/>
-                        </svg>
-                      </th>
-                      <th class="sortable" data-sort="date" onclick="sortTable('date')">
-                        Tarih
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M7 15l5 5 5-5"/>
-                          <path d="M7 9l5-5 5 5"/>
-                        </svg>
-                      </th>
-                      <th style="width: 100px;">İşlem</th>
-                    </tr>
-                  </thead>
-                  <tbody id="policyTableBody">
-                    <!-- Dynamic content -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="card-footer">
-              <div class="table-footer-left">
-                <button class="btn btn-primary btn-sm" id="sendSelectedBtn" onclick="sendSelectedToPool()" style="display: none;">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12h14"/>
-                    <path d="M12 5l7 7-7 7"/>
-                  </svg>
-                  Seçilenleri Havuza Gönder
-                </button>
-              </div>
-              <div class="table-footer-right">
-                <div class="pagination-controls">
-                  <div class="page-size-selector">
-                    <label>Sayfa başına:</label>
-                    <select id="pageSizeSelect" onchange="changePageSize(this.value)">
-                      <option value="10">10</option>
-                      <option value="20" selected>20</option>
-                      <option value="50">50</option>
-                      <option value="100">100</option>
-                    </select>
-                  </div>
-                  <span class="table-info" id="tableInfo">1-20 / 20 poliçe</span>
-                  <div class="page-navigation">
-                    <button class="page-btn" id="prevPageBtn" onclick="prevPage()" disabled>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="15 18 9 12 15 6"/>
-                      </svg>
-                    </button>
-                    <span class="page-numbers" id="pageNumbers"></span>
-                    <button class="page-btn" id="nextPageBtn" onclick="nextPage()">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="9 18 15 12 9 6"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Info Alert -->
-          <div class="alert alert-info" style="margin-top: 1.5rem;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-            <div>
-              <strong>Otomatik Aktarım Aktif</strong>
-              <p style="margin: 0.25rem 0 0 0; opacity: 0.8;">Yakalanan poliçeler Poliçe Havuzu'na aktarılır. Havuzda aktarım dosyalarıyla karşılaştırma yapılır.</p>
-            </div>
-          </div>
-          </div><!-- /capturedContent -->
-
-          <!-- Aktarım Havuzu İçeriği -->
+          <!-- Poliçe Havuzu İçeriği -->
           <div id="poolContent">
             <!-- Dinamik olarak yüklenir -->
           </div>
@@ -3665,26 +3320,14 @@
         // 1. Kullanıcı bilgisi ve yetkisi
         await loadCurrentUser();
 
-        // 2. Dropdown verileri (paralel)
-        await Promise.all([
-          loadProducers(),
-          loadBranches(),
-          loadPolicyTypes()
-        ]);
+        // 2. Pool lookup verilerini yükle
+        await loadPoolLookups();
 
-        // 3. Date picker başlat (ortak utils'ten)
-        initDatePicker(filterByDateRange);
+        // 3. İlk tab: Bekleyen İşlemler
+        poolState.filters.status = 'unmatched,difference';
+        await loadPoolData();
 
-        // 4. Ana veri ve istatistikler
-        await Promise.all([
-          loadCapturedPolicies(),
-          loadKPIStats()
-        ]);
-
-        // 5. UI bileşenlerini hazırla
-        updatePermissionUI();
-
-        // 6. Tab sayılarını yükle
+        // 4. Tab sayılarını yükle
         loadTabCounts();
 
       } catch (error) {
@@ -3699,7 +3342,7 @@
     // MAIN TAB SWITCHING - Ana Sekme Değiştirme
     // ═══════════════════════════════════════════════════════════════
 
-    let currentMainTab = 'captured'; // 'captured' veya 'pool'
+    let currentMainTab = 'pending'; // 'pending' veya 'matched'
 
     function switchMainTab(tab, btn) {
       // Tab butonlarını güncelle
@@ -3707,28 +3350,21 @@
       btn.classList.add('active');
       currentMainTab = tab;
 
-      // İçerikleri göster/gizle
-      const capturedHeader = document.getElementById('capturedHeader');
-      const capturedContent = document.getElementById('capturedContent');
-      const poolContent = document.getElementById('poolContent');
-
-      if (tab === 'captured') {
-        // Yakalanan poliçeler
-        if (capturedHeader) capturedHeader.style.display = 'block';
-        if (capturedContent) capturedContent.classList.remove('hidden');
-        if (poolContent) poolContent.classList.remove('active');
-
-        document.getElementById('pageTitle').textContent = 'Yakalanan Poliçeler';
-        document.getElementById('pageSubtitle').textContent = 'Seçilen dönemde yakalanan poliçeler';
-      } else {
-        // Aktarım havuzu
-        if (capturedHeader) capturedHeader.style.display = 'none';
-        if (capturedContent) capturedContent.classList.add('hidden');
-        if (poolContent) poolContent.classList.add('active');
-
-        // Pool içeriğini yükle (her seferinde taze veri)
-        loadPoolData();
+      // Status'e göre pool verilerini filtrele
+      if (tab === 'pending') {
+        // Bekleyen İşlemler: AKTARIMDA + FARK_VAR
+        poolState.filters.status = 'unmatched,difference';
+        document.getElementById('pageTitle').textContent = 'Bekleyen İşlemler';
+        document.getElementById('pageSubtitle').textContent = 'Eşleşme bekleyen ve fark olan poliçeler';
+      } else if (tab === 'matched') {
+        // Eşleşen Poliçeler: ESLESTI
+        poolState.filters.status = 'matched';
+        document.getElementById('pageTitle').textContent = 'Eşleşen Poliçeler';
+        document.getElementById('pageSubtitle').textContent = 'Tam eşleşen ve onay bekleyen poliçeler';
       }
+
+      // Verileri yeniden yükle
+      loadPoolData(true);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -4156,9 +3792,9 @@
     function renderPoolTableRow(item) {
       const isSelected = poolState.selection.has(item.id);
       const statusClass = item.eslesmeDurumu === 'ESLESTI' ? 'badge-success' :
-                          item.eslesmeDurumu === 'FARK_VAR' ? 'badge-warning' : 'badge-info';
+                          item.eslesmeDurumu === 'FARK_VAR' ? 'badge-warning' : 'badge-danger';
       const statusText = item.eslesmeDurumu === 'ESLESTI' ? 'Eşleşti' :
-                         item.eslesmeDurumu === 'FARK_VAR' ? 'Fark Var' : 'Bekliyor';
+                         item.eslesmeDurumu === 'FARK_VAR' ? 'Fark Var' : 'Aktarımda';
 
       const primFarki = item.primFarki || 0;
       const farkClass = primFarki > 0 ? 'text-success' : primFarki < 0 ? 'text-danger' : '';
@@ -4531,11 +4167,33 @@
     // Tab sayılarını yükle
     async function loadTabCounts() {
       try {
-        // Pool sayısı
-        const poolData = await apiGet('policies/pool', { pageSize: 1 });
-        document.getElementById('poolTabCount').textContent = poolData?.totalCount || 0;
+        // Bekleyen İşlemler sayısı (AKTARIMDA + FARK_VAR)
+        const pendingData = await apiGet('policies/pool', { status: 'unmatched,difference', pageSize: 1 });
+        const pendingCount = (pendingData?.unmatchedCount || 0) + (pendingData?.differenceCount || 0);
+        document.getElementById('pendingTabCount').textContent = pendingCount;
+
+        // Eşleşen Poliçeler sayısı (ESLESTI)
+        const matchedData = await apiGet('policies/pool', { status: 'matched', pageSize: 1 });
+        document.getElementById('matchedTabCount').textContent = matchedData?.matchedCount || 0;
       } catch (error) {
-        console.error('Pool sayısı yüklenemedi:', error);
+        console.error('Tab sayıları yüklenemedi:', error);
+      }
+    }
+
+    // Pool verilerini yenile
+    async function refreshPoolData() {
+      showLoading(true);
+      try {
+        await Promise.all([
+          loadPoolData(true),
+          loadTabCounts()
+        ]);
+        showToast('Veriler yenilendi', 'success');
+      } catch (error) {
+        console.error('Yenileme hatası:', error);
+        showToast('Veriler yenilenirken hata oluştu', 'error');
+      } finally {
+        showLoading(false);
       }
     }
 
