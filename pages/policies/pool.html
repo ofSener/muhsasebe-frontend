@@ -4423,10 +4423,18 @@
     async function refreshPoolData() {
       showLoading(true);
       try {
-        await Promise.all([
-          loadPoolData(true),
-          loadTabCounts()
-        ]);
+        // Mevcut sekmeye göre doğru veriyi yükle
+        if (currentMainTab === 'unmatched-captured') {
+          await Promise.all([
+            loadUnmatchedCaptured(true),
+            loadTabCounts()
+          ]);
+        } else {
+          await Promise.all([
+            loadPoolData(true),
+            loadTabCounts()
+          ]);
+        }
         showToast('Veriler yenilendi', 'success');
       } catch (error) {
         console.error('Yenileme hatası:', error);
