@@ -75,6 +75,15 @@
                 <span>Eşleşen Poliçeler</span>
                 <span class="main-tab-count" id="matchedTabCount">-</span>
               </button>
+              <button class="main-tab" data-source="unmatched-captured" onclick="switchMainTab('unmatched-captured', this)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>Eşleşmeyenler</span>
+                <span class="main-tab-count" id="unmatchedCapturedTabCount">-</span>
+              </button>
             </div>
           </div>
 
@@ -2888,6 +2897,21 @@
       }
     };
 
+    // Eşleşmeyenler (Yakalanan ama havuzda olmayan) state
+    const unmatchedCapturedState = {
+      data: null,
+      loading: false,
+      pagination: {
+        currentPage: 1,
+        pageSize: 20
+      },
+      filters: {
+        search: '',
+        bransId: null,
+        sigortaSirketiId: null
+      }
+    };
+
     // Date range state
     let currentDateRange = {
       startDate: new Date(),
@@ -3352,15 +3376,19 @@
         poolState.filters.status = 'unmatched,difference';
         document.getElementById('pageTitle').textContent = 'Bekleyen İşlemler';
         document.getElementById('pageSubtitle').textContent = 'Eşleşme bekleyen ve fark olan poliçeler';
+        loadPoolData(true);
       } else if (tab === 'matched') {
         // Eşleşen Poliçeler: ESLESTI
         poolState.filters.status = 'matched';
         document.getElementById('pageTitle').textContent = 'Eşleşen Poliçeler';
         document.getElementById('pageSubtitle').textContent = 'Tam eşleşen ve onay bekleyen poliçeler';
+        loadPoolData(true);
+      } else if (tab === 'unmatched-captured') {
+        // Eşleşmeyenler: Yakalanan ama havuzda olmayan
+        document.getElementById('pageTitle').textContent = 'Eşleşmeyenler';
+        document.getElementById('pageSubtitle').textContent = 'Yakalanan ama havuzda olmayan poliçeler';
+        loadUnmatchedCaptured(true);
       }
-
-      // Verileri yeniden yükle
-      loadPoolData(true);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -3762,11 +3790,14 @@
                       </label>
                     </th>
                     <th>Poliçe No</th>
+                    <th>Tanzim Tarihi</th>
+                    <th>Sigortalı Adı</th>
                     <th>Branş</th>
                     <th>Sigorta Şirketi</th>
                     <th class="text-right">Havuz Prim</th>
                     <th class="text-right">Yakalanan Prim</th>
                     <th class="text-right">Fark</th>
+                    <th class="text-right">Komisyon</th>
                     <th>Durum</th>
                     <th style="width: 100px;">İşlem</th>
                   </tr>
@@ -3792,6 +3823,11 @@
       const primFarki = item.primFarki || 0;
       const farkClass = primFarki > 0 ? 'text-success' : primFarki < 0 ? 'text-danger' : '';
 
+      // Tanzim Tarihi formatla
+      const tanzimTarihiFormatted = item.tanzimTarihi
+        ? new Date(item.tanzimTarihi).toLocaleDateString('tr-TR')
+        : '-';
+
       return `
         <tr class="${isSelected ? 'selected' : ''}" data-id="${item.id}">
           <td>
@@ -3807,20 +3843,37 @@
             ${item.plaka ? `<div class="text-muted text-xs">${item.plaka}</div>` : ''}
             ${item.zeyilNo > 0 ? `<div class="text-muted text-xs">Zeyil: ${item.zeyilNo}</div>` : ''}
           </td>
-          <td>${item.brans || '-'}</td>
-          <td>${item.sigortaSirketi || '-'}</td>
-          <td class="font-mono text-right">₺${(item.brutPrim || 0).toLocaleString('tr-TR')}</td>
+          <td>
+            <span class="text-sm">${tanzimTarihiFormatted}</span>
+          </td>
+          <td>
+            <span class="text-sm">${item.sigortaliAdi || '-'}</span>
+          </td>
+          <td><span class="badge badge-outline">${item.brans || '-'}</span></td>
+          <td><span class="text-sm">${item.sigortaSirketi || '-'}</span></td>
+          <td class="font-mono text-right">₺${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</td>
           <td class="font-mono text-right">
-            ${item.yakalananPrim != null ? `₺${item.yakalananPrim.toLocaleString('tr-TR')}` : '-'}
+            ${item.yakalananPrim != null ? `₺${item.yakalananPrim.toLocaleString('tr-TR', {minimumFractionDigits: 2})}` : '<span class="text-muted">-</span>'}
           </td>
           <td class="font-mono text-right ${farkClass}">
-            ${item.primFarki != null ? `${primFarki > 0 ? '+' : ''}₺${primFarki.toLocaleString('tr-TR')}` : '-'}
+            ${primFarki !== 0 && primFarki !== null ? `${primFarki > 0 ? '+' : ''}₺${primFarki.toLocaleString('tr-TR', {minimumFractionDigits: 2})}` : '<span class="text-muted">-</span>'}
+          </td>
+          <td class="font-mono text-right">
+            <span class="font-mono">₺${(item.komisyon || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span>
           </td>
           <td>
             <span class="badge ${statusClass}">${statusText}</span>
           </td>
           <td>
             <div class="action-buttons">
+              ${item.eslesmeDurumu === 'FARK_VAR' ? `
+                <button class="btn btn-sm btn-success" onclick="acceptPoolValue(${item.id})" title="Aktarımdan geleni kabul et">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  Kabul Et
+                </button>
+              ` : ''}
               <button class="action-btn" title="Detay" onclick="showPoolPolicyDetail(${item.id})">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -4082,6 +4135,31 @@
       }
     }
 
+    // Aktarımdan geleni kabul et (FARK_VAR durumu için)
+    async function acceptPoolValue(poolPolicyId) {
+      if (!confirm('Aktarımdan gelen değerler ile bu poliçeyi poliçelerinize kaydetmek istediğinizden emin misiniz?')) {
+        return;
+      }
+
+      try {
+        // Mevcut approval endpoint'i kullan
+        const result = await apiPost(`policies/pool/${poolPolicyId}/approve`);
+
+        if (result.success) {
+          showToast('Poliçe başarıyla kaydedildi', 'success');
+          // Pool'dan kaldırıldı, listeyi yenile
+          poolState.selection.delete(poolPolicyId);
+          await loadPoolData(true);
+          await loadTabCounts();
+        } else {
+          showToast(result.errorMessage || 'Kayıt işlemi başarısız', 'error');
+        }
+      } catch (error) {
+        console.error('acceptPoolValue error:', error);
+        showToast('Bir hata oluştu: ' + (error.message || 'Bilinmeyen hata'), 'error');
+      }
+    }
+
     // Seçilenleri kaydet
     async function approveSelectedPool() {
       const ids = Array.from(poolState.selection);
@@ -4151,6 +4229,170 @@
       }
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // EŞLEŞMEYENLERde (YAKALANAN AMA HAVUZDA OLMAYAN) FONKSİYONLARI
+    // ═══════════════════════════════════════════════════════════════
+
+    // Eşleşmeyenleri yükle
+    async function loadUnmatchedCaptured(resetPage = false) {
+      const poolContent = document.getElementById('poolContent');
+      if (!poolContent) return;
+
+      if (resetPage) {
+        unmatchedCapturedState.pagination.currentPage = 1;
+      }
+
+      try {
+        unmatchedCapturedState.loading = true;
+        const params = {
+          page: unmatchedCapturedState.pagination.currentPage,
+          pageSize: unmatchedCapturedState.pagination.pageSize
+        };
+
+        if (unmatchedCapturedState.filters.search) {
+          params.search = unmatchedCapturedState.filters.search;
+        }
+        if (unmatchedCapturedState.filters.bransId) {
+          params.bransId = unmatchedCapturedState.filters.bransId;
+        }
+        if (unmatchedCapturedState.filters.sigortaSirketiId) {
+          params.sigortaSirketiId = unmatchedCapturedState.filters.sigortaSirketiId;
+        }
+
+        const data = await apiGet('policies/captured/not-in-pool', params);
+        unmatchedCapturedState.data = data;
+        unmatchedCapturedState.loading = false;
+
+        if (!data || !data.items || data.items.length === 0) {
+          renderUnmatchedCapturedEmpty();
+          return;
+        }
+
+        renderUnmatchedCapturedContent(data);
+      } catch (error) {
+        console.error('Eşleşmeyenler yüklenemedi:', error);
+        unmatchedCapturedState.loading = false;
+        poolContent.innerHTML = `
+          <div class="card">
+            <div class="card-body text-center py-5">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--danger); margin-bottom: 1rem;">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+              <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Yüklenemedi</h3>
+              <p class="text-muted">${error.message || 'Bir hata oluştu'}</p>
+              <button class="btn btn-primary btn-sm mt-3" onclick="loadUnmatchedCaptured()">Tekrar Dene</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Eşleşmeyenler boş durumu
+    function renderUnmatchedCapturedEmpty() {
+      const poolContent = document.getElementById('poolContent');
+      poolContent.innerHTML = `
+        <div class="card">
+          <div class="card-body text-center py-5">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--success); margin-bottom: 1rem;">
+              <polyline points="20,6 9,17 4,12"/>
+            </svg>
+            <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Tüm Poliçeler Eşleşti</h3>
+            <p class="text-muted">Yakalanan tüm poliçeler havuzda bulunuyor.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    // Eşleşmeyenler içeriğini render et
+    function renderUnmatchedCapturedContent(data) {
+      const poolContent = document.getElementById('poolContent');
+
+      const html = `
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-left">
+              <h3 class="card-title">Eşleşmeyenler</h3>
+              <span class="badge badge-warning">${data.totalCount || 0} kayıt</span>
+            </div>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Poliçe No</th>
+                    <th>Tanzim Tarihi</th>
+                    <th>Sigortalı Adı</th>
+                    <th>Branş</th>
+                    <th>Sigorta Şirketi</th>
+                    <th class="text-right">Brüt Prim</th>
+                    <th>İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${data.items.map(item => `
+                    <tr data-id="${item.id}">
+                      <td>
+                        <span class="font-mono">${item.policeNo || '-'}</span>
+                        ${item.plaka ? `<div class="text-muted text-xs">${item.plaka}</div>` : ''}
+                      </td>
+                      <td>
+                        <span class="text-sm">${new Date(item.tanzimTarihi).toLocaleDateString('tr-TR')}</span>
+                      </td>
+                      <td>
+                        <span class="text-sm">${item.sigortaliAdi || '-'}</span>
+                      </td>
+                      <td>
+                        <span class="badge badge-outline">${item.brans || '-'}</span>
+                      </td>
+                      <td>
+                        <span class="text-sm">${item.sigortaSirketi || '-'}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="font-mono">₺${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span>
+                      </td>
+                      <td>
+                        <button class="btn btn-sm btn-primary" onclick="sendCapturedToPool(${item.id})">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                            <polyline points="17,8 12,3 7,8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                          </svg>
+                          Havuza Gönder
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+
+      poolContent.innerHTML = html;
+    }
+
+    // Yakalanan poliçeyi havuza gönder
+    async function sendCapturedToPool(capturedId) {
+      try {
+        const result = await apiPost(`policies/${capturedId}/send-to-pool`);
+
+        if (result.success) {
+          showToast('Poliçe havuza gönderildi', 'success');
+          await loadUnmatchedCaptured(true);
+          await loadTabCounts();
+        } else {
+          showToast(result.message || 'Gönderim başarısız', 'error');
+        }
+      } catch (error) {
+        console.error('sendCapturedToPool error:', error);
+        showToast('Bir hata oluştu: ' + (error.message || 'Bilinmeyen hata'), 'error');
+      }
+    }
+
     // Poliçe detayı göster
     function showPoolPolicyDetail(id) {
       // Modal veya side panel gösterebiliriz
@@ -4168,6 +4410,10 @@
         // Eşleşen Poliçeler sayısı (ESLESTI)
         const matchedData = await apiGet('policies/pool', { status: 'matched', pageSize: 1 });
         document.getElementById('matchedTabCount').textContent = matchedData?.matchedCount || 0;
+
+        // Eşleşmeyenler sayısı (Yakalanan ama havuzda olmayan)
+        const unmatchedCapturedData = await apiGet('policies/captured/not-in-pool', { pageSize: 1 });
+        document.getElementById('unmatchedCapturedTabCount').textContent = unmatchedCapturedData?.totalCount || 0;
       } catch (error) {
         console.error('Tab sayıları yüklenemedi:', error);
       }
