@@ -124,7 +124,7 @@
 
               <!-- Upload Zone -->
               <div class="upload-dropzone" id="uploadDropzone">
-                <input type="file" accept=".xlsx,.xls,.csv" id="fileInput">
+                <input type="file" accept=".xlsx,.xls,.csv,.xml" id="fileInput">
                 <div class="dropzone-content">
                   <div class="dropzone-icon">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -141,6 +141,7 @@
                     <span class="format-badge">.xlsx</span>
                     <span class="format-badge">.xls</span>
                     <span class="format-badge">.csv</span>
+                    <span class="format-badge">.xml</span>
                   </div>
                 </div>
                 <div class="dropzone-selected" id="selectedFileInfo" style="display: none;">
@@ -236,6 +237,7 @@
               <table class="data-table">
                 <thead>
                   <tr>
+                    <th style="width: 50px;"></th>
                     <th style="width: 60px;">Satır</th>
                     <th>Poliçe No</th>
                     <th>Sigortalı</th>
@@ -407,6 +409,24 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Row Detail Modal -->
+  <div class="modal-overlay" id="rowDetailModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Poliçe Detayı</h3>
+        <button class="modal-close" onclick="closeRowDetailModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="rowDetailContent">
+        <!-- Content will be rendered here -->
+      </div>
+    </div>
   </div>
 
   <script src="../../assets/js/config.js"></script>
@@ -941,6 +961,12 @@
       border: 1px solid rgba(34, 197, 94, 0.3);
     }
 
+    .badge-danger {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.15) 100%);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
     .card-footer {
       display: flex;
       align-items: center;
@@ -1136,6 +1162,401 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════
+       ROW DETAIL BUTTON
+       ═══════════════════════════════════════════════════════════════ */
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid var(--border-default);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-icon:hover {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MODAL STYLES - Modern Glass Effect
+       ═══════════════════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 15, 30, 0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1.5rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: linear-gradient(145deg, rgba(30, 35, 55, 0.95) 0%, rgba(20, 25, 45, 0.98) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-radius: 20px;
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 100px rgba(99, 102, 241, 0.1);
+      max-height: 85vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 640px;
+      transform: scale(0.9) translateY(30px);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
+      border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .modal-title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 2px;
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      transform: rotate(90deg);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      max-height: calc(85vh - 70px);
+    }
+
+    .modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 3px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 3px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.5);
+    }
+
+    /* Detail Section */
+    .detail-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6366f1;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-section-title svg {
+      opacity: 0.8;
+    }
+
+    /* Detail Grid */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .detail-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .detail-group.full-width {
+      grid-column: span 2;
+    }
+
+    .detail-label {
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-value {
+      font-size: 0.9375rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+    }
+
+    .detail-value.mono {
+      font-family: var(--font-mono);
+      color: #a5b4fc;
+    }
+
+    .detail-value.empty {
+      color: rgba(255, 255, 255, 0.25);
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    /* Modal Badges */
+    .modal .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .modal .badge-success {
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+    }
+
+    .modal .badge-warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    .modal .badge-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+
+    /* Validation Errors in Modal */
+    .detail-errors {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .detail-errors-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #f87171;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-errors-title::before {
+      content: '⚠';
+      font-size: 0.875rem;
+    }
+
+    .detail-errors-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .detail-errors-list li {
+      font-size: 0.8125rem;
+      color: rgba(248, 113, 113, 0.9);
+      padding: 0.375rem 0;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .detail-errors-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #f87171;
+    }
+
+    /* Detail Header Card */
+    .detail-header-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-header-main {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .detail-header-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .detail-header-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .detail-header-no {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      font-family: var(--font-mono);
+      letter-spacing: 0.025em;
+    }
+
+    .detail-header-brans {
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .detail-header-badges {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    /* Prim Cards */
+    .detail-prim-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .prim-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .prim-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .prim-label {
+      display: block;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .prim-value {
+      display: block;
+      font-size: 1.125rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .prim-brut .prim-value {
+      color: #a5b4fc;
+    }
+
+    .prim-net .prim-value {
+      color: #4ade80;
+    }
+
+    .prim-komisyon .prim-value {
+      color: #fbbf24;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
        RESPONSIVE
        ═══════════════════════════════════════════════════════════════ */
     @media (max-width: 768px) {
@@ -1150,6 +1571,34 @@
 
       .result-stats {
         grid-template-columns: repeat(2, 1fr);
+      }
+
+      .modal {
+        max-height: 95vh;
+        margin: 0.5rem;
+        max-width: 100%;
+      }
+
+      .detail-header-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+
+      .detail-header-badges {
+        align-self: flex-start;
+      }
+
+      .detail-prim-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-group.full-width {
+        grid-column: span 1;
       }
 
       .card-footer {
@@ -1506,7 +1955,18 @@
         // TC/VKN - prefer TCKN, fallback to VKN
         const tcVknDisplay = row.tckn || row.vkn || '-';
 
+        // Store row index for detail view
+        const rowIndex = rows.indexOf(row);
+
         tr.innerHTML = `
+          <td>
+            <button class="btn-icon" onclick="showRowDetail(${rowIndex})" title="Detay Görüntüle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </td>
           <td class="font-mono">${row.rowNumber}</td>
           <td class="font-mono">${row.policeNo || '-'}</td>
           <td>${sigortaliDisplay}</td>
@@ -1738,6 +2198,206 @@
         currency: 'TRY'
       }).format(amount);
     }
+
+    // Show row detail modal (make it global for inline onclick)
+    window.showRowDetail = function(rowIndex) {
+      if (!currentPreviewData || !currentPreviewData.rows) return;
+
+      const row = currentPreviewData.rows[rowIndex];
+      if (!row) return;
+
+      const modal = document.getElementById('rowDetailModal');
+      const content = document.getElementById('rowDetailContent');
+
+      // Build sigortalı display
+      const sigortaliDisplay = row.sigortaliSoyadi
+        ? `${row.sigortaliAdi || ''} ${row.sigortaliSoyadi}`.trim()
+        : (row.sigortaliAdi || '-');
+
+      // Determine zeyil status
+      const zeyilNoValue = parseInt(row.zeyilNo) || 0;
+      const isZeyil = zeyilNoValue > 0;
+
+      content.innerHTML = `
+        <!-- Header Card with Key Info -->
+        <div class="detail-header-card">
+          <div class="detail-header-main">
+            <div class="detail-header-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                <polyline points="14,2 14,8 20,8"/>
+              </svg>
+            </div>
+            <div class="detail-header-info">
+              <span class="detail-header-no">${row.policeNo || '-'}</span>
+              <span class="detail-header-brans">${row.brans || 'Branş Belirtilmemiş'}</span>
+            </div>
+          </div>
+          <div class="detail-header-badges">
+            ${isZeyil
+              ? '<span class="badge badge-warning">Zeyil</span>'
+              : '<span class="badge badge-success">Yeni Poliçe</span>'}
+            ${row.policeTipi === 'İPTAL' ? '<span class="badge badge-danger">İPTAL</span>' : ''}
+          </div>
+        </div>
+
+        <!-- Prim Highlight Cards -->
+        <div class="detail-prim-cards">
+          <div class="prim-card prim-brut">
+            <span class="prim-label">Brüt Prim</span>
+            <span class="prim-value">${formatCurrency(row.brutPrim)}</span>
+          </div>
+          <div class="prim-card prim-net">
+            <span class="prim-label">Net Prim</span>
+            <span class="prim-value">${formatCurrency(row.netPrim)}</span>
+          </div>
+          <div class="prim-card prim-komisyon">
+            <span class="prim-label">Komisyon</span>
+            <span class="prim-value">${formatCurrency(row.komisyon)}</span>
+          </div>
+        </div>
+
+        <!-- Poliçe Bilgileri -->
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+            </svg>
+            Poliçe Detayları
+          </div>
+          <div class="detail-grid">
+            <div class="detail-group">
+              <span class="detail-label">Yenileme No</span>
+              <span class="detail-value mono">${row.yenilemeNo || '-'}</span>
+            </div>
+            <div class="detail-group">
+              <span class="detail-label">Zeyil No</span>
+              <span class="detail-value mono">${row.zeyilNo || '0'}</span>
+            </div>
+            <div class="detail-group">
+              <span class="detail-label">Zeyil Tip Kodu</span>
+              <span class="detail-value mono">${row.zeyilTipKodu || '-'}</span>
+            </div>
+            <div class="detail-group">
+              <span class="detail-label">Branş ID</span>
+              <span class="detail-value mono">${row.bransId ?? '-'}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarih Bilgileri -->
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Tarihler
+          </div>
+          <div class="detail-grid">
+            <div class="detail-group">
+              <span class="detail-label">Tanzim Tarihi</span>
+              <span class="detail-value">${formatDate(row.tanzimTarihi)}</span>
+            </div>
+            <div class="detail-group">
+              <span class="detail-label">Başlangıç</span>
+              <span class="detail-value">${formatDate(row.baslangicTarihi)}</span>
+            </div>
+            <div class="detail-group">
+              <span class="detail-label">Bitiş</span>
+              <span class="detail-value">${formatDate(row.bitisTarihi)}</span>
+            </div>
+            <div class="detail-group">
+              <span class="detail-label">Zeyil Onay</span>
+              <span class="detail-value ${!row.zeyilOnayTarihi ? 'empty' : ''}">${formatDate(row.zeyilOnayTarihi) || '-'}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sigortalı Bilgileri -->
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Sigortalı
+          </div>
+          <div class="detail-grid">
+            <div class="detail-group">
+              <span class="detail-label">Ad Soyad</span>
+              <span class="detail-value ${!row.sigortaliAdi ? 'empty' : ''}">${row.sigortaliAdi || '-'} ${row.sigortaliSoyadi || ''}</span>
+            </div>
+            <div class="detail-group">
+              <span class="detail-label">TC / VKN</span>
+              <span class="detail-value mono ${!row.tckn && !row.vkn ? 'empty' : ''}">${row.tckn || row.vkn || '-'}</span>
+            </div>
+            <div class="detail-group full-width">
+              <span class="detail-label">Adres</span>
+              <span class="detail-value ${!row.adres ? 'empty' : ''}">${row.adres || '-'}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diğer Bilgiler -->
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            Diğer
+          </div>
+          <div class="detail-grid">
+            <div class="detail-group">
+              <span class="detail-label">Plaka</span>
+              <span class="detail-value mono ${!row.plaka ? 'empty' : ''}">${row.plaka || '-'}</span>
+            </div>
+            <div class="detail-group">
+              <span class="detail-label">Acente No</span>
+              <span class="detail-value mono ${!row.acenteNo ? 'empty' : ''}">${row.acenteNo || '-'}</span>
+            </div>
+          </div>
+        </div>
+
+        ${row.validationErrors && row.validationErrors.length > 0 ? `
+          <div class="detail-errors">
+            <div class="detail-errors-title">Doğrulama Hataları</div>
+            <ul class="detail-errors-list">
+              ${row.validationErrors.map(err => `<li>${err}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      `;
+
+      modal.classList.add('active');
+    };
+
+    // Close modal
+    window.closeRowDetailModal = function() {
+      document.getElementById('rowDetailModal').classList.remove('active');
+    };
+
+    // Close modal when clicking overlay
+    document.getElementById('rowDetailModal').addEventListener('click', (e) => {
+      if (e.target.id === 'rowDetailModal') {
+        closeRowDetailModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.getElementById('rowDetailModal');
+        if (modal.classList.contains('active')) {
+          closeRowDetailModal();
+        }
+      }
+    });
   </script>
 
   <script src="../../components/sidebar.js"></script>
