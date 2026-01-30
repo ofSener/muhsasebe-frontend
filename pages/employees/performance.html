@@ -253,6 +253,60 @@
       return user?.firmaId || 1;
     }
 
+    // Compact currency formatter for chart labels (K/M suffixes)
+    function formatCurrencyShort(value) {
+      if (!value || value === 0) return '₺0';
+
+      if (value >= 1000000) {
+        return '₺' + (value / 1000000).toFixed(1) + 'M';
+      } else if (value >= 1000) {
+        return '₺' + (value / 1000).toFixed(0) + 'K';
+      }
+      return '₺' + value.toFixed(0);
+    }
+
+    // Calculate date range based on period
+    function getDateRange(period) {
+      const now = new Date();
+      let startDate, endDate;
+
+      switch(period) {
+        case 'thisMonth':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+          break;
+        case 'lastMonth':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+          endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+          break;
+        case 'thisQuarter':
+          const quarter = Math.floor(now.getMonth() / 3);
+          startDate = new Date(now.getFullYear(), quarter * 3, 1);
+          endDate = new Date(now.getFullYear(), quarter * 3 + 3, 0);
+          break;
+        case 'thisYear':
+          startDate = new Date(now.getFullYear(), 0, 1);
+          endDate = new Date(now.getFullYear(), 11, 31);
+          break;
+        default:
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      }
+
+      // Format as YYYY-MM-DD for API
+      const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      return {
+        startDate: formatDate(startDate),
+        endDate: formatDate(endDate)
+      };
+    }
+
     // İsimden baş harfleri al
     function getInitials(name) {
       if (!name) return '??';
@@ -387,22 +441,36 @@
     }
 
     // API'den verileri yükle
-    async function loadPerformanceData() {
+    async function loadPerformanceData(dateRange = null) {
       const firmaId = getCurrentFirmaId();
 
       try {
-        console.log('Loading performance data for firmaId:', firmaId);
+        console.log('Loading performance data for firmaId:', firmaId, 'dateRange:', dateRange);
 
-        // Paralel API çağrıları
+        // Build API parameters with optional date range
+        const topPerformersParams = { firmaId, limit: 20, mode: 0 };
+        const bransParams = { firmaId, mode: 0 };
+
+        if (dateRange) {
+          topPerformersParams.startDate = dateRange.startDate;
+          topPerformersParams.endDate = dateRange.endDate;
+          bransParams.startDate = dateRange.startDate;
+          bransParams.endDate = dateRange.endDate;
+        }
+
+        // Paralel API çağrıları with proper parameters
         const [topPerformers, bransData, trendData] = await Promise.all([
-          apiGet('dashboard/top-performers', { firmaId, limit: 20 }).catch(e => { console.error('Top performers error:', e); return { performers: [] }; }),
-          apiGet('dashboard/brans-dagilim', { firmaId }).catch(e => { console.error('Brans error:', e); return { dagilim: [] }; }),
+          apiGet('dashboard/top-performers', topPerformersParams).catch(e => { console.error('Top performers error:', e); return { performers: [] }; }),
+          apiGet('dashboard/brans-dagilim', bransParams).catch(e => { console.error('Brans error:', e); return { dagilim: [] }; }),
           apiGet('dashboard/aylik-trend', { firmaId, months: 12 }).catch(e => { console.error('Trend error:', e); return { trend: [] }; })
         ]);
 
         console.log('API Responses:', { topPerformers, bransData, trendData });
 
-        const performers = topPerformers.performers || [];
+        // Flexible response parsing - handle both array and object responses
+        const performers = Array.isArray(topPerformers)
+          ? topPerformers
+          : (topPerformers.performers || topPerformers.data || []);
 
         // 1. Top Performers kartlarını render et
         renderTopPerformers(performers);
@@ -413,52 +481,248 @@
         // 3. Çalışan dropdown'ını güncelle
         updateEmployeeSelect(performers);
 
-        // 4. Bar Chart - Çalışan bazlı poliçe üretimi
+        // 4. Bar Chart - Çalışan bazlı poliçe üretimi (Enhanced)
         if (barChart) barChart.destroy();
         if (performers.length > 0) {
-          barChart = createBarChart('employee-bar-chart', {
-            labels: performers.slice(0, 6).map(p => p.adSoyad ? p.adSoyad.split(' ')[0] : 'N/A'),
-            datasets: [
-              { name: 'Bu Dönem', values: performers.slice(0, 6).map(p => p.policeSayisi || 0) }
-            ]
-          }, {
-            colors: [chartColors.primary],
-            height: 300
-          });
+          const chartConfig = {
+            series: [{
+              name: 'Poliçe Sayısı',
+              data: performers.slice(0, 6).map(p => p.policeSayisi || 0)
+            }],
+            chart: {
+              type: 'bar',
+              height: 300,
+              toolbar: { show: false },
+              fontFamily: 'Inter, system-ui, sans-serif'
+            },
+            plotOptions: {
+              bar: {
+                horizontal: false,
+                columnWidth: '60%',
+                borderRadius: 4,
+                dataLabels: {
+                  position: 'top'
+                }
+              }
+            },
+            dataLabels: {
+              enabled: true,
+              offsetY: -20,
+              style: {
+                fontSize: '12px',
+                colors: ['#64748b']
+              }
+            },
+            colors: ['#00d4ff'],
+            xaxis: {
+              categories: performers.slice(0, 6).map(p => {
+                const name = p.adSoyad || 'N/A';
+                const parts = name.split(' ');
+                // Show first name + first letter of last name
+                return parts.length > 1 ? `${parts[0]} ${parts[1][0]}.` : parts[0];
+              }),
+              labels: {
+                style: {
+                  fontSize: '11px',
+                  fontWeight: 500
+                }
+              }
+            },
+            yaxis: {
+              title: {
+                text: 'Poliçe Sayısı',
+                style: {
+                  fontSize: '12px',
+                  fontWeight: 600
+                }
+              },
+              labels: {
+                formatter: (val) => val.toFixed(0)
+              }
+            },
+            tooltip: {
+              custom: function({seriesIndex, dataPointIndex, w}) {
+                const performer = performers[dataPointIndex];
+                return `
+                  <div class="apexcharts-tooltip-custom" style="padding: 12px; min-width: 200px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1e293b;">
+                      ${performer.adSoyad || 'N/A'}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                      <span style="color: #64748b;">Poliçe:</span>
+                      <span style="font-weight: 600;">${performer.policeSayisi || 0}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                      <span style="color: #64748b;">Prim:</span>
+                      <span style="font-weight: 600;">${formatCurrency(performer.toplamBrutPrim || 0)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                      <span style="color: #64748b;">Komisyon:</span>
+                      <span style="font-weight: 600; color: #10b981;">${formatCurrency(performer.toplamKomisyon || 0)}</span>
+                    </div>
+                  </div>
+                `;
+              }
+            },
+            grid: {
+              borderColor: '#e2e8f0',
+              strokeDashArray: 4
+            }
+          };
+
+          barChart = new ApexCharts(document.querySelector('#employee-bar-chart'), chartConfig);
+          barChart.render();
         }
 
-        // 5. Donut Chart - Branş dağılımı (backend: dagilim array)
+        // 5. Donut Chart - Branş dağılımı (Enhanced)
         if (donutChart) donutChart.destroy();
         const bransItems = bransData.dagilim || [];
         console.log('Brans items:', bransItems);
         if (bransItems.length > 0) {
-          donutChart = createDonutChart('policy-type-pie', {
+          const chartConfig = {
+            series: bransItems.map(b => b.policeSayisi || 0),
+            chart: {
+              type: 'donut',
+              height: 300,
+              fontFamily: 'Inter, system-ui, sans-serif'
+            },
             labels: bransItems.map(b => b.bransAdi || 'Diğer'),
-            values: bransItems.map(b => b.policeSayisi || 0)
-          }, {
-            height: 300
-          });
+            colors: ['#00d4ff', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'],
+            legend: {
+              position: 'bottom',
+              fontSize: '11px'
+            },
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '70%',
+                  labels: {
+                    show: true,
+                    name: {
+                      show: true,
+                      fontSize: '14px',
+                      fontWeight: 600
+                    },
+                    value: {
+                      show: true,
+                      fontSize: '20px',
+                      fontWeight: 700,
+                      formatter: (val) => val
+                    },
+                    total: {
+                      show: true,
+                      label: 'Toplam',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      formatter: function (w) {
+                        return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            tooltip: {
+              y: {
+                formatter: function(val, opts) {
+                  const brans = bransItems[opts.seriesIndex];
+                  return `${val} poliçe - ${formatCurrency(brans.toplamBrutPrim || 0)}`;
+                }
+              }
+            },
+            responsive: [{
+              breakpoint: 480,
+              options: {
+                chart: {
+                  width: 280
+                },
+                legend: {
+                  position: 'bottom',
+                  fontSize: '10px'
+                }
+              }
+            }]
+          };
+
+          donutChart = new ApexCharts(document.querySelector('#policy-type-pie'), chartConfig);
+          donutChart.render();
         }
 
-        // 6. Line Chart - Aylık trend (backend: trend array with ay, brutPrim fields)
+        // 6. Line Chart - Aylık trend (Enhanced)
         if (lineChart) lineChart.destroy();
         const trendItems = trendData.trend || [];
         console.log('Trend items:', trendItems);
         if (trendItems.length > 0) {
-          // Trend legend'ını güncelle
-          updateTrendLegend(performers);
+          const chartConfig = {
+            series: [
+              {
+                name: 'Brüt Prim',
+                data: trendItems.map(t => t.brutPrim || 0)
+              },
+              {
+                name: 'Komisyon',
+                data: trendItems.map(t => t.komisyon || 0)
+              }
+            ],
+            chart: {
+              type: 'line',
+              height: 320,
+              toolbar: { show: true },
+              fontFamily: 'Inter, system-ui, sans-serif',
+              zoom: { enabled: true }
+            },
+            colors: ['#10b981', '#00d4ff'],
+            stroke: {
+              curve: 'smooth',
+              width: 3
+            },
+            dataLabels: {
+              enabled: false
+            },
+            xaxis: {
+              categories: trendItems.map(t => t.ay || ''),
+              labels: {
+                style: {
+                  fontSize: '11px'
+                }
+              }
+            },
+            yaxis: {
+              labels: {
+                formatter: (val) => formatCurrencyShort(val),
+                style: {
+                  fontSize: '11px'
+                }
+              }
+            },
+            tooltip: {
+              shared: true,
+              intersect: false,
+              y: {
+                formatter: (val) => formatCurrency(val)
+              }
+            },
+            legend: {
+              position: 'top',
+              horizontalAlign: 'right',
+              fontSize: '12px',
+              markers: {
+                width: 10,
+                height: 10,
+                radius: 2
+              }
+            },
+            grid: {
+              borderColor: '#e2e8f0',
+              strokeDashArray: 4,
+              xaxis: {
+                lines: { show: false }
+              }
+            }
+          };
 
-          // Aylık trend - tek seri olarak toplam prim
-          lineChart = createLineChart('premium-trend', {
-            labels: trendItems.map(t => t.ay || ''),
-            datasets: [
-              { name: 'Brüt Prim', values: trendItems.map(t => t.brutPrim || 0) },
-              { name: 'Komisyon', values: trendItems.map(t => t.komisyon || 0) }
-            ]
-          }, {
-            colors: [chartColors.success, chartColors.primary],
-            height: 320
-          });
+          lineChart = new ApexCharts(document.querySelector('#premium-trend'), chartConfig);
+          lineChart.render();
         }
 
         console.log('Performance data loaded successfully');
@@ -472,6 +736,23 @@
     // Sayfa yüklendiğinde
     document.addEventListener('DOMContentLoaded', function() {
       loadPerformanceData();
+
+      // Date range filter event listener
+      const dateRangeSelect = document.querySelector('.page-actions select.form-select');
+      if (dateRangeSelect) {
+        dateRangeSelect.addEventListener('change', function(e) {
+          const period = e.target.value;
+          const dateRange = getDateRange(period);
+          console.log('Date range changed:', period, dateRange);
+
+          // Show loading state
+          const skeletons = document.querySelectorAll('.skeleton-card, .skeleton-row');
+          skeletons.forEach(s => s.style.display = '');
+
+          // Reload data with new date range
+          loadPerformanceData(dateRange);
+        });
+      }
     });
   </script>
   <script src="../../components/sidebar.js"></script>

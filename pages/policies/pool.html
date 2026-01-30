@@ -4375,17 +4375,36 @@
       poolContent.innerHTML = html;
     }
 
-    // Yakalanan poliçeyi havuza gönder
+    // Yakalanan poliçeyi direkt kaydet (önce havuza gönder, sonra onayla)
     async function sendCapturedToPool(capturedId) {
-      try {
-        const result = await apiPost(`policies/${capturedId}/send-to-pool`);
+      if (!confirm('Bu poliçeyi Poliçelerime kaydetmek istediğinize emin misiniz?')) {
+        return;
+      }
 
-        if (result.success) {
-          showToast('Poliçe havuza gönderildi', 'success');
+      try {
+        // Adım 1: Havuza gönder
+        const sendResult = await apiPost(`policies/${capturedId}/send-to-pool`);
+
+        if (!sendResult.success) {
+          showToast(sendResult.message || 'Havuza gönderim başarısız', 'error');
+          return;
+        }
+
+        // Adım 2: Havuzdan onayla (police tablosuna kaydet)
+        const poolPolicyId = sendResult.poolPolicyId;
+        if (!poolPolicyId) {
+          showToast('Pool ID bulunamadı', 'error');
+          return;
+        }
+
+        const approveResult = await apiPost(`policies/pool/${poolPolicyId}/approve`);
+
+        if (approveResult.success) {
+          showToast('Poliçe başarıyla kaydedildi', 'success');
           await loadUnmatchedCaptured(true);
           await loadTabCounts();
         } else {
-          showToast(result.message || 'Gönderim başarısız', 'error');
+          showToast(approveResult.errorMessage || 'Kaydetme başarısız', 'error');
         }
       } catch (error) {
         console.error('sendCapturedToPool error:', error);
