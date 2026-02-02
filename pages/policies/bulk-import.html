@@ -387,6 +387,39 @@
                 </div>
               </div>
 
+              <!-- Detailed Import Report -->
+              <div class="import-report-section" id="importReportSection">
+                <div class="report-header">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                  <span>Aktarım Raporu</span>
+                </div>
+
+                <!-- Type Summary -->
+                <div class="report-summary-row" id="reportTypeSummary">
+                  <!-- Will be populated by JS -->
+                </div>
+
+                <!-- Prim Summary -->
+                <div class="report-prim-section" id="reportPrimSection">
+                  <!-- Will be populated by JS -->
+                </div>
+
+                <!-- Branch Breakdown -->
+                <div class="report-branch-section" id="reportBranchSection">
+                  <!-- Will be populated by JS -->
+                </div>
+
+                <!-- Date Breakdown -->
+                <div class="report-date-section" id="reportDateSection">
+                  <!-- Will be populated by JS -->
+                </div>
+              </div>
+
               <!-- Result Actions -->
               <div class="result-actions">
                 <button class="btn btn-primary" id="newImportBtn">
@@ -475,6 +508,60 @@
             <span id="progressFailed">0</span> Hatalı
           </span>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Action Box - Import Summary -->
+  <div class="floating-action-box" id="floatingActionBox">
+    <div class="fab-header">
+      <div class="fab-count">
+        <span id="fabValidCount">0</span>
+        <small>geçerli kayıt</small>
+      </div>
+      <button class="fab-close" onclick="hideFloatingBox()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="fab-stats">
+      <div class="fab-stat">
+        <span class="fab-stat-value" id="fabTotalPremium">₺0</span>
+        <span class="fab-stat-label">Toplam Brüt Prim</span>
+      </div>
+    </div>
+    <div class="fab-actions">
+      <button class="fab-btn fab-btn-primary" id="fabImportBtn" onclick="startImport()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20,6 9,17 4,12"/>
+        </svg>
+        <span id="fabImportBtnText">İçeri Aktar</span>
+      </button>
+      <button class="fab-btn fab-btn-secondary" onclick="showDetailModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        Detayları Gör
+      </button>
+    </div>
+  </div>
+
+  <!-- Import Detail Modal -->
+  <div class="modal-overlay" id="importDetailModal">
+    <div class="modal import-detail-modal">
+      <div class="modal-header">
+        <h3 class="modal-title">İçeri Aktarma Özeti</h3>
+        <button class="modal-close" onclick="closeDetailModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="importDetailContent">
+        <!-- Content will be rendered here -->
       </div>
     </div>
   </div>
@@ -1237,6 +1324,12 @@
     /* ═══════════════════════════════════════════════════════════════
        MODAL STYLES - Modern Glass Effect
        ═══════════════════════════════════════════════════════════════ */
+
+    /* Body scroll lock when modal is open */
+    body.modal-open {
+      overflow: hidden;
+    }
+
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -1736,6 +1829,590 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════
+       FLOATING ACTION BOX
+       ═══════════════════════════════════════════════════════════════ */
+    .floating-action-box {
+      position: fixed;
+      right: -300px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 260px;
+      background: #1a1b23;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: none;
+      border-radius: 16px 0 0 16px;
+      padding: 1.5rem;
+      z-index: 500;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .floating-action-box.active {
+      right: 0;
+    }
+
+    .fab-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+
+    .fab-count {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .fab-count span {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .fab-count small {
+      font-size: 0.8rem;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .fab-close {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      transition: all 0.15s ease;
+    }
+
+    .fab-close:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .fab-stats {
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+    }
+
+    .fab-stat {
+      text-align: center;
+    }
+
+    .fab-stat-value {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      letter-spacing: -0.01em;
+    }
+
+    .fab-stat-label {
+      display: block;
+      font-size: 0.7rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+
+    .fab-status-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .fab-status-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0.75rem 0.5rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .fab-status-item svg {
+      margin-bottom: 0.25rem;
+    }
+
+    .fab-status-item span {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .fab-status-item small {
+      font-size: 0.65rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    .fab-status-item.success svg {
+      color: #10b981;
+    }
+
+    .fab-status-item.success span {
+      color: #10b981;
+    }
+
+    .fab-status-item.duplicate svg {
+      color: #f59e0b;
+    }
+
+    .fab-status-item.duplicate span {
+      color: #f59e0b;
+    }
+
+    .fab-status-item.failed svg {
+      color: #ef4444;
+    }
+
+    .fab-status-item.failed span {
+      color: #ef4444;
+    }
+
+    .fab-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .fab-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+    }
+
+    .fab-btn svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+    }
+
+    .fab-btn-primary {
+      background: #10b981;
+      color: #fff;
+    }
+
+    .fab-btn-primary:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .fab-btn-primary:disabled {
+      background: #374151;
+      color: #6b7280;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .fab-btn-secondary {
+      background: #374151;
+      color: #e5e7eb;
+    }
+
+    .fab-btn-secondary:hover {
+      background: #4b5563;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       IMPORT DETAIL MODAL
+       ═══════════════════════════════════════════════════════════════ */
+    .import-detail-modal {
+      max-width: 700px;
+      width: 95%;
+    }
+
+    .import-detail-modal .modal-body {
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .detail-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-summary-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .detail-summary-card .value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .detail-summary-card .label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-summary-card.zeyil .value { color: #f59e0b; }
+    .detail-summary-card.police .value { color: #6366f1; }
+    .detail-summary-card.yeni .value { color: #10b981; }
+
+    .detail-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #e5e7eb;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .detail-section-title svg {
+      width: 16px;
+      height: 16px;
+      color: #6366f1;
+    }
+
+    .prim-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .prim-detail-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 0.875rem;
+    }
+
+    .prim-detail-card .prim-type {
+      font-size: 0.7rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.25rem;
+    }
+
+    .prim-detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.375rem 0;
+      font-size: 0.8rem;
+    }
+
+    .prim-detail-row:not(:last-child) {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .prim-detail-row .label {
+      color: #9ca3af;
+    }
+
+    .prim-detail-row .value {
+      font-weight: 600;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .prim-detail-row .value.positive { color: #10b981; }
+    .prim-detail-row .value.negative { color: #ef4444; }
+    .prim-detail-row .value.total { color: #a5b4fc; font-weight: 700; }
+
+    .branch-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .branch-table th {
+      text-align: left;
+      padding: 0.75rem 0.5rem;
+      color: #9ca3af;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .branch-table th:not(:first-child) {
+      text-align: right;
+    }
+
+    .branch-table td {
+      padding: 0.625rem 0.5rem;
+      color: #e5e7eb;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .branch-table td:not(:first-child) {
+      text-align: right;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .branch-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .branch-table .branch-name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .branch-table .branch-badge {
+      padding: 0.25rem 0.5rem;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .date-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .date-table th {
+      text-align: left;
+      padding: 0.75rem 0.5rem;
+      color: #9ca3af;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .date-table th:not(:first-child) {
+      text-align: right;
+    }
+
+    .date-table td {
+      padding: 0.625rem 0.5rem;
+      color: #e5e7eb;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .date-table td:not(:first-child) {
+      text-align: right;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .date-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       IMPORT REPORT SECTION (Result Page)
+       ═══════════════════════════════════════════════════════════════ */
+    .import-report-section {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .report-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .report-header svg {
+      color: var(--primary);
+    }
+
+    .report-summary-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .report-summary-item {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .report-summary-item .value {
+      font-size: 1.75rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .report-summary-item .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .report-summary-item.zeyil .value { color: #f59e0b; }
+    .report-summary-item.police .value { color: #6366f1; }
+    .report-summary-item.yeni .value { color: #10b981; }
+
+    .report-prim-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .report-prim-section h4,
+    .report-branch-section h4,
+    .report-date-section h4 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .report-prim-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .report-prim-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+
+    .report-prim-card .prim-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .report-prim-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.375rem 0;
+      font-size: 0.8rem;
+    }
+
+    .report-prim-row .label {
+      color: var(--text-muted);
+    }
+
+    .report-prim-row .value {
+      font-weight: 600;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .report-prim-row .value.positive { color: #10b981; }
+    .report-prim-row .value.negative { color: #ef4444; }
+    .report-prim-row.total {
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .report-prim-row.total .label { color: var(--text-primary); font-weight: 600; }
+    .report-prim-row.total .value { color: var(--primary); font-weight: 700; }
+
+    .report-branch-section,
+    .report-date-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .report-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .report-table th:not(:first-child) {
+      text-align: right;
+    }
+
+    .report-table td {
+      padding: 0.625rem 1rem;
+      color: var(--text-primary);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .report-table td:not(:first-child) {
+      text-align: right;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .report-table .branch-badge {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
        RESPONSIVE
        ═══════════════════════════════════════════════════════════════ */
     @media (max-width: 768px) {
@@ -1778,6 +2455,19 @@
 
       .detail-group.full-width {
         grid-column: span 1;
+      }
+
+      .floating-action-box {
+        width: 100%;
+        right: -100%;
+        border-radius: 16px 16px 0 0;
+        top: auto;
+        bottom: 0;
+        transform: none;
+      }
+
+      .floating-action-box.active {
+        right: 0;
       }
 
       .card-footer {
@@ -2101,6 +2791,9 @@
       currentPage = 1;
       renderPage();
       renderPagination();
+
+      // Show floating action box
+      showFloatingBox(data);
     }
 
     // Render current page of rows
@@ -2382,6 +3075,9 @@
       document.getElementById('resultFailed').textContent = data.failedCount;
       document.getElementById('resultDuplicate').textContent = data.duplicateCount;
 
+      // Hide floating box after import
+      hideFloatingBox();
+
       // New customers info
       if (data.newCustomersCreated > 0) {
         const info = document.getElementById('newCustomersInfo');
@@ -2409,6 +3105,151 @@
       }
 
       showToast(`${data.successCount} poliçe başarıyla eklendi`, 'success');
+
+      // Populate import report
+      populateImportReport();
+    }
+
+    // Populate import report section with statistics
+    function populateImportReport() {
+      const stats = calculateDetailStats();
+      if (!stats) {
+        document.getElementById('importReportSection').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('importReportSection').style.display = 'block';
+
+      // Type Summary (Zeyil, Yeni İş, Toplam Poliçe)
+      document.getElementById('reportTypeSummary').innerHTML = `
+        <div class="report-summary-item zeyil">
+          <div class="value">${stats.zeyilCount}</div>
+          <div class="label">Zeyil</div>
+        </div>
+        <div class="report-summary-item yeni">
+          <div class="value">${stats.yeniIsCount}</div>
+          <div class="label">Yeni İş</div>
+        </div>
+        <div class="report-summary-item police">
+          <div class="value">${stats.policeCount}</div>
+          <div class="label">Toplam</div>
+        </div>
+      `;
+
+      // Prim Section (Brüt, Net, Komisyon with positive/negative/total)
+      document.getElementById('reportPrimSection').innerHTML = `
+        <h4>Prim Özeti</h4>
+        <div class="report-prim-grid">
+          <div class="report-prim-card">
+            <div class="prim-title">Brüt Prim</div>
+            <div class="report-prim-row">
+              <span class="label">Tahakkuk (+)</span>
+              <span class="value positive">${formatCurrency(stats.brutPrim.positive)}</span>
+            </div>
+            <div class="report-prim-row">
+              <span class="label">İptal (-)</span>
+              <span class="value negative">${formatCurrency(stats.brutPrim.negative)}</span>
+            </div>
+            <div class="report-prim-row total">
+              <span class="label">Toplam</span>
+              <span class="value">${formatCurrency(stats.brutPrim.total)}</span>
+            </div>
+          </div>
+          <div class="report-prim-card">
+            <div class="prim-title">Net Prim</div>
+            <div class="report-prim-row">
+              <span class="label">Tahakkuk (+)</span>
+              <span class="value positive">${formatCurrency(stats.netPrim.positive)}</span>
+            </div>
+            <div class="report-prim-row">
+              <span class="label">İptal (-)</span>
+              <span class="value negative">${formatCurrency(stats.netPrim.negative)}</span>
+            </div>
+            <div class="report-prim-row total">
+              <span class="label">Toplam</span>
+              <span class="value">${formatCurrency(stats.netPrim.total)}</span>
+            </div>
+          </div>
+          <div class="report-prim-card">
+            <div class="prim-title">Komisyon</div>
+            <div class="report-prim-row">
+              <span class="label">Tahakkuk (+)</span>
+              <span class="value positive">${formatCurrency(stats.komisyon.positive)}</span>
+            </div>
+            <div class="report-prim-row">
+              <span class="label">İptal (-)</span>
+              <span class="value negative">${formatCurrency(stats.komisyon.negative)}</span>
+            </div>
+            <div class="report-prim-row total">
+              <span class="label">Toplam</span>
+              <span class="value">${formatCurrency(stats.komisyon.total)}</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Branch Breakdown Table
+      const sortedBranches = Object.entries(stats.byBranch)
+        .sort((a, b) => b[1].count - a[1].count);
+
+      let branchRows = sortedBranches.map(([branch, data]) => `
+        <tr>
+          <td><span class="branch-badge">${branch}</span></td>
+          <td>${data.count}</td>
+          <td>${formatCurrency(data.brutPrim)}</td>
+          <td>${formatCurrency(data.netPrim)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('reportBranchSection').innerHTML = `
+        <h4>Branş Dağılımı</h4>
+        <table class="report-table">
+          <thead>
+            <tr>
+              <th>Branş</th>
+              <th>Adet</th>
+              <th>Brüt Prim</th>
+              <th>Net Prim</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${branchRows}
+          </tbody>
+        </table>
+      `;
+
+      // Date Breakdown Table
+      const sortedDates = Object.entries(stats.byDate)
+        .sort((a, b) => a[0].localeCompare(b[0]));
+
+      let dateRows = sortedDates.map(([key, data]) => `
+        <tr>
+          <td>${data.label}</td>
+          <td>${data.count}</td>
+          <td>${formatCurrency(data.brutPrim)}</td>
+        </tr>
+      `).join('');
+
+      if (dateRows) {
+        document.getElementById('reportDateSection').innerHTML = `
+          <h4>Tarih Dağılımı</h4>
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Dönem</th>
+                <th>Adet</th>
+                <th>Brüt Prim</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${dateRows}
+            </tbody>
+          </table>
+        `;
+        document.getElementById('reportDateSection').style.display = 'block';
+      } else {
+        document.getElementById('reportDateSection').style.display = 'none';
+      }
     }
 
     // Reset to upload
@@ -2421,6 +3262,9 @@
       loadingCard.style.display = 'none';
       previewCard.style.display = 'none';
       resultCard.style.display = 'none';
+
+      // Hide floating action box
+      hideFloatingBox();
 
       // Reset wizard steps
       wizardStep1.classList.add('active');
@@ -2436,6 +3280,13 @@
       // Reset errors section
       document.getElementById('resultErrors').style.display = 'none';
       document.getElementById('newCustomersInfo').style.display = 'none';
+
+      // Reset import report section
+      document.getElementById('importReportSection').style.display = 'none';
+      document.getElementById('reportTypeSummary').innerHTML = '';
+      document.getElementById('reportPrimSection').innerHTML = '';
+      document.getElementById('reportBranchSection').innerHTML = '';
+      document.getElementById('reportDateSection').innerHTML = '';
     }
 
     // Helper functions
@@ -2630,11 +3481,13 @@
       `;
 
       modal.classList.add('active');
+      document.body.classList.add('modal-open');
     };
 
     // Close modal
     window.closeRowDetailModal = function() {
       document.getElementById('rowDetailModal').classList.remove('active');
+      document.body.classList.remove('modal-open');
     };
 
     // Close modal when clicking overlay
@@ -2647,10 +3500,305 @@
     // Close modal with Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
-        const modal = document.getElementById('rowDetailModal');
-        if (modal.classList.contains('active')) {
+        const rowModal = document.getElementById('rowDetailModal');
+        const detailModal = document.getElementById('importDetailModal');
+        if (rowModal.classList.contains('active')) {
           closeRowDetailModal();
+        } else if (detailModal.classList.contains('active')) {
+          closeDetailModal();
         }
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // FLOATING ACTION BOX FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    function showFloatingBox(data) {
+      const floatingBox = document.getElementById('floatingActionBox');
+      const validCount = data.validRows || 0;
+
+      // Calculate total premium from valid rows
+      let totalPremium = 0;
+      if (data.rows) {
+        data.rows.forEach(row => {
+          if (row.isValid && row.brutPrim) {
+            totalPremium += row.brutPrim;
+          }
+        });
+      }
+
+      // Update floating box content
+      document.getElementById('fabValidCount').textContent = validCount;
+      document.getElementById('fabTotalPremium').textContent = formatCurrency(totalPremium);
+      document.getElementById('fabImportBtnText').textContent = `${validCount} Kayıt İçeri Aktar`;
+
+      // Enable/disable import button
+      const importBtn = document.getElementById('fabImportBtn');
+      importBtn.disabled = validCount === 0;
+
+      // Show floating box
+      floatingBox.classList.add('active');
+    }
+
+    function hideFloatingBox() {
+      document.getElementById('floatingActionBox').classList.remove('active');
+    }
+
+    function scrollToPreview() {
+      document.getElementById('previewCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function startImport() {
+      // Trigger the confirm import button
+      document.getElementById('confirmBtn').click();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // IMPORT DETAIL MODAL FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    function calculateDetailStats() {
+      if (!currentPreviewData || !currentPreviewData.rows) return null;
+
+      const rows = currentPreviewData.rows.filter(r => r.isValid);
+
+      let stats = {
+        zeyilCount: 0,
+        policeCount: 0,
+        yeniIsCount: 0,
+        brutPrim: { positive: 0, negative: 0, total: 0 },
+        netPrim: { positive: 0, negative: 0, total: 0 },
+        komisyon: { positive: 0, negative: 0, total: 0 },
+        byBranch: {},
+        byDate: {}
+      };
+
+      rows.forEach(row => {
+        const zeyilNo = parseInt(row.zeyilNo) || 0;
+
+        // Count by type
+        // Zeyil: zeyilNo > 0
+        // Yeni İş: zeyilNo == 0 (yeni poliçeler)
+        // Poliçe: Toplam (Zeyil + Yeni İş)
+        if (zeyilNo > 0) {
+          stats.zeyilCount++;
+        } else {
+          stats.yeniIsCount++;
+        }
+        stats.policeCount++; // Toplam poliçe sayısı
+
+        // Prim calculations
+        const brut = row.brutPrim || 0;
+        const net = row.netPrim || 0;
+        const kom = row.komisyon || 0;
+
+        stats.brutPrim.total += brut;
+        stats.netPrim.total += net;
+        stats.komisyon.total += kom;
+
+        if (brut >= 0) stats.brutPrim.positive += brut;
+        else stats.brutPrim.negative += brut;
+
+        if (net >= 0) stats.netPrim.positive += net;
+        else stats.netPrim.negative += net;
+
+        if (kom >= 0) stats.komisyon.positive += kom;
+        else stats.komisyon.negative += kom;
+
+        // By branch
+        const branch = row.brans || 'Belirtilmemiş';
+        if (!stats.byBranch[branch]) {
+          stats.byBranch[branch] = { count: 0, brutPrim: 0, netPrim: 0 };
+        }
+        stats.byBranch[branch].count++;
+        stats.byBranch[branch].brutPrim += brut;
+        stats.byBranch[branch].netPrim += net;
+
+        // By date (month)
+        const dateStr = row.baslangicTarihi || row.tanzimTarihi;
+        if (dateStr) {
+          const date = new Date(dateStr);
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          const monthLabel = date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' });
+
+          if (!stats.byDate[monthKey]) {
+            stats.byDate[monthKey] = { label: monthLabel, count: 0, brutPrim: 0 };
+          }
+          stats.byDate[monthKey].count++;
+          stats.byDate[monthKey].brutPrim += brut;
+        }
+      });
+
+      return stats;
+    }
+
+    function showDetailModal() {
+      const stats = calculateDetailStats();
+      if (!stats) return;
+
+      const content = document.getElementById('importDetailContent');
+
+      // Sort branches by count
+      const sortedBranches = Object.entries(stats.byBranch)
+        .sort((a, b) => b[1].count - a[1].count);
+
+      // Sort dates
+      const sortedDates = Object.entries(stats.byDate)
+        .sort((a, b) => a[0].localeCompare(b[0]));
+
+      content.innerHTML = `
+        <!-- Summary Cards -->
+        <div class="detail-summary-grid">
+          <div class="detail-summary-card zeyil">
+            <div class="value">${stats.zeyilCount}</div>
+            <div class="label">Zeyil</div>
+          </div>
+          <div class="detail-summary-card yeni">
+            <div class="value">${stats.yeniIsCount}</div>
+            <div class="label">Yeni İş</div>
+          </div>
+          <div class="detail-summary-card police">
+            <div class="value">${stats.policeCount}</div>
+            <div class="label">Toplam</div>
+          </div>
+        </div>
+
+        <!-- Prim Details -->
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/>
+              <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+            </svg>
+            Prim Detayları
+          </div>
+          <div class="prim-detail-grid">
+            <div class="prim-detail-card">
+              <div class="prim-type">Brüt Prim</div>
+              <div class="prim-detail-row">
+                <span class="label">Tahakkuk (+)</span>
+                <span class="value positive">${formatCurrency(stats.brutPrim.positive)}</span>
+              </div>
+              <div class="prim-detail-row">
+                <span class="label">İptal (-)</span>
+                <span class="value negative">${formatCurrency(stats.brutPrim.negative)}</span>
+              </div>
+              <div class="prim-detail-row">
+                <span class="label">Toplam</span>
+                <span class="value total">${formatCurrency(stats.brutPrim.total)}</span>
+              </div>
+            </div>
+            <div class="prim-detail-card">
+              <div class="prim-type">Net Prim</div>
+              <div class="prim-detail-row">
+                <span class="label">Tahakkuk (+)</span>
+                <span class="value positive">${formatCurrency(stats.netPrim.positive)}</span>
+              </div>
+              <div class="prim-detail-row">
+                <span class="label">İptal (-)</span>
+                <span class="value negative">${formatCurrency(stats.netPrim.negative)}</span>
+              </div>
+              <div class="prim-detail-row">
+                <span class="label">Toplam</span>
+                <span class="value total">${formatCurrency(stats.netPrim.total)}</span>
+              </div>
+            </div>
+            <div class="prim-detail-card">
+              <div class="prim-type">Komisyon</div>
+              <div class="prim-detail-row">
+                <span class="label">Tahakkuk (+)</span>
+                <span class="value positive">${formatCurrency(stats.komisyon.positive)}</span>
+              </div>
+              <div class="prim-detail-row">
+                <span class="label">İptal (-)</span>
+                <span class="value negative">${formatCurrency(stats.komisyon.negative)}</span>
+              </div>
+              <div class="prim-detail-row">
+                <span class="label">Toplam</span>
+                <span class="value total">${formatCurrency(stats.komisyon.total)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- By Branch -->
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+            </svg>
+            Branş Dağılımı
+          </div>
+          <table class="branch-table">
+            <thead>
+              <tr>
+                <th>Branş</th>
+                <th>Adet</th>
+                <th>Brüt Prim</th>
+                <th>Net Prim</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sortedBranches.map(([branch, data]) => `
+                <tr>
+                  <td><span class="branch-badge">${branch}</span></td>
+                  <td>${data.count}</td>
+                  <td>${formatCurrency(data.brutPrim)}</td>
+                  <td>${formatCurrency(data.netPrim)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- By Date -->
+        ${sortedDates.length > 0 ? `
+        <div class="detail-section">
+          <div class="detail-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Tarih Dağılımı
+          </div>
+          <table class="date-table">
+            <thead>
+              <tr>
+                <th>Dönem</th>
+                <th>Adet</th>
+                <th>Brüt Prim</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sortedDates.map(([key, data]) => `
+                <tr>
+                  <td>${data.label}</td>
+                  <td>${data.count}</td>
+                  <td>${formatCurrency(data.brutPrim)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        ` : ''}
+      `;
+
+      document.getElementById('importDetailModal').classList.add('active');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('importDetailModal').classList.remove('active');
+      document.body.classList.remove('modal-open');
+    }
+
+    // Close detail modal when clicking overlay
+    document.getElementById('importDetailModal').addEventListener('click', (e) => {
+      if (e.target.id === 'importDetailModal') {
+        closeDetailModal();
       }
     });
   </script>
