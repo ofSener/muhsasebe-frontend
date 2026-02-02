@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Toplu Aktarım - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body>
   <div class="gradient-mesh"></div>
@@ -2084,6 +2085,123 @@
     .detail-summary-card.police .value { color: #6366f1; }
     .detail-summary-card.yeni .value { color: #10b981; }
 
+    /* Modal Branch Layout */
+    .modal-branch-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .modal-chart-row {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+    }
+
+    .modal-branch-legend {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.375rem 0;
+    }
+
+    .legend-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    .legend-text {
+      flex: 1;
+      font-size: 0.8rem;
+      color: #e2e8f0;
+    }
+
+    .legend-value {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* Modal Branch Table */
+    .modal-branch-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .modal-branch-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      color: #94a3b8;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-branch-table th:not(:first-child) {
+      text-align: center;
+    }
+
+    .modal-branch-table th:last-child {
+      text-align: right;
+    }
+
+    .modal-branch-table td {
+      padding: 0.75rem 1rem;
+      color: #e2e8f0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .modal-branch-table td:not(:first-child) {
+      text-align: center;
+    }
+
+    .modal-branch-table td:last-child {
+      text-align: right;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      color: #a5b4fc;
+    }
+
+    .modal-branch-table tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .branch-badge-sm {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      background: rgba(99, 102, 241, 0.15);
+      color: #c7d2fe;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .count-yeni {
+      color: #34d399;
+      font-weight: 600;
+    }
+
+    .count-zeyil {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
     .detail-section {
       margin-bottom: 1.5rem;
     }
@@ -2240,22 +2358,27 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════
-       IMPORT REPORT SECTION (Result Page)
+       IMPORT REPORT SECTION (Result Page) - Light Theme
        ═══════════════════════════════════════════════════════════════ */
     .import-report-section {
       margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border-color);
+      padding: 1.75rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--card-shadow);
     }
 
     .report-header {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      font-size: 1rem;
-      font-weight: 600;
+      gap: 0.75rem;
+      font-size: 1.125rem;
+      font-weight: 700;
       color: var(--text-primary);
       margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
     .report-header svg {
@@ -2270,44 +2393,80 @@
     }
 
     .report-summary-item {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem 1.25rem;
       text-align: center;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .report-summary-item:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
     }
 
     .report-summary-item .value {
-      font-size: 1.75rem;
+      font-size: 2.25rem;
       font-weight: 800;
       line-height: 1;
+      letter-spacing: -0.02em;
     }
 
     .report-summary-item .label {
       font-size: 0.75rem;
       color: var(--text-muted);
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.08em;
+      font-weight: 600;
     }
 
-    .report-summary-item.zeyil .value { color: #f59e0b; }
-    .report-summary-item.police .value { color: #6366f1; }
-    .report-summary-item.yeni .value { color: #10b981; }
+    .report-summary-item.zeyil {
+      border-left: 4px solid var(--warning);
+      background: linear-gradient(135deg, var(--warning-bg) 0%, var(--bg-surface) 100%);
+    }
+    .report-summary-item.zeyil .value { color: var(--warning-dim); }
+
+    .report-summary-item.police {
+      border-left: 4px solid var(--primary);
+      background: linear-gradient(135deg, var(--primary-glow) 0%, var(--bg-surface) 100%);
+    }
+    .report-summary-item.police .value { color: var(--primary); }
+
+    .report-summary-item.yeni {
+      border-left: 4px solid var(--success);
+      background: linear-gradient(135deg, var(--success-bg) 0%, var(--bg-surface) 100%);
+    }
+    .report-summary-item.yeni .value { color: var(--success-dim); }
 
     .report-prim-section {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
     }
 
     .report-prim-section h4,
     .report-branch-section h4,
     .report-date-section h4 {
       font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 0.75rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.1em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .report-prim-section h4::before,
+    .report-branch-section h4::before,
+    .report-date-section h4::before {
+      content: '';
+      width: 3px;
+      height: 16px;
+      background: linear-gradient(180deg, var(--primary-light) 0%, var(--primary) 100%);
+      border-radius: 2px;
     }
 
     .report-prim-grid {
@@ -2317,20 +2476,27 @@
     }
 
     .report-prim-card {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .report-prim-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-glow);
     }
 
     .report-prim-card .prim-title {
       font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text-muted);
+      font-weight: 700;
+      color: var(--text-secondary);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.75rem;
-      padding-bottom: 0.5rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
       border-bottom: 1px solid var(--border-subtle);
     }
 
@@ -2338,8 +2504,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.375rem 0;
-      font-size: 0.8rem;
+      padding: 0.5rem 0;
+      font-size: 0.85rem;
     }
 
     .report-prim-row .label {
@@ -2348,43 +2514,44 @@
 
     .report-prim-row .value {
       font-weight: 600;
-      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-family: var(--font-mono);
     }
 
-    .report-prim-row .value.positive { color: #10b981; }
-    .report-prim-row .value.negative { color: #ef4444; }
+    .report-prim-row .value.positive { color: var(--success); }
+    .report-prim-row .value.negative { color: var(--danger); }
     .report-prim-row.total {
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
       border-top: 1px solid var(--border-subtle);
     }
     .report-prim-row.total .label { color: var(--text-primary); font-weight: 600; }
-    .report-prim-row.total .value { color: var(--primary); font-weight: 700; }
+    .report-prim-row.total .value { color: var(--primary); font-weight: 700; font-size: 1rem; }
 
     .report-branch-section,
     .report-date-section {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
     }
 
     .report-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.8rem;
-      background: var(--bg-elevated);
-      border-radius: 10px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
       overflow: hidden;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
     }
 
     .report-table th {
       text-align: left;
-      padding: 0.75rem 1rem;
-      background: var(--bg-card);
+      padding: 0.875rem 1rem;
+      background: var(--bg-elevated);
       color: var(--text-muted);
       font-weight: 600;
       font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
     }
 
     .report-table th:not(:first-child) {
@@ -2392,24 +2559,417 @@
     }
 
     .report-table td {
-      padding: 0.625rem 1rem;
+      padding: 0.75rem 1rem;
       color: var(--text-primary);
       border-top: 1px solid var(--border-subtle);
     }
 
+    .report-table tr:hover td {
+      background: var(--primary-glow);
+    }
+
     .report-table td:not(:first-child) {
       text-align: right;
-      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-family: var(--font-mono);
     }
 
     .report-table .branch-badge {
       display: inline-block;
-      padding: 0.25rem 0.625rem;
-      background: rgba(99, 102, 241, 0.1);
+      padding: 0.35rem 0.75rem;
+      background: linear-gradient(135deg, var(--primary-glow) 0%, var(--primary-intense) 100%);
       color: var(--primary);
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 600;
+    }
+
+    /* Branch Section Grid (Chart + Accordion) */
+    .branch-section-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .branch-section-row {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .branch-chart-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .branch-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .branch-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .branch-legend-item:hover {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    .branch-legend-color {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .branch-legend-name {
+      flex: 1;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .branch-legend-value {
+      font-size: 0.85rem;
+      color: var(--primary);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .branch-accordion-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.875rem;
+    }
+
+    .accordion-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin: 0 0 1rem 0;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    /* Branch Accordion */
+    .branch-accordion-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all var(--transition-base);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .branch-accordion-item:hover {
+      border-color: var(--primary-glow);
+      box-shadow: var(--shadow-md);
+    }
+
+    .branch-accordion-item.open {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-lg), 0 0 0 1px var(--primary-glow);
+    }
+
+    .branch-accordion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.125rem 1.5rem;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      user-select: none;
+    }
+
+    .branch-accordion-header:hover {
+      background: var(--primary-glow);
+    }
+
+    .branch-header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      min-width: 0;
+    }
+
+    .branch-expand-icon {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      transition: transform 0.3s ease, color 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .branch-accordion-item.open .branch-expand-icon {
+      transform: rotate(90deg);
+      color: var(--primary);
+    }
+
+    .branch-badge {
+      display: inline-block;
+      padding: 0.5rem 1.125rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+    }
+
+    .branch-header-stats {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .branch-stat {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    .branch-stat strong {
+      color: var(--warning);
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .branch-accordion-content {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.3s ease;
+    }
+
+    .branch-accordion-item.open .branch-accordion-content {
+      grid-template-rows: 1fr;
+    }
+
+    .branch-accordion-inner {
+      overflow: hidden;
+    }
+
+    .branch-breakdown-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      padding: 0.5rem 1.5rem 1.5rem 3rem;
+    }
+
+    .branch-breakdown-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border-left: 4px solid;
+      transition: all var(--transition-fast);
+    }
+
+    .branch-breakdown-item.yeni {
+      border-left-color: var(--success);
+      background: linear-gradient(135deg, var(--success-bg) 0%, var(--bg-surface) 100%);
+    }
+
+    .branch-breakdown-item.yeni:hover {
+      background: linear-gradient(135deg, var(--success-glow) 0%, var(--success-bg) 100%);
+    }
+
+    .branch-breakdown-item.zeyil {
+      border-left-color: var(--warning);
+      background: linear-gradient(135deg, var(--warning-bg) 0%, var(--bg-surface) 100%);
+    }
+
+    .branch-breakdown-item.zeyil:hover {
+      background: linear-gradient(135deg, var(--warning-glow) 0%, var(--warning-bg) 100%);
+    }
+
+    .breakdown-icon {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+      flex-shrink: 0;
+    }
+
+    .branch-breakdown-item.yeni .breakdown-icon {
+      background: var(--success-glow);
+      color: var(--success);
+    }
+
+    .branch-breakdown-item.zeyil .breakdown-icon {
+      background: var(--warning-glow);
+      color: var(--warning);
+    }
+
+    .breakdown-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+    }
+
+    .breakdown-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+    }
+
+    .breakdown-value {
+      font-size: 1.375rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .breakdown-prim {
+      font-size: 0.95rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .branch-breakdown-item.yeni .breakdown-prim {
+      color: var(--success);
+    }
+
+    .branch-breakdown-item.zeyil .breakdown-prim {
+      color: var(--warning);
+    }
+
+    /* Date Chart Container */
+    .date-chart-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .date-summary-row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .date-summary-item {
+      flex: 1;
+      min-width: 120px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.375rem;
+      text-align: center;
+      transition: all var(--transition-fast);
+    }
+
+    .date-summary-item:hover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .date-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .date-count {
+      font-size: 1.125rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .date-prim {
+      font-size: 0.85rem;
+      color: var(--primary);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* Custom ApexCharts Tooltip Styles */
+    .apexcharts-tooltip {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    .apexcharts-tooltip.apexcharts-theme-dark,
+    .apexcharts-tooltip.apexcharts-theme-light {
+      background: transparent !important;
+    }
+
+    .apex-tooltip-custom {
+      background: var(--bg-surface);
+      border: 1px solid var(--primary);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      box-shadow: var(--shadow-lg), 0 0 0 1px var(--primary-glow);
+    }
+
+    .apex-tooltip-custom .tooltip-label {
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .apex-tooltip-custom .tooltip-value {
+      color: var(--text-primary);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    /* Modal Tooltip (dark background context) */
+    .apex-tooltip-modal {
+      background: linear-gradient(145deg, #1e2337 0%, #171b2b 100%);
+      border: 1px solid rgba(129, 140, 248, 0.4);
+      border-radius: 10px;
+      padding: 12px 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .apex-tooltip-modal .tooltip-label {
+      color: #a5b4fc;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .apex-tooltip-modal .tooltip-value {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font-mono);
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -2427,6 +2987,40 @@
 
       .result-stats {
         grid-template-columns: repeat(2, 1fr);
+      }
+
+      .branch-section-row {
+        grid-template-columns: 1fr;
+      }
+
+      .branch-chart-container {
+        max-width: 100%;
+      }
+
+      .branch-breakdown-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-chart-row {
+        flex-direction: column;
+      }
+
+      .modal-branch-legend {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .legend-item {
+        flex: 0 0 auto;
+      }
+
+      .date-summary-row {
+        flex-direction: column;
+      }
+
+      .date-summary-item {
+        min-width: auto;
       }
 
       .modal {
@@ -3188,69 +3782,255 @@
         </div>
       `;
 
-      // Branch Breakdown Table
+      // Branch Breakdown with Donut Chart and Accordion
       const sortedBranches = Object.entries(stats.byBranch)
         .sort((a, b) => b[1].count - a[1].count);
 
-      let branchRows = sortedBranches.map(([branch, data]) => `
-        <tr>
-          <td><span class="branch-badge">${branch}</span></td>
-          <td>${data.count}</td>
-          <td>${formatCurrency(data.brutPrim)}</td>
-          <td>${formatCurrency(data.netPrim)}</td>
-        </tr>
+      // Prepare donut chart data
+      const donutLabels = sortedBranches.slice(0, 6).map(([branch]) => branch);
+      const donutValues = sortedBranches.slice(0, 6).map(([, data]) => data.brutPrim);
+
+      // Build accordion rows
+      let branchAccordion = sortedBranches.map(([branch, data], index) => `
+        <div class="branch-accordion-item" data-index="${index}">
+          <div class="branch-accordion-header" onclick="window.toggleBranchAccordion(${index})">
+            <div class="branch-header-left">
+              <span class="branch-expand-icon">▶</span>
+              <span class="branch-badge">${branch}</span>
+            </div>
+            <div class="branch-header-stats">
+              <span class="branch-stat"><strong>${data.count}</strong> Adet</span>
+              <span class="branch-stat">${formatCurrency(data.brutPrim)}</span>
+            </div>
+          </div>
+          <div class="branch-accordion-content">
+            <div class="branch-accordion-inner">
+              <div class="branch-breakdown-grid">
+                <div class="branch-breakdown-item yeni">
+                  <div class="breakdown-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                      <line x1="12" y1="18" x2="12" y2="12"/>
+                      <line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                  </div>
+                  <div class="breakdown-info">
+                    <span class="breakdown-label">Yeni İş</span>
+                    <span class="breakdown-value">${data.yeniIs.count} Adet</span>
+                    <span class="breakdown-prim">${formatCurrency(data.yeniIs.brutPrim)}</span>
+                  </div>
+                </div>
+                <div class="branch-breakdown-item zeyil">
+                  <div class="breakdown-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                      <polyline points="14,2 14,8 20,8"/>
+                      <line x1="16" y1="13" x2="8" y2="13"/>
+                      <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                  </div>
+                  <div class="breakdown-info">
+                    <span class="breakdown-label">Zeyil</span>
+                    <span class="breakdown-value">${data.zeyil.count} Adet</span>
+                    <span class="breakdown-prim">${formatCurrency(data.zeyil.brutPrim)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Build legend items
+      const chartColors = ['#00d4ff', '#10b981', '#f59e0b', '#ec4899', '#6366f1', '#06b6d4'];
+      let legendItems = sortedBranches.slice(0, 6).map(([branch, data], i) => `
+        <div class="branch-legend-item">
+          <span class="branch-legend-color" style="background: ${chartColors[i]}"></span>
+          <span class="branch-legend-name">${branch}</span>
+          <span class="branch-legend-value">${formatCurrency(data.brutPrim)}</span>
+        </div>
       `).join('');
 
       document.getElementById('reportBranchSection').innerHTML = `
         <h4>Branş Dağılımı</h4>
-        <table class="report-table">
-          <thead>
-            <tr>
-              <th>Branş</th>
-              <th>Adet</th>
-              <th>Brüt Prim</th>
-              <th>Net Prim</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${branchRows}
-          </tbody>
-        </table>
+        <div class="branch-section-grid">
+          <div class="branch-section-row">
+            <div class="branch-chart-container">
+              <div id="reportBranchDonutChart" style="height: 260px;"></div>
+            </div>
+            <div class="branch-legend">
+              ${legendItems}
+            </div>
+          </div>
+          <div class="branch-accordion-container">
+            <h5 class="accordion-title">Detaylı Dağılım</h5>
+            ${branchAccordion}
+          </div>
+        </div>
       `;
 
-      // Date Breakdown Table
+      // Render donut chart
+      if (donutValues.length > 0 && typeof ApexCharts !== 'undefined') {
+        const donutChart = new ApexCharts(document.getElementById('reportBranchDonutChart'), {
+          chart: {
+            type: 'donut',
+            height: 280,
+            background: 'transparent',
+            fontFamily: "'Manrope', sans-serif"
+          },
+          series: donutValues,
+          labels: donutLabels,
+          colors: ['#00d4ff', '#10b981', '#f59e0b', '#ec4899', '#6366f1', '#06b6d4'],
+          plotOptions: {
+            pie: {
+              donut: {
+                size: '70%',
+                labels: {
+                  show: true,
+                  name: { show: true, fontSize: '13px', color: '#94a3b8', offsetY: -5 },
+                  value: {
+                    show: true, fontSize: '18px', fontWeight: 700, color: '#f1f5f9', offsetY: 5,
+                    formatter: (val) => formatCurrency(val)
+                  },
+                  total: {
+                    show: true, label: 'Toplam', fontSize: '11px', color: '#64748b',
+                    formatter: (w) => formatCurrency(w.globals.seriesTotals.reduce((a, b) => a + b, 0))
+                  }
+                }
+              }
+            }
+          },
+          stroke: { show: false },
+          legend: { show: false },
+          tooltip: {
+            enabled: true, theme: 'dark',
+            y: { formatter: (val) => formatCurrency(val) }
+          },
+          dataLabels: { enabled: false }
+        });
+        donutChart.render();
+      }
+
+      // Date Breakdown with Line Chart
       const sortedDates = Object.entries(stats.byDate)
         .sort((a, b) => a[0].localeCompare(b[0]));
 
-      let dateRows = sortedDates.map(([key, data]) => `
-        <tr>
-          <td>${data.label}</td>
-          <td>${data.count}</td>
-          <td>${formatCurrency(data.brutPrim)}</td>
-        </tr>
-      `).join('');
+      if (sortedDates.length > 0) {
+        const dateLabels = sortedDates.map(([, data]) => data.label);
+        const dateValues = sortedDates.map(([, data]) => data.brutPrim);
+        const dateCounts = sortedDates.map(([, data]) => data.count);
 
-      if (dateRows) {
         document.getElementById('reportDateSection').innerHTML = `
           <h4>Tarih Dağılımı</h4>
-          <table class="report-table">
-            <thead>
-              <tr>
-                <th>Dönem</th>
-                <th>Adet</th>
-                <th>Brüt Prim</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${dateRows}
-            </tbody>
-          </table>
+          <div class="date-chart-container">
+            <div id="reportDateLineChart" style="height: 250px;"></div>
+          </div>
+          <div class="date-summary-row">
+            ${sortedDates.map(([, data]) => `
+              <div class="date-summary-item">
+                <span class="date-label">${data.label}</span>
+                <span class="date-count">${data.count} Adet</span>
+                <span class="date-prim">${formatCurrency(data.brutPrim)}</span>
+              </div>
+            `).join('')}
+          </div>
         `;
         document.getElementById('reportDateSection').style.display = 'block';
+
+        // Render line chart
+        if (typeof ApexCharts !== 'undefined') {
+          // Calculate min value - only set to 0 if no negative values
+          const hasNegative = dateValues.some(v => v < 0);
+          const yAxisMin = hasNegative ? undefined : 0;
+
+          const lineChart = new ApexCharts(document.getElementById('reportDateLineChart'), {
+            chart: {
+              type: 'area',
+              height: 250,
+              background: 'transparent',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              toolbar: { show: false },
+              zoom: { enabled: false },
+              animations: { enabled: true, easing: 'easeinout', speed: 600 }
+            },
+            series: [{
+              name: 'Brüt Prim',
+              data: dateValues
+            }],
+            colors: ['#6366f1'],
+            fill: {
+              type: 'gradient',
+              gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05, stops: [0, 100] }
+            },
+            stroke: { curve: 'smooth', width: 3 },
+            markers: { size: 5, colors: ['#6366f1'], strokeColors: '#fff', strokeWidth: 2, hover: { size: 7 } },
+            grid: {
+              borderColor: 'rgba(148, 163, 184, 0.2)',
+              strokeDashArray: 4,
+              xaxis: { lines: { show: false } },
+              yaxis: { lines: { show: true } }
+            },
+            xaxis: {
+              categories: dateLabels,
+              labels: {
+                style: { colors: '#64748b', fontSize: '12px', fontWeight: 500 },
+                rotate: 0
+              },
+              axisBorder: { show: false },
+              axisTicks: { show: false }
+            },
+            yaxis: {
+              min: yAxisMin,
+              labels: {
+                style: { colors: '#64748b', fontSize: '11px' },
+                formatter: (val) => {
+                  const abs = Math.abs(val);
+                  const sign = val < 0 ? '-' : '';
+                  if (abs >= 1000000) return sign + (abs / 1000000).toFixed(1) + 'M';
+                  if (abs >= 1000) return sign + (abs / 1000).toFixed(0) + 'K';
+                  return Math.round(val);
+                }
+              }
+            },
+            tooltip: {
+              enabled: true,
+              cssClass: 'custom-apex-tooltip',
+              custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                const value = series[seriesIndex][dataPointIndex];
+                const label = w.globals.categoryLabels[dataPointIndex];
+                return `<div class="apex-tooltip-custom">
+                  <div class="tooltip-label">${label}</div>
+                  <div class="tooltip-value">${formatCurrency(value)}</div>
+                </div>`;
+              }
+            },
+            dataLabels: { enabled: false }
+          });
+          lineChart.render();
+        }
       } else {
         document.getElementById('reportDateSection').style.display = 'none';
       }
     }
+
+    // Toggle branch accordion - global function
+    window.toggleBranchAccordion = function(index) {
+      const item = document.querySelector(`.branch-accordion-item[data-index="${index}"]`);
+      if (!item) return;
+
+      const isOpen = item.classList.contains('open');
+
+      // Close all other accordions
+      document.querySelectorAll('.branch-accordion-item.open').forEach(el => {
+        el.classList.remove('open');
+      });
+
+      // Toggle current
+      if (!isOpen) {
+        item.classList.add('open');
+      }
+    };
 
     // Reset to upload
     function resetToUpload() {
@@ -3606,21 +4386,34 @@
         if (kom >= 0) stats.komisyon.positive += kom;
         else stats.komisyon.negative += kom;
 
-        // By branch
+        // By branch - with yeni iş / zeyil breakdown
         const branch = row.brans || 'Belirtilmemiş';
         if (!stats.byBranch[branch]) {
-          stats.byBranch[branch] = { count: 0, brutPrim: 0, netPrim: 0 };
+          stats.byBranch[branch] = {
+            count: 0, brutPrim: 0, netPrim: 0,
+            yeniIs: { count: 0, brutPrim: 0 },
+            zeyil: { count: 0, brutPrim: 0 }
+          };
         }
         stats.byBranch[branch].count++;
         stats.byBranch[branch].brutPrim += brut;
         stats.byBranch[branch].netPrim += net;
+
+        // Track yeni iş vs zeyil per branch
+        if (zeyilNo > 0) {
+          stats.byBranch[branch].zeyil.count++;
+          stats.byBranch[branch].zeyil.brutPrim += brut;
+        } else {
+          stats.byBranch[branch].yeniIs.count++;
+          stats.byBranch[branch].yeniIs.brutPrim += brut;
+        }
 
         // By date (month)
         const dateStr = row.baslangicTarihi || row.tanzimTarihi;
         if (dateStr) {
           const date = new Date(dateStr);
           const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-          const monthLabel = date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' });
+          const monthLabel = date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'short' });
 
           if (!stats.byDate[monthKey]) {
             stats.byDate[monthKey] = { label: monthLabel, count: 0, brutPrim: 0 };
@@ -3722,7 +4515,7 @@
           </div>
         </div>
 
-        <!-- By Branch -->
+        <!-- By Branch with Donut Chart -->
         <div class="detail-section">
           <div class="detail-section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3730,64 +4523,172 @@
             </svg>
             Branş Dağılımı
           </div>
-          <table class="branch-table">
-            <thead>
-              <tr>
-                <th>Branş</th>
-                <th>Adet</th>
-                <th>Brüt Prim</th>
-                <th>Net Prim</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${sortedBranches.map(([branch, data]) => `
+          <div class="modal-branch-layout">
+            <div class="modal-chart-row">
+              <div id="modalBranchDonutChart" style="height: 200px; width: 200px;"></div>
+              <div class="modal-branch-legend">
+                ${sortedBranches.slice(0, 6).map(([branch, data], i) => `
+                  <div class="legend-item">
+                    <span class="legend-color" style="background: ${['#00d4ff', '#10b981', '#f59e0b', '#ec4899', '#6366f1', '#06b6d4'][i]}"></span>
+                    <span class="legend-text">${branch}</span>
+                    <span class="legend-value">${formatCurrency(data.brutPrim)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            <table class="modal-branch-table">
+              <thead>
                 <tr>
-                  <td><span class="branch-badge">${branch}</span></td>
-                  <td>${data.count}</td>
-                  <td>${formatCurrency(data.brutPrim)}</td>
-                  <td>${formatCurrency(data.netPrim)}</td>
+                  <th>Branş</th>
+                  <th>Yeni İş</th>
+                  <th>Zeyil</th>
+                  <th>Toplam</th>
+                  <th>Brüt Prim</th>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                ${sortedBranches.map(([branch, data]) => `
+                  <tr>
+                    <td><span class="branch-badge-sm">${branch}</span></td>
+                    <td><span class="count-yeni">${data.yeniIs.count}</span></td>
+                    <td><span class="count-zeyil">${data.zeyil.count}</span></td>
+                    <td><strong>${data.count}</strong></td>
+                    <td>${formatCurrency(data.brutPrim)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <!-- By Date -->
+        <!-- By Date with Line Chart -->
         ${sortedDates.length > 0 ? `
         <div class="detail-section">
           <div class="detail-section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-              <line x1="16" y1="2" x2="16" y2="6"/>
-              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
               <line x1="3" y1="10" x2="21" y2="10"/>
             </svg>
             Tarih Dağılımı
           </div>
-          <table class="date-table">
-            <thead>
-              <tr>
-                <th>Dönem</th>
-                <th>Adet</th>
-                <th>Brüt Prim</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${sortedDates.map(([key, data]) => `
-                <tr>
-                  <td>${data.label}</td>
-                  <td>${data.count}</td>
-                  <td>${formatCurrency(data.brutPrim)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+          <div id="modalDateLineChart" style="height: 200px;"></div>
         </div>
         ` : ''}
       `;
 
       document.getElementById('importDetailModal').classList.add('active');
       document.body.classList.add('modal-open');
+
+      // Render charts after DOM is updated
+      setTimeout(() => {
+        // Donut chart for branches
+        const donutLabels = sortedBranches.slice(0, 6).map(([branch]) => branch);
+        const donutValues = sortedBranches.slice(0, 6).map(([, data]) => data.brutPrim);
+
+        if (donutValues.length > 0 && typeof ApexCharts !== 'undefined') {
+          new ApexCharts(document.getElementById('modalBranchDonutChart'), {
+            chart: { type: 'donut', height: 200, width: 200, background: 'transparent', fontFamily: "'Manrope', sans-serif" },
+            series: donutValues,
+            labels: donutLabels,
+            colors: ['#00d4ff', '#10b981', '#f59e0b', '#ec4899', '#6366f1', '#06b6d4'],
+            plotOptions: {
+              pie: {
+                donut: {
+                  size: '65%',
+                  labels: {
+                    show: true,
+                    name: { show: false },
+                    value: { show: true, fontSize: '14px', fontWeight: 700, color: '#f1f5f9', offsetY: 5, formatter: (val) => '' },
+                    total: { show: true, showAlways: true, label: 'Toplam', fontSize: '10px', color: '#64748b', formatter: (w) => formatCurrency(w.globals.seriesTotals.reduce((a, b) => a + b, 0)) }
+                  }
+                }
+              }
+            },
+            stroke: { show: false },
+            legend: { show: false },
+            tooltip: { enabled: true, theme: 'dark', y: { formatter: (val) => formatCurrency(val) } },
+            dataLabels: { enabled: false }
+          }).render();
+        }
+
+        // Line chart for dates
+        if (sortedDates.length > 0 && typeof ApexCharts !== 'undefined') {
+          const dateLabels = sortedDates.map(([, data]) => data.label);
+          const dateValues = sortedDates.map(([, data]) => data.brutPrim);
+
+          // Calculate min value - only set to 0 if no negative values
+          const hasNegative = dateValues.some(v => v < 0);
+          const yAxisMin = hasNegative ? undefined : 0;
+
+          new ApexCharts(document.getElementById('modalDateLineChart'), {
+            chart: {
+              type: 'area',
+              height: 220,
+              background: 'transparent',
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+              toolbar: { show: false },
+              zoom: { enabled: false }
+            },
+            series: [{ name: 'Brüt Prim', data: dateValues }],
+            colors: ['#818cf8'],
+            fill: {
+              type: 'gradient',
+              gradient: { shadeIntensity: 1, opacityFrom: 0.5, opacityTo: 0.05, stops: [0, 100] }
+            },
+            stroke: { curve: 'smooth', width: 3 },
+            markers: {
+              size: 6,
+              colors: ['#818cf8'],
+              strokeColors: '#1e2337',
+              strokeWidth: 2,
+              hover: { size: 8 }
+            },
+            grid: {
+              borderColor: 'rgba(148, 163, 184, 0.15)',
+              strokeDashArray: 4,
+              xaxis: { lines: { show: false } },
+              yaxis: { lines: { show: true } },
+              padding: { left: 10, right: 10 }
+            },
+            xaxis: {
+              categories: dateLabels,
+              labels: {
+                style: { colors: '#cbd5e1', fontSize: '12px', fontWeight: 500 },
+                rotate: 0
+              },
+              axisBorder: { show: false },
+              axisTicks: { show: false }
+            },
+            yaxis: {
+              min: yAxisMin,
+              labels: {
+                style: { colors: '#94a3b8', fontSize: '11px' },
+                formatter: (val) => {
+                  const abs = Math.abs(val);
+                  const sign = val < 0 ? '-' : '';
+                  if (abs >= 1000000) return sign + (abs / 1000000).toFixed(1) + 'M';
+                  if (abs >= 1000) return sign + (abs / 1000).toFixed(0) + 'K';
+                  return Math.round(val);
+                }
+              }
+            },
+            tooltip: {
+              enabled: true,
+              cssClass: 'custom-apex-tooltip',
+              custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                const value = series[seriesIndex][dataPointIndex];
+                const label = w.globals.categoryLabels[dataPointIndex];
+                return `<div class="apex-tooltip-modal">
+                  <div class="tooltip-label">${label}</div>
+                  <div class="tooltip-value">${formatCurrency(value)}</div>
+                </div>`;
+              }
+            },
+            dataLabels: { enabled: false }
+          }).render();
+        }
+      }, 100);
     }
 
     function closeDetailModal() {
@@ -3803,6 +4704,7 @@
     });
   </script>
 
+  <script src="../../assets/js/charts.js"></script>
   <script src="../../components/sidebar.js"></script>
 </body>
 </html>
