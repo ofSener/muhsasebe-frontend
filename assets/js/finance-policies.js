@@ -119,14 +119,11 @@
       const params = buildQueryParams();
       const response = await apiGet(`policies?${params}`);
 
-      // Response yapısına göre verileri al
-      if (Array.isArray(response)) {
-        policiesData = response;
-        pagination.totalCount = response.length;
-      } else {
-        policiesData = response.policies || response.data || [];
-        pagination.totalCount = response.totalCount || response.total || policiesData.length;
-      }
+      // YENİ: Backend artık PoliceListDto döndürüyor (camelCase)
+      policiesData = response.items || [];
+      pagination.totalCount = response.totalCount || 0;
+      pagination.page = response.currentPage || pagination.page;
+      pagination.pageSize = response.pageSize || pagination.pageSize;
 
       updatePoliciesTable();
       updateSummaryStats();
@@ -149,11 +146,11 @@
     if (dateRange.startDate) params.append('startDate', dateRange.startDate);
     if (dateRange.endDate) params.append('endDate', dateRange.endDate);
 
-    // Diğer filtreler
-    if (currentFilters.policyType) params.append('brans', currentFilters.policyType);
-    if (currentFilters.employeeId) params.append('kullaniciId', currentFilters.employeeId);
-    if (currentFilters.paymentStatus) params.append('odemeDurumu', currentFilters.paymentStatus);
-    if (currentFilters.agencyCode) params.append('acenteKodu', currentFilters.agencyCode);
+    // Diğer filtreler (backend parametre adları)
+    if (currentFilters.policyType) params.append('policeTuruId', currentFilters.policyType);
+    if (currentFilters.employeeId) params.append('uyeId', currentFilters.employeeId);
+    if (currentFilters.paymentStatus) params.append('onayDurumu', currentFilters.paymentStatus);
+    // agencyCode için backend'de henüz parametre yok
 
     // Pagination
     params.append('page', pagination.page);
@@ -225,55 +222,112 @@
     if (policiesData.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="10" class="text-center text-muted" style="padding: 2rem;">
-            Filtrelere uygun poliçe bulunamadı
+          <td colspan="9" style="text-align: center; padding: 2rem;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity: 0.3; margin: 0 auto 1rem; display: block;">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <p style="color: #64748b;">Filtrelere uygun poliçe bulunamadı</p>
           </td>
         </tr>
       `;
       return;
     }
 
-    const avatarColors = ['cyan', 'rose', 'amber', 'violet', 'emerald'];
+    tbody.innerHTML = policiesData.map((policy) => {
+      // camelCase property names (JSON serialization düzeltildi)
+      const sigortaSirketiId = policy.sigortaSirketiId || 0;
+      const sigortaSirketiAdi = policy.sigortaSirketiAdi || '-';
+      const policeNo = policy.policeNumarasi || '-';
+      const plaka = policy.plaka || '-';
+      const policeTuru = policy.policeTuruAdi || '-';
+      const brutPrim = policy.brutPrim || 0;
+      const komisyon = policy.komisyon || 0;
+      const onayDurumu = policy.onayDurumu === 1 ? 'Onaylı' : 'Beklemede';
+      const onayClass = policy.onayDurumu === 1 ? 'status-success' : 'status-warning';
 
-    tbody.innerHTML = policiesData.map((policy, index) => {
-      const policeNo = policy.policeNo || policy.policeNumarasi || '-';
-      const musteriAdi = policy.musteriAdi || policy.customerName || '-';
-      const initials = getInitials(musteriAdi);
-      const brans = policy.bransAdi || policy.brans || policy.tip || '-';
-      const calisan = policy.calisanAdi || policy.kullaniciAdi || policy.employeeName || '-';
-      const tarih = formatDate(policy.policeTarihi || policy.eklenmeTarihi || policy.date);
-      const prim = policy.brutPrim || policy.prim || policy.premium || 0;
-      const komisyonOrani = policy.komisyonOrani || policy.commissionRate || 0;
-      const komisyon = policy.komisyon || (prim * komisyonOrani / 100) || 0;
-      const durum = policy.odemeDurumu || policy.paymentStatus || 'Bekliyor';
-      const avatarColor = avatarColors[index % avatarColors.length];
+      // Tarih formatlama
+      const baslangicTarihi = formatDate(policy.baslangicTarihi);
+      const bitisTarihi = formatDate(policy.bitisTarihi);
 
-      const durumBadge = getDurumBadge(durum);
-      const bransBadge = getBransBadge(brans);
+      // Sigorta şirketi logosu
+      const logoHtml = getSigortaSirketiLogo(sigortaSirketiId, sigortaSirketiAdi);
 
       return `
-        <tr data-policy-id="${policy.id || policy.policeId}">
-          <td><input type="checkbox" class="form-checkbox"></td>
-          <td><span class="font-mono font-semibold">#${policeNo}</span></td>
+        <tr data-id="${policy.id}" style="cursor: pointer;" onclick="viewPolicyDetail(${policy.id})">
           <td>
-            <div class="customer-cell">
-              <div class="avatar avatar-${avatarColor}">${initials}</div>
-              <span>${musteriAdi}</span>
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              ${logoHtml}
+              <div>
+                <div class="font-mono font-semibold">${policeNo}</div>
+                ${plaka !== '-' ? `<div style="font-size: 0.75rem; color: #64748b;">${plaka}</div>` : ''}
+              </div>
             </div>
           </td>
-          <td>${bransBadge}</td>
-          <td>${calisan}</td>
-          <td>${tarih}</td>
-          <td class="font-mono font-semibold">${formatCurrency(prim)}</td>
-          <td class="text-center">%${komisyonOrani}</td>
-          <td class="font-mono font-semibold text-emerald">${formatCurrency(komisyon)}</td>
-          <td>${durumBadge}</td>
+          <td>
+            <span class="policy-badge">${policeTuru}</span>
+          </td>
+          <td>
+            <div style="font-size: 0.875rem;">${baslangicTarihi}</div>
+          </td>
+          <td>
+            <div style="font-size: 0.875rem;">${bitisTarihi}</div>
+          </td>
+          <td style="text-align: right;">
+            <div class="font-mono font-semibold">${formatCurrency(brutPrim)}</div>
+          </td>
+          <td style="text-align: right;">
+            <div class="font-mono">${formatCurrency(komisyon)}</div>
+          </td>
+          <td>
+            <span class="status-badge ${onayClass}">${onayDurumu}</span>
+          </td>
+          <td>
+            <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); viewPolicyDetail(${policy.id})" title="Görüntüle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </td>
         </tr>
       `;
     }).join('');
 
     // Table footer'ı güncelle
     updateTableFooter();
+  }
+
+  /**
+   * Sigorta şirketi logo/icon
+   */
+  function getSigortaSirketiLogo(id, name) {
+    // Logo mapping (sigorta şirketi ID'sine göre)
+    const logoMap = {
+      110: 'anadolu-sigorta.svg',
+      111: 'aksigorta.svg'
+      // ... daha fazla şirket eklenebilir
+    };
+
+    const logoFile = logoMap[id];
+    // Logo dosyası için basit fallback (dosya var mı kontrolü yapılamaz browser'da)
+    if (logoFile) {
+      return `<img src="../../assets/images/insurance-logos/${logoFile}" alt="${name}" style="width: 32px; height: 32px; border-radius: 6px; object-fit: contain; background: #f8fafc; padding: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+              <div style="width: 32px; height: 32px; border-radius: 6px; background: linear-gradient(135deg, #60a5fa, #2563eb); color: white; display: none; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;">${name.charAt(0).toUpperCase()}</div>`;
+    }
+
+    // Fallback: İlk harf ikonu
+    const initial = name.charAt(0).toUpperCase();
+    return `<div style="width: 32px; height: 32px; border-radius: 6px; background: linear-gradient(135deg, #60a5fa, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px;">${initial}</div>`;
+  }
+
+  /**
+   * Poliçe detayını görüntüle
+   */
+  function viewPolicyDetail(policyId) {
+    console.log('Poliçe detayı:', policyId);
+    // TODO: Modal veya detay sayfası aç
   }
 
   /**
@@ -318,22 +372,15 @@
     const tfoot = document.querySelector('.data-table tfoot');
     if (!tfoot) return;
 
-    const totalPrim = policiesData.reduce((sum, p) => sum + (p.brutPrim || p.prim || 0), 0);
-    const totalKomisyon = policiesData.reduce((sum, p) => {
-      const prim = p.brutPrim || p.prim || 0;
-      const oran = p.komisyonOrani || 0;
-      return sum + (p.komisyon || (prim * oran / 100));
-    }, 0);
-    const avgOran = policiesData.length > 0 ?
-      (policiesData.reduce((sum, p) => sum + (p.komisyonOrani || 0), 0) / policiesData.length).toFixed(1) : 0;
+    const totalPrim = policiesData.reduce((sum, p) => sum + (p.brutPrim || 0), 0);
+    const totalKomisyon = policiesData.reduce((sum, p) => sum + (p.komisyon || 0), 0);
 
     tfoot.innerHTML = `
       <tr class="summary-footer">
-        <td colspan="6" class="text-right">Sayfa Toplami:</td>
-        <td class="font-mono font-semibold">${formatCurrency(totalPrim)}</td>
-        <td class="text-center">%${avgOran}</td>
-        <td class="font-mono font-semibold text-emerald">${formatCurrency(totalKomisyon)}</td>
-        <td></td>
+        <td colspan="4" style="text-align: right; font-weight: 600;">Sayfa Toplamı:</td>
+        <td style="text-align: right;" class="font-mono font-semibold">${formatCurrency(totalPrim)}</td>
+        <td style="text-align: right;" class="font-mono font-semibold">${formatCurrency(totalKomisyon)}</td>
+        <td colspan="2"></td>
       </tr>
     `;
   }
@@ -348,27 +395,23 @@
       totalRecordsEl.textContent = pagination.totalCount.toLocaleString('tr-TR');
     }
 
-    // Toplam prim
-    const totalPrim = policiesData.reduce((sum, p) => sum + (p.brutPrim || p.prim || 0), 0);
+    // Toplam prim (sayfa bazlı)
+    const totalPrim = policiesData.reduce((sum, p) => sum + (p.brutPrim || 0), 0);
     const totalPrimEl = document.querySelector('.summary-item:nth-child(2) .summary-value');
     if (totalPrimEl) {
       totalPrimEl.textContent = formatCurrency(totalPrim);
     }
 
-    // Toplam komisyon
-    const totalKomisyon = policiesData.reduce((sum, p) => {
-      const prim = p.brutPrim || p.prim || 0;
-      const oran = p.komisyonOrani || 0;
-      return sum + (p.komisyon || (prim * oran / 100));
-    }, 0);
+    // Toplam komisyon (sayfa bazlı)
+    const totalKomisyon = policiesData.reduce((sum, p) => sum + (p.komisyon || 0), 0);
     const totalKomisyonEl = document.querySelector('.summary-item:nth-child(3) .summary-value');
     if (totalKomisyonEl) {
       totalKomisyonEl.textContent = formatCurrency(totalKomisyon);
     }
 
-    // Ortalama komisyon oranı
-    const avgOran = policiesData.length > 0 ?
-      (policiesData.reduce((sum, p) => sum + (p.komisyonOrani || 0), 0) / policiesData.length).toFixed(1) : 0;
+    // Ortalama komisyon oranı (sayfa bazlı)
+    const avgOran = policiesData.length > 0 && totalPrim > 0 ?
+      ((totalKomisyon / totalPrim) * 100).toFixed(1) : 0;
     const avgOranEl = document.querySelector('.summary-item:nth-child(4) .summary-value');
     if (avgOranEl) {
       avgOranEl.textContent = `%${avgOran}`;

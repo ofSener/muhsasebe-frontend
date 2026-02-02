@@ -293,6 +293,109 @@
     </div>
   </div>
 
+  <!-- Edit Unmatched (Eşleşmeyen) Policy Modal -->
+  <div class="modal-overlay" id="editUnmatchedModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Eşleşmeyen Poliçe Düzenle</h3>
+        <button class="modal-close" onclick="closeEditUnmatchedModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="editUnmatchedModalBody">
+        <form id="editUnmatchedForm" onsubmit="saveEditedUnmatched(event)">
+          <input type="hidden" id="editUnmatchedId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Poliçe No</label>
+              <input type="text" class="form-control mono" id="editUnmatchedPoliceNo" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sigortalı Adı</label>
+              <input type="text" class="form-control" id="editUnmatchedSigortali" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prodüktör <span style="color: var(--danger);">*</span></label>
+              <select class="form-control" id="editUnmatchedProduktor" required>
+                <option value="">Prodüktör Seçin</option>
+                <!-- Dinamik doldurulacak -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Şube <span style="color: var(--danger);">*</span></label>
+              <select class="form-control" id="editUnmatchedSube" required>
+                <option value="">Şube Seçin</option>
+                <!-- Dinamik doldurulacak -->
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Branş</label>
+              <input type="text" class="form-control" id="editUnmatchedBrans" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sigorta Şirketi</label>
+              <input type="text" class="form-control" id="editUnmatchedSirket" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Net Prim (₺)</label>
+              <input type="text" class="form-control mono" id="editUnmatchedNetPrim" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Brüt Prim (₺)</label>
+              <input type="text" class="form-control mono" id="editUnmatchedBrutPrim" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Tanzim Tarihi</label>
+              <input type="text" class="form-control" id="editUnmatchedTanzim" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Başlangıç Tarihi</label>
+              <input type="text" class="form-control" id="editUnmatchedBaslangic" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Bitiş Tarihi</label>
+              <input type="text" class="form-control" id="editUnmatchedBitis" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Eklenme Tarihi</label>
+              <input type="text" class="form-control" id="editUnmatchedEklenme" readonly style="background: rgba(255,255,255,0.05);">
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeEditUnmatchedModal()">İptal</button>
+            <button type="submit" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17,21 17,13 7,13 7,21"/>
+                <polyline points="7,3 7,8 15,8"/>
+              </svg>
+              Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script src="../../assets/js/app.js"></script>
   <script src="../../assets/js/date-filter-utils.js"></script>
   <style>
@@ -4318,28 +4421,40 @@
             </div>
           </div>
           <div class="card-body" style="padding: 0;">
-            <div class="table-container">
-              <table class="data-table">
+            <div class="table-container" style="overflow-x: auto;">
+              <table class="data-table" style="min-width: 1600px;">
                 <thead>
                   <tr>
-                    <th>Poliçe No</th>
-                    <th>Tanzim Tarihi</th>
-                    <th>Sigortalı Adı</th>
-                    <th>Branş</th>
-                    <th>Sigorta Şirketi</th>
-                    <th class="text-right">Brüt Prim</th>
-                    <th>İşlem</th>
+                    <th style="min-width: 140px;">Poliçe No</th>
+                    <th style="min-width: 95px;">Tanzim</th>
+                    <th style="min-width: 95px;">Başlangıç</th>
+                    <th style="min-width: 95px;">Bitiş</th>
+                    <th style="min-width: 150px;">Sigortalı Adı</th>
+                    <th style="min-width: 100px;">Branş</th>
+                    <th style="min-width: 120px;">Sigorta Şirketi</th>
+                    <th style="min-width: 120px;">Prodüktör</th>
+                    <th style="min-width: 100px;">Şube</th>
+                    <th class="text-right" style="min-width: 100px;">Net Prim</th>
+                    <th class="text-right" style="min-width: 100px;">Brüt Prim</th>
+                    <th style="min-width: 95px;">Eklenme</th>
+                    <th style="min-width: 150px;">İşlemler</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${data.items.map(item => `
                     <tr data-id="${item.id}">
                       <td>
-                        <span class="font-mono">${item.policeNo || '-'}</span>
+                        <span class="font-mono" style="font-weight: 600;">${item.policeNo || '-'}</span>
                         ${item.plaka ? `<div class="text-muted text-xs">${item.plaka}</div>` : ''}
                       </td>
                       <td>
                         <span class="text-sm">${new Date(item.tanzimTarihi).toLocaleDateString('tr-TR')}</span>
+                      </td>
+                      <td>
+                        <span class="text-sm">${new Date(item.baslangicTarihi).toLocaleDateString('tr-TR')}</span>
+                      </td>
+                      <td>
+                        <span class="text-sm">${new Date(item.bitisTarihi).toLocaleDateString('tr-TR')}</span>
                       </td>
                       <td>
                         <span class="text-sm">${item.sigortaliAdi || '-'}</span>
@@ -4350,18 +4465,37 @@
                       <td>
                         <span class="text-sm">${item.sigortaSirketi || '-'}</span>
                       </td>
-                      <td class="text-right">
-                        <span class="font-mono">₺${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span>
+                      <td>
+                        <span class="text-sm" style="font-weight: 500; color: var(--primary);">${item.produktorAdi || '<span style="color: var(--danger);">Atanmamış</span>'}</span>
                       </td>
                       <td>
-                        <button class="btn btn-sm btn-primary" onclick="sendCapturedToPool(${item.id})">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                            <polyline points="17,8 12,3 7,8"/>
-                            <line x1="12" y1="3" x2="12" y2="15"/>
-                          </svg>
-                          Havuza Gönder
-                        </button>
+                        <span class="text-sm">${item.subeAdi || '-'}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="font-mono">₺${(item.netPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="font-mono" style="font-weight: 600;">₺${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span>
+                      </td>
+                      <td>
+                        <span class="text-xs text-muted">${new Date(item.eklenmeTarihi).toLocaleDateString('tr-TR')}</span>
+                      </td>
+                      <td>
+                        <div style="display: flex; gap: 0.5rem;">
+                          <button class="btn btn-sm btn-secondary" onclick="openEditUnmatchedModal(${item.id})" title="Düzenle">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                          </button>
+                          <button class="btn btn-sm btn-success" onclick="sendCapturedToPool(${item.id})" title="Poliçeyi Kaydet">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                              <polyline points="17,21 17,13 7,13 7,21"/>
+                              <polyline points="7,3 7,8 15,8"/>
+                            </svg>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   `).join('')}
@@ -4375,40 +4509,142 @@
       poolContent.innerHTML = html;
     }
 
-    // Yakalanan poliçeyi direkt kaydet (önce havuza gönder, sonra onayla)
+    // Yakalanan poliçeyi direkt kaydet (havuzu bypass et)
     async function sendCapturedToPool(capturedId) {
       if (!confirm('Bu poliçeyi Poliçelerime kaydetmek istediğinize emin misiniz?')) {
         return;
       }
 
       try {
-        // Adım 1: Havuza gönder
-        const sendResult = await apiPost(`policies/${capturedId}/send-to-pool`);
+        // Direkt approval endpoint'ini çağır (havuzu bypass et)
+        const result = await apiPost(`policies/captured/${capturedId}/approve`);
 
-        if (!sendResult.success) {
-          showToast(sendResult.message || 'Havuza gönderim başarısız', 'error');
-          return;
-        }
-
-        // Adım 2: Havuzdan onayla (police tablosuna kaydet)
-        const poolPolicyId = sendResult.poolPolicyId;
-        if (!poolPolicyId) {
-          showToast('Pool ID bulunamadı', 'error');
-          return;
-        }
-
-        const approveResult = await apiPost(`policies/pool/${poolPolicyId}/approve`);
-
-        if (approveResult.success) {
+        if (result.success) {
           showToast('Poliçe başarıyla kaydedildi', 'success');
           await loadUnmatchedCaptured(true);
           await loadTabCounts();
         } else {
-          showToast(approveResult.errorMessage || 'Kaydetme başarısız', 'error');
+          showToast(result.errorMessage || 'Kaydetme başarısız', 'error');
         }
       } catch (error) {
         console.error('sendCapturedToPool error:', error);
         showToast('Bir hata oluştu: ' + (error.message || 'Bilinmeyen hata'), 'error');
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // EŞLEŞMEYENLERİ DÜZENLEME MODAL FONKSİYONLARI
+    // ═══════════════════════════════════════════════════════════════
+
+    let currentEditingUnmatchedId = null;
+    let unmatchedProduktorler = [];
+    let unmatchedSubeler = [];
+
+    // Modal'ı aç ve verileri doldur
+    async function openEditUnmatchedModal(id) {
+      currentEditingUnmatchedId = id;
+
+      // Eşleşmeyen poliçeyi bul
+      const item = unmatchedCapturedState.data?.items?.find(p => p.id === id);
+      if (!item) {
+        showToast('Poliçe bulunamadı', 'error');
+        return;
+      }
+
+      // Form alanlarını doldur
+      document.getElementById('editUnmatchedId').value = item.id;
+      document.getElementById('editUnmatchedPoliceNo').value = item.policeNo || '';
+      document.getElementById('editUnmatchedSigortali').value = item.sigortaliAdi || '';
+      document.getElementById('editUnmatchedBrans').value = item.brans || '';
+      document.getElementById('editUnmatchedSirket').value = item.sigortaSirketi || '';
+      document.getElementById('editUnmatchedNetPrim').value = `₺${(item.netPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+      document.getElementById('editUnmatchedBrutPrim').value = `₺${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+      document.getElementById('editUnmatchedTanzim').value = new Date(item.tanzimTarihi).toLocaleDateString('tr-TR');
+      document.getElementById('editUnmatchedBaslangic').value = new Date(item.baslangicTarihi).toLocaleDateString('tr-TR');
+      document.getElementById('editUnmatchedBitis').value = new Date(item.bitisTarihi).toLocaleDateString('tr-TR');
+      document.getElementById('editUnmatchedEklenme').value = new Date(item.eklenmeTarihi).toLocaleDateString('tr-TR');
+
+      // Prodüktör ve Şube dropdown'larını doldur
+      await loadUnmatchedProduktorSube();
+
+      // Mevcut değerleri seç
+      document.getElementById('editUnmatchedProduktor').value = item.produktorId || '';
+      document.getElementById('editUnmatchedSube').value = item.subeId || '';
+
+      // Modal'ı aç
+      document.getElementById('editUnmatchedModal').classList.add('active');
+    }
+
+    // Prodüktör ve Şube listelerini yükle
+    async function loadUnmatchedProduktorSube() {
+      try {
+        // Prodüktör listesi
+        const produktorData = await apiGet('users', { role: 'produktor' });
+        unmatchedProduktorler = produktorData.items || produktorData || [];
+
+        const produktorSelect = document.getElementById('editUnmatchedProduktor');
+        produktorSelect.innerHTML = '<option value="">Prodüktör Seçin</option>' +
+          unmatchedProduktorler.map(p =>
+            `<option value="${p.id}">${p.adSoyad || p.name}</option>`
+          ).join('');
+
+        // Şube listesi
+        const subeData = await apiGet('branches');
+        unmatchedSubeler = subeData.items || subeData || [];
+
+        const subeSelect = document.getElementById('editUnmatchedSube');
+        subeSelect.innerHTML = '<option value="">Şube Seçin</option>' +
+          unmatchedSubeler.map(s =>
+            `<option value="${s.id}">${s.subeAdi || s.name}</option>`
+          ).join('');
+      } catch (error) {
+        console.error('Prodüktör/Şube yüklenemedi:', error);
+        showToast('Prodüktör ve Şube listesi yüklenemedi', 'error');
+      }
+    }
+
+    // Modal'ı kapat
+    function closeEditUnmatchedModal() {
+      document.getElementById('editUnmatchedModal').classList.remove('active');
+      currentEditingUnmatchedId = null;
+    }
+
+    // Düzenlenen poliçeyi kaydet
+    async function saveEditedUnmatched(event) {
+      event.preventDefault();
+
+      const id = currentEditingUnmatchedId;
+      if (!id) return;
+
+      const produktorId = parseInt(document.getElementById('editUnmatchedProduktor').value);
+      const subeId = parseInt(document.getElementById('editUnmatchedSube').value);
+
+      if (!produktorId || !subeId) {
+        showToast('Lütfen Prodüktör ve Şube seçin', 'warning');
+        return;
+      }
+
+      showLoading(true);
+
+      try {
+        // Backend'e güncelleme isteği gönder
+        const result = await apiPut(`policies/captured/${id}`, {
+          produktorId: produktorId,
+          subeId: subeId
+        });
+
+        if (result.success) {
+          showToast('Poliçe başarıyla güncellendi', 'success');
+          closeEditUnmatchedModal();
+          await loadUnmatchedCaptured(true);
+        } else {
+          showToast('Güncelleme başarısız: ' + (result.message || 'Bilinmeyen hata'), 'error');
+        }
+      } catch (error) {
+        console.error('Güncelleme hatası:', error);
+        showToast('Güncelleme sırasında hata oluştu', 'error');
+      } finally {
+        showLoading(false);
       }
     }
 

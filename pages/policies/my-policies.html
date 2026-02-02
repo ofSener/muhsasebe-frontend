@@ -5,6 +5,89 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poliçelerim - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    /* Modal Styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      background: var(--hover-bg);
+      color: var(--text-primary);
+    }
+    .modal-body {
+      padding: 1.5rem;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .detail-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .detail-value {
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+    .detail-value.large {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
   <div class="gradient-mesh"></div>
@@ -57,7 +140,7 @@
             <p class="page-subtitle">Tüm poliçelerinizi görüntüleyin ve yönetin</p>
           </div>
           <div class="page-actions">
-            <button class="btn btn-secondary" disabled title="Yakında aktif olacak">
+            <button class="btn btn-secondary" onclick="exportToExcel()" title="Excel olarak indir">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
                 <polyline points="7,10 12,15 17,10"/>
@@ -92,6 +175,12 @@
                 </select>
               </div>
               <div class="form-group filter-group-flex">
+                <input type="text" class="form-input" id="filterStartDate" placeholder="Başlangıç Tarihi">
+              </div>
+              <div class="form-group filter-group-flex">
+                <input type="text" class="form-input" id="filterEndDate" placeholder="Bitiş Tarihi">
+              </div>
+              <div class="form-group filter-group-flex">
                 <input type="text" class="form-input" id="filterSearch" placeholder="Poliçe No veya Plaka Ara..." onkeyup="handleSearchKeyup(event)">
               </div>
               <button class="btn btn-secondary" onclick="applyFilters()">
@@ -99,6 +188,13 @@
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
                 Ara
+              </button>
+              <button class="btn btn-secondary" onclick="clearFilters()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Temizle
               </button>
             </div>
           </div>
@@ -116,7 +212,10 @@
                 <tr>
                   <th>Poliçe No</th>
                   <th>Plaka</th>
+                  <th>Sigorta Şirketi</th>
                   <th>Tip</th>
+                  <th>Prodüktör</th>
+                  <th>Şube</th>
                   <th>Başlangıç</th>
                   <th>Bitiş</th>
                   <th>Brüt Prim</th>
@@ -127,7 +226,7 @@
               </thead>
               <tbody id="policyTableBody">
                 <tr>
-                  <td colspan="9" style="text-align: center; padding: 2rem;">
+                  <td colspan="12" style="text-align: center; padding: 2rem;">
                     <div class="loading-spinner"></div>
                     Yükleniyor...
                   </td>
@@ -147,9 +246,32 @@
     </main>
   </div>
 
+  <!-- Policy Detail Modal -->
+  <div class="modal-overlay" id="policyModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Poliçe Detayları</h2>
+        <button class="modal-close" onclick="closeModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid" id="modalContent">
+          <!-- Content will be injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
   <script src="../../components/sidebar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <script>
     // State
@@ -157,17 +279,53 @@
     let filteredPolicies = [];
     let currentPage = 1;
     const pageSize = 20;
+    let startDatePicker, endDatePicker;
 
     // Load policies on page load
     document.addEventListener('DOMContentLoaded', async () => {
+      initializeDatePickers();
       await loadPolicies();
     });
+
+    // Initialize date pickers
+    function initializeDatePickers() {
+      const commonConfig = {
+        locale: 'tr',
+        dateFormat: 'd.m.Y',
+        onChange: () => applyFilters()
+      };
+
+      startDatePicker = flatpickr('#filterStartDate', {
+        ...commonConfig,
+        placeholder: 'Başlangıç Tarihi'
+      });
+
+      endDatePicker = flatpickr('#filterEndDate', {
+        ...commonConfig,
+        placeholder: 'Bitiş Tarihi'
+      });
+    }
 
     // Load policies from API
     async function loadPolicies() {
       try {
-        const response = await apiGet('policies?limit=1000');
-        policies = response || [];
+        // Build query params
+        let queryParams = 'pageSize=1000';
+
+        // Add date filters if selected
+        const startDate = startDatePicker?.selectedDates[0];
+        const endDate = endDatePicker?.selectedDates[0];
+
+        if (startDate) {
+          queryParams += `&startDate=${startDate.toISOString()}`;
+        }
+        if (endDate) {
+          queryParams += `&endDate=${endDate.toISOString()}`;
+        }
+
+        const response = await apiGet(`policies?${queryParams}`);
+        // Backend artık PoliceListDto döndürüyor (camelCase)
+        policies = response.items || [];
         filteredPolicies = [...policies];
         renderTable();
         updateStats();
@@ -175,7 +333,7 @@
         console.error('Poliçeler yüklenirken hata:', error);
         document.getElementById('policyTableBody').innerHTML = `
           <tr>
-            <td colspan="9" style="text-align: center; padding: 2rem; color: var(--danger);">
+            <td colspan="12" style="text-align: center; padding: 2rem; color: var(--danger);">
               Poliçeler yüklenirken hata oluştu: ${error.message}
             </td>
           </tr>
@@ -184,21 +342,25 @@
     }
 
     // Apply filters
-    function applyFilters() {
+    async function applyFilters() {
+      // Reload from API with date filters
+      await loadPolicies();
+
+      // Then apply client-side filters
       const policeTipi = document.getElementById('filterPoliceTipi').value.toLowerCase();
       const durum = document.getElementById('filterDurum').value;
       const search = document.getElementById('filterSearch').value.toLowerCase();
 
       filteredPolicies = policies.filter(p => {
-        // Poliçe tipi filtresi
-        if (policeTipi && p.policeTipi?.toLowerCase() !== policeTipi) return false;
+        // Poliçe tipi filtresi (backend: policeTuruAdi)
+        if (policeTipi && p.policeTuruAdi?.toLowerCase() !== policeTipi) return false;
 
         // Durum filtresi
         if (durum !== '' && p.onayDurumu?.toString() !== durum) return false;
 
-        // Arama filtresi
+        // Arama filtresi (backend: policeNumarasi)
         if (search) {
-          const matchPoliceNo = p.policeNo?.toLowerCase().includes(search);
+          const matchPoliceNo = p.policeNumarasi?.toLowerCase().includes(search);
           const matchPlaka = p.plaka?.toLowerCase().includes(search);
           if (!matchPoliceNo && !matchPlaka) return false;
         }
@@ -209,6 +371,16 @@
       currentPage = 1;
       renderTable();
       updateStats();
+    }
+
+    // Clear all filters
+    function clearFilters() {
+      document.getElementById('filterPoliceTipi').value = '';
+      document.getElementById('filterDurum').value = '';
+      document.getElementById('filterSearch').value = '';
+      startDatePicker.clear();
+      endDatePicker.clear();
+      applyFilters();
     }
 
     // Handle search keyup
@@ -229,7 +401,7 @@
       if (pageData.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <td colspan="12" style="text-align: center; padding: 2rem; color: var(--text-muted);">
               Poliçe bulunamadı.
             </td>
           </tr>
@@ -241,9 +413,12 @@
 
       tbody.innerHTML = pageData.map(p => `
         <tr>
-          <td><span class="font-mono cell-main">${p.policeNo || '-'}</span></td>
+          <td><span class="font-mono cell-main">${p.policeNumarasi || '-'}</span></td>
           <td><span class="font-mono">${p.plaka || '-'}</span></td>
-          <td><span class="badge badge-primary">${p.policeTipi || '-'}</span></td>
+          <td><span style="font-size: 0.875rem;">${p.sigortaSirketiAdi || '-'}</span></td>
+          <td><span class="badge badge-primary">${p.policeTuruAdi || '-'}</span></td>
+          <td><span style="font-size: 0.875rem;">${p.produktorAdi || '-'}</span></td>
+          <td><span style="font-size: 0.875rem;">${p.subeAdi || '-'}</span></td>
           <td>${formatDate(p.baslangicTarihi)}</td>
           <td>${formatDate(p.bitisTarihi)}</td>
           <td class="font-mono font-semibold">₺${formatNumber(p.brutPrim)}</td>
@@ -251,7 +426,7 @@
           <td>${getStatusBadge(p.onayDurumu)}</td>
           <td>
             <div class="table-actions">
-              <button class="action-btn" title="Görüntüle" onclick="viewPolicy(${p.id})">
+              <button class="action-btn" title="Detayları Görüntüle" onclick='viewPolicy(${JSON.stringify(p).replace(/'/g, "&apos;")})'>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                   <circle cx="12" cy="12" r="3"/>
@@ -350,16 +525,178 @@
       }
     }
 
-    // View policy
-    function viewPolicy(id) {
-      // TODO: Implement policy detail view
-      alert('Poliçe detayı: ' + id);
+    // View policy detail
+    function viewPolicy(policy) {
+      const modal = document.getElementById('policyModal');
+      const content = document.getElementById('modalContent');
+
+      content.innerHTML = `
+        <div class="detail-item">
+          <div class="detail-label">Poliçe Numarası</div>
+          <div class="detail-value large font-mono">${policy.policeNumarasi || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Plaka</div>
+          <div class="detail-value font-mono">${policy.plaka || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Sigorta Şirketi</div>
+          <div class="detail-value">${policy.sigortaSirketiAdi || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Poliçe Türü</div>
+          <div class="detail-value">${policy.policeTuruAdi || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Prodüktör</div>
+          <div class="detail-value">${policy.produktorAdi || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Prodüktör Şube</div>
+          <div class="detail-value">${policy.produktorSubeAdi || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Şube</div>
+          <div class="detail-value">${policy.subeAdi || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Acente</div>
+          <div class="detail-value">${policy.acenteAdi || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Kullanıcı</div>
+          <div class="detail-value">${policy.uyeAdi || '-'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Tanzim Tarihi</div>
+          <div class="detail-value">${formatDate(policy.tanzimTarihi)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Başlangıç Tarihi</div>
+          <div class="detail-value">${formatDate(policy.baslangicTarihi)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Bitiş Tarihi</div>
+          <div class="detail-value">${formatDate(policy.bitisTarihi)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Brüt Prim</div>
+          <div class="detail-value large font-mono">₺${formatNumber(policy.brutPrim)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Net Prim</div>
+          <div class="detail-value font-mono">₺${formatNumber(policy.netPrim)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Komisyon</div>
+          <div class="detail-value large font-mono">₺${formatNumber(policy.komisyon)}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Zeyil No</div>
+          <div class="detail-value">${policy.zeyilNo || '0'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Yenilenme Durumu</div>
+          <div class="detail-value">${policy.yenilemeDurumu === 1 ? 'Yenilendi' : 'Yenilenmedi'}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Onay Durumu</div>
+          <div class="detail-value">${getStatusBadge(policy.onayDurumu)}</div>
+        </div>
+      `;
+
+      modal.classList.add('active');
     }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('policyModal').classList.remove('active');
+    }
+
+    // Close modal on overlay click
+    document.getElementById('policyModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
 
     // Export to Excel
     function exportToExcel() {
-      // TODO: Implement Excel export
-      alert('Excel export henüz uygulanmadı');
+      try {
+        // Prepare data for Excel
+        const headers = ['Poliçe No', 'Plaka', 'Sigorta Şirketi', 'Tip', 'Prodüktör', 'Prodüktör Şube', 'Şube', 'Acente', 'Kullanıcı', 'Tanzim', 'Başlangıç', 'Bitiş', 'Brüt Prim', 'Net Prim', 'Komisyon', 'Zeyil No', 'Onay Durumu'];
+
+        const data = filteredPolicies.map(p => [
+          p.policeNumarasi || '',
+          p.plaka || '',
+          p.sigortaSirketiAdi || '',
+          p.policeTuruAdi || '',
+          p.produktorAdi || '',
+          p.produktorSubeAdi || '',
+          p.subeAdi || '',
+          p.acenteAdi || '',
+          p.uyeAdi || '',
+          formatDate(p.tanzimTarihi),
+          formatDate(p.baslangicTarihi),
+          formatDate(p.bitisTarihi),
+          p.brutPrim || 0,
+          p.netPrim || 0,
+          p.komisyon || 0,
+          p.zeyilNo || 0,
+          p.onayDurumu === 1 ? 'Onaylı' : (p.onayDurumu === 0 ? 'Beklemede' : 'Reddedildi')
+        ]);
+
+        // Create workbook and worksheet
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
+
+        // Set column widths
+        ws['!cols'] = [
+          { wch: 15 }, // Poliçe No
+          { wch: 12 }, // Plaka
+          { wch: 25 }, // Sigorta Şirketi
+          { wch: 12 }, // Tip
+          { wch: 20 }, // Prodüktör
+          { wch: 25 }, // Prodüktör Şube
+          { wch: 20 }, // Şube
+          { wch: 20 }, // Acente
+          { wch: 20 }, // Kullanıcı
+          { wch: 12 }, // Tanzim
+          { wch: 12 }, // Başlangıç
+          { wch: 12 }, // Bitiş
+          { wch: 15 }, // Brüt Prim
+          { wch: 15 }, // Net Prim
+          { wch: 15 }, // Komisyon
+          { wch: 10 }, // Zeyil No
+          { wch: 12 }  // Onay Durumu
+        ];
+
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Poliçelerim');
+
+        // Generate filename with date and filter info
+        let filename = 'policelerim';
+        const startDate = startDatePicker?.selectedDates[0];
+        const endDate = endDatePicker?.selectedDates[0];
+
+        if (startDate || endDate) {
+          filename += '_';
+          if (startDate) filename += formatDate(startDate.toISOString()).replace(/\./g, '-');
+          if (endDate) filename += '_' + formatDate(endDate.toISOString()).replace(/\./g, '-');
+        } else {
+          filename += '_' + new Date().toISOString().split('T')[0];
+        }
+        filename += '.xlsx';
+
+        // Write and download file
+        XLSX.writeFile(wb, filename);
+
+        // Show success message
+        alert(`${filteredPolicies.length} poliçe Excel dosyasına aktarıldı!`);
+      } catch (error) {
+        console.error('Excel export hatası:', error);
+        alert('Excel dosyası oluşturulurken hata oluştu: ' + error.message);
+      }
     }
   </script>
 </body>

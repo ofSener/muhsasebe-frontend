@@ -25,7 +25,6 @@ const TEST_MODE = {
     id: 1,
     name: 'Test Kullanıcı',
     email: 'test@test.com',
-    role: 'admin',
     firmaId: 1,
     subeId: 1,
     subeAdi: 'Ana Şube',
@@ -744,15 +743,6 @@ function hasPermission(permission) {
 }
 
 /**
- * Kullanıcı rolünü al
- * @returns {string} - 'admin', 'editor', 'viewer', 'restricted'
- */
-function getUserRole() {
-  const user = APP_CONFIG.AUTH.getUser();
-  return user?.role || 'viewer';
-}
-
-/**
  * Navbar'daki kullanıcı bilgilerini güncelle
  * Tüm sayfalarda kullanılabilir
  */
@@ -764,9 +754,9 @@ function updateNavbarUser() {
   const userNameEl = document.querySelector('.navbar-user-name');
   if (userNameEl) userNameEl.textContent = user.name || 'Kullanıcı';
 
-  // Şube adını göster (yoksa rolü göster)
+  // Şube adını göster
   const userRoleEl = document.querySelector('.navbar-user-role');
-  if (userRoleEl) userRoleEl.textContent = user.subeAdi || user.role || '';
+  if (userRoleEl) userRoleEl.textContent = user.subeAdi || 'Kullanıcı';
 
   // Avatar initials
   const avatarEl = document.querySelector('.navbar-avatar');
