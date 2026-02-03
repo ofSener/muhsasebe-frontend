@@ -6,6 +6,8 @@
   <title>Toplu Aktarım - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <!-- SheetJS for reading Excel headers -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="gradient-mesh"></div>
@@ -121,6 +123,24 @@
                   <option value="">Otomatik Tespit (Dosya adından)</option>
                 </select>
                 <span class="form-hint">Dosya adından şirket otomatik tespit edilir. İsterseniz manuel seçebilirsiniz.</span>
+                <!-- Tespit Sonucu -->
+                <div class="detection-result" id="detectionResult" style="display: none;">
+                  <div class="detection-success" id="detectionSuccess" style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                      <polyline points="22,4 12,14.01 9,11.01"/>
+                    </svg>
+                    <span>Tespit Edilen Şirket: <strong id="detectedCompanyName"></strong></span>
+                  </div>
+                  <div class="detection-warning" id="detectionWarning" style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                      <line x1="12" y1="9" x2="12" y2="13"/>
+                      <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <span>Şirket tespit edilemedi. Lütfen yukarıdan manuel olarak seçin.</span>
+                  </div>
+                </div>
               </div>
 
               <!-- Upload Zone -->
@@ -718,6 +738,39 @@
       font-size: 0.75rem;
       color: var(--text-muted);
       margin-top: 0.5rem;
+    }
+
+    /* Detection Result */
+    .detection-result {
+      margin-top: 0.75rem;
+    }
+
+    .detection-success,
+    .detection-warning {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      font-weight: 500;
+    }
+
+    .detection-success {
+      background: var(--success-glow);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .detection-success strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .detection-warning {
+      background: var(--warning-glow);
+      border: 1px solid var(--warning);
+      color: var(--warning);
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -3082,6 +3135,8 @@
     let currentPreviewData = null;
     let currentPage = 1;
     const pageSize = 100;
+    let availableFormats = []; // Şirket formatları ve pattern'leri
+    let detectedCompanyId = null; // Otomatik tespit edilen şirket ID
 
     // Elements
     const fileInput = document.getElementById('fileInput');
@@ -3131,6 +3186,9 @@
 
         // Populate dropdown and supported formats grid
         if (formatsResponse && formatsResponse.formats) {
+          // Store formats globally for filename detection
+          availableFormats = formatsResponse.formats;
+
           const formatsGrid = document.getElementById('supportedFormatsGrid');
           formatsGrid.innerHTML = '';
 
@@ -3198,6 +3256,119 @@
       `).join('');
     }
 
+    // Fallback pattern map (if backend doesn't return patterns)
+    const fallbackPatterns = {
+      9: ['ankara', 'ank'],           // Ankara Sigorta
+      7: ['raporsonuc', 'hdi', 'rapor_sonuc'],  // HDI Sigorta
+      4: ['unico'],                   // Unico Sigorta
+      5: ['quick'],                   // Quick Sigorta
+      6: ['sompo'],                   // Sompo Sigorta
+      8: ['hepiyi', 'hep iyi'],       // Hepiyi Sigorta
+      10: ['neova'],                  // Neova Sigorta
+      11: ['skay', 'ak sigorta']      // AK Sigorta SKAY
+    };
+
+    // Detect company from filename using patterns
+    function detectCompanyFromFileName(fileName) {
+      if (!fileName) return null;
+
+      const fileNameLower = fileName.toLowerCase();
+
+      // First try patterns from backend
+      if (availableFormats.length > 0) {
+        for (const format of availableFormats) {
+          const patterns = format.fileNamePatterns || fallbackPatterns[format.sigortaSirketiId] || [];
+          for (const pattern of patterns) {
+            if (fileNameLower.includes(pattern.toLowerCase())) {
+              return {
+                id: format.sigortaSirketiId,
+                name: format.sigortaSirketiAdi
+              };
+            }
+          }
+        }
+      }
+
+      // Fallback: try all fallback patterns even if formats not loaded
+      for (const [id, patterns] of Object.entries(fallbackPatterns)) {
+        for (const pattern of patterns) {
+          if (fileNameLower.includes(pattern.toLowerCase())) {
+            // Try to find company name from dropdown
+            const option = sigortaSirketiSelect.querySelector(`option[value="${id}"]`);
+            if (option) {
+              return {
+                id: parseInt(id),
+                name: option.textContent
+              };
+            }
+          }
+        }
+      }
+
+      return null;
+    }
+
+    // Update detection UI based on result
+    function updateDetectionUI(detected) {
+      const resultDiv = document.getElementById('detectionResult');
+      const successDiv = document.getElementById('detectionSuccess');
+      const warningDiv = document.getElementById('detectionWarning');
+      const companyNameSpan = document.getElementById('detectedCompanyName');
+
+      // Check if manual selection exists
+      const manualSelection = sigortaSirketiSelect.value;
+
+      if (detected) {
+        // Company detected from filename
+        detectedCompanyId = detected.id;
+        companyNameSpan.textContent = detected.name;
+        successDiv.style.display = 'flex';
+        warningDiv.style.display = 'none';
+        resultDiv.style.display = 'block';
+        uploadBtn.disabled = false;
+
+        // Auto-select in dropdown for clarity
+        sigortaSirketiSelect.value = detected.id;
+      } else if (manualSelection) {
+        // Manual selection exists - no need for detection warning
+        detectedCompanyId = null;
+        resultDiv.style.display = 'none';
+        uploadBtn.disabled = false;
+      } else {
+        // No detection and no manual selection
+        detectedCompanyId = null;
+        successDiv.style.display = 'none';
+        warningDiv.style.display = 'flex';
+        resultDiv.style.display = 'block';
+        uploadBtn.disabled = true;
+      }
+    }
+
+    // Clear detection UI
+    function clearDetectionUI() {
+      detectedCompanyId = null;
+      document.getElementById('detectionResult').style.display = 'none';
+    }
+
+    // Check if upload should be enabled
+    function checkUploadEnabled() {
+      const hasFile = fileInput.files && fileInput.files.length > 0;
+      const hasManualSelection = sigortaSirketiSelect.value !== '';
+      const hasDetection = detectedCompanyId !== null;
+
+      if (!hasFile) {
+        uploadBtn.disabled = true;
+        return;
+      }
+
+      // File exists - check if we have detection or manual selection
+      if (hasDetection || hasManualSelection) {
+        uploadBtn.disabled = false;
+      } else {
+        uploadBtn.disabled = true;
+      }
+    }
+
     // Setup event listeners
     function setupEventListeners() {
       // File input change - handles both click and drag/drop
@@ -3224,6 +3395,19 @@
         e.preventDefault();
         e.stopPropagation();
         clearSelectedFile();
+      });
+
+      // Sigorta şirketi dropdown change - re-check upload enabled state
+      sigortaSirketiSelect.addEventListener('change', () => {
+        // If manual selection made, hide detection UI if warning was shown
+        if (sigortaSirketiSelect.value) {
+          clearDetectionUI();
+        } else if (fileInput.files && fileInput.files.length > 0) {
+          // If cleared back to auto-detect, re-run detection
+          const detected = detectCompanyFromFileName(fileInput.files[0].name);
+          updateDetectionUI(detected);
+        }
+        checkUploadEnabled();
       });
 
       // Upload button
@@ -3264,12 +3448,141 @@
     }
 
     // Show selected file
-    function showSelectedFile(file) {
+    async function showSelectedFile(file) {
       selectedFileName.textContent = file.name;
       selectedFileSize.textContent = formatFileSize(file.size);
       selectedFileInfo.style.display = 'flex';
       uploadDropzone.classList.add('has-file');
-      uploadBtn.disabled = false;
+
+      // Manual selection exists, enable upload directly
+      if (sigortaSirketiSelect.value) {
+        uploadBtn.disabled = false;
+        return;
+      }
+
+      // 1. First try filename-based detection (fast)
+      const fileNameDetected = detectCompanyFromFileName(file.name);
+      if (fileNameDetected) {
+        updateDetectionUI(fileNameDetected);
+        return;
+      }
+
+      // 2. If filename detection fails, try header-based detection via backend
+      try {
+        const headers = await readExcelHeaders(file);
+        if (headers && headers.length > 0) {
+          const apiDetected = await detectFormatFromAPI(file.name, headers);
+          if (apiDetected) {
+            updateDetectionUI(apiDetected);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Header-based detection failed:', err);
+      }
+
+      // 3. No detection - show warning
+      updateDetectionUI(null);
+    }
+
+    // Read Excel headers using SheetJS
+    async function readExcelHeaders(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array', sheetRows: 10 });
+
+            // Get first sheet
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+
+            if (!sheet) {
+              resolve([]);
+              return;
+            }
+
+            // Convert to JSON to find headers
+            const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+            // Find the header row (first row with meaningful data)
+            // Check first 10 rows for header keywords
+            const headerKeywords = ['POLICE', 'POLİÇE', 'PRIM', 'PRİM', 'BRÜT', 'NET'];
+            let headerRow = null;
+
+            for (let i = 0; i < Math.min(10, json.length); i++) {
+              const row = json[i];
+              if (Array.isArray(row) && row.length > 0) {
+                const rowStr = row.join(' ').toUpperCase();
+                if (headerKeywords.some(kw => rowStr.includes(kw))) {
+                  headerRow = row;
+                  break;
+                }
+              }
+            }
+
+            // If no header keywords found, use first non-empty row
+            if (!headerRow) {
+              for (let i = 0; i < Math.min(5, json.length); i++) {
+                const row = json[i];
+                if (Array.isArray(row) && row.filter(c => c).length > 3) {
+                  headerRow = row;
+                  break;
+                }
+              }
+            }
+
+            const headers = headerRow
+              ? headerRow.filter(h => h != null).map(h => String(h).trim())
+              : [];
+
+            resolve(headers);
+          } catch (err) {
+            console.error('SheetJS parse error:', err);
+            reject(err);
+          }
+        };
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    // Call backend API to detect format from headers
+    async function detectFormatFromAPI(fileName, headers) {
+      try {
+        const url = APP_CONFIG.API.getUrl('excel-import/detect-format');
+        const token = APP_CONFIG.AUTH.getToken();
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` })
+          },
+          body: JSON.stringify({ fileName, headers })
+        });
+
+        if (!response.ok) {
+          console.warn('Detect format API error:', response.status);
+          return null;
+        }
+
+        const result = await response.json();
+
+        if (result.detected) {
+          console.log('Format detected via API:', result.detectionMethod, result.sigortaSirketiAdi);
+          return {
+            id: result.sigortaSirketiId,
+            name: result.sigortaSirketiAdi
+          };
+        }
+
+        return null;
+      } catch (err) {
+        console.error('Detect format API error:', err);
+        return null;
+      }
     }
 
     // Clear selected file
@@ -3278,6 +3591,7 @@
       selectedFileInfo.style.display = 'none';
       uploadDropzone.classList.remove('has-file');
       uploadBtn.disabled = true;
+      clearDetectionUI();
     }
 
     // Format file size
@@ -3311,13 +3625,12 @@
         const formData = new FormData();
         formData.append('file', file);
 
+        // API call - sigortaSirketiId query parameter olarak gönderilmeli
         const sigortaSirketiId = sigortaSirketiSelect.value;
+        let url = APP_CONFIG.API.getUrl('excel-import/upload');
         if (sigortaSirketiId) {
-          formData.append('sigortaSirketiId', sigortaSirketiId);
+          url += `?sigortaSirketiId=${sigortaSirketiId}`;
         }
-
-        // API call
-        const url = APP_CONFIG.API.getUrl('excel-import/upload');
         const token = APP_CONFIG.AUTH.getToken();
 
         const response = await fetch(url, {
@@ -3410,9 +3723,10 @@
           tr.classList.add('row-error');
         }
 
-        // Determine if it's a zeyil (ZeyilNo != 0 and not empty)
+        // Determine if it's a zeyil (ZeyilNo > 0 OR İptal kaydı)
         const zeyilNoValue = parseInt(row.zeyilNo) || 0;
-        const isZeyil = zeyilNoValue > 0;
+        const isIptal = row.policeTipi === 'İPTAL' || row.policeTipi === 'IPTAL';
+        const isZeyil = zeyilNoValue > 0 || isIptal;
 
         // Build sigortalı display text (Ad Soyad or just Ad)
         const sigortaliDisplay = row.sigortaliSoyadi
@@ -4055,6 +4369,7 @@
 
       // Reset form
       clearSelectedFile();
+      sigortaSirketiSelect.value = ''; // Reset to "Otomatik Tespit"
       confirmBtn.disabled = false;
       confirmBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">0 Geçerli Kaydı İçeri Aktar</span>';
 
@@ -4101,9 +4416,10 @@
         ? `${row.sigortaliAdi || ''} ${row.sigortaliSoyadi}`.trim()
         : (row.sigortaliAdi || '-');
 
-      // Determine zeyil status
+      // Determine zeyil status (ZeyilNo > 0 OR İptal kaydı)
       const zeyilNoValue = parseInt(row.zeyilNo) || 0;
-      const isZeyil = zeyilNoValue > 0;
+      const isIptal = row.policeTipi === 'İPTAL' || row.policeTipi === 'IPTAL';
+      const isZeyil = zeyilNoValue > 0 || isIptal;
 
       content.innerHTML = `
         <!-- Header Card with Key Info -->
@@ -4357,12 +4673,13 @@
 
       rows.forEach(row => {
         const zeyilNo = parseInt(row.zeyilNo) || 0;
+        const isIptal = row.policeTipi === 'İPTAL' || row.policeTipi === 'IPTAL';
 
         // Count by type
-        // Zeyil: zeyilNo > 0
-        // Yeni İş: zeyilNo == 0 (yeni poliçeler)
+        // Zeyil: zeyilNo > 0 OR İptal kaydı
+        // Yeni İş: zeyilNo == 0 AND Tahakkuk (yeni poliçeler)
         // Poliçe: Toplam (Zeyil + Yeni İş)
-        if (zeyilNo > 0) {
+        if (zeyilNo > 0 || isIptal) {
           stats.zeyilCount++;
         } else {
           stats.yeniIsCount++;
@@ -4400,8 +4717,8 @@
         stats.byBranch[branch].brutPrim += brut;
         stats.byBranch[branch].netPrim += net;
 
-        // Track yeni iş vs zeyil per branch
-        if (zeyilNo > 0) {
+        // Track yeni iş vs zeyil per branch (İptal da Zeyil sayılır)
+        if (zeyilNo > 0 || isIptal) {
           stats.byBranch[branch].zeyil.count++;
           stats.byBranch[branch].zeyil.brutPrim += brut;
         } else {
