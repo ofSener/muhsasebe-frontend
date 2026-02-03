@@ -947,6 +947,42 @@ async function applyPermissions() {
     }
   });
 
+  // DİNAMİK PARENT MENÜ GİZLEME
+  // Tüm menü kuralları uygulandıktan SONRA parent menüleri kontrol et
+  // Eğer bir parent menünün tüm alt menüleri gizliyse, parent'ı da gizle
+  document.querySelectorAll('.nav-item.has-submenu').forEach(parentItem => {
+    // Zaten gizli olan parent'ları atla
+    if (parentItem.style.display === 'none') return;
+
+    const submenu = parentItem.querySelector('.submenu');
+    if (!submenu) return;
+
+    // Submenu içindeki tüm linkleri kontrol et
+    const allLinks = submenu.querySelectorAll('.nav-link');
+    if (allLinks.length === 0) {
+      // Alt menü yoksa parent'ı gizle
+      parentItem.style.display = 'none';
+      return;
+    }
+
+    // Görünür linkleri say
+    const visibleLinks = Array.from(allLinks).filter(link => {
+      // Link'in kendisi gizli mi?
+      if (link.style.display === 'none') return false;
+
+      // Link'in parent li elementi gizli mi?
+      const parentLi = link.closest('li');
+      if (parentLi && parentLi.style.display === 'none') return false;
+
+      return true;
+    });
+
+    // Görünür link yoksa parent menüyü de gizle
+    if (visibleLinks.length === 0) {
+      parentItem.style.display = 'none';
+    }
+  });
+
   // Dashboard'daki yetki bazlı elementleri kontrol et
   applyDashboardPermissions();
 }

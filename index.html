@@ -2926,7 +2926,7 @@
     // ═══════════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', function() {
       // Check dashboard permission (requires at least viewer permission)
-      const permissions = getPermissions();
+      const permissions = APP_CONFIG.PERMISSIONS.getSync();
       const viewLevel = permissions?.gorebilecegiPolicelerveKartlar;
       if (!viewLevel || viewLevel === '4') {  // '4' = no access
         window.location.href = 'pages/login.html';
