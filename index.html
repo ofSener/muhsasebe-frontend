@@ -1192,17 +1192,17 @@
           <div class="page-header" style="margin-bottom: 1rem;">
             <div>
               <h1 class="page-title">Üretim Dashboard</h1>
-              <p class="page-subtitle">Üretim verilerinizi analiz edin ve karşılaştırın. <span id="modeIndicator" class="mode-indicator onayli">Onaylı Poliçeler</span></p>
+              <p class="page-subtitle">Üretim verilerinizi analiz edin ve karşılaştırın. <span id="modeIndicator" class="mode-indicator yakalama">Yakalanan Poliçeler</span></p>
             </div>
             <div class="mode-toggle-container">
-              <button id="btnOnayliMode" class="mode-toggle-btn active onayli" onclick="switchMode(0)">
+              <button id="btnOnayliMode" class="mode-toggle-btn onayli" onclick="switchMode(0)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
                   <polyline points="22 4 12 14.01 9 11.01"/>
                 </svg>
                 Onaylı Poliçeler
               </button>
-              <button id="btnYakalamaMode" class="mode-toggle-btn yakalama" onclick="switchMode(1)">
+              <button id="btnYakalamaMode" class="mode-toggle-btn yakalama active" onclick="switchMode(1)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"/>
                   <line x1="12" y1="8" x2="12" y2="12"/>
@@ -1408,10 +1408,10 @@
 
             <div class="chart-card">
               <div class="chart-card-header">
-                <h3 class="chart-card-title">Günlük Üretim Trendi</h3>
+                <h3 class="chart-card-title">Branş Dağılımı (Adet)</h3>
               </div>
               <div class="chart-card-body">
-                <div id="gunlukTrendChart" style="height: 280px;"></div>
+                <div id="gunlukTrendChart" style="height: 320px;"></div>
               </div>
             </div>
           </div>
@@ -1429,10 +1429,6 @@
                   Branşa Göre Üretimler
                 </h3>
                 <div class="production-card-actions">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="bransTutarToggle" checked>
-                    <span>Tutar</span>
-                  </label>
                   <button class="card-action-btn" title="Tam Ekran">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="15,3 21,3 21,9"/>
@@ -1481,10 +1477,6 @@
                   Sigorta Şirketine Göre Üretimler
                 </h3>
                 <div class="production-card-actions">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="sirketTutarToggle" checked>
-                    <span>Tutar</span>
-                  </label>
                   <button class="card-action-btn" title="Tam Ekran">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="15,3 21,3 21,9"/>
@@ -1533,10 +1525,6 @@
                   Şubelere Göre Üretimler
                 </h3>
                 <div class="production-card-actions">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="subeTutarToggle" checked>
-                    <span>Tutar</span>
-                  </label>
                   <button class="card-action-btn" title="Tam Ekran">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="15,3 21,3 21,9"/>
@@ -1582,10 +1570,6 @@
                   Kullanıcılara Göre Üretimler
                 </h3>
                 <div class="production-card-actions">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="kullaniciTutarToggle" checked>
-                    <span>Tutar</span>
-                  </label>
                   <button class="card-action-btn" title="Tam Ekran">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="15,3 21,3 21,9"/>
@@ -1637,10 +1621,6 @@
                   Güne Göre Üretimler
                 </h3>
                 <div class="production-card-actions">
-                  <label class="toggle-switch">
-                    <input type="checkbox" id="gunTutarToggle" checked>
-                    <span>Tutar</span>
-                  </label>
                   <button class="card-action-btn" title="Tam Ekran">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="15,3 21,3 21,9"/>
@@ -1686,7 +1666,7 @@
     // ═══════════════════════════════════════════════════════════════
 
     // Dashboard Mode: 0 = Onaylı Poliçeler, 1 = Yakalanan Poliçeler
-    let currentMode = 0;
+    let currentMode = 1;  // Default: Yakalanan Poliçeler
 
     let currentFilters = {
       startDate: null,
@@ -2099,16 +2079,13 @@
         return;
       }
 
-      // Sort by date and prepare data
-      const sortedData = [...data].sort((a, b) => {
-        const dateA = new Date(a.gun.split('.').reverse().join('-'));
-        const dateB = new Date(b.gun.split('.').reverse().join('-'));
-        return dateA - dateB;
-      });
+      // Sort by policeSayisi (count) and get top 6 branches
+      const sortedByCount = [...data].sort((a, b) => (b.policeSayisi || 0) - (a.policeSayisi || 0));
+      const top6Branches = sortedByCount.slice(0, 6);
 
       const chartData = {
-        labels: sortedData.map(item => item.gun),
-        values: sortedData.map(item => item.tutar || 0)
+        labels: top6Branches.map(item => item.bransAdi || 'Diğer'),
+        values: top6Branches.map(item => item.policeSayisi || 0)
       };
 
       // Destroy existing chart
@@ -2116,11 +2093,9 @@
         gunlukTrendChart.destroy();
       }
 
-      gunlukTrendChart = createAreaChart('gunlukTrendChart', chartData, {
-        height: 260,
-        seriesName: 'Üretim',
-        color: '#10b981',
-        formatter: (val) => formatCurrency(val)
+      gunlukTrendChart = createDonutChart('gunlukTrendChart', chartData, {
+        height: 320,
+        legendPosition: 'bottom'
       });
     }
 
@@ -2338,7 +2313,7 @@
             <td>
               <div class="name-cell">
                 <span class="expand-icon">▶</span>
-                <a href="pages/policies/list.html?brans=${item.bransId || ''}" class="table-link" onclick="event.stopPropagation()">
+                <a href="#" class="table-link" onclick="filterByBrans(event, ${item.bransId}, '${item.bransAdi}')">
                   ${item.bransAdi || 'Belirsiz'}
                 </a>
               </div>
@@ -2406,7 +2381,7 @@
             <td>
               <div class="name-cell">
                 <span class="expand-icon">▶</span>
-                <a href="pages/policies/list.html?sirket=${item.sirketId || ''}" class="table-link" onclick="event.stopPropagation()">
+                <a href="#" class="table-link" onclick="filterBySirket(event, ${item.sirketId}, '${item.sirketAdi}')">
                   ${item.sirketAdi || 'Belirsiz'}
                 </a>
               </div>
@@ -2472,7 +2447,7 @@
             <td>
               <div class="name-cell">
                 <span class="expand-icon">▶</span>
-                <a href="pages/policies/list.html?sube=${encodeURIComponent(item.subeAdi || '')}" class="table-link" onclick="event.stopPropagation()">
+                <a href="#" class="table-link" onclick="filterBySube(event, '${item.subeAdi}')">
                   ${item.subeAdi || 'Belirsiz'}
                 </a>
               </div>
@@ -2752,7 +2727,7 @@
 
         // Render charts
         renderBransDonutChart(bransData);
-        renderGunlukTrendChart(gunData);
+        renderGunlukTrendChart(bransData);  // Branş dağılımı adet bazlı
 
         console.log(`Dashboard loaded successfully (${modeLabel} mode)`);
 
@@ -2841,19 +2816,123 @@
       loadAllTables();
     }
 
+
     // ═══════════════════════════════════════════════════════════════
-    // TOGGLE HANDLERS
+    // LINK FILTER HANDLERS
     // ═══════════════════════════════════════════════════════════════
-    function setupToggleHandlers() {
-      // Tutar toggle'ları için event listener'lar
-      // Bu toggle'lar Tutar kolonunu göster/gizle yapabilir
-      // Şimdilik sadece görsel toggle, ileride genişletilebilir
+
+    /**
+     * Multi-select dropdown'ı programatik olarak güncelle
+     * @param {string} selectId - Select element ID
+     * @param {number} valueToSelect - Value to select
+     */
+    function updateMultiSelect(selectId, valueToSelect) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+
+      // Clear all selections
+      const options = select.querySelectorAll('option');
+      options.forEach(opt => opt.selected = false);
+
+      // Select the target value
+      const option = Array.from(options).find(opt => opt.value == valueToSelect);
+      if (option) {
+        option.selected = true;
+      }
+    }
+
+    /**
+     * Branş linkine tıklandığında dashboard'u filtrele
+     * @param {Event} event - Click event
+     * @param {number} bransId - Branch ID
+     * @param {string} bransAdi - Branch name
+     */
+    function filterByBrans(event, bransId, bransAdi) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Set branch filter
+      currentFilters.bransIds = [bransId];
+
+      // Update multi-select dropdown to show selected branch
+      updateMultiSelect('bransMultiSelect', bransId);
+
+      // Apply filters and reload dashboard
+      updateFilterChips();
+      loadAllTables();
+
+      // Show toast notification
+      showToast(`Filtre uygulandı: ${bransAdi}`, 'success');
+    }
+
+    /**
+     * Şirket linkine tıklandığında dashboard'u filtrele
+     * @param {Event} event - Click event
+     * @param {number} sirketId - Company ID
+     * @param {string} sirketAdi - Company name
+     */
+    function filterBySirket(event, sirketId, sirketAdi) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Set company filter
+      currentFilters.sirketIds = [sirketId];
+
+      // Update multi-select dropdown to show selected company
+      updateMultiSelect('sirketMultiSelect', sirketId);
+
+      // Apply filters and reload dashboard
+      updateFilterChips();
+      loadAllTables();
+
+      // Show toast notification
+      showToast(`Filtre uygulandı: ${sirketAdi}`, 'success');
+    }
+
+    /**
+     * Şube linkine tıklandığında dashboard'u filtrele
+     * @param {Event} event - Click event
+     * @param {string} subeAdi - Branch name
+     */
+    function filterBySube(event, subeAdi) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Find branch ID from cache by name
+      const sube = subelerCache.find(s => s.subeAdi === subeAdi || s.name === subeAdi);
+
+      if (!sube) {
+        console.warn('Branch not found in cache:', subeAdi);
+        showToast(`Şube bulunamadı: ${subeAdi}`, 'warning');
+        return;
+      }
+
+      // Set branch filter
+      currentFilters.subeIds = [sube.id];
+
+      // Update multi-select dropdown to show selected branch
+      updateMultiSelect('subeMultiSelect', sube.id);
+
+      // Apply filters and reload dashboard
+      updateFilterChips();
+      loadAllTables();
+
+      // Show toast notification
+      showToast(`Filtre uygulandı: ${subeAdi}`, 'success');
     }
 
     // ═══════════════════════════════════════════════════════════════
     // INITIALIZATION
     // ═══════════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', function() {
+      // Check dashboard permission (requires at least viewer permission)
+      const permissions = getPermissions();
+      const viewLevel = permissions?.gorebilecegiPolicelerveKartlar;
+      if (!viewLevel || viewLevel === '4') {  // '4' = no access
+        window.location.href = 'pages/login.html';
+        return;
+      }
+
       // Initialize Flatpickr for date range
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -2876,9 +2955,6 @@
 
       // Load all tables
       loadAllTables();
-
-      // Setup toggle handlers
-      setupToggleHandlers();
 
       // Setup sort handlers
       setupSortHandlers();

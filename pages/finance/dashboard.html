@@ -451,5 +451,11 @@
     .font-mono { font-family: 'JetBrains Mono', monospace; }
   </style>
   <script src="../../components/sidebar.js"></script>
+  <script>
+    // Check permission before loading page
+    document.addEventListener('DOMContentLoaded', function() {
+      requirePermission('finansDashboardGorebilsin');
+    });
+  </script>
 </body>
 </html>

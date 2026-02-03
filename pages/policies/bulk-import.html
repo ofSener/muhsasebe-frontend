@@ -3107,6 +3107,7 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async function() {
+      requirePermission('policeAktarabilsin');
       await loadSigortaSirketleri();
       setupEventListeners();
     });

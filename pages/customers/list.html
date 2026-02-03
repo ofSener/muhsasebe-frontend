@@ -304,6 +304,9 @@
         return;
       }
 
+      // Check permission
+      requirePermission('musterileriGorebilsin');
+
       // Load data
       await Promise.all([
         loadCustomers(),

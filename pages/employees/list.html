@@ -1007,6 +1007,7 @@
 
     // Sayfa yüklendiğinde önce yetkileri sonra çalışanları getir
     document.addEventListener('DOMContentLoaded', async function() {
+      requirePermission('produktorleriGorebilsin');
       await loadYetkiler(); // Önce yetkiler yüklensin
       await loadKullanicilar(); // Sonra çalışanlar
 

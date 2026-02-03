@@ -1034,6 +1034,8 @@
 
     // Commission preview update
     document.addEventListener('DOMContentLoaded', function() {
+      requirePermission('policeDuzenleyebilsin');
+
       const premiumInput = document.getElementById('premiumAmount');
       const rateInput = document.getElementById('commissionRate');
 

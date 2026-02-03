@@ -153,6 +153,11 @@
 
     // Submenu toggle işlevselliği
     initSubmenuToggles();
+
+    // Apply permissions AFTER sidebar is rendered
+    if (typeof applyPermissions === 'function') {
+      applyPermissions();
+    }
   }
 
   // Aktif sayfayı işaretle

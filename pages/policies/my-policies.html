@@ -283,6 +283,7 @@
 
     // Load policies on page load
     document.addEventListener('DOMContentLoaded', async () => {
+      requirePermission('gorebilecegiPolicelerveKartlar');
       initializeDatePickers();
       await loadPolicies();
     });

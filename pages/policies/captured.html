@@ -3781,6 +3781,9 @@
     // SAYFA BAŞLATMA - Initialize page
     // ═══════════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', async function() {
+      // Check permission before loading page
+      requirePermission('policeYakalamaSecenekleri');
+
       showLoading(true);
 
       try {

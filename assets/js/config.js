@@ -731,6 +731,20 @@ async function logout() {
 }
 
 /**
+ * Normalize text for Turkish character handling
+ * @param {string} text - Text to normalize
+ * @returns {string} Normalized text
+ */
+function normalizeText(text) {
+  if (!text) return '';
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')  // Remove diacritics
+    .toLowerCase()
+    .trim();
+}
+
+/**
  * Kullanıcının belirli bir yetkisi var mı kontrol et
  * @param {string} permission - Yetki adı (örn: 'policeDuzenleyebilsin')
  * @returns {boolean}
@@ -739,7 +753,21 @@ function hasPermission(permission) {
   // Önce cache'den, yoksa user'dan al
   const permissions = APP_CONFIG.PERMISSIONS.getSync();
   if (!permissions) return false;
-  return permissions[permission] === '1' || permissions[permission] === 1;
+
+  // Try exact match first
+  if (permissions[permission] === '1' || permissions[permission] === 1) {
+    return true;
+  }
+
+  // Try normalized match (for Turkish char mismatches)
+  const normalizedPerm = normalizeText(permission);
+  for (const [key, value] of Object.entries(permissions)) {
+    if (normalizeText(key) === normalizedPerm && (value === '1' || value === 1)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**
@@ -836,6 +864,11 @@ async function applyPermissions() {
   // Menü öğelerini yetkiye göre gizle
   // Selector -> Yetki adı eşleştirmesi (veya [parent, child] dizisi)
   const menuRules = {
+    // Dashboard & Policies
+    'a[href*="index.html"]': 'gorebilecegiPolicelerveKartlar',
+    'a[href*="my-policies.html"]': 'gorebilecegiPolicelerveKartlar',
+    'a[href*="add-manual.html"]': 'policeDuzenleyebilsin',
+
     // Poliçe İşlemleri
     'a[href*="pool.html"]': 'policeHavuzunuGorebilsin',
     'a[href*="captured.html"]': 'policeYakalamaSecenekleri',
@@ -848,19 +881,25 @@ async function applyPermissions() {
     'a[href*="commission.html"]': 'komisyonOranlariniDuzenleyebilsin',
 
     // Müşterilerimiz - Alt yetkileri
-    'a[href*="customers/list.html"]': ['musterileriGorebilsin', 'musteriListesiGorebilsin'],
-    'a[href*="customers/detail.html"]': ['musterileriGorebilsin', 'musteriDetayGorebilsin'],
-    'a[href*="customers/renewals.html"]': ['musterileriGorebilsin', 'yenilemeTakibiGorebilsin'],
+    'a[href*="customers/list.html"]': 'musterileriGorebilsin',
+    'a[href*="customers/detail.html"]': 'musteriDetayGorebilsin',
+    'a[href*="customers/renewals.html"]': 'yenilemeTakibiGorebilsin',
 
     // Finans - Alt yetkileri
-    'a[href*="finance/dashboard.html"]': ['finansSayfasiniGorebilsin', 'finansDashboardGorebilsin'],
-    'a[href*="finance/policies.html"]': ['finansSayfasiniGorebilsin', 'policeOdemeleriGorebilsin'],
-    'a[href*="finance/collections.html"]': ['finansSayfasiniGorebilsin', 'tahsilatTakibiGorebilsin'],
-    'a[href*="finance/reports.html"]': ['finansSayfasiniGorebilsin', 'finansRaporlariGorebilsin'],
+    'a[href*="finance/dashboard.html"]': 'finansDashboardGorebilsin',
+    'a[href*="finance/policies.html"]': 'policeOdemeleriGorebilsin',
+    'a[href*="finance/payments.html"]': 'policeOdemeleriGorebilsin',
+    'a[href*="finance/collections.html"]': 'tahsilatTakibiGorebilsin',
+    'a[href*="finance/collection.html"]': 'tahsilatTakibiGorebilsin',
+    'a[href*="finance/reports.html"]': 'finansRaporlariGorebilsin',
+    'a[href*="my-earnings.html"]': 'kazanclarimGorebilsin',
+    'a[href*="report-settings.html"]': 'finansRaporlariGorebilsin',
 
     // Sistem Ayarları
     'a[href*="permissions.html"]': 'yetkilerSayfasindaIslemYapabilsin',
+    'a[href*="agencies.html"]': 'acenteliklerSayfasindaIslemYapabilsin',
     'a[href*="agency-codes.html"]': 'acenteliklerSayfasindaIslemYapabilsin',
+    'a[href*="commission-rates.html"]': 'komisyonOranlariniDuzenleyebilsin',
     'a[href*="drive-integration.html"]': 'driveEntegrasyonuGorebilsin'
   };
 
@@ -893,11 +932,16 @@ async function applyPermissions() {
   // Alt menü gruplarını kontrol et - eğer içindeki tüm linkler gizliyse grubu da gizle
   Object.entries(submenuGroups).forEach(([groupName, permission]) => {
     if (!hasPermission(permission)) {
+      const normalizedGroupName = normalizeText(groupName);
+
       // Grup adına göre nav-item'ı bul ve gizle
       document.querySelectorAll('.nav-item.has-submenu').forEach(navItem => {
         const navText = navItem.querySelector('.nav-text');
-        if (navText && navText.textContent.trim() === groupName) {
-          navItem.style.display = 'none';
+        if (navText) {
+          const elementText = normalizeText(navText.textContent.trim());
+          if (elementText === normalizedGroupName) {
+            navItem.style.display = 'none';
+          }
         }
       });
     }
@@ -1031,10 +1075,10 @@ if (TEST_MODE.BYPASS_LOGIN) {
 // ═══════════════════════════════════════════════════════════════
 // OTOMATİK NAVBAR GÜNCELLEME VE YETKİ KONTROLÜ
 // ═══════════════════════════════════════════════════════════════
-// Sayfa yüklendiğinde navbar'daki kullanıcı bilgilerini güncelle ve yetkileri uygula
+// Sayfa yüklendiğinde navbar'daki kullanıcı bilgilerini güncelle
+// Not: applyPermissions() artık sidebar.js'den çağrılıyor (race condition fix)
 document.addEventListener('DOMContentLoaded', function() {
   updateNavbarUser();
-  applyPermissions();
 });
 
 // ═══════════════════════════════════════════════════════════════
