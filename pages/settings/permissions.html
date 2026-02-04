@@ -95,7 +95,7 @@
           </div>
           <div class="card-body">
             <!-- Yetki Adı ve Görme Seviyesi -->
-            <div class="permission-basics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
+            <div class="permission-basics" style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
               <div class="form-group" style="gap: 0.375rem;">
                 <label class="form-label" for="permissionName" style="font-size: 0.75rem;">Yetki Adı</label>
                 <input type="text" class="form-input" id="permissionName" placeholder="Örn: Satış Temsilcisi" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;">
@@ -107,6 +107,21 @@
                   <option value="2">Sadece kendi şubesinin poliçelerini görür</option>
                   <option value="3" selected>Sadece kendi poliçelerini görür</option>
                   <option value="4">Hiçbir poliçe göremez</option>
+                </select>
+              </div>
+              <div class="form-group" style="gap: 0.375rem;">
+                <label class="form-label" for="policeYakalamaSelect" style="font-size: 0.75rem; display: flex; align-items: center; gap: 6px;">
+                  <span>Poliçe Yakalama Kuralı</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" style="cursor: help;" title="E-postadan gelen poliçelerde acentelik kontrolü nasıl yapılsın? Bu ayar sadece yakalama sırasında geçerlidir, görüntüleme yetkisini etkilemez.">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </label>
+                <select class="form-select" id="policeYakalamaSelect" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;">
+                  <option value="0">📥 Her şeyi yakala</option>
+                  <option value="1" selected>⚠️ Acenteliği olmayanları işaretle ve yakala</option>
+                  <option value="2">❌ Acente kodu girilmeyen poliçeleri yakalama</option>
                 </select>
               </div>
             </div>
@@ -154,13 +169,6 @@
                     <span class="permission-label">
                       <span class="permission-name">Poliçe Dosyalarını Görüntüleyebilir</span>
                       <span class="permission-desc">Poliçelere eklenmiş PDF, resim ve diğer ek dosyaları görüntüleyebilir ve indirebilir</span>
-                    </span>
-                  </label>
-                  <label class="permission-item">
-                    <input type="checkbox" class="form-checkbox" name="policeYakalamaSecenekleri">
-                    <span class="permission-label">
-                      <span class="permission-name">Yakalanan Poliçeleri Görebilir</span>
-                      <span class="permission-desc">E-postadan otomatik yakalanan poliçeleri görebilir. Menüde "Yakalanan Poliçeler" görünür</span>
                     </span>
                   </label>
                 </div>
@@ -752,6 +760,15 @@
         viewSelect.parentNode.replaceChild(newSelect, viewSelect);
         newSelect.addEventListener('change', onPermissionSettingsChange);
       }
+
+      // Police yakalama select'i icin
+      const policeYakalamaSelect = document.getElementById('policeYakalamaSelect');
+      if (policeYakalamaSelect) {
+        // Mevcut listener'ı temizle
+        const newSelect = policeYakalamaSelect.cloneNode(true);
+        policeYakalamaSelect.parentNode.replaceChild(newSelect, policeYakalamaSelect);
+        newSelect.addEventListener('change', onPermissionSettingsChange);
+      }
     }
 
     // Parent checkbox değiştiğinde children'ları yönet
@@ -979,8 +996,15 @@
       };
 
       Object.entries(checkboxMapping).forEach(([name, value]) => {
-        const checkbox = document.querySelector(`input[name="${name}"]`);
-        if (checkbox) checkbox.checked = value === '1';
+        // PoliceYakalamaSecenekleri için özel handling (select dropdown)
+        if (name === 'policeYakalamaSecenekleri') {
+          const select = document.getElementById('policeYakalamaSelect');
+          if (select) select.value = value || '0';
+        } else {
+          // Diğer checkboxlar
+          const checkbox = document.querySelector(`input[name="${name}"]`);
+          if (checkbox) checkbox.checked = value === '1';
+        }
       });
 
       // Görme seviyesi select
@@ -1026,8 +1050,15 @@
       };
 
       checkboxNames.forEach(name => {
-        const checkbox = document.querySelector(`input[name="${name}"]`);
-        data[name] = checkbox?.checked ? '1' : '0';
+        // PoliceYakalamaSecenekleri için özel handling (select dropdown)
+        if (name === 'policeYakalamaSecenekleri') {
+          const select = document.getElementById('policeYakalamaSelect');
+          data[name] = select?.value || '0';
+        } else {
+          // Diğer checkboxlar
+          const checkbox = document.querySelector(`input[name="${name}"]`);
+          data[name] = checkbox?.checked ? '1' : '0';
+        }
       });
 
       return data;
@@ -2797,6 +2828,92 @@
       color: var(--text-muted);
       margin-top: 0;
       display: none;
+    }
+
+    /* Radio button group styling */
+    .permission-item-group {
+      padding: 16px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      background: var(--bg-elevated);
+    }
+
+    .permission-group-title {
+      margin-bottom: 12px;
+    }
+
+    .permission-group-title .permission-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .permission-group-title .permission-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .radio-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px;
+      border: 2px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--bg-primary);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .radio-item input[type="radio"] {
+      margin-top: 2px;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .radio-item input[type="radio"]:checked + .radio-label strong {
+      color: var(--primary);
+    }
+
+    .radio-item:has(input:checked) {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .radio-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .radio-item:active {
+      transform: translateY(0);
+    }
+
+    .radio-label {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .radio-label strong {
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+      display: block;
     }
 
     @media (max-width: 1280px) {

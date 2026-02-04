@@ -3782,7 +3782,11 @@
     // ═══════════════════════════════════════════════════════════════
     document.addEventListener('DOMContentLoaded', async function() {
       // Check permission before loading page
-      requirePermission('policeYakalamaSecenekleri');
+      if (!hasPoliceYakalamaPermission()) {
+        showToast('Bu sayfaya erişim yetkiniz yok', 'error');
+        setTimeout(() => window.location.href = '../../index.html', 1500);
+        return;
+      }
 
       showLoading(true);
 

@@ -34,7 +34,7 @@ const TEST_MODE = {
       policeHavuzunuGorebilsin: '1',
       policeAktarabilsin: '1',
       policeDosyalarinaErisebilsin: '1',
-      policeYakalamaSecenekleri: '1',
+      policeYakalamaSecenekleri: '1', // '0' = Kontrol yok, '1' = Soft kontrol, '2' = Hard kontrol
       yetkilerSayfasindaIslemYapabilsin: '1',
       acenteliklerSayfasindaIslemYapabilsin: '1',
       komisyonOranlariniDuzenleyebilsin: '1',
@@ -771,6 +771,28 @@ function hasPermission(permission) {
 }
 
 /**
+ * PoliceYakalamaSecenekleri için özel kontrol
+ * Tüm değerler ('0', '1', '2') geçerli - backend'de sadece login kontrolü var
+ * @returns {boolean}
+ */
+function hasPoliceYakalamaPermission() {
+  const permissions = APP_CONFIG.PERMISSIONS.getSync();
+  const value = permissions?.policeYakalamaSecenekleri;
+  return value === '0' || value === '1' || value === '2';
+}
+
+/**
+ * GorebilecegiPolicelerveKartlar için özel kontrol
+ * '4' (hiçbiri) hariç tüm değerler geçerli
+ * @returns {boolean}
+ */
+function hasViewPermission() {
+  const permissions = APP_CONFIG.PERMISSIONS.getSync();
+  const value = permissions?.gorebilecegiPolicelerveKartlar;
+  return value && value !== '4';
+}
+
+/**
  * Navbar'daki kullanıcı bilgilerini güncelle
  * Tüm sayfalarda kullanılabilir
  */
@@ -915,7 +937,13 @@ async function applyPermissions() {
     elements.forEach(el => {
       // Permission bir array ise (parent + child), ikisinin de kontrolü gerekir
       let hasAccess = false;
-      if (Array.isArray(permission)) {
+
+      // Özel kontroller - multi-value yetkiler için
+      if (permission === 'policeYakalamaSecenekleri') {
+        hasAccess = hasPoliceYakalamaPermission();
+      } else if (permission === 'gorebilecegiPolicelerveKartlar') {
+        hasAccess = hasViewPermission();
+      } else if (Array.isArray(permission)) {
         // Parent ve child yetkisi kontrol edilir
         hasAccess = permission.every(p => hasPermission(p));
       } else {
@@ -1012,7 +1040,13 @@ function applyDashboardPermissions() {
     const elements = document.querySelectorAll(selector);
     elements.forEach(el => {
       let hasAccess = false;
-      if (Array.isArray(permission)) {
+
+      // Özel kontroller - multi-value yetkiler için
+      if (permission === 'policeYakalamaSecenekleri') {
+        hasAccess = hasPoliceYakalamaPermission();
+      } else if (permission === 'gorebilecegiPolicelerveKartlar') {
+        hasAccess = hasViewPermission();
+      } else if (Array.isArray(permission)) {
         hasAccess = permission.every(p => hasPermission(p));
       } else {
         hasAccess = hasPermission(permission);
