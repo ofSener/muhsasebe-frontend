@@ -140,6 +140,14 @@
                     </svg>
                     <span>Şirket tespit edilemedi. Lütfen yukarıdan manuel olarak seçin.</span>
                   </div>
+                  <div class="detection-mismatch" id="detectionMismatch" style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <line x1="12" y1="8" x2="12" y2="12"/>
+                      <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    <span id="detectionMismatchText"></span>
+                  </div>
                 </div>
               </div>
 
@@ -771,6 +779,24 @@
       background: var(--warning-glow);
       border: 1px solid var(--warning);
       color: var(--warning);
+    }
+
+    .detection-mismatch {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid #f59e0b;
+      color: #f59e0b;
+    }
+
+    .detection-mismatch strong {
+      color: var(--text-primary);
+      font-weight: 600;
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -3134,9 +3160,10 @@
     let currentSessionId = null;
     let currentPreviewData = null;
     let currentPage = 1;
-    const pageSize = 100;
+    const pageSize = 50;
     let availableFormats = []; // Şirket formatları ve pattern'leri
     let detectedCompanyId = null; // Otomatik tespit edilen şirket ID
+    let detectedCompanyName = null; // Otomatik tespit edilen şirket adı
 
     // Elements
     const fileInput = document.getElementById('fileInput');
@@ -3193,10 +3220,13 @@
           formatsGrid.innerHTML = '';
 
           formatsResponse.formats.forEach(format => {
+            // Standardize company name
+            const displayName = standardizeCompanyName(format.sigortaSirketiAdi);
+
             // Add to dropdown
             const option = document.createElement('option');
             option.value = format.sigortaSirketiId;
-            option.textContent = format.sigortaSirketiAdi;
+            option.textContent = displayName;
             sigortaSirketiSelect.appendChild(option);
 
             // Add to supported formats grid with logo
@@ -3209,11 +3239,11 @@
             formatItem.className = 'format-item';
             formatItem.innerHTML = `
               ${logoPath
-                ? `<img class="format-logo" src="${logoPath}" alt="${format.sigortaSirketiAdi}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                ? `<img class="format-logo" src="${logoPath}" alt="${displayName}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                    <div class="format-logo-placeholder" style="display: none;">${initials}</div>`
                 : `<div class="format-logo-placeholder">${initials}</div>`
               }
-              <span class="format-name">${format.sigortaSirketiAdi}</span>
+              <span class="format-name">${displayName}</span>
             `;
             formatsGrid.appendChild(formatItem);
           });
@@ -3237,14 +3267,14 @@
     // Static fallback if API fails
     function renderStaticFormats() {
       const formats = [
-        { name: 'Ankara Sigorta', initials: 'AS' },
-        { name: 'Unico Sigorta', initials: 'US' },
-        { name: 'Quick Sigorta', initials: 'QS' },
-        { name: 'Hepiyi Sigorta', initials: 'HS' },
-        { name: 'Neova Sigorta', initials: 'NS' },
-        { name: 'Sompo Sigorta', initials: 'SS' },
-        { name: 'HDI Sigorta', initials: 'HD' },
-        { name: 'AK Sigorta (SKAY)', initials: 'AK' }
+        { name: 'ANKARA SİGORTA', initials: 'AS' },
+        { name: 'UNİCO SİGORTA', initials: 'US' },
+        { name: 'QUİCK SİGORTA', initials: 'QS' },
+        { name: 'HEPİYİ SİGORTA', initials: 'HS' },
+        { name: 'NEOVA SİGORTA', initials: 'NS' },
+        { name: 'SOMPO SİGORTA', initials: 'SS' },
+        { name: 'HDI SİGORTA', initials: 'HD' },
+        { name: 'AK SİGORTA', initials: 'AK' }
       ];
 
       const formatsGrid = document.getElementById('supportedFormatsGrid');
@@ -3258,31 +3288,64 @@
 
     // Fallback pattern map (if backend doesn't return patterns)
     const fallbackPatterns = {
-      9: ['ankara', 'ank'],           // Ankara Sigorta
-      7: ['raporsonuc', 'hdi', 'rapor_sonuc'],  // HDI Sigorta
-      4: ['unico'],                   // Unico Sigorta
-      5: ['quick'],                   // Quick Sigorta
-      6: ['sompo'],                   // Sompo Sigorta
-      8: ['hepiyi', 'hep iyi'],       // Hepiyi Sigorta
-      10: ['neova'],                  // Neova Sigorta
-      11: ['skay', 'ak sigorta']      // AK Sigorta SKAY
+      9: ['ankara', 'ank'],                     // Ankara Sigorta
+      7: ['hdi'],  // HDI Sigorta
+      17: ['unico'],                            // Unico Sigorta
+      110: ['quick', 'quıck'], // Quick Sigorta (Turkish ı variant)
+      61: ['sompo'],                            // Sompo Sigorta
+      126: ['hepiyi', 'hep iyi'],               // Hepiyi Sigorta
+      93: ['neova'],                            // Neova Sigorta
+      4: ['aksigorta', 'ak_']           // AK Sigorta
     };
+
+    // Turkish character normalization helper
+    function normalizeTurkish(str) {
+      if (!str) return '';
+      return str
+        .replace(/İ/g, 'i').replace(/I/g, 'i')
+        .replace(/Ğ/g, 'g').replace(/Ü/g, 'u')
+        .replace(/Ş/g, 's').replace(/Ö/g, 'o').replace(/Ç/g, 'c')
+        .toLowerCase()
+        .replace(/ı/g, 'i').replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u').replace(/ş/g, 's')
+        .replace(/ö/g, 'o').replace(/ç/g, 'c');
+    }
+
+    // Standardize company name to UPPERCASE format
+    function standardizeCompanyName(name) {
+      if (!name) return '';
+
+      // Convert to uppercase with Turkish locale
+      let standardized = name.toLocaleUpperCase('tr-TR');
+
+      // Remove common suffixes to get base name
+      standardized = standardized
+        .replace(/\s*SİGORTA\s*A\.?Ş\.?/gi, '')
+        .replace(/\s*SİGORTA$/gi, '')
+        .replace(/\s*SIGORTA\s*A\.?Ş\.?/gi, '')
+        .replace(/\s*SIGORTA$/gi, '')
+        .replace(/\s*A\.?Ş\.?$/gi, '')
+        .trim();
+
+      // Add SİGORTA suffix
+      return standardized + ' SİGORTA';
+    }
 
     // Detect company from filename using patterns
     function detectCompanyFromFileName(fileName) {
       if (!fileName) return null;
 
-      const fileNameLower = fileName.toLowerCase();
+      const normalizedFileName = normalizeTurkish(fileName);
 
       // First try patterns from backend
       if (availableFormats.length > 0) {
         for (const format of availableFormats) {
           const patterns = format.fileNamePatterns || fallbackPatterns[format.sigortaSirketiId] || [];
           for (const pattern of patterns) {
-            if (fileNameLower.includes(pattern.toLowerCase())) {
+            if (normalizedFileName.includes(normalizeTurkish(pattern))) {
               return {
                 id: format.sigortaSirketiId,
-                name: format.sigortaSirketiAdi
+                name: standardizeCompanyName(format.sigortaSirketiAdi)
               };
             }
           }
@@ -3292,7 +3355,7 @@
       // Fallback: try all fallback patterns even if formats not loaded
       for (const [id, patterns] of Object.entries(fallbackPatterns)) {
         for (const pattern of patterns) {
-          if (fileNameLower.includes(pattern.toLowerCase())) {
+          if (normalizedFileName.includes(normalizeTurkish(pattern))) {
             // Try to find company name from dropdown
             const option = sigortaSirketiSelect.querySelector(`option[value="${id}"]`);
             if (option) {
@@ -3318,9 +3381,13 @@
       // Check if manual selection exists
       const manualSelection = sigortaSirketiSelect.value;
 
+      // Hide mismatch warning by default
+      document.getElementById('detectionMismatch').style.display = 'none';
+
       if (detected) {
         // Company detected from filename
         detectedCompanyId = detected.id;
+        detectedCompanyName = detected.name;
         companyNameSpan.textContent = detected.name;
         successDiv.style.display = 'flex';
         warningDiv.style.display = 'none';
@@ -3347,7 +3414,9 @@
     // Clear detection UI
     function clearDetectionUI() {
       detectedCompanyId = null;
+      detectedCompanyName = null;
       document.getElementById('detectionResult').style.display = 'none';
+      document.getElementById('detectionMismatch').style.display = 'none';
     }
 
     // Check if upload should be enabled
@@ -3399,11 +3468,34 @@
 
       // Sigorta şirketi dropdown change - re-check upload enabled state
       sigortaSirketiSelect.addEventListener('change', () => {
-        // If manual selection made, hide detection UI if warning was shown
-        if (sigortaSirketiSelect.value) {
-          clearDetectionUI();
+        const selectedValue = sigortaSirketiSelect.value;
+        const mismatchDiv = document.getElementById('detectionMismatch');
+        const mismatchText = document.getElementById('detectionMismatchText');
+        const resultDiv = document.getElementById('detectionResult');
+        const successDiv = document.getElementById('detectionSuccess');
+
+        if (selectedValue) {
+          // Manual selection made
+          if (detectedCompanyId && parseInt(selectedValue) !== detectedCompanyId) {
+            // Selection differs from detection - show mismatch warning
+            const selectedOption = sigortaSirketiSelect.options[sigortaSirketiSelect.selectedIndex];
+            mismatchText.innerHTML = `Sistem bu dosyanın <strong>${detectedCompanyName}</strong>'a ait olduğunu tespit etti. <strong>${selectedOption.text}</strong> seçmek istediğinize emin misiniz?`;
+            successDiv.style.display = 'none';
+            mismatchDiv.style.display = 'flex';
+            resultDiv.style.display = 'block';
+          } else {
+            // Selection matches detection or no detection - hide mismatch
+            mismatchDiv.style.display = 'none';
+            if (detectedCompanyId) {
+              successDiv.style.display = 'flex';
+              resultDiv.style.display = 'block';
+            } else {
+              resultDiv.style.display = 'none';
+            }
+          }
         } else if (fileInput.files && fileInput.files.length > 0) {
-          // If cleared back to auto-detect, re-run detection
+          // Cleared back to auto-detect, re-run detection
+          mismatchDiv.style.display = 'none';
           const detected = detectCompanyFromFileName(fileInput.files[0].name);
           updateDetectionUI(detected);
         }
@@ -3454,31 +3546,59 @@
       selectedFileInfo.style.display = 'flex';
       uploadDropzone.classList.add('has-file');
 
-      // Manual selection exists, enable upload directly
-      if (sigortaSirketiSelect.value) {
+      const manualSelection = sigortaSirketiSelect.value;
+
+      // 1. First try filename-based detection (fast)
+      let fileNameDetected = detectCompanyFromFileName(file.name);
+
+      // 2. If filename detection fails, try header-based detection via backend
+      if (!fileNameDetected) {
+        try {
+          // For XML files, skip SheetJS parsing and call API directly with empty headers
+          const isXmlFile = file.name.toLowerCase().endsWith('.xml');
+          const headers = isXmlFile ? [] : await readExcelHeaders(file);
+
+          // Call API for detection (backend can detect XML from filename/content)
+          fileNameDetected = await detectFormatFromAPI(file.name, headers);
+        } catch (err) {
+          console.warn('Header-based detection failed:', err);
+        }
+      }
+
+      // Store detected values regardless of manual selection
+      if (fileNameDetected) {
+        detectedCompanyId = fileNameDetected.id;
+        detectedCompanyName = fileNameDetected.name;
+      } else {
+        detectedCompanyId = null;
+        detectedCompanyName = null;
+      }
+
+      // Check if manual selection differs from detection
+      if (manualSelection) {
+        if (fileNameDetected && parseInt(manualSelection) !== fileNameDetected.id) {
+          // Manual selection differs from detection - show mismatch warning
+          const selectedOption = sigortaSirketiSelect.options[sigortaSirketiSelect.selectedIndex];
+          const mismatchDiv = document.getElementById('detectionMismatch');
+          const mismatchText = document.getElementById('detectionMismatchText');
+          const resultDiv = document.getElementById('detectionResult');
+          const successDiv = document.getElementById('detectionSuccess');
+          const warningDiv = document.getElementById('detectionWarning');
+
+          mismatchText.innerHTML = `Sistem bu dosyanın <strong>${fileNameDetected.name}</strong>'a ait olduğunu tespit etti. <strong>${selectedOption.text}</strong> seçmek istediğinize emin misiniz?`;
+          successDiv.style.display = 'none';
+          warningDiv.style.display = 'none';
+          mismatchDiv.style.display = 'flex';
+          resultDiv.style.display = 'block';
+        }
         uploadBtn.disabled = false;
         return;
       }
 
-      // 1. First try filename-based detection (fast)
-      const fileNameDetected = detectCompanyFromFileName(file.name);
+      // No manual selection - use detection result
       if (fileNameDetected) {
         updateDetectionUI(fileNameDetected);
         return;
-      }
-
-      // 2. If filename detection fails, try header-based detection via backend
-      try {
-        const headers = await readExcelHeaders(file);
-        if (headers && headers.length > 0) {
-          const apiDetected = await detectFormatFromAPI(file.name, headers);
-          if (apiDetected) {
-            updateDetectionUI(apiDetected);
-            return;
-          }
-        }
-      } catch (err) {
-        console.warn('Header-based detection failed:', err);
       }
 
       // 3. No detection - show warning
@@ -3591,6 +3711,8 @@
       selectedFileInfo.style.display = 'none';
       uploadDropzone.classList.remove('has-file');
       uploadBtn.disabled = true;
+      // Reset dropdown to auto-detect mode
+      sigortaSirketiSelect.value = '';
       clearDetectionUI();
     }
 
@@ -4397,7 +4519,9 @@
       if (amount == null) return '-';
       return new Intl.NumberFormat('tr-TR', {
         style: 'currency',
-        currency: 'TRY'
+        currency: 'TRY',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       }).format(amount);
     }
 

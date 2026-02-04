@@ -583,12 +583,12 @@ function formatNumber(num) {
  * Format currency
  */
 function formatCurrency(num) {
-  if (num === null || num === undefined) return '₺0';
+  if (num === null || num === undefined) return '₺0,00';
   return new Intl.NumberFormat('tr-TR', {
     style: 'currency',
     currency: 'TRY',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   }).format(num);
 }
 
