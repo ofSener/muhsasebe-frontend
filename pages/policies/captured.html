@@ -4937,15 +4937,22 @@
     // POLICY DRIVE LINK
     // ═══════════════════════════════════════════════════════════════
 
-    function openPolicyDrive(policyNo) {
-      // Google Drive link formatı - gerçek uygulamada API'den gelecek
-      // Örnek: https://drive.google.com/drive/folders/FOLDER_ID
-      const driveBaseUrl = 'https://drive.google.com/drive/search?q=';
-      const searchQuery = encodeURIComponent(policyNo);
-      const driveUrl = driveBaseUrl + searchQuery;
+    async function openPolicyDrive(policyNo) {
+      try {
+        // API'den drive linkini al
+        const result = await apiGet(`drive/by-police/${encodeURIComponent(policyNo)}`);
 
-      // Yeni sekmede aç
-      window.open(driveUrl, '_blank');
+        if (result && result.found && result.webViewLink) {
+          // Direkt PDF linkine git
+          window.open(result.webViewLink, '_blank');
+        } else {
+          // PDF bulunamadı
+          showToast('Bu poliçe için PDF dosyası bulunamadı', 'warning');
+        }
+      } catch (error) {
+        console.log('Drive link hatası:', error);
+        showToast('PDF dosyası kontrol edilirken hata oluştu', 'error');
+      }
     }
 
     // ═══════════════════════════════════════════════════════════════
