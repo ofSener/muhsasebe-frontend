@@ -3296,7 +3296,7 @@
       126: ['hepiyi', 'hep iyi'],               // Hepiyi Sigorta
       93: ['neova'],                            // Neova Sigorta
       4: ['aksigorta', 'ak_'],                  // AK Sigorta
-      104: ['doga', 'doğa', 'raporsonuc']       // Doğa Sigorta
+      104: ['doga', 'doğa']                      // Doğa Sigorta
     };
 
     // Turkish character normalization helper
@@ -3319,13 +3319,16 @@
       // Convert to uppercase with Turkish locale
       let standardized = name.toLocaleUpperCase('tr-TR');
 
-      // Remove common suffixes to get base name
+      // Remove common prefixes and suffixes to get base name
       standardized = standardized
+        .replace(/^S\.?S\.?\s*/gi, '')                    // Remove S.S. prefix
+        .replace(/\s*KOOPERATİFİ\s*/gi, ' ')              // Remove KOOPERATİFİ
         .replace(/\s*SİGORTA\s*A\.?Ş\.?/gi, '')
-        .replace(/\s*SİGORTA$/gi, '')
+        .replace(/\s*SİGORTA/gi, '')                      // Remove all SİGORTA occurrences
         .replace(/\s*SIGORTA\s*A\.?Ş\.?/gi, '')
-        .replace(/\s*SIGORTA$/gi, '')
+        .replace(/\s*SIGORTA/gi, '')                      // Remove all SIGORTA occurrences
         .replace(/\s*A\.?Ş\.?$/gi, '')
+        .replace(/\s+/g, ' ')                             // Normalize spaces
         .trim();
 
       // Add SİGORTA suffix
