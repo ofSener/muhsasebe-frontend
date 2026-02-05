@@ -3,10 +3,975 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Komisyon Ayarları - IHSAN AI</title>
+  <title>Komisyon Kuralları - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
-  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       COMMISSION GROUPS GRID
+       ═══════════════════════════════════════════════════════════════ */
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .group-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .group-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: var(--primary);
+    }
+
+    .group-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .group-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .group-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--primary-glow);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .group-card-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .group-card-actions {
+      display: flex;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .group-card:hover .group-card-actions {
+      opacity: 1;
+    }
+
+    .group-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .group-card-desc {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .group-card-stats {
+      display: flex;
+      gap: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .group-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .group-stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+
+    .group-stat-label {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* Add New Group Card */
+    .group-card-add {
+      border: 2px dashed var(--border-default);
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      color: var(--text-muted);
+    }
+
+    .group-card-add:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .group-card-add svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 0.5rem;
+    }
+
+    .group-card-add span {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RULES LIST
+       ═══════════════════════════════════════════════════════════════ */
+    .rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--bg-elevated);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      transition: all var(--transition-fast);
+    }
+
+    .rule-item:hover {
+      border-color: var(--border-default);
+      background: var(--bg-surface);
+    }
+
+    .rule-info {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 2fr 100px;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .rule-info {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+    }
+
+    .rule-company, .rule-branch {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rule-label {
+      font-size: 0.6875rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.125rem;
+    }
+
+    .rule-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .rule-condition {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rule-condition-text {
+      font-size: 0.8125rem;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      background: var(--bg-surface);
+      padding: 0.375rem 0.625rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .rule-rate {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .rule-rate-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--success);
+    }
+
+    .rule-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1rem;
+      color: var(--text-dim);
+    }
+
+    .empty-state-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state-desc {
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MEMBERS LIST
+       ═══════════════════════════════════════════════════════════════ */
+    .members-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .member-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 100px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      transition: all var(--transition-fast);
+    }
+
+    .member-chip:hover {
+      border-color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .member-chip .avatar {
+      width: 24px;
+      height: 24px;
+      font-size: 0.625rem;
+    }
+
+    .member-chip .remove-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      margin-left: 0.25rem;
+    }
+
+    .member-chip .remove-btn:hover {
+      background: var(--danger);
+      color: white;
+    }
+
+    .member-chip .remove-btn svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MODAL STYLES
+       ═══════════════════════════════════════════════════════════════ */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+      animation: modalIn 0.2s ease-out;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--cyan), var(--emerald));
+    }
+
+    .modal-sm { max-width: 400px; }
+    .modal-md { max-width: 600px; }
+    .modal-lg { max-width: 900px; }
+    .modal-xl { max-width: 1100px; }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .modal-close svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CUSTOM DROPDOWN STYLES
+       ═══════════════════════════════════════════════════════════════ */
+    .custom-select-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .custom-select-trigger:hover {
+      border-color: var(--primary);
+      background: var(--bg-overlay);
+    }
+
+    .custom-select-wrapper.open .custom-select-trigger {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .custom-select-trigger svg {
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .custom-select-wrapper.open .custom-select-trigger svg {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+
+    .custom-select-trigger span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .custom-select-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+    }
+
+    .custom-select-wrapper.open .custom-select-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .custom-select-option {
+      padding: 0.625rem 1rem;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .custom-select-option:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-left-color: var(--primary);
+    }
+
+    .custom-select-option.selected {
+      background: var(--primary-glow);
+      color: var(--primary);
+      font-weight: 600;
+      border-left-color: var(--primary);
+    }
+
+    .custom-select-search {
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      background: var(--bg-surface);
+    }
+
+    .custom-select-search input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.8125rem;
+    }
+
+    .custom-select-search input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .custom-select-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .custom-select-empty {
+      padding: 1rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+    }
+
+    /* Hidden native select */
+    .custom-select-wrapper select {
+      display: none;
+    }
+
+    /* Modal içi native select (koşul için) */
+    .modal .form-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-color: var(--bg-elevated);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 1rem;
+      padding: 0.625rem 2rem 0.625rem 0.75rem;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal .form-select:hover {
+      border-color: var(--primary);
+    }
+
+    .modal .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .modal .form-select option {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    /* Modal içi form input stilleri */
+    .modal .form-input {
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      color: var(--text-primary);
+      padding: 0.625rem 0.75rem;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+    }
+
+    .modal .form-input:hover {
+      border-color: var(--primary);
+    }
+
+    .modal .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .modal .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Modal form label */
+    .modal .form-label {
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Modal form hint */
+    .modal .form-hint {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Section badge gradient */
+    .section-badge {
+      background: linear-gradient(135deg, var(--primary), var(--cyan));
+      color: white;
+    }
+
+    /* Rate input group */
+    .modal .rate-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .modal .rate-input-group input {
+      width: 100px;
+      text-align: center;
+    }
+
+    .modal .rate-input-group span {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    /* Condition builder spacing */
+    .modal .condition-builder {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .modal .condition-builder .form-group {
+      margin-bottom: 0;
+    }
+
+    /* Confirm modal özel stili */
+    #confirmModal .modal::before {
+      background: linear-gradient(90deg, var(--danger), #f87171, var(--danger));
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FORM STYLES
+       ═══════════════════════════════════════════════════════════════ */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-row-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      .form-row-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .condition-builder {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .condition-builder .form-group {
+      margin-bottom: 0;
+    }
+
+    .condition-builder .field-select {
+      min-width: 160px;
+    }
+
+    .condition-builder .operator-select {
+      min-width: 80px;
+    }
+
+    .condition-builder .value-input {
+      min-width: 120px;
+      max-width: 120px;
+    }
+
+    /* Condition builder içindeki tüm form elemanlarını aynı yükseklikte tut */
+    .condition-builder .form-select,
+    .condition-builder .form-input {
+      height: 38px;
+      line-height: 38px;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    /* Rate Input */
+    .rate-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .rate-input-group input {
+      width: 100px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .rate-input-group span {
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MEMBER SELECTOR MODAL
+       ═══════════════════════════════════════════════════════════════ */
+    .member-selector-search {
+      margin-bottom: 1rem;
+    }
+
+    .member-selector-search .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .member-selector-search .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .member-selector-search .form-input {
+      padding-left: 2.5rem;
+      width: 100%;
+    }
+
+    .member-selector-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+    }
+
+    .member-selector-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .member-selector-item:last-child {
+      border-bottom: none;
+    }
+
+    .member-selector-item:hover {
+      background: var(--bg-elevated);
+    }
+
+    .member-selector-item.selected {
+      background: var(--primary-glow);
+    }
+
+    .member-selector-item .checkbox {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-default);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all var(--transition-fast);
+    }
+
+    .member-selector-item.selected .checkbox {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .member-selector-item .checkbox svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0;
+    }
+
+    .member-selector-item.selected .checkbox svg {
+      opacity: 1;
+    }
+
+    .member-selector-item .member-info {
+      flex: 1;
+    }
+
+    .member-selector-item .member-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+
+    .member-selector-item .member-email {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LOADING STATES
+       ═══════════════════════════════════════════════════════════════ */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-overlay) 50%, var(--bg-elevated) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-card {
+      height: 180px;
+    }
+
+    .btn-loading {
+      position: relative;
+      color: transparent !important;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      top: 50%;
+      left: 50%;
+      margin-top: -8px;
+      margin-left: -8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       SECTION HEADERS
+       ═══════════════════════════════════════════════════════════════ */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .section-title {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section-title svg {
+      width: 18px;
+      height: 18px;
+      color: var(--primary);
+    }
+
+    .section-badge {
+      background: var(--bg-overlay);
+      color: var(--text-secondary);
+      padding: 0.125rem 0.5rem;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESPONSIVE ADJUSTMENTS
+       ═══════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .groups-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal {
+        margin: 0.5rem;
+        max-height: calc(100vh - 1rem);
+      }
+
+      .rule-item {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .rule-actions {
+        justify-content: flex-end;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--border-subtle);
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="gradient-mesh"></div>
@@ -18,7 +983,7 @@
     <main class="main-content">
       <nav class="navbar">
         <div class="navbar-left">
-          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menü">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
@@ -26,7 +991,7 @@
           <div class="navbar-breadcrumb">
             <span class="breadcrumb-item">Yönetim</span>
             <span class="breadcrumb-separator">/</span>
-            <span class="breadcrumb-item active">Komisyon Ayarları</span>
+            <span class="breadcrumb-item active">Komisyon Kuralları</span>
           </div>
         </div>
         <div class="navbar-right">
@@ -51,372 +1016,1551 @@
       <!-- Page Wrapper -->
       <div class="page-wrapper">
         <div class="page-content">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Komisyon Ayarları</h1>
-            <p class="page-subtitle">Poliçe tipine göre komisyon oranlarını belirleyin.</p>
+          <!-- Page Header -->
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Komisyon Kuralları</h1>
+              <p class="page-subtitle">Çalışan gruplarının komisyon oranlarını ve kurallarını yönetin.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="openGroupModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Yeni Grup Oluştur
+              </button>
+            </div>
           </div>
-          <div class="page-actions">
-            <button class="btn btn-primary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-                <polyline points="17,21 17,13 7,13 7,21"/>
-                <polyline points="7,3 7,8 15,8"/>
-              </svg>
-              Değişiklikleri Kaydet
-            </button>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.5rem;">
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon cyan">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 010 7.75"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statTotalGroups">-</div>
+              <div class="stat-label">Toplam Grup</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon emerald">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statTotalRules">-</div>
+              <div class="stat-label">Toplam Kural</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header">
+                <div class="stat-icon violet">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="stat-value" id="statTotalMembers">-</div>
+              <div class="stat-label">Atanmış Üye</div>
+            </div>
           </div>
-        </div>
 
-        <!-- Default Rates -->
-        <div class="card" style="margin-bottom: 1.5rem;">
-          <div class="card-header">
-            <h3 class="card-title">Varsayılan Komisyon Oranları</h3>
-            <span class="text-muted" style="font-size: 0.85rem;">Tüm çalışanlar için geçerli</span>
-          </div>
-          <div class="card-body">
-            <div class="commission-rates-row">
-              <!-- Kasko -->
-              <div class="commission-rate-item">
-                <div class="rate-label">
-                  <div class="color-dot" style="background: #00d4ff;"></div>
-                  <span>Kasko</span>
-                </div>
-                <div class="rate-input">
-                  <input type="number" value="12" min="0" max="100">
-                  <span>%</span>
-                </div>
+          <!-- Commission Groups Grid -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Komisyon Grupları</h3>
+              <div class="card-actions">
+                <span class="text-muted" id="groupsCount">Yüklüyor...</span>
               </div>
-
-              <!-- Trafik -->
-              <div class="commission-rate-item">
-                <div class="rate-label">
-                  <div class="color-dot" style="background: #10b981;"></div>
-                  <span>Trafik</span>
-                </div>
-                <div class="rate-input">
-                  <input type="number" value="8" min="0" max="100">
-                  <span>%</span>
-                </div>
-              </div>
-
-              <!-- DASK -->
-              <div class="commission-rate-item">
-                <div class="rate-label">
-                  <div class="color-dot" style="background: #f59e0b;"></div>
-                  <span>DASK</span>
-                </div>
-                <div class="rate-input">
-                  <input type="number" value="5" min="0" max="100">
-                  <span>%</span>
-                </div>
-              </div>
-
-              <!-- Sağlık -->
-              <div class="commission-rate-item">
-                <div class="rate-label">
-                  <div class="color-dot" style="background: #ec4899;"></div>
-                  <span>Sağlık</span>
-                </div>
-                <div class="rate-input">
-                  <input type="number" value="10" min="0" max="100">
-                  <span>%</span>
-                </div>
-              </div>
-
-              <!-- Konut -->
-              <div class="commission-rate-item">
-                <div class="rate-label">
-                  <div class="color-dot" style="background: #6366f1;"></div>
-                  <span>Konut</span>
-                </div>
-                <div class="rate-input">
-                  <input type="number" value="8" min="0" max="100">
-                  <span>%</span>
-                </div>
-              </div>
-
-              <!-- İşyeri -->
-              <div class="commission-rate-item">
-                <div class="rate-label">
-                  <div class="color-dot" style="background: #06b6d4;"></div>
-                  <span>İşyeri</span>
-                </div>
-                <div class="rate-input">
-                  <input type="number" value="10" min="0" max="100">
-                  <span>%</span>
-                </div>
+            </div>
+            <div class="card-body">
+              <div class="groups-grid" id="groupsGrid">
+                <!-- Groups will be loaded here -->
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Employee Specific Rates -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Çalışan Özel Oranları</h3>
-            <button class="btn btn-secondary btn-sm">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"/>
-                <line x1="5" y1="12" x2="19" y2="12"/>
+          <!-- Info Alert -->
+          <div class="alert alert-info" style="margin-top: 1.5rem;">
+            <div class="alert-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
               </svg>
-              Özel Oran Ekle
-            </button>
-          </div>
-          <div class="card-body" style="padding: 0;">
-            <div class="table-container">
-              <table class="data-table mobile-cards">
-                <thead>
-                  <tr>
-                    <th>Çalışan</th>
-                    <th style="text-align: center;">Kasko</th>
-                    <th style="text-align: center;">Trafik</th>
-                    <th style="text-align: center;">DASK</th>
-                    <th style="text-align: center;">Sağlık</th>
-                    <th style="text-align: center;">Konut</th>
-                    <th style="text-align: center;">İşyeri</th>
-                    <th style="text-align: center;">İşlem</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-emerald">ZA</div>
-                        <div>
-                          <div class="font-semibold">Zeynep Arslan</div>
-                          <div class="text-muted text-sm">Kıdemli Acente</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="14">
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="10">
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="6">
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="12">
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="10">
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="12">
-                    </td>
-                    <td style="text-align: center;">
-                      <button class="btn-icon btn-icon-danger" title="Özel Oranları Kaldır">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polyline points="3,6 5,6 21,6"/>
-                          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-cyan">MK</div>
-                        <div>
-                          <div class="font-semibold">Mehmet Kaya</div>
-                          <div class="text-muted text-sm">Acente</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="13">
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="9">
-                    </td>
-                    <td style="text-align: center;">
-                      <span class="text-muted">Vars.</span>
-                    </td>
-                    <td style="text-align: center;">
-                      <input type="number" class="form-input commission-input" value="11">
-                    </td>
-                    <td style="text-align: center;">
-                      <span class="text-muted">Vars.</span>
-                    </td>
-                    <td style="text-align: center;">
-                      <span class="text-muted">Vars.</span>
-                    </td>
-                    <td style="text-align: center;">
-                      <button class="btn-icon btn-icon-danger" title="Özel Oranları Kaldır">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <polyline points="3,6 5,6 21,6"/>
-                          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr class="row-inactive">
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-violet">AD</div>
-                        <div>
-                          <div class="font-semibold">Ayşe Demir</div>
-                          <div class="text-muted text-sm">Varsayılan oranları kullanıyor</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style="text-align: center;" class="text-muted font-mono">12%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">5%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
-                    <td style="text-align: center;">
-                      <button class="btn btn-secondary btn-sm">Özelleştir</button>
-                    </td>
-                  </tr>
-                  <tr class="row-inactive">
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-amber">CÖ</div>
-                        <div>
-                          <div class="font-semibold">Can Özkan</div>
-                          <div class="text-muted text-sm">Varsayılan oranları kullanıyor</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style="text-align: center;" class="text-muted font-mono">12%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">5%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
-                    <td style="text-align: center;">
-                      <button class="btn btn-secondary btn-sm">Özelleştir</button>
-                    </td>
-                  </tr>
-                  <tr class="row-inactive">
-                    <td>
-                      <div class="flex items-center gap-3">
-                        <div class="avatar avatar-sm avatar-rose">EK</div>
-                        <div>
-                          <div class="font-semibold">Elif Koç</div>
-                          <div class="text-muted text-sm">Varsayılan oranları kullanıyor</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td style="text-align: center;" class="text-muted font-mono">12%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">5%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">8%</td>
-                    <td style="text-align: center;" class="text-muted font-mono">10%</td>
-                    <td style="text-align: center;">
-                      <button class="btn btn-secondary btn-sm">Özelleştir</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            </div>
+            <div class="alert-content">
+              <div class="alert-title">Komisyon Hesaplama Mantığı</div>
+              <div class="alert-text">En spesifik kural önceliklidir: Şirket+Branş > Sadece Şirket > Sadece Branş > Varsayılan. Aynı öncelik seviyesinde yüksek eşik değeri olan kural önce kontrol edilir (örneğin: 10.000 TL kuralı, 5.000 TL kuralından önce).</div>
             </div>
           </div>
-        </div>
-
-        <!-- Info Alert -->
-        <div class="alert alert-info" style="margin-top: 1.5rem;">
-          <div class="alert-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-          </div>
-          <div class="alert-content">
-            <div class="alert-title">Komisyon Hesaplama</div>
-            <div class="alert-text">Komisyonlar poliçe prim tutarı üzerinden hesaplanır. Çalışan özel oranı tanımlanmadıysa varsayılan oran kullanılır.</div>
-          </div>
-        </div>
         </div>
       </div>
     </main>
   </div>
 
+  <!-- ═══════════════════════════════════════════════════════════════
+       GROUP DETAIL MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="groupDetailModal">
+    <div class="modal modal-xl">
+      <div class="modal-header">
+        <h3 class="modal-title" id="groupDetailTitle">Grup Detayı</h3>
+        <button class="modal-close" onclick="closeGroupDetailModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Group Info Form -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Grup Adı</label>
+                <input type="text" class="form-input" id="groupDetailName" placeholder="Örneğin: Kıdemli Acenteler">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Açıklama</label>
+                <input type="text" class="form-input" id="groupDetailDesc" placeholder="Grup hakkında kısa açıklama">
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" onclick="updateGroupInfo()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                  <polyline points="17,21 17,13 7,13 7,21"/>
+                  <polyline points="7,3 7,8 15,8"/>
+                </svg>
+                Bilgileri Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rules Section -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="card-body">
+            <div class="section-header">
+              <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                </svg>
+                Komisyon Kuralları
+                <span class="section-badge" id="rulesCount">0</span>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="openRuleModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Kural Ekle
+              </button>
+            </div>
+            <div class="rules-list" id="rulesList">
+              <!-- Rules will be loaded here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Members Section -->
+        <div class="card">
+          <div class="card-body">
+            <div class="section-header">
+              <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 010 7.75"/>
+                </svg>
+                Grup Üyeleri
+                <span class="section-badge" id="membersCount">0</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="openMemberSelectorModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                  <line x1="20" y1="8" x2="20" y2="14"/>
+                  <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                Üye Ekle
+              </button>
+            </div>
+            <div class="members-grid" id="membersList">
+              <!-- Members will be loaded here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Branches (Şubeler) Section -->
+        <div class="card">
+          <div class="card-body">
+            <div class="section-header">
+              <div class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                Grup Şubeleri
+                <span class="section-badge" id="branchesCount">0</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="openBranchSelectorModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                  <line x1="12" y1="9" x2="12" y2="15"/>
+                  <line x1="15" y1="12" x2="9" y2="12"/>
+                </svg>
+                Şube Ekle
+              </button>
+            </div>
+            <div class="members-grid" id="branchesList">
+              <!-- Branches will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn btn-danger" onclick="deleteGroup()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+          </svg>
+          Grubu Sil
+        </button>
+        <button class="btn btn-primary" onclick="updateGroupInfo(); closeGroupDetailModal();">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       GROUP CREATE/EDIT MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="groupModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <h3 class="modal-title" id="groupModalTitle">Yeni Grup Oluştur</h3>
+        <button class="modal-close" onclick="closeGroupModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="groupForm">
+          <div class="form-group">
+            <label class="form-label">Grup Adı *</label>
+            <input type="text" class="form-input" id="groupName" placeholder="Örneğin: Kıdemli Acenteler" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Açıklama</label>
+            <textarea class="form-textarea" id="groupDescription" placeholder="Grup hakkında kısa açıklama..." rows="3"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeGroupModal()">İptal</button>
+        <button class="btn btn-primary" id="groupSubmitBtn" onclick="saveGroup()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Oluştur
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       RULE EDITOR MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="ruleModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 class="modal-title" id="ruleModalTitle">Yeni Kural Ekle</h3>
+        <button class="modal-close" onclick="closeRuleModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="ruleForm">
+          <!-- Company & Branch -->
+          <div class="form-row" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Sigorta Şirketi</label>
+              <div id="ruleCompanyContainer" data-value=""></div>
+              <span class="form-hint">Boş bırakırsanız tüm şirketler için geçerli olur</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Branş</label>
+              <div id="ruleBranchContainer" data-value=""></div>
+              <span class="form-hint">Boş bırakırsanız tüm branşlar için geçerli olur</span>
+            </div>
+          </div>
+
+          <!-- Condition Builder -->
+          <div class="form-group" style="margin-bottom: 1rem;">
+            <label class="form-label">Koşul (Opsiyonel)</label>
+            <div class="condition-builder">
+              <div class="form-group field-select">
+                <select class="form-select" id="ruleConditionField">
+                  <option value="">Koşul Yok</option>
+                  <option value="brutPrim">Brüt Prim</option>
+                  <option value="netPrim">Net Prim</option>
+                  <option value="komisyon">Komisyon Tutarı</option>
+                </select>
+              </div>
+              <div class="form-group operator-select">
+                <select class="form-select" id="ruleConditionOperator" disabled>
+                  <option value=">">&gt;</option>
+                  <option value="<">&lt;</option>
+                  <option value=">=">&gt;=</option>
+                  <option value="<=">&lt;=</option>
+                  <option value="=">=</option>
+                </select>
+              </div>
+              <div class="form-group value-input">
+                <input type="number" class="form-input" id="ruleConditionValue" placeholder="Değer" disabled>
+              </div>
+              <span style="color: var(--text-muted); font-size: 0.875rem;">TL</span>
+            </div>
+            <span class="form-hint">Örneğin: Brüt Prim > 10000 TL olan poliçeler için</span>
+          </div>
+
+          <!-- Commission Rate -->
+          <div class="form-group">
+            <label class="form-label">Komisyon Oranı *</label>
+            <div class="rate-input-group">
+              <input type="number" class="form-input" id="ruleRate" min="0" max="100" step="0.1" placeholder="0" required>
+              <span>%</span>
+            </div>
+            <span class="form-hint">0 ile 100 arasında bir değer girin</span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeRuleModal()">İptal</button>
+        <button class="btn btn-primary" id="ruleSubmitBtn" onclick="saveRule()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MEMBER SELECTOR MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="memberSelectorModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <h3 class="modal-title">Üye Ekle</h3>
+        <button class="modal-close" onclick="closeMemberSelectorModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="member-selector-search">
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="form-input" id="memberSearchInput" placeholder="Çalışan ara..." oninput="filterMembers()">
+          </div>
+        </div>
+        <div class="member-selector-list" id="memberSelectorList">
+          <!-- Members will be loaded here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeMemberSelectorModal()">İptal</button>
+        <button class="btn btn-primary" id="addMembersBtn" onclick="addSelectedMembers()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Seçilenleri Ekle
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       BRANCH SELECTOR MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="branchSelectorModal">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <h3 class="modal-title">Şube Ekle</h3>
+        <button class="modal-close" onclick="closeBranchSelectorModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="member-selector-search">
+          <div class="search-box">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="form-input" id="branchSearchInput" placeholder="Şube ara..." oninput="filterBranches()">
+          </div>
+        </div>
+        <div class="member-selector-list" id="branchSelectorList">
+          <!-- Branches will be loaded here -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeBranchSelectorModal()">İptal</button>
+        <button class="btn btn-primary" id="addBranchesBtn" onclick="addSelectedBranches()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Seçilenleri Ekle
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONFIRM DELETE MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3 class="modal-title" id="confirmTitle">Onay</h3>
+        <button class="modal-close" onclick="closeConfirmModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Bu işlemi gerçekleştirmek istediğinizden emin misiniz?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeConfirmModal()">İptal</button>
+        <button class="btn btn-danger" id="confirmBtn" onclick="confirmAction()">Sil</button>
+      </div>
+    </div>
+  </div>
+
   <script src="../../assets/js/config.js"></script>
   <script src="../../assets/js/app.js"></script>
-  <style>
-    .color-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
+  <script>
+    // ═══════════════════════════════════════════════════════════════
+    // STATE MANAGEMENT
+    // ═══════════════════════════════════════════════════════════════
+    let groups = [];
+    let currentGroupId = null;
+    let currentGroup = null;
+    let currentRuleId = null;
+    let insuranceCompanies = [];
+    let branches = [];
+    let allEmployees = [];
+    let selectedMembers = new Set();
+    let allSubeler = [];
+    let selectedBranches = new Set();
+    let confirmCallback = null;
+
+    // ═══════════════════════════════════════════════════════════════
+    // INITIALIZATION
+    // ═══════════════════════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', async function() {
+      requirePermission('komisyonOranlariniDuzenleyebilsin');
+
+      // Load initial data
+      await Promise.all([
+        loadGroups(),
+        loadInsuranceCompanies(),
+        loadBranches(),
+        loadEmployees(),
+        loadSubeler()
+      ]);
+
+      // Setup condition field change handler
+      document.getElementById('ruleConditionField').addEventListener('change', function() {
+        const hasCondition = this.value !== '';
+        document.getElementById('ruleConditionOperator').disabled = !hasCondition;
+        document.getElementById('ruleConditionValue').disabled = !hasCondition;
+        if (!hasCondition) {
+          document.getElementById('ruleConditionValue').value = '';
+        }
+      });
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // API CALLS
+    // ═══════════════════════════════════════════════════════════════
+    async function loadGroups() {
+      try {
+        const response = await apiGet('komisyon-gruplari');
+        groups = response || [];
+        renderGroups();
+        updateStats();
+      } catch (error) {
+        console.error('Gruplar yüklenirken hata:', error);
+        showToast('Gruplar yüklenirken hata oluştu', 'error');
+        groups = [];
+        renderGroups();
+      }
     }
 
-    .commission-rates-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+    async function loadGroupDetail(groupId) {
+      try {
+        const response = await apiGet(`komisyon-gruplari/${groupId}`);
+        currentGroup = response;
+        currentGroupId = groupId;
+        renderGroupDetail();
+        return response;
+      } catch (error) {
+        console.error('Grup detayı yüklenirken hata:', error);
+        showToast('Grup detayı yüklenirken hata oluştu', 'error');
+        return null;
+      }
     }
 
-    .commission-rate-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 1rem;
-      background: var(--bg-elevated);
-      border-radius: 10px;
-      min-width: 100px;
-      flex: 1;
+    async function loadInsuranceCompanies() {
+      try {
+        const response = await apiGet('insurance-companies');
+        insuranceCompanies = response || [];
+        populateCompanyDropdown();
+      } catch (error) {
+        console.error('Sigorta şirketleri yüklenirken hata:', error);
+        insuranceCompanies = [];
+      }
     }
 
-    .rate-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: 500;
-      font-size: 0.85rem;
-      color: var(--text-primary);
+    async function loadBranches() {
+      try {
+        const response = await apiGet('insurance-types');
+        branches = response || [];
+        populateBranchDropdown();
+      } catch (error) {
+        console.error('Branşlar yüklenirken hata:', error);
+        branches = [];
+      }
     }
 
-    .rate-input {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
+    async function loadEmployees() {
+      try {
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+        if (firmaId) {
+          const response = await apiGet('kullanicilar', { firmaId });
+          // Sadece aktif çalışanları filtrele
+          allEmployees = (response || []).filter(emp => emp.aktif === true || emp.aktif === 1);
+        }
+      } catch (error) {
+        console.error('Çalışanlar yüklenirken hata:', error);
+        allEmployees = [];
+      }
     }
 
-    .rate-input input {
-      width: 56px;
-      padding: 0.5rem;
-      text-align: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.95rem;
-      font-weight: 600;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      color: var(--text-primary);
+    async function loadSubeler() {
+      try {
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+        if (firmaId) {
+          const response = await apiGet('branches', { firmaId });
+          allSubeler = response || [];
+        }
+      } catch (error) {
+        console.error('Şubeler yüklenirken hata:', error);
+        allSubeler = [];
+      }
     }
 
-    .rate-input input:focus {
-      outline: none;
-      border-color: var(--primary);
+    // ═══════════════════════════════════════════════════════════════
+    // RENDER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+    function renderGroups() {
+      const grid = document.getElementById('groupsGrid');
+      const countEl = document.getElementById('groupsCount');
+
+      if (!groups || groups.length === 0) {
+        grid.innerHTML = `
+          <div class="group-card group-card-add" onclick="openGroupModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            <span>İlk Grubunuzu Oluşturun</span>
+          </div>
+        `;
+        countEl.textContent = '0 grup';
+        return;
+      }
+
+      countEl.textContent = `${groups.length} grup`;
+
+      grid.innerHTML = groups.map(group => `
+        <div class="group-card" onclick="openGroupDetail(${group.id})">
+          <div class="group-card-header">
+            <div class="group-card-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+            </div>
+            <div class="group-card-actions">
+              <button class="btn-icon" onclick="event.stopPropagation(); editGroup(${group.id})" title="Düzenle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="btn-icon btn-icon-danger" onclick="event.stopPropagation(); confirmDeleteGroup(${group.id})" title="Sil">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="group-card-title">${escapeHtml(group.grupAdi || 'İsimsiz Grup')}</div>
+          <div class="group-card-desc">${escapeHtml(group.aciklama || 'Açıklama yok')}</div>
+          <div class="group-card-stats">
+            <div class="group-stat">
+              <div class="group-stat-value">${group.kuralSayisi ?? 0}</div>
+              <div class="group-stat-label">Kural</div>
+            </div>
+            <div class="group-stat">
+              <div class="group-stat-value">${group.uyeSayisi ?? 0}</div>
+              <div class="group-stat-label">Üye</div>
+            </div>
+          </div>
+        </div>
+      `).join('') + `
+        <div class="group-card group-card-add" onclick="openGroupModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>Yeni Grup Ekle</span>
+        </div>
+      `;
     }
 
-    .rate-input span {
-      color: var(--text-muted);
-      font-weight: 500;
+    function renderGroupDetail() {
+      if (!currentGroup) return;
+
+      document.getElementById('groupDetailTitle').textContent = currentGroup.grupAdi || 'Grup Detayı';
+      document.getElementById('groupDetailName').value = currentGroup.grupAdi || '';
+      document.getElementById('groupDetailDesc').value = currentGroup.aciklama || '';
+
+      renderRules();
+      renderMembers();
+      renderBranches();
     }
 
-    .commission-input {
-      width: 70px;
-      text-align: center;
-      padding: 0.5rem;
-      font-family: 'JetBrains Mono', monospace;
+    function renderRules() {
+      const container = document.getElementById('rulesList');
+      const countEl = document.getElementById('rulesCount');
+      const rules = currentGroup?.kurallar || [];
+
+      countEl.textContent = rules.length;
+
+      if (rules.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14,2 14,8 20,8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            <div class="empty-state-title">Henüz kural eklenmemiş</div>
+            <div class="empty-state-desc">Bu gruba komisyon kuralları ekleyerek başlayabilirsiniz.</div>
+            <button class="btn btn-primary" onclick="openRuleModal()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              İlk Kuralı Ekle
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = rules.map(rule => {
+        const companyName = rule.sigortaSirketiAdi || 'Tüm Şirketler';
+        const branchName = rule.bransAdi || 'Tüm Branşlar';
+        const condition = formatCondition(rule);
+        const rate = rule.komisyonOrani ?? 0;
+
+        return `
+          <div class="rule-item" data-rule-id="${rule.id}">
+            <div class="rule-info">
+              <div class="rule-company">
+                <div class="rule-label">Şirket</div>
+                <div class="rule-value">${escapeHtml(companyName)}</div>
+              </div>
+              <div class="rule-branch">
+                <div class="rule-label">Branş</div>
+                <div class="rule-value">${escapeHtml(branchName)}</div>
+              </div>
+              <div class="rule-condition">
+                <div class="rule-label">Koşul</div>
+                <div class="rule-condition-text">${condition || 'Koşul yok'}</div>
+              </div>
+              <div class="rule-rate">
+                <div class="rule-label">Oran</div>
+                <div class="rule-rate-value">%${rate}</div>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <button class="btn-icon" onclick="editRule(${rule.id})" title="Düzenle">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="btn-icon btn-icon-danger" onclick="confirmDeleteRule(${rule.id})" title="Sil">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    /* btn-icon-danger artık main.css'de tanımlı */
+    function renderMembers() {
+      const container = document.getElementById('membersList');
+      const countEl = document.getElementById('membersCount');
+      const members = currentGroup?.uyeler || [];
 
-    .mb-3 {
-      margin-bottom: 0.75rem;
+      countEl.textContent = members.length;
+
+      if (members.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="width: 100%;">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+              <path d="M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+            <div class="empty-state-title">Henüz üye eklenmemiş</div>
+            <div class="empty-state-desc">Bu gruba çalışan ekleyin.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = members.map(member => {
+        const name = member.uyeAdi || 'İsimsiz';
+        const nameParts = name.split(' ');
+        const initials = getInitials(nameParts[0], nameParts[1]);
+
+        return `
+          <div class="member-chip">
+            <div class="avatar avatar-emerald">${initials}</div>
+            <span>${escapeHtml(name)}</span>
+            <button class="remove-btn" onclick="removeMember(${member.uyeId})" title="Kaldır">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
     }
-  </style>
+
+    function renderMemberSelector() {
+      const container = document.getElementById('memberSelectorList');
+      const searchTerm = document.getElementById('memberSearchInput').value.toLowerCase();
+      const currentMemberIds = new Set((currentGroup?.uyeler || []).map(m => m.uyeId));
+
+      // Filter employees not already in the group
+      let availableEmployees = allEmployees.filter(emp => !currentMemberIds.has(emp.id));
+
+      // Apply search filter
+      if (searchTerm) {
+        availableEmployees = availableEmployees.filter(emp => {
+          const fullName = `${emp.adi || ''} ${emp.soyadi || ''}`.toLowerCase();
+          const email = (emp.email || '').toLowerCase();
+          return fullName.includes(searchTerm) || email.includes(searchTerm);
+        });
+      }
+
+      if (availableEmployees.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 2rem;">
+            <div class="empty-state-title">Eklenecek çalışan bulunamadı</div>
+            <div class="empty-state-desc">${searchTerm ? 'Arama kriterlerinizi değiştirin' : 'Tüm çalışanlar zaten bu grupta'}</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = availableEmployees.map(emp => {
+        const initials = getInitials(emp.adi, emp.soyadi);
+        const name = `${emp.adi || ''} ${emp.soyadi || ''}`.trim() || 'İsimsiz';
+        const isSelected = selectedMembers.has(emp.id);
+
+        return `
+          <div class="member-selector-item ${isSelected ? 'selected' : ''}" onclick="toggleMemberSelection(${emp.id})">
+            <div class="checkbox">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="avatar avatar-sm avatar-cyan">${initials}</div>
+            <div class="member-info">
+              <div class="member-name">${escapeHtml(name)}</div>
+              <div class="member-email">${escapeHtml(emp.email || '-')}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderBranches() {
+      const container = document.getElementById('branchesList');
+      const countEl = document.getElementById('branchesCount');
+      const subeler = currentGroup?.subeler || [];
+
+      countEl.textContent = subeler.length;
+
+      if (subeler.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="width: 100%;">
+            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <div class="empty-state-title">Henüz şube eklenmemiş</div>
+            <div class="empty-state-desc">Bu gruba şube ekleyin.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = subeler.map(sube => {
+        const name = sube.subeAdi || 'İsimsiz';
+        const initials = name.substring(0, 2).toUpperCase();
+
+        return `
+          <div class="member-chip">
+            <div class="avatar avatar-indigo">${initials}</div>
+            <span>${escapeHtml(name)}</span>
+            <button class="remove-btn" onclick="removeBranch(${sube.subeId})" title="Kaldır">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderBranchSelector() {
+      const container = document.getElementById('branchSelectorList');
+      const searchTerm = document.getElementById('branchSearchInput').value.toLowerCase();
+      const currentBranchIds = new Set((currentGroup?.subeler || []).map(s => s.subeId));
+
+      // Filter branches not already in the group
+      let availableBranches = allSubeler.filter(sube => !currentBranchIds.has(sube.id));
+
+      // Apply search filter
+      if (searchTerm) {
+        availableBranches = availableBranches.filter(sube => {
+          const name = (sube.subeAdi || sube.name || '').toLowerCase();
+          return name.includes(searchTerm);
+        });
+      }
+
+      if (availableBranches.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="padding: 2rem;">
+            <div class="empty-state-title">Eklenecek şube bulunamadı</div>
+            <div class="empty-state-desc">${searchTerm ? 'Arama kriterlerinizi değiştirin' : 'Tüm şubeler zaten bu grupta'}</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = availableBranches.map(sube => {
+        const name = sube.subeAdi || sube.name || 'İsimsiz';
+        const initials = name.substring(0, 2).toUpperCase();
+        const isSelected = selectedBranches.has(sube.id);
+
+        return `
+          <div class="member-selector-item ${isSelected ? 'selected' : ''}" onclick="toggleBranchSelection(${sube.id})">
+            <div class="checkbox">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="avatar avatar-sm avatar-indigo">${initials}</div>
+            <div class="member-info">
+              <div class="member-name">${escapeHtml(name)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateStats() {
+      const totalGroups = groups.length;
+      const totalRules = groups.reduce((sum, g) => sum + (g.kuralSayisi ?? 0), 0);
+      const totalMembers = groups.reduce((sum, g) => sum + (g.uyeSayisi ?? 0), 0);
+
+      document.getElementById('statTotalGroups').textContent = totalGroups;
+      document.getElementById('statTotalRules').textContent = totalRules;
+      document.getElementById('statTotalMembers').textContent = totalMembers;
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CUSTOM DROPDOWN COMPONENT
+    // ═══════════════════════════════════════════════════════════════
+    function createCustomDropdown(selectId, options, placeholder = 'Seçiniz') {
+      const container = document.getElementById(selectId + 'Container');
+      if (!container) return;
+
+      const currentValue = container.dataset.value || '';
+      const currentLabel = options.find(o => o.value == currentValue)?.label || placeholder;
+
+      container.innerHTML = `
+        <div class="custom-select-wrapper" data-select-id="${selectId}">
+          <input type="hidden" id="${selectId}" name="${selectId}" value="${currentValue}">
+          <div class="custom-select-trigger" onclick="toggleDropdown('${selectId}')">
+            <span>${escapeHtml(currentLabel)}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="custom-select-dropdown">
+            <div class="custom-select-search">
+              <input type="text" placeholder="Ara..." oninput="filterDropdownOptions('${selectId}', this.value)">
+            </div>
+            <div class="custom-select-options">
+              ${options.map(opt => `
+                <div class="custom-select-option ${opt.value == currentValue ? 'selected' : ''}"
+                     data-value="${opt.value}"
+                     onclick="selectDropdownOption('${selectId}', '${opt.value}', '${escapeHtml(opt.label)}')">
+                  ${escapeHtml(opt.label)}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleDropdown(selectId) {
+      const wrapper = document.querySelector(`[data-select-id="${selectId}"]`);
+      const isOpen = wrapper.classList.contains('open');
+
+      // Diğer tüm dropdownları kapat
+      document.querySelectorAll('.custom-select-wrapper.open').forEach(w => w.classList.remove('open'));
+
+      if (!isOpen) {
+        wrapper.classList.add('open');
+        const searchInput = wrapper.querySelector('.custom-select-search input');
+        if (searchInput) {
+          setTimeout(() => searchInput.focus(), 50);
+        }
+      }
+    }
+
+    function selectDropdownOption(selectId, value, label) {
+      const wrapper = document.querySelector(`[data-select-id="${selectId}"]`);
+      const hiddenInput = document.getElementById(selectId);
+      const trigger = wrapper.querySelector('.custom-select-trigger span');
+
+      hiddenInput.value = value;
+      trigger.textContent = label;
+
+      // Önceki seçimi kaldır, yenisini işaretle
+      wrapper.querySelectorAll('.custom-select-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.dataset.value === value);
+      });
+
+      wrapper.classList.remove('open');
+
+      // Container'a değeri kaydet
+      wrapper.parentElement.dataset.value = value;
+    }
+
+    function filterDropdownOptions(selectId, searchTerm) {
+      const wrapper = document.querySelector(`[data-select-id="${selectId}"]`);
+      const options = wrapper.querySelectorAll('.custom-select-option');
+      const term = searchTerm.toLowerCase();
+      let hasVisible = false;
+
+      options.forEach(opt => {
+        const text = opt.textContent.toLowerCase();
+        const visible = text.includes(term);
+        opt.style.display = visible ? '' : 'none';
+        if (visible) hasVisible = true;
+      });
+    }
+
+    function setDropdownValue(selectId, value) {
+      const container = document.getElementById(selectId + 'Container');
+      if (container) {
+        container.dataset.value = value;
+      }
+    }
+
+    function getDropdownValue(selectId) {
+      const input = document.getElementById(selectId);
+      return input ? input.value : '';
+    }
+
+    // Sayfa dışına tıklandığında dropdownları kapat
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.custom-select-wrapper')) {
+        document.querySelectorAll('.custom-select-wrapper.open').forEach(w => w.classList.remove('open'));
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // DROPDOWN POPULATION
+    // ═══════════════════════════════════════════════════════════════
+    function populateCompanyDropdown() {
+      const options = [
+        { value: '', label: 'Varsayılan (Tümü)' },
+        ...insuranceCompanies.map(c => ({ value: c.id.toString(), label: c.sirketAdi || c.ad }))
+      ];
+      createCustomDropdown('ruleCompany', options, 'Varsayılan (Tümü)');
+    }
+
+    function populateBranchDropdown() {
+      const options = [
+        { value: '', label: 'Varsayılan (Tümü)' },
+        ...branches.map(b => ({ value: b.id.toString(), label: b.bransAdi }))
+      ];
+      createCustomDropdown('ruleBranch', options, 'Varsayılan (Tümü)');
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // MODAL HANDLERS
+    // ═══════════════════════════════════════════════════════════════
+    function openGroupModal(editId = null) {
+      const modal = document.getElementById('groupModal');
+      const title = document.getElementById('groupModalTitle');
+      const submitBtn = document.getElementById('groupSubmitBtn');
+      const nameInput = document.getElementById('groupName');
+      const descInput = document.getElementById('groupDescription');
+
+      if (editId) {
+        const group = groups.find(g => g.id === editId);
+        if (group) {
+          title.textContent = 'Grubu Düzenle';
+          submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Kaydet';
+          nameInput.value = group.grupAdi || '';
+          descInput.value = group.aciklama || '';
+          currentGroupId = editId;
+        }
+      } else {
+        title.textContent = 'Yeni Grup Oluştur';
+        submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Oluştur';
+        nameInput.value = '';
+        descInput.value = '';
+        currentGroupId = null;
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeGroupModal() {
+      document.getElementById('groupModal').classList.remove('active');
+      currentGroupId = null;
+    }
+
+    function openGroupDetail(groupId) {
+      loadGroupDetail(groupId).then(() => {
+        document.getElementById('groupDetailModal').classList.add('active');
+      });
+    }
+
+    function closeGroupDetailModal() {
+      document.getElementById('groupDetailModal').classList.remove('active');
+      currentGroupId = null;
+      currentGroup = null;
+    }
+
+    function openRuleModal(editId = null) {
+      const modal = document.getElementById('ruleModal');
+      const title = document.getElementById('ruleModalTitle');
+      const submitBtn = document.getElementById('ruleSubmitBtn');
+
+      // Reset form - diğer alanlar
+      document.getElementById('ruleConditionField').value = '';
+      document.getElementById('ruleConditionOperator').value = '>';
+      document.getElementById('ruleConditionOperator').disabled = true;
+      document.getElementById('ruleConditionValue').value = '';
+      document.getElementById('ruleConditionValue').disabled = true;
+      document.getElementById('ruleRate').value = '';
+
+      if (editId) {
+        const rules = currentGroup?.kurallar || [];
+        const rule = rules.find(r => r.id === editId);
+        if (rule) {
+          title.textContent = 'Kuralı Düzenle';
+          submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Kaydet';
+
+          // 9999 = varsayılan, dropdown'da boş değer olarak göster
+          const companyVal = rule.sigortaSirketiId === 9999 ? '' : (rule.sigortaSirketiId?.toString() || '');
+          const branchVal = rule.bransId === 9999 ? '' : (rule.bransId?.toString() || '');
+
+          setDropdownValue('ruleCompany', companyVal);
+          setDropdownValue('ruleBranch', branchVal);
+          populateCompanyDropdown();
+          populateBranchDropdown();
+
+          // Koşul alanlarını map et (backend PascalCase döndürüyor)
+          const fieldMap = { 'BrutPrim': 'brutPrim', 'NetPrim': 'netPrim', 'Komisyon': 'komisyon' };
+          const frontendField = fieldMap[rule.kosulAlani] || '';
+
+          // Koşul var mı kontrol et (varsayılan değilse)
+          if (rule.kosulAlani && rule.esikDeger > 0) {
+            document.getElementById('ruleConditionField').value = frontendField;
+            document.getElementById('ruleConditionOperator').disabled = false;
+            document.getElementById('ruleConditionOperator').value = rule.operator || '>';
+            document.getElementById('ruleConditionValue').disabled = false;
+            document.getElementById('ruleConditionValue').value = rule.esikDeger || '';
+          }
+
+          document.getElementById('ruleRate').value = rule.komisyonOrani ?? 0;
+          currentRuleId = editId;
+        }
+      } else {
+        title.textContent = 'Yeni Kural Ekle';
+        submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Kaydet';
+        currentRuleId = null;
+
+        // Reset custom dropdowns
+        setDropdownValue('ruleCompany', '');
+        setDropdownValue('ruleBranch', '');
+        populateCompanyDropdown();
+        populateBranchDropdown();
+      }
+
+      modal.classList.add('active');
+    }
+
+    function closeRuleModal() {
+      document.getElementById('ruleModal').classList.remove('active');
+      currentRuleId = null;
+    }
+
+    function openMemberSelectorModal() {
+      selectedMembers.clear();
+      document.getElementById('memberSearchInput').value = '';
+      renderMemberSelector();
+      document.getElementById('memberSelectorModal').classList.add('active');
+    }
+
+    function closeMemberSelectorModal() {
+      document.getElementById('memberSelectorModal').classList.remove('active');
+      selectedMembers.clear();
+    }
+
+    function openBranchSelectorModal() {
+      selectedBranches.clear();
+      document.getElementById('branchSearchInput').value = '';
+      renderBranchSelector();
+      document.getElementById('branchSelectorModal').classList.add('active');
+    }
+
+    function closeBranchSelectorModal() {
+      document.getElementById('branchSelectorModal').classList.remove('active');
+      selectedBranches.clear();
+    }
+
+    function openConfirmModal(title, message, callback) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      confirmCallback = callback;
+      document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.remove('active');
+      confirmCallback = null;
+    }
+
+    function confirmAction() {
+      if (confirmCallback) {
+        confirmCallback();
+      }
+      closeConfirmModal();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CRUD OPERATIONS
+    // ═══════════════════════════════════════════════════════════════
+    async function saveGroup() {
+      const name = document.getElementById('groupName').value.trim();
+      const description = document.getElementById('groupDescription').value.trim();
+
+      if (!name) {
+        showToast('Grup adı zorunludur', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('groupSubmitBtn');
+      btn.classList.add('btn-loading');
+      btn.disabled = true;
+
+      try {
+        const data = { grupAdi: name, aciklama: description, aktif: true };
+
+        if (currentGroupId) {
+          await apiPut(`komisyon-gruplari/${currentGroupId}`, data);
+          showToast('Grup başarıyla güncellendi', 'success');
+        } else {
+          await apiPost('komisyon-gruplari', data);
+          showToast('Grup başarıyla oluşturuldu', 'success');
+        }
+
+        closeGroupModal();
+        await loadGroups();
+      } catch (error) {
+        console.error('Grup kaydedilirken hata:', error);
+        showToast(error.message || 'Grup kaydedilirken hata oluştu', 'error');
+      } finally {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+      }
+    }
+
+    async function updateGroupInfo() {
+      const name = document.getElementById('groupDetailName').value.trim();
+      const description = document.getElementById('groupDetailDesc').value.trim();
+
+      if (!name) {
+        showToast('Grup adı zorunludur', 'error');
+        return;
+      }
+
+      try {
+        await apiPut(`komisyon-gruplari/${currentGroupId}`, { grupAdi: name, aciklama: description, aktif: true });
+        showToast('Grup bilgileri güncellendi', 'success');
+        document.getElementById('groupDetailTitle').textContent = name;
+        await loadGroups();
+      } catch (error) {
+        console.error('Grup bilgileri güncellenirken hata:', error);
+        showToast(error.message || 'Güncelleme sırasında hata oluştu', 'error');
+      }
+    }
+
+    function editGroup(groupId) {
+      openGroupModal(groupId);
+    }
+
+    function confirmDeleteGroup(groupId) {
+      openConfirmModal(
+        'Grubu Sil',
+        'Bu grubu silmek istediğinizden emin misiniz? Tüm kurallar ve üye atamaları silinecektir.',
+        () => deleteGroupById(groupId)
+      );
+    }
+
+    async function deleteGroupById(groupId) {
+      try {
+        await apiDelete(`komisyon-gruplari/${groupId}`);
+        showToast('Grup başarıyla silindi', 'success');
+        await loadGroups();
+      } catch (error) {
+        console.error('Grup silinirken hata:', error);
+        showToast(error.message || 'Grup silinirken hata oluştu', 'error');
+      }
+    }
+
+    async function deleteGroup() {
+      if (!currentGroupId) return;
+
+      openConfirmModal(
+        'Grubu Sil',
+        'Bu grubu silmek istediğinizden emin misiniz? Tüm kurallar ve üye atamaları silinecektir.',
+        async () => {
+          try {
+            await apiDelete(`komisyon-gruplari/${currentGroupId}`);
+            showToast('Grup başarıyla silindi', 'success');
+            closeGroupDetailModal();
+            await loadGroups();
+          } catch (error) {
+            console.error('Grup silinirken hata:', error);
+            showToast(error.message || 'Grup silinirken hata oluştu', 'error');
+          }
+        }
+      );
+    }
+
+    async function saveRule() {
+      const companyId = getDropdownValue('ruleCompany') || null;
+      const branchId = getDropdownValue('ruleBranch') || null;
+      const conditionField = document.getElementById('ruleConditionField').value || null;
+      const conditionOperator = conditionField ? document.getElementById('ruleConditionOperator').value : '>';
+      const conditionValue = conditionField ? document.getElementById('ruleConditionValue').value : 0;
+      const rate = parseFloat(document.getElementById('ruleRate').value);
+
+      if (isNaN(rate) || rate < 0 || rate > 100) {
+        showToast('Geçerli bir komisyon oranı girin (0-100)', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('ruleSubmitBtn');
+      btn.classList.add('btn-loading');
+      btn.disabled = true;
+
+      // Frontend field names to backend PascalCase mapping
+      const fieldMap = { 'brutPrim': 'BrutPrim', 'netPrim': 'NetPrim', 'komisyon': 'Komisyon' };
+
+      try {
+        const data = {
+          sigortaSirketiId: companyId ? parseInt(companyId) : 9999,  // 9999 = varsayılan
+          bransId: branchId ? parseInt(branchId) : 9999,             // 9999 = varsayılan
+          kosulAlani: fieldMap[conditionField] || 'NetPrim',
+          operator: conditionOperator || '>',
+          esikDeger: conditionValue ? parseFloat(conditionValue) : 0,
+          komisyonOrani: Math.round(rate)
+        };
+
+        if (currentRuleId) {
+          await apiPut(`komisyon-gruplari/${currentGroupId}/kurallar/${currentRuleId}`, data);
+          showToast('Kural başarıyla güncellendi', 'success');
+        } else {
+          await apiPost(`komisyon-gruplari/${currentGroupId}/kurallar`, data);
+          showToast('Kural başarıyla eklendi', 'success');
+        }
+
+        closeRuleModal();
+        await loadGroupDetail(currentGroupId);
+        await loadGroups();
+      } catch (error) {
+        console.error('Kural kaydedilirken hata:', error);
+        showToast(error.message || 'Kural kaydedilirken hata oluştu', 'error');
+      } finally {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+      }
+    }
+
+    function editRule(ruleId) {
+      openRuleModal(ruleId);
+    }
+
+    function confirmDeleteRule(ruleId) {
+      openConfirmModal(
+        'Kuralı Sil',
+        'Bu kuralı silmek istediğinizden emin misiniz?',
+        () => deleteRule(ruleId)
+      );
+    }
+
+    async function deleteRule(ruleId) {
+      try {
+        await apiDelete(`komisyon-gruplari/${currentGroupId}/kurallar/${ruleId}`);
+        showToast('Kural başarıyla silindi', 'success');
+        await loadGroupDetail(currentGroupId);
+        await loadGroups();
+      } catch (error) {
+        console.error('Kural silinirken hata:', error);
+        showToast(error.message || 'Kural silinirken hata oluştu', 'error');
+      }
+    }
+
+    function toggleMemberSelection(employeeId) {
+      if (selectedMembers.has(employeeId)) {
+        selectedMembers.delete(employeeId);
+      } else {
+        selectedMembers.add(employeeId);
+      }
+      renderMemberSelector();
+    }
+
+    function filterMembers() {
+      renderMemberSelector();
+    }
+
+    async function addSelectedMembers() {
+      if (selectedMembers.size === 0) {
+        showToast('Lütfen en az bir çalışan seçin', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('addMembersBtn');
+      btn.classList.add('btn-loading');
+      btn.disabled = true;
+
+      try {
+        // Add members one by one
+        for (const memberId of selectedMembers) {
+          await apiPost(`komisyon-gruplari/${currentGroupId}/uyeler`, { uyeId: memberId });
+        }
+
+        showToast(`${selectedMembers.size} üye başarıyla eklendi`, 'success');
+        closeMemberSelectorModal();
+        await loadGroupDetail(currentGroupId);
+        await loadGroups();
+      } catch (error) {
+        console.error('Üyeler eklenirken hata:', error);
+        showToast(error.message || 'Üyeler eklenirken hata oluştu', 'error');
+      } finally {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+      }
+    }
+
+    async function removeMember(memberId) {
+      try {
+        await apiDelete(`komisyon-gruplari/${currentGroupId}/uyeler/${memberId}`);
+        showToast('Üye gruptan çıkarıldı', 'success');
+        await loadGroupDetail(currentGroupId);
+        await loadGroups();
+      } catch (error) {
+        console.error('Üye çıkarılırken hata:', error);
+        showToast(error.message || 'Üye çıkarılırken hata oluştu', 'error');
+      }
+    }
+
+    function toggleBranchSelection(branchId) {
+      if (selectedBranches.has(branchId)) {
+        selectedBranches.delete(branchId);
+      } else {
+        selectedBranches.add(branchId);
+      }
+      renderBranchSelector();
+    }
+
+    function filterBranches() {
+      renderBranchSelector();
+    }
+
+    async function addSelectedBranches() {
+      if (selectedBranches.size === 0) {
+        showToast('Lütfen en az bir şube seçin', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('addBranchesBtn');
+      btn.classList.add('btn-loading');
+      btn.disabled = true;
+
+      try {
+        // Add branches one by one
+        for (const branchId of selectedBranches) {
+          await apiPost(`komisyon-gruplari/${currentGroupId}/subeler`, { subeId: branchId });
+        }
+
+        showToast(`${selectedBranches.size} şube başarıyla eklendi`, 'success');
+        closeBranchSelectorModal();
+        await loadGroupDetail(currentGroupId);
+        await loadGroups();
+      } catch (error) {
+        console.error('Şubeler eklenirken hata:', error);
+        showToast(error.message || 'Şubeler eklenirken hata oluştu', 'error');
+      } finally {
+        btn.classList.remove('btn-loading');
+        btn.disabled = false;
+      }
+    }
+
+    async function removeBranch(branchId) {
+      try {
+        await apiDelete(`komisyon-gruplari/${currentGroupId}/subeler/${branchId}`);
+        showToast('Şube gruptan çıkarıldı', 'success');
+        await loadGroupDetail(currentGroupId);
+        await loadGroups();
+      } catch (error) {
+        console.error('Şube çıkarılırken hata:', error);
+        showToast(error.message || 'Şube çıkarılırken hata oluştu', 'error');
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // HELPER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function getInitials(firstName, lastName) {
+      const f = (firstName || '').charAt(0).toUpperCase();
+      const l = (lastName || '').charAt(0).toUpperCase();
+      return (f + l) || '??';
+    }
+
+    function formatCondition(rule) {
+      const field = rule.kosulAlani;
+      const operator = rule.operator;
+      const value = rule.esikDeger;
+
+      // Koşul yoksa veya varsayılan değerlerse null döndür
+      if (!field || field === 'NetPrim' && operator === '>' && value === 0) return null;
+
+      const fieldNames = {
+        'BrutPrim': 'Brüt Prim',
+        'NetPrim': 'Net Prim',
+        'Komisyon': 'Komisyon'
+      };
+
+      const fieldName = fieldNames[field] || field;
+      return `${fieldName} ${operator} ${formatCurrency(value)}`;
+    }
+
+    function formatCurrency(amount) {
+      if (amount == null) return '-';
+      return new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(amount);
+    }
+  </script>
   <script src="../../components/sidebar.js"></script>
 </body>
 </html>

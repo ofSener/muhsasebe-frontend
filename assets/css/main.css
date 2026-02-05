@@ -2124,6 +2124,7 @@ h6 { font-size: 0.8125rem; }
 .avatar-amber { background: linear-gradient(135deg, var(--warning) 0%, var(--warning-dim) 100%); }
 .avatar-violet { background: linear-gradient(135deg, var(--info) 0%, var(--info-dim) 100%); }
 .avatar-rose { background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dim) 100%); }
+.avatar-indigo { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
 
 /* ═══════════════════════════════════════════════════════════════
    ACTIVITY LIST
