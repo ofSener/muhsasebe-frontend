@@ -28,6 +28,14 @@
     let subelerCache = [];
     let sirketlerCache = [];
 
+    // Helper: format Date to local YYYY-MM-DD (avoids UTC shift from toISOString)
+    function toLocalDateString(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
     // Cached data for tables (for sorting)
     let bransData = [];
     let sirketData = [];
@@ -250,40 +258,52 @@
     // ═══════════════════════════════════════════════════════════════
     // QUICK DATE PRESETS
     // ═══════════════════════════════════════════════════════════════
-    function setQuickDate(preset) {
+    function setQuickDate(preset, btnEl) {
       const today = new Date();
-      let startDate, endDate;
+      let startDate, endDate = today;
 
       switch (preset) {
         case 'today':
-          startDate = endDate = today;
+          startDate = today;
           break;
         case 'week':
           startDate = new Date(today);
           startDate.setDate(today.getDate() - today.getDay() + 1); // Monday
-          endDate = today;
           break;
         case 'month':
           startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-          endDate = today;
           break;
         case 'year':
           startDate = new Date(today.getFullYear(), 0, 1);
-          endDate = today;
+          break;
+        case 'last7':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 6);
+          break;
+        case 'last30':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 29);
+          break;
+        case 'last365':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 364);
           break;
         default:
           return;
       }
 
-      // Update flatpickr
-      const dateInput = document.getElementById('dateRangeFilter');
-      if (dateInput._flatpickr) {
-        dateInput._flatpickr.setDate([startDate, endDate]);
-      }
+      // Set filter dates
+      currentFilters.startDate = toLocalDateString(startDate);
+      currentFilters.endDate = toLocalDateString(endDate);
 
-      // Update active button
-      document.querySelectorAll('.quick-date-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      // Update active pill & deactivate range pill
+      document.querySelectorAll('.date-pill').forEach(btn => btn.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      document.getElementById('rangePill').classList.remove('active');
+
+      // Clear flatpickr selection
+      const dateInput = document.getElementById('dateRangeFilter');
+      if (dateInput._flatpickr) dateInput._flatpickr.clear();
 
       // Apply filters
       applyFilters();
@@ -300,8 +320,10 @@
 
       // Date range chip
       if (currentFilters.startDate && currentFilters.endDate) {
-        const startFormatted = new Date(currentFilters.startDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
-        const endFormatted = new Date(currentFilters.endDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+        const [sy, sm, sd] = currentFilters.startDate.split('-').map(Number);
+        const [ey, em, ed] = currentFilters.endDate.split('-').map(Number);
+        const startFormatted = new Date(sy, sm - 1, sd).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
+        const endFormatted = new Date(ey, em - 1, ed).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
         chips.push({ label: `${startFormatted} - ${endFormatted}`, type: 'date' });
       }
 
@@ -387,8 +409,19 @@
     // CHART FUNCTIONS
     // ═══════════════════════════════════════════════════════════════
     function renderBransDonutChart(data) {
+      const container = document.getElementById('bransDonutChart');
+
+      // Destroy existing chart
+      if (bransDonutChart) {
+        bransDonutChart.destroy();
+        bransDonutChart = null;
+      }
+
+      // Clear container
+      container.innerHTML = '';
+
       if (!data || data.length === 0) {
-        document.getElementById('bransDonutChart').innerHTML = '<div class="empty-state">Veri bulunamadı</div>';
+        container.innerHTML = '<div class="empty-state">Veri bulunamadı</div>';
         return;
       }
 
@@ -397,11 +430,6 @@
         values: data.slice(0, 6).map(item => item.toplamBrutPrim || 0)
       };
 
-      // Destroy existing chart
-      if (bransDonutChart) {
-        bransDonutChart.destroy();
-      }
-
       bransDonutChart = createDonutChart('bransDonutChart', chartData, {
         height: 320,
         legendPosition: 'bottom'
@@ -409,8 +437,19 @@
     }
 
     function renderGunlukTrendChart(data) {
+      const container = document.getElementById('gunlukTrendChart');
+
+      // Destroy existing chart
+      if (gunlukTrendChart) {
+        gunlukTrendChart.destroy();
+        gunlukTrendChart = null;
+      }
+
+      // Clear container
+      container.innerHTML = '';
+
       if (!data || data.length === 0) {
-        document.getElementById('gunlukTrendChart').innerHTML = '<div class="empty-state">Veri bulunamadı</div>';
+        container.innerHTML = '<div class="empty-state">Veri bulunamadı</div>';
         return;
       }
 
@@ -422,11 +461,6 @@
         labels: top6Branches.map(item => item.bransAdi || 'Diğer'),
         values: top6Branches.map(item => item.policeSayisi || 0)
       };
-
-      // Destroy existing chart
-      if (gunlukTrendChart) {
-        gunlukTrendChart.destroy();
-      }
 
       gunlukTrendChart = createDonutChart('gunlukTrendChart', chartData, {
         height: 320,
@@ -512,8 +546,7 @@
           renderKullaniciTable(data);
           break;
         case 'gun':
-          data = sortTableData(gunData, column, sortState[tableType].direction, tableType);
-          renderGunTable(data);
+          // Güne göre üretimler artık grafik, sort gereksiz
           break;
       }
     }
@@ -893,34 +926,130 @@
       }).join('');
     }
 
-    function renderGunTable(data) {
-      const tbody = document.getElementById('gunTableBody');
-      if (!tbody) return;
+    // Chart instance for daily production
+    let gunlukBarChartInstance = null;
+
+    function renderGunChart(data) {
+      const container = document.getElementById('gunlukBarChart');
+      if (!container) return;
+
+      // Destroy existing chart
+      if (gunlukBarChartInstance) {
+        gunlukBarChartInstance.destroy();
+        gunlukBarChartInstance = null;
+      }
+
+      container.innerHTML = '';
 
       if (!data || data.length === 0) {
-        showEmptyState('gunTableBody');
+        container.innerHTML = '<div class="empty-state">Veri bulunamadı</div>';
         return;
       }
 
-      tbody.innerHTML = data.map((item, i) => {
-        // Convert dd.mm.yyyy to yyyy-mm-dd for URL
-        const dateParts = (item.gun || '').split('.');
-        const dateParam = dateParts.length === 3 ? `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}` : '';
+      // Sort by date ascending for chart display
+      const sorted = [...data].sort((a, b) => {
+        const dateA = new Date(a.gun.split('.').reverse().join('-'));
+        const dateB = new Date(b.gun.split('.').reverse().join('-'));
+        return dateA - dateB;
+      });
 
-        return `
-          <tr>
-            <td>${i + 1}</td>
-            <td>
-              <a href="pages/policies/list.html?tarih=${dateParam}" class="table-link">
-                ${item.gun || 'Belirsiz'}
-                <span class="link-arrow">→</span>
-              </a>
-            </td>
-            <td class="tutar-col">${formatCurrency(item.tutar)}</td>
-            <td>${formatNumber(item.adet)}</td>
-          </tr>
-        `;
-      }).join('');
+      const labels = sorted.map(item => {
+        const parts = (item.gun || '').split('.');
+        return parts.length >= 2 ? `${parts[0]}.${parts[1]}` : item.gun;
+      });
+      const values = sorted.map(item => item.tutar || 0);
+      const adetValues = sorted.map(item => item.adet || 0);
+
+      // Dynamically calculate chart height based on data count
+      const chartHeight = sorted.length > 15 ? 420 : 350;
+
+      const options = {
+        chart: {
+          type: 'bar',
+          height: chartHeight,
+          background: 'transparent',
+          fontFamily: "'Manrope', sans-serif",
+          toolbar: { show: false },
+          zoom: { enabled: false },
+          animations: { enabled: true, easing: 'easeinout', speed: 600 }
+        },
+        theme: { mode: 'dark' },
+        series: [
+          { name: 'Tutar (TL)', type: 'bar', data: values },
+          { name: 'Adet', type: 'line', data: adetValues }
+        ],
+        colors: ['#10b981', '#00d4ff'],
+        plotOptions: {
+          bar: {
+            columnWidth: sorted.length > 20 ? '90%' : '60%',
+            borderRadius: 2
+          }
+        },
+        stroke: { width: [0, 3], curve: 'smooth' },
+        fill: { opacity: [1, 1] },
+        xaxis: {
+          categories: labels,
+          labels: {
+            rotate: -90,
+            rotateAlways: true,
+            hideOverlappingLabels: false,
+            showDuplicates: false,
+            style: {
+              colors: '#334155',
+              fontSize: '11px',
+              fontWeight: 600,
+              fontFamily: "'JetBrains Mono', 'Manrope', sans-serif"
+            },
+            offsetY: 0
+          },
+          axisBorder: { show: false },
+          axisTicks: { show: false }
+        },
+        yaxis: [
+          {
+            title: { text: 'Tutar', style: { color: '#64748b', fontSize: '11px' } },
+            labels: {
+              style: { colors: '#64748b', fontSize: '11px' },
+              formatter: (val) => formatCompact(val)
+            }
+          },
+          {
+            opposite: true,
+            title: { text: 'Adet', style: { color: '#64748b', fontSize: '11px' } },
+            labels: {
+              style: { colors: '#64748b', fontSize: '11px' },
+              formatter: (val) => Math.round(val).toString()
+            }
+          }
+        ],
+        grid: {
+          borderColor: 'rgba(148, 163, 184, 0.1)',
+          strokeDashArray: 4,
+          xaxis: { lines: { show: false } },
+          yaxis: { lines: { show: true } },
+          padding: { left: 10, right: 10, bottom: 5 }
+        },
+        tooltip: {
+          theme: 'light',
+          shared: true,
+          intersect: false,
+          y: {
+            formatter: (val, { seriesIndex }) => {
+              if (seriesIndex === 0) return formatCurrency(val);
+              return Math.round(val) + ' poliçe';
+            }
+          }
+        },
+        dataLabels: { enabled: false },
+        legend: {
+          labels: { colors: '#475569' },
+          fontSize: '12px',
+          fontFamily: "'Manrope', sans-serif"
+        }
+      };
+
+      gunlukBarChartInstance = new ApexCharts(container, options);
+      gunlukBarChartInstance.render();
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -1028,7 +1157,6 @@
       showTableLoading('sirketTableBody');
       showTableLoading('subeTableBody');
       showTableLoading('kullaniciTableBody', 5);
-      showTableLoading('gunTableBody');
 
       try {
         const modeLabel = currentMode === 0 ? 'Onaylı' : 'Yakalama';
@@ -1055,7 +1183,7 @@
         renderSirketTable(sirketData);
         renderKullaniciTable(kullaniciData);
         renderSubeTable(subeData);
-        renderGunTable(gunData);
+        renderGunChart(gunData);
 
         // Update KPI stats
         updateKPIStats(bransRes, sirketRes, performersRes);
@@ -1105,10 +1233,8 @@
     // FILTER FUNCTIONS
     // ═══════════════════════════════════════════════════════════════
     function applyFilters() {
-      // Get filter values
-      const dateRange = document.getElementById('dateRangeFilter')._flatpickr?.selectedDates || [];
-      currentFilters.startDate = dateRange[0] ? dateRange[0].toISOString().split('T')[0] : null;
-      currentFilters.endDate = dateRange[1] ? dateRange[1].toISOString().split('T')[0] : null;
+      // Date is already set by pill clicks (currentFilters.startDate/endDate)
+      // Get other filter values
       currentFilters.bransIds = getMultiSelectValues('bransMultiSelect');
       currentFilters.kullaniciIds = getMultiSelectValues('kullaniciMultiSelect');
       currentFilters.subeIds = getMultiSelectValues('subeMultiSelect');
@@ -1120,12 +1246,6 @@
     }
 
     function clearFilters() {
-      // Reset all filter inputs
-      const dateInput = document.getElementById('dateRangeFilter');
-      if (dateInput._flatpickr) {
-        dateInput._flatpickr.clear();
-      }
-
       // Clear multi-selects
       clearMultiSelect('bransMultiSelect');
       clearMultiSelect('kullaniciMultiSelect');
@@ -1142,8 +1262,11 @@
         sirketIds: []
       };
 
-      // Clear quick date buttons
-      document.querySelectorAll('.quick-date-btn').forEach(btn => btn.classList.remove('active'));
+      // Clear date pills & range pill
+      document.querySelectorAll('.date-pill').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('rangePill').classList.remove('active');
+      const dateInput = document.getElementById('dateRangeFilter');
+      if (dateInput._flatpickr) dateInput._flatpickr.clear();
 
       // Clear filter chips
       updateFilterChips();
@@ -1268,22 +1391,35 @@
         return;
       }
 
-      // Initialize Flatpickr for date range
+      // Initialize date defaults
       const today = new Date();
       const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
+      // Set default filters to current month (matching the "Bu Ay" pill active state)
+      currentFilters.startDate = toLocalDateString(firstDayOfMonth);
+      currentFilters.endDate = toLocalDateString(today);
+
+      // Initialize Flatpickr on range pill input
       flatpickr('#dateRangeFilter', {
         mode: 'range',
         dateFormat: 'd.m.Y',
         locale: 'tr',
         allowInput: false,
         disableMobile: true,
-        defaultDate: [firstDayOfMonth, today]
+        onChange: function(selectedDates) {
+          const rangePill = document.getElementById('rangePill');
+          if (selectedDates.length === 2) {
+            // Deactivate all date pills
+            document.querySelectorAll('.date-pill').forEach(btn => btn.classList.remove('active'));
+            // Activate range pill
+            rangePill.classList.add('active');
+            // Set filter dates
+            currentFilters.startDate = toLocalDateString(selectedDates[0]);
+            currentFilters.endDate = toLocalDateString(selectedDates[1]);
+            applyFilters();
+          }
+        }
       });
-
-      // Set default filters to current month
-      currentFilters.startDate = firstDayOfMonth.toISOString().split('T')[0];
-      currentFilters.endDate = today.toISOString().split('T')[0];
 
       // Load filter options
       loadFilterOptions();
@@ -1296,4 +1432,17 @@
 
       // Update filter chips
       updateFilterChips();
+
+      // Sticky filter shadow on scroll
+      const filtersEl = document.querySelector('.dashboard-filters');
+      if (filtersEl) {
+        const navbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height')) || 64;
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            filtersEl.classList.toggle('is-stuck', entry.intersectionRatio < 1);
+          },
+          { threshold: [1], rootMargin: `-${navbarH + 1}px 0px 0px 0px` }
+        );
+        observer.observe(filtersEl);
+      }
     });
