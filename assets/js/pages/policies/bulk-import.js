@@ -139,7 +139,8 @@
       93: ['neova'],                            // Neova Sigorta
       4: ['aksigorta', 'ak_'],                  // AK Sigorta
       104: ['doga', 'doğa'],                     // Doğa Sigorta
-      96: ['koru']                               // Koru Sigorta
+      96: ['koru'],                               // Koru Sigorta
+      19: ['corpus']                              // Corpus Sigorta
     };
 
     // Turkish character normalization helper

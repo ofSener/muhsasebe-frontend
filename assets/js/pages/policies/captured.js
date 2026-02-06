@@ -387,12 +387,20 @@
       list.innerHTML = html;
     }
 
+    // Diğer açık dropdown'ları kapat
+    function closeAllDropdowns(except) {
+      document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+        if (d !== except) d.classList.remove('open');
+      });
+    }
+
     // Dropdown aç/kapat
     function toggleProducerDropdown(event) {
       event.stopPropagation();
       const dropdown = document.getElementById('producerDropdown');
       const searchInput = document.getElementById('producerSearchInput');
 
+      closeAllDropdowns(dropdown);
       dropdown.classList.toggle('open');
 
       if (dropdown.classList.contains('open')) {
@@ -513,6 +521,7 @@
       const dropdown = document.getElementById('branchDropdown');
       const searchInput = document.getElementById('branchSearchInput');
 
+      closeAllDropdowns(dropdown);
       dropdown.classList.toggle('open');
 
       if (dropdown.classList.contains('open')) {
@@ -628,6 +637,7 @@
       const dropdown = document.getElementById('companyDropdown');
       const searchInput = document.getElementById('companySearchInput');
 
+      closeAllDropdowns(dropdown);
       dropdown.classList.toggle('open');
 
       if (dropdown.classList.contains('open')) {
@@ -744,6 +754,7 @@
       const dropdown = document.getElementById('insuranceTypeDropdown');
       const searchInput = document.getElementById('insuranceTypeSearchInput');
 
+      closeAllDropdowns(dropdown);
       dropdown.classList.toggle('open');
 
       if (dropdown.classList.contains('open')) {
