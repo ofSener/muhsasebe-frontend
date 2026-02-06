@@ -573,6 +573,13 @@ function formatNumber(number) {
  * Show toast notification
  */
 function showToast(message, type = 'info', duration = 3000) {
+  // Delegate to AppComponents.Toast if available
+  if (window.AppComponents && AppComponents.Toast && typeof AppComponents.Toast[type] === 'function') {
+    AppComponents.Toast[type](message, duration);
+    return;
+  }
+
+  // Fallback implementation
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   toast.innerHTML = `
@@ -630,6 +637,18 @@ window.showToast = showToast;
  * Confirm dialog
  */
 function confirmAction(message, onConfirm, onCancel) {
+  // Delegate to AppComponents.Modal if available
+  if (window.AppComponents && AppComponents.Modal && typeof AppComponents.Modal.confirm === 'function') {
+    AppComponents.Modal.confirm('Onay', message, {
+      onConfirm: onConfirm,
+      onCancel: onCancel,
+      confirmText: 'Onayla',
+      confirmClass: 'btn btn-danger'
+    });
+    return;
+  }
+
+  // Fallback implementation
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay active';
   overlay.innerHTML = `
