@@ -1224,7 +1224,7 @@
               </div>
               <div class="stat-content">
                 <p class="stat-label">Toplam Prim</p>
-                <h3 class="stat-value" id="statToplamPrim">₺0</h3>
+                <h3 class="stat-value" id="statToplamPrim">0 TL</h3>
                 <span class="stat-change positive" id="statPrimChange">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
                   +0%
@@ -1257,7 +1257,7 @@
               </div>
               <div class="stat-content">
                 <p class="stat-label">Bu Ay Üretim</p>
-                <h3 class="stat-value" id="statBuAyUretim">₺0</h3>
+                <h3 class="stat-value" id="statBuAyUretim">0 TL</h3>
                 <span class="stat-change positive" id="statUretimChange">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
                   +0% geçen aya göre
@@ -1846,13 +1846,11 @@
     // ═══════════════════════════════════════════════════════════════
 
     function formatCurrency(num) {
-      if (num === null || num === undefined) return '₺0';
+      if (num === null || num === undefined) return '0 TL';
       return new Intl.NumberFormat('tr-TR', {
-        style: 'currency',
-        currency: 'TRY',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
-      }).format(num);
+      }).format(num) + ' TL';
     }
 
     function formatNumber(num) {

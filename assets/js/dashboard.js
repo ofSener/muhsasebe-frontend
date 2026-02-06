@@ -55,20 +55,20 @@
 
   // Para formatı
   function formatCurrency(amount) {
-    if (amount === null || amount === undefined) return '₺0';
-    return '₺' + Number(amount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    if (amount === null || amount === undefined) return '0 TL';
+    return Number(amount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' TL';
   }
 
   // Kısa para formatı (K, M)
   function formatCurrencyShort(amount) {
-    if (amount === null || amount === undefined) return '₺0';
+    if (amount === null || amount === undefined) return '0 TL';
     if (amount >= 1000000) {
-      return '₺' + (amount / 1000000).toFixed(1) + 'M';
+      return (amount / 1000000).toFixed(1) + 'M TL';
     }
     if (amount >= 1000) {
-      return '₺' + (amount / 1000).toFixed(0) + 'K';
+      return (amount / 1000).toFixed(0) + 'K TL';
     }
-    return '₺' + amount.toFixed(0);
+    return amount.toFixed(0) + ' TL';
   }
 
   // Tarih formatı

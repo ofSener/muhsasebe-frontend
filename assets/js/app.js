@@ -550,10 +550,8 @@ function initAnimations() {
  */
 function formatCurrency(amount, currency = 'TRY') {
   return new Intl.NumberFormat('tr-TR', {
-    style: 'currency',
-    currency: currency,
     minimumFractionDigits: 2
-  }).format(amount);
+  }).format(amount) + ' TL';
 }
 
 /**

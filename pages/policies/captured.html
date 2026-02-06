@@ -206,7 +206,7 @@
                 </div>
               </div>
               <div class="kpi-body">
-                <div class="kpi-value" id="statPremium">₺156,640</div>
+                <div class="kpi-value" id="statPremium">156,640 TL</div>
                 <div class="kpi-label">Toplam Prim</div>
               </div>
               <div class="kpi-footer">
@@ -481,7 +481,7 @@
     </div>
     <div class="fab-stats">
       <div class="fab-stat">
-        <span class="fab-stat-value" id="fabTotalPremium">₺0</span>
+        <span class="fab-stat-value" id="fabTotalPremium">0 TL</span>
         <span class="fab-stat-label">Toplam Prim</span>
       </div>
     </div>
@@ -603,11 +603,11 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Net Prim (₺)</label>
+              <label class="form-label">Net Prim (TL)</label>
               <input type="number" step="0.01" class="form-control mono" id="editNetPremium">
             </div>
             <div class="form-group">
-              <label class="form-label">Brüt Prim (₺)</label>
+              <label class="form-label">Brüt Prim (TL)</label>
               <input type="number" step="0.01" class="form-control mono" id="editGrossPremium">
             </div>
           </div>
@@ -4412,10 +4412,10 @@
             <span class="policy-type-badge ${p.typeClass}">${p.type}</span>
           </td>
           <td>
-            <span class="font-mono font-semibold">₺${p.netPremium.toLocaleString('tr-TR')}</span>
+            <span class="font-mono font-semibold">${p.netPremium.toLocaleString('tr-TR')} TL</span>
           </td>
           <td>
-            <span class="font-mono font-semibold">₺${p.grossPremium.toLocaleString('tr-TR')}</span>
+            <span class="font-mono font-semibold">${p.grossPremium.toLocaleString('tr-TR')} TL</span>
           </td>
           <td>
             <div class="producer-cell">
@@ -4487,7 +4487,7 @@
       const producers = [...new Set(data.map(p => p.producer))];
 
       document.getElementById('statPending').textContent = data.length;
-      document.getElementById('statPremium').textContent = '₺' + totalGrossPremium.toLocaleString('tr-TR');
+      document.getElementById('statPremium').textContent = totalGrossPremium.toLocaleString('tr-TR') + ' TL';
       document.getElementById('statProducers').textContent = producers.length;
     }
 
@@ -4622,7 +4622,7 @@
           const policy = policies.find(p => p.id === id);
           return sum + (policy ? policy.grossPremium : 0);
         }, 0);
-        document.getElementById('fabTotalPremium').textContent = '₺' + totalPremium.toLocaleString('tr-TR');
+        document.getElementById('fabTotalPremium').textContent = totalPremium.toLocaleString('tr-TR') + ' TL';
       } else {
         selectedCountBadge.style.display = 'none';
         sendSelectedBtn.style.display = 'none';
@@ -4761,11 +4761,11 @@
           <div class="policy-prim-summary">
             <div class="policy-prim-card">
               <div class="policy-prim-label">Brüt Prim</div>
-              <div class="policy-prim-value">₺${policy.grossPremium.toLocaleString('tr-TR')}</div>
+              <div class="policy-prim-value">${policy.grossPremium.toLocaleString('tr-TR')} TL</div>
             </div>
             <div class="policy-prim-card secondary">
               <div class="policy-prim-label">Net Prim</div>
-              <div class="policy-prim-value">₺${policy.netPremium.toLocaleString('tr-TR')}</div>
+              <div class="policy-prim-value">${policy.netPremium.toLocaleString('tr-TR')} TL</div>
             </div>
           </div>
         </div>

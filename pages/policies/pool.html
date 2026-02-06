@@ -131,7 +131,7 @@
     </div>
     <div class="fab-stats">
       <div class="fab-stat">
-        <span class="fab-stat-value" id="fabTotalPremium">₺0</span>
+        <span class="fab-stat-value" id="fabTotalPremium">0 TL</span>
         <span class="fab-stat-label">Toplam Prim</span>
       </div>
     </div>
@@ -253,11 +253,11 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Net Prim (₺)</label>
+              <label class="form-label">Net Prim (TL)</label>
               <input type="number" step="0.01" class="form-control mono" id="editNetPremium">
             </div>
             <div class="form-group">
-              <label class="form-label">Brüt Prim (₺)</label>
+              <label class="form-label">Brüt Prim (TL)</label>
               <input type="number" step="0.01" class="form-control mono" id="editGrossPremium">
             </div>
           </div>
@@ -349,11 +349,11 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label class="form-label">Net Prim (₺)</label>
+              <label class="form-label">Net Prim (TL)</label>
               <input type="text" class="form-control mono" id="editUnmatchedNetPrim" readonly style="background: rgba(255,255,255,0.05);">
             </div>
             <div class="form-group">
-              <label class="form-label">Brüt Prim (₺)</label>
+              <label class="form-label">Brüt Prim (TL)</label>
               <input type="text" class="form-control mono" id="editUnmatchedBrutPrim" readonly style="background: rgba(255,255,255,0.05);">
             </div>
           </div>
@@ -3725,7 +3725,7 @@
               </div>
             </div>
             <div class="kpi-content">
-              <div class="kpi-value">₺${totalPrim.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+              <div class="kpi-value">${totalPrim.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} TL</div>
               <div class="kpi-label">Toplam Prim</div>
               <div class="kpi-subtitle">${total} poliçe</div>
             </div>
@@ -3957,15 +3957,15 @@
           </td>
           <td><span class="badge badge-outline">${item.brans || '-'}</span></td>
           <td><span class="text-sm">${item.sigortaSirketi || '-'}</span></td>
-          <td class="font-mono text-right">₺${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</td>
+          <td class="font-mono text-right">${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</td>
           <td class="font-mono text-right">
-            ${item.yakalananPrim != null ? `₺${item.yakalananPrim.toLocaleString('tr-TR', {minimumFractionDigits: 2})}` : '<span class="text-muted">-</span>'}
+            ${item.yakalananPrim != null ? `${item.yakalananPrim.toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL` : '<span class="text-muted">-</span>'}
           </td>
           <td class="font-mono text-right ${farkClass}">
-            ${primFarki !== 0 && primFarki !== null ? `${primFarki > 0 ? '+' : ''}₺${primFarki.toLocaleString('tr-TR', {minimumFractionDigits: 2})}` : '<span class="text-muted">-</span>'}
+            ${primFarki !== 0 && primFarki !== null ? `${primFarki > 0 ? '+' : ''}${primFarki.toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL` : '<span class="text-muted">-</span>'}
           </td>
           <td class="font-mono text-right">
-            <span class="font-mono">₺${(item.komisyon || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span>
+            <span class="font-mono">${(item.komisyon || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</span>
           </td>
           <td>
             <span class="badge ${statusClass}">${statusText}</span>
@@ -4475,10 +4475,10 @@
                         <span class="text-sm">${item.subeAdi || '-'}</span>
                       </td>
                       <td class="text-right">
-                        <span class="font-mono">₺${(item.netPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span>
+                        <span class="font-mono">${(item.netPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</span>
                       </td>
                       <td class="text-right">
-                        <span class="font-mono" style="font-weight: 600;">₺${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}</span>
+                        <span class="font-mono" style="font-weight: 600;">${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</span>
                       </td>
                       <td>
                         <span class="text-xs text-muted">${new Date(item.eklenmeTarihi).toLocaleDateString('tr-TR')}</span>
@@ -4560,8 +4560,8 @@
       document.getElementById('editUnmatchedSigortali').value = item.sigortaliAdi || '';
       document.getElementById('editUnmatchedBrans').value = item.brans || '';
       document.getElementById('editUnmatchedSirket').value = item.sigortaSirketi || '';
-      document.getElementById('editUnmatchedNetPrim').value = `₺${(item.netPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
-      document.getElementById('editUnmatchedBrutPrim').value = `₺${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})}`;
+      document.getElementById('editUnmatchedNetPrim').value = `${(item.netPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL`;
+      document.getElementById('editUnmatchedBrutPrim').value = `${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL`;
       document.getElementById('editUnmatchedTanzim').value = new Date(item.tanzimTarihi).toLocaleDateString('tr-TR');
       document.getElementById('editUnmatchedBaslangic').value = new Date(item.baslangicTarihi).toLocaleDateString('tr-TR');
       document.getElementById('editUnmatchedBitis').value = new Date(item.bitisTarihi).toLocaleDateString('tr-TR');
@@ -5056,10 +5056,10 @@
             <span class="policy-type-badge ${p.typeClass}">${p.type}</span>
           </td>
           <td>
-            <span class="font-mono font-semibold">₺${p.netPremium.toLocaleString('tr-TR')}</span>
+            <span class="font-mono font-semibold">${p.netPremium.toLocaleString('tr-TR')} TL</span>
           </td>
           <td>
-            <span class="font-mono font-semibold">₺${p.grossPremium.toLocaleString('tr-TR')}</span>
+            <span class="font-mono font-semibold">${p.grossPremium.toLocaleString('tr-TR')} TL</span>
           </td>
           <td>
             <div class="producer-cell">
@@ -5252,7 +5252,7 @@
           const policy = policies.find(p => p.id === id);
           return sum + (policy ? policy.grossPremium : 0);
         }, 0);
-        document.getElementById('fabTotalPremium').textContent = '₺' + totalPremium.toLocaleString('tr-TR');
+        document.getElementById('fabTotalPremium').textContent = totalPremium.toLocaleString('tr-TR') + ' TL';
       } else {
         selectedCountBadge.style.display = 'none';
         sendSelectedBtn.style.display = 'none';
@@ -5331,7 +5331,7 @@
       if (policy) {
         // TODO: Modal açarak poliçe detaylarını göster veya detay sayfasına yönlendir
         // window.location.href = `/policies/${id}`;
-        alert(`Poliçe Detayı:\n\nPoliçe No: ${policy.policyNo}\nMüşteri: ${policy.customer}\nTip: ${policy.type}\nNet Prim: ₺${policy.netPremium.toLocaleString('tr-TR')}\nBrüt Prim: ₺${policy.grossPremium.toLocaleString('tr-TR')}\nProdüktör: ${policy.producer}\nŞube: ${policy.branch}\nTarih: ${policy.dateFormatted}`);
+        alert(`Poliçe Detayı:\n\nPoliçe No: ${policy.policyNo}\nMüşteri: ${policy.customer}\nTip: ${policy.type}\nNet Prim: ${policy.netPremium.toLocaleString('tr-TR')} TL\nBrüt Prim: ${policy.grossPremium.toLocaleString('tr-TR')} TL\nProdüktör: ${policy.producer}\nŞube: ${policy.branch}\nTarih: ${policy.dateFormatted}`);
       }
     }
 

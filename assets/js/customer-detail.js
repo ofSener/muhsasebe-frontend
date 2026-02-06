@@ -22,8 +22,8 @@
    * Para formatı
    */
   function formatCurrency(amount) {
-    if (amount === null || amount === undefined) return '₺0';
-    return '₺' + Number(amount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    if (amount === null || amount === undefined) return '0 TL';
+    return Number(amount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' TL';
   }
 
   /**

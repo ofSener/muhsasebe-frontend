@@ -18,8 +18,8 @@
    * Para formatı
    */
   function formatCurrency(amount) {
-    if (amount === null || amount === undefined) return '₺0';
-    return '₺' + Number(amount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    if (amount === null || amount === undefined) return '0 TL';
+    return Number(amount).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' TL';
   }
 
   /**
@@ -377,10 +377,10 @@
    * Boş durum göster
    */
   function showEmptyState() {
-    updateStatValue('.stat-cyan .stat-value', '₺0');
-    updateStatValue('.stat-emerald .stat-value', '₺0');
-    updateStatValue('.stat-violet .stat-value', '₺0');
-    updateStatValue('.stat-amber .stat-value', '₺0');
+    updateStatValue('.stat-cyan .stat-value', '0 TL');
+    updateStatValue('.stat-emerald .stat-value', '0 TL');
+    updateStatValue('.stat-violet .stat-value', '0 TL');
+    updateStatValue('.stat-amber .stat-value', '0 TL');
 
     const tbody = document.querySelector('.data-table tbody');
     if (tbody) {

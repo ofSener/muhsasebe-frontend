@@ -338,7 +338,7 @@
                     <div class="form-group">
                       <label class="form-label">Prim Tutarı <span class="required">*</span></label>
                       <div class="input-with-prefix">
-                        <span class="input-prefix">₺</span>
+                        <span class="input-prefix">TL</span>
                         <input type="number" class="form-input" id="premiumAmount" placeholder="0.00">
                       </div>
                     </div>
@@ -356,7 +356,7 @@
                   <div class="commission-preview">
                     <div class="commission-preview-row">
                       <span>Prim Tutarı:</span>
-                      <strong id="previewPremium">₺0.00</strong>
+                      <strong id="previewPremium">0.00 TL</strong>
                     </div>
                     <div class="commission-preview-row">
                       <span>Komisyon Oranı:</span>
@@ -364,7 +364,7 @@
                     </div>
                     <div class="commission-preview-row highlight">
                       <span>Komisyon Tutarı:</span>
-                      <strong id="previewCommission">₺0.00</strong>
+                      <strong id="previewCommission">0.00 TL</strong>
                     </div>
                   </div>
                 </div>
@@ -436,11 +436,11 @@
                       <h4 class="summary-section-title">Finansal</h4>
                       <div class="summary-row">
                         <span class="summary-label">Prim:</span>
-                        <span class="summary-value font-mono" id="summaryPremium">₺0.00</span>
+                        <span class="summary-value font-mono" id="summaryPremium">0.00 TL</span>
                       </div>
                       <div class="summary-row">
                         <span class="summary-label">Komisyon:</span>
-                        <span class="summary-value font-mono" id="summaryCommission">₺0.00</span>
+                        <span class="summary-value font-mono" id="summaryCommission">0.00 TL</span>
                       </div>
                     </div>
                   </div>
@@ -1019,8 +1019,8 @@
       const rate = parseFloat(document.getElementById('commissionRate').value) || 0;
       const commission = premium * (rate / 100);
 
-      document.getElementById('summaryPremium').textContent = '₺' + premium.toLocaleString('tr-TR', {minimumFractionDigits: 2});
-      document.getElementById('summaryCommission').textContent = '₺' + commission.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+      document.getElementById('summaryPremium').textContent = premium.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' TL';
+      document.getElementById('summaryCommission').textContent = commission.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' TL';
     }
 
     function saveDraft() {
@@ -1044,9 +1044,9 @@
         const rate = parseFloat(rateInput.value) || 0;
         const commission = premium * (rate / 100);
 
-        document.getElementById('previewPremium').textContent = '₺' + premium.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        document.getElementById('previewPremium').textContent = premium.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' TL';
         document.getElementById('previewRate').textContent = '%' + rate;
-        document.getElementById('previewCommission').textContent = '₺' + commission.toLocaleString('tr-TR', {minimumFractionDigits: 2});
+        document.getElementById('previewCommission').textContent = commission.toLocaleString('tr-TR', {minimumFractionDigits: 2}) + ' TL';
       }
 
       premiumInput?.addEventListener('input', updatePreview);

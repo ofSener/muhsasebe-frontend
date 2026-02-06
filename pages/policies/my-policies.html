@@ -426,8 +426,8 @@
           <td><span style="font-size: 0.875rem;">${p.subeAdi || '-'}</span></td>
           <td>${formatDate(p.baslangicTarihi)}</td>
           <td>${formatDate(p.bitisTarihi)}</td>
-          <td class="font-mono font-semibold">₺${formatNumber(p.brutPrim)}</td>
-          <td class="font-mono">₺${formatNumber(p.komisyon)}</td>
+          <td class="font-mono font-semibold">${formatNumber(p.brutPrim)} TL</td>
+          <td class="font-mono">${formatNumber(p.komisyon)} TL</td>
           <td>${getStatusBadge(p.onayDurumu)}</td>
           <td>
             <div class="table-actions">
@@ -586,15 +586,15 @@
         </div>
         <div class="detail-item">
           <div class="detail-label">Brüt Prim</div>
-          <div class="detail-value large font-mono">₺${formatNumber(policy.brutPrim)}</div>
+          <div class="detail-value large font-mono">${formatNumber(policy.brutPrim)} TL</div>
         </div>
         <div class="detail-item">
           <div class="detail-label">Net Prim</div>
-          <div class="detail-value font-mono">₺${formatNumber(policy.netPrim)}</div>
+          <div class="detail-value font-mono">${formatNumber(policy.netPrim)} TL</div>
         </div>
         <div class="detail-item">
           <div class="detail-label">Komisyon</div>
-          <div class="detail-value large font-mono">₺${formatNumber(policy.komisyon)}</div>
+          <div class="detail-value large font-mono">${formatNumber(policy.komisyon)} TL</div>
         </div>
         <div class="detail-item">
           <div class="detail-label">Zeyil No</div>

@@ -392,7 +392,7 @@ const APP_CONFIG = {
   // ═══════════════════════════════════════════════════════════════
   CURRENCY: {
     CODE: 'TRY',
-    SYMBOL: '₺',
+    SYMBOL: 'TL',
     LOCALE: 'tr-TR',
 
     // Para formatla

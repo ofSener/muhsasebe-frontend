@@ -135,7 +135,7 @@
                 </svg>
               </div>
               <div class="urgency-content">
-                <div class="urgency-count" id="count-revenue">₺0</div>
+                <div class="urgency-count" id="count-revenue">0 TL</div>
                 <div class="urgency-label">Toplam Potansiyel</div>
                 <div class="urgency-bar revenue-bar"></div>
               </div>
@@ -293,7 +293,7 @@
             <div class="modal-stat-label">Seçili Poliçe</div>
           </div>
           <div class="modal-stat">
-            <div class="modal-stat-value" id="bulkQuoteRevenue">₺0</div>
+            <div class="modal-stat-value" id="bulkQuoteRevenue">0 TL</div>
             <div class="modal-stat-label">Toplam Prim</div>
           </div>
         </div>
@@ -1625,7 +1625,7 @@
 
     function formatCurrency(amount) {
       if (!amount && amount !== 0) return '-';
-      return '₺' + amount.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      return amount.toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' TL';
     }
 
     function formatPhone(phone) {
