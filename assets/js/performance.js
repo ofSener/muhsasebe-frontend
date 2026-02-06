@@ -654,7 +654,7 @@ function updateCompanyPerformanceChart(data) {
   const container = document.querySelector('#performanceChart');
 
   // Subtitle'ı period'a göre güncelle
-  const subtitleEl = document.querySelector('.performance-card .card-subtitle');
+  const subtitleEl = document.querySelector('.performance-card .perf-card-subtitle');
   if (subtitleEl) {
     const periodLabels = {
       'hour': 'Saatlik Görünüm',

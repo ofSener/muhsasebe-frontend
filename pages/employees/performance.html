@@ -281,7 +281,7 @@
       box-shadow: var(--card-shadow);
     }
 
-    .card-header {
+    .perf-card-header {
       padding: 1.5rem 2rem;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
@@ -298,7 +298,7 @@
       gap: 0.25rem;
     }
 
-    .card-title {
+    .perf-card-title {
       font-size: 1.125rem;
       font-weight: 700;
       color: var(--text-primary);
@@ -307,7 +307,7 @@
       gap: 0.5rem;
     }
 
-    .card-title::before {
+    .perf-card-title::before {
       content: '';
       width: 4px;
       height: 20px;
@@ -315,7 +315,7 @@
       border-radius: 2px;
     }
 
-    .card-subtitle {
+    .perf-card-subtitle {
       font-size: 0.875rem;
       color: var(--text-secondary);
       font-weight: 400;
@@ -595,7 +595,7 @@
       gap: 1rem;
     }
 
-    .section-title {
+    .control-section-title {
       font-size: 0.7rem;
       font-weight: 700;
       color: var(--text-dim);
@@ -682,7 +682,7 @@
       flex-direction: column;
     }
 
-    .content-header {
+    .treemap-content-header {
       padding: 1.5rem 2rem;
       border-bottom: 1px solid var(--border-subtle);
       display: flex;
@@ -690,7 +690,7 @@
       align-items: center;
     }
 
-    .breadcrumb {
+    .treemap-breadcrumb {
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -698,17 +698,17 @@
       color: var(--text-secondary);
     }
 
-    .breadcrumb-item {
+    .treemap-breadcrumb-item {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
-    .breadcrumb-separator {
+    .treemap-breadcrumb-separator {
       color: var(--text-dim);
     }
 
-    .breadcrumb-item.active {
+    .treemap-breadcrumb-item.active {
       color: var(--primary);
       font-weight: 600;
     }
@@ -1172,10 +1172,10 @@
 
             <!-- Company Performance Card -->
             <div class="performance-card">
-              <div class="card-header">
+              <div class="perf-card-header">
                 <div class="header-left">
-                  <div class="card-title">Şirket Performansı</div>
-                  <div class="card-subtitle">Dönem Karşılaştırması</div>
+                  <div class="perf-card-title">Şirket Performansı</div>
+                  <div class="perf-card-subtitle">Dönem Karşılaştırması</div>
                 </div>
                 <div class="period-toggle">
                   <button class="period-btn active" data-period="hour" onclick="setPeriod('hour')">
@@ -1380,7 +1380,7 @@
                 </div>
 
                 <div class="control-section">
-                  <div class="section-title">Gruplandırma</div>
+                  <div class="control-section-title">Gruplandırma</div>
                   <div class="option-list">
                     <button class="option-btn active" onclick="setTreeView('employee')">
                       <div class="option-icon">
@@ -1410,7 +1410,7 @@
                 </div>
 
                 <div class="control-section">
-                  <div class="section-title">Metrik Türü</div>
+                  <div class="control-section-title">Metrik Türü</div>
                   <div class="option-list">
                     <button class="option-btn active" onclick="setTreeMode('amount')">
                       <div class="option-icon">
@@ -1437,9 +1437,9 @@
               </div>
 
               <div class="treemap-content">
-                <div class="content-header">
-                  <div class="breadcrumb">
-                    <div class="breadcrumb-item">
+                <div class="treemap-content-header">
+                  <div class="treemap-breadcrumb">
+                    <div class="treemap-breadcrumb-item">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="flex-shrink: 0;">
                         <rect x="3" y="3" width="7" height="7"/>
                         <rect x="14" y="3" width="7" height="7"/>
@@ -1448,8 +1448,8 @@
                       </svg>
                       <span>Hiyerarşik Analiz</span>
                     </div>
-                    <span class="breadcrumb-separator">›</span>
-                    <div class="breadcrumb-item active" id="breadcrumbActive">Çalışanlar</div>
+                    <span class="treemap-breadcrumb-separator">›</span>
+                    <div class="treemap-breadcrumb-item active" id="breadcrumbActive">Çalışanlar</div>
                   </div>
                   <div class="total-badge" id="totalBadge">545K TL</div>
                 </div>
