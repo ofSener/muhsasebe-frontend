@@ -251,7 +251,9 @@
     const toggleBtn = document.getElementById('sidebarToggleBtn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', function() {
-        document.getElementById('sidebar').classList.toggle('collapsed');
+        const sb = document.getElementById('sidebar');
+        sb.classList.toggle('collapsed');
+        localStorage.setItem('sidebar-collapsed', sb.classList.contains('collapsed'));
       });
     }
   }
