@@ -3028,6 +3028,7 @@
     let companyCodeMap = {}; // id -> kod mapping
     let policies = [];
     let filteredPolicies = [];
+    let policyDriveLinks = {}; // { "POL-001": "https://drive...", ... }
 
     // Logo path constants
     const LOGO_BASE_PATH = '../../assets/images/logos/insurance-companies/';
@@ -3264,6 +3265,18 @@
         // API response'u frontend formatına dönüştür
         policies = rawPolicies.map(mapPolicyFromApi);
         filteredPolicies = [...policies];
+
+        // Poliçelerin Drive PDF linklerini toplu al (PoliceId = veritabanı ID'si)
+        const policeIds = policies.map(p => p.id?.toString()).filter(Boolean);
+        if (policeIds.length > 0) {
+          try {
+            const driveResult = await apiPost('drive/by-police-batch', { policeIds });
+            policyDriveLinks = driveResult?.links || {};
+          } catch (e) {
+            console.log('Drive linkleri alınamadı:', e);
+            policyDriveLinks = {};
+          }
+        }
 
         // Filtreleri poliçeler yüklendikten sonra tekrar doldur
         // (policies verisiyle tam eşleşme için)
@@ -4396,14 +4409,17 @@
             </div>
           </td>
           <td>
-            <span class="clickable-link font-mono" style="font-weight: 600;" onclick="event.stopPropagation(); openPolicyDrive('${p.policyNo}')" title="Google Drive'da aç">
-              ${p.policyNo}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-                <polyline points="15,3 21,3 21,9"/>
-                <line x1="10" y1="14" x2="21" y2="3"/>
-              </svg>
-            </span>
+            ${policyDriveLinks[p.id]
+              ? `<span class="clickable-link font-mono" style="font-weight: 600;" onclick="event.stopPropagation(); window.open('${policyDriveLinks[p.id]}', '_blank')" title="PDF'i görüntüle">
+                  ${p.policyNo}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+                    <polyline points="15,3 21,3 21,9"/>
+                    <line x1="10" y1="14" x2="21" y2="3"/>
+                  </svg>
+                </span>`
+              : `<span class="font-mono" style="font-weight: 600;">${p.policyNo}</span>`
+            }
           </td>
           <td>
             <div class="cell-main clickable-customer" onclick="event.stopPropagation(); openCustomerModal('${p.customer}', ${p.id})">${p.customer}</div>
