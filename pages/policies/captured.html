@@ -86,9 +86,9 @@
                 <button class="date-pill" onclick="setQuickDate('yesterday', this)">Dün</button>
                 <button class="date-pill" onclick="setQuickDate('week', this)">Bu Hafta</button>
                 <button class="date-pill" onclick="setQuickDate('month', this)">Bu Ay</button>
+                <button class="date-pill" onclick="setQuickDate('year', this)">Bu Yıl</button>
                 <button class="date-pill" onclick="setQuickDate('last7', this)">Son 7 Gün</button>
                 <button class="date-pill" onclick="setQuickDate('last30', this)">Son 30 Gün</button>
-                <button class="date-pill" onclick="setQuickDate('year', this)">Bu Yıl</button>
                 <button class="date-pill" onclick="setQuickDate('last365', this)">Son 365 Gün</button>
                 <label class="date-pill date-pill-range" id="rangePill">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -616,8 +616,8 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Şube</label>
-              <select class="form-control" id="editBranch">
+              <label class="form-label">Kesen Üye</label>
+              <select class="form-control" id="editKesenUye">
                 <!-- Dinamik doldurulacak -->
               </select>
             </div>
@@ -1046,6 +1046,8 @@
 
     .data-table tbody tr:hover {
       background: var(--bg-elevated);
+      position: relative;
+      z-index: 10;
     }
 
     .data-table tbody tr.selected {
@@ -1260,6 +1262,62 @@
     .producer-branch {
       font-size: 0.7rem;
       color: var(--text-muted);
+    }
+
+    /* Kesen Üye hover card - aşağı açılır, son satırda yukarı */
+    .kesen-uye-hover {
+      position: absolute;
+      left: 0;
+      top: calc(100% + 4px);
+      z-index: 9999;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.6rem 0.85rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.15s ease 0s, visibility 0s linear 0.15s;
+    }
+
+    /* Son 2 satırda yukarı aç */
+    .data-table tbody tr:last-child .kesen-uye-hover,
+    .data-table tbody tr:nth-last-child(2) .kesen-uye-hover {
+      top: auto;
+      bottom: calc(100% + 4px);
+    }
+
+    .producer-cell:hover .kesen-uye-hover {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.15s ease 0.6s, visibility 0s linear 0.6s;
+    }
+
+    .kesen-uye-hover-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #94a3b8 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.4rem;
+    }
+
+    .kesen-uye-hover-body {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .kesen-uye-hover .producer-name,
+    .kesen-uye-hover .kesen-uye-hover-body .producer-name {
+      color: #1e293b !important;
+    }
+
+    .kesen-uye-hover .producer-branch,
+    .kesen-uye-hover .kesen-uye-hover-body .producer-branch {
+      color: #64748b !important;
     }
 
     /* Action Buttons */
@@ -1503,6 +1561,7 @@
       font-weight: 700;
       color: #34d399;
       font-family: var(--font-mono, monospace);
+      white-space: nowrap;
     }
 
     .policy-prim-card.secondary .policy-prim-value {
@@ -3198,6 +3257,10 @@
       // Şube adını al (API'dan doğrudan geliyor)
       const branch = p.subeAdi || `Şube #${p.subeId}`;
 
+      // Kesen üye bilgisi
+      const kesenUyeUser = producersList.find(pr => pr.id === p.uyeId);
+      const kesenUyeName = p.uyeAdi || (kesenUyeUser ? kesenUyeUser.name : '-');
+
       return {
         id: p.id,
         policyNo: p.policeNo || p.policeNumarasi || '',
@@ -3218,7 +3281,12 @@
         dateFormatted: p.tanzimTarihi ? new Date(p.tanzimTarihi).toLocaleDateString('tr-TR') : '-',
         plaka: p.plaka || '',
         acenteAdi: p.acenteAdi || '',
-        acenteNo: p.acenteNo || ''
+        acenteNo: p.acenteNo || '',
+        kesenUye: kesenUyeName,
+        kesenUyeId: p.uyeId,
+        kesenUyeInitials: kesenUyeUser?.initials || kesenUyeName.substring(0, 2).toUpperCase(),
+        kesenUyeColor: kesenUyeUser?.color || 'violet',
+        kesenUyeBranch: kesenUyeUser?.branch || branch
       };
     }
 
@@ -3830,6 +3898,7 @@
         // 5. UI bileşenlerini hazırla
         updatePermissionUI();
 
+
       } catch (error) {
         console.error('Sayfa yüklenirken hata:', error);
         showToast('Sayfa yüklenirken hata oluştu', 'error');
@@ -4276,7 +4345,8 @@
           p.dateFormatted.toLowerCase().includes(searchTerm) ||
           p.netPremium.toString().includes(searchTerm) ||
           p.grossPremium.toString().includes(searchTerm) ||
-          (p.sigortaSirketiAdi || '').toLowerCase().includes(searchTerm)
+          (p.sigortaSirketiAdi || '').toLowerCase().includes(searchTerm) ||
+          (p.kesenUye || '').toLowerCase().includes(searchTerm)
         );
       }
 
@@ -4440,7 +4510,7 @@
       if (totalItems === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+            <td colspan="11" style="text-align: center; padding: 2rem; color: var(--text-muted);">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.5rem; opacity: 0.5;">
                 <circle cx="11" cy="11" r="8"/>
                 <path d="M21 21l-4.35-4.35"/>
@@ -4488,17 +4558,27 @@
             <span class="policy-type-badge ${p.typeClass}">${p.type}</span>
           </td>
           <td>
-            <span class="font-mono font-semibold">${p.netPremium.toLocaleString('tr-TR')} TL</span>
+            <span class="font-mono font-semibold" style="white-space:nowrap">${p.netPremium.toLocaleString('tr-TR')} TL</span>
           </td>
           <td>
-            <span class="font-mono font-semibold">${p.grossPremium.toLocaleString('tr-TR')} TL</span>
+            <span class="font-mono font-semibold" style="white-space:nowrap">${p.grossPremium.toLocaleString('tr-TR')} TL</span>
           </td>
-          <td>
+          <td style="overflow:visible; position:relative;">
             <div class="producer-cell">
               <div class="producer-avatar ${p.producerColor}">${p.producerInitials}</div>
               <div class="producer-info">
                 <span class="producer-name clickable-producer" onclick="event.stopPropagation(); openProducerModal('${p.producer}', '${p.producerInitials}', '${p.producerColor}')">${p.producer}</span>
                 <span class="producer-branch clickable-branch" onclick="event.stopPropagation(); openBranchModal('${p.branch}')">${p.branch}</span>
+              </div>
+              <div class="kesen-uye-hover">
+                <div class="kesen-uye-hover-label">Poliçeyi Kesen</div>
+                <div class="kesen-uye-hover-body">
+                  <div class="producer-avatar ${p.kesenUyeColor}" style="width:24px;height:24px;font-size:0.6rem;">${p.kesenUyeInitials}</div>
+                  <div class="producer-info">
+                    <span class="producer-name">${p.kesenUye}</span>
+                    <span class="producer-branch">${p.kesenUyeBranch}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </td>
@@ -4825,12 +4905,20 @@
               <div class="policy-detail-value">${policy.branch}</div>
             </div>
             <div class="policy-detail-item">
+              <div class="policy-detail-label">Kesen Üye</div>
+              <div class="policy-detail-value">${policy.kesenUye}</div>
+            </div>
+            <div class="policy-detail-item">
               <div class="policy-detail-label">Tanzim Tarihi</div>
               <div class="policy-detail-value">${policy.dateFormatted}</div>
             </div>
             <div class="policy-detail-item">
               <div class="policy-detail-label">Acente No</div>
               <div class="policy-detail-value mono">${policy.acenteNo || '-'}</div>
+            </div>
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Acente İsmi</div>
+              <div class="policy-detail-value">${policy.acenteAdi || '-'}</div>
             </div>
           </div>
 
@@ -5473,10 +5561,10 @@
         `<option value="${p.name}" ${p.name === policy.producer ? 'selected' : ''}>${p.name}</option>`
       ).join('');
 
-      // Şube dropdown
-      const branchSelect = document.getElementById('editBranch');
-      branchSelect.innerHTML = branchesList.map(b =>
-        `<option value="${b}" ${b === policy.branch ? 'selected' : ''}>${b}</option>`
+      // Kesen Üye dropdown
+      const kesenUyeSelect = document.getElementById('editKesenUye');
+      kesenUyeSelect.innerHTML = producersList.map(p =>
+        `<option value="${p.name}" ${p.name === policy.kesenUye ? 'selected' : ''}>${p.name}</option>`
       ).join('');
 
       // Modalı aç
@@ -5504,7 +5592,7 @@
       const newNetPremium = parseFloat(document.getElementById('editNetPremium').value) || 0;
       const newGrossPremium = parseFloat(document.getElementById('editGrossPremium').value) || 0;
       const newProducer = document.getElementById('editProducer').value;
-      const newBranch = document.getElementById('editBranch').value;
+      const newKesenUye = document.getElementById('editKesenUye').value;
 
       // Değişiklikleri topla
       const changes = {};
@@ -5515,7 +5603,7 @@
       if (newNetPremium !== policy.netPremium) changes.netPremium = newNetPremium;
       if (newGrossPremium !== policy.grossPremium) changes.grossPremium = newGrossPremium;
       if (newProducer !== policy.producer) changes.producer = newProducer;
-      if (newBranch !== policy.branch) changes.branch = newBranch;
+      if (newKesenUye !== policy.kesenUye) changes.kesenUye = newKesenUye;
 
       // Değişiklik yoksa
       if (Object.keys(changes).length === 0) {
@@ -5542,7 +5630,7 @@
             netPremium: newNetPremium,
             grossPremium: newGrossPremium,
             producer: newProducer,
-            branch: newBranch
+            kesenUye: newKesenUye
           });
 
           // Prodüktör bilgilerini güncelle
@@ -5550,6 +5638,14 @@
           if (prod) {
             policy.producerInitials = prod.initials;
             policy.producerColor = prod.color;
+          }
+
+          // Kesen üye bilgilerini güncelle
+          const ku = producersList.find(p => p.name === newKesenUye);
+          if (ku) {
+            policy.kesenUyeInitials = ku.initials;
+            policy.kesenUyeColor = ku.color;
+            policy.kesenUyeBranch = ku.branch;
           }
 
           showToast('Poliçe başarıyla güncellendi', 'success');
