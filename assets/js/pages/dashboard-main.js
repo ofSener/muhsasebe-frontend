@@ -1433,16 +1433,107 @@
       // Update filter chips
       updateFilterChips();
 
-      // Sticky filter shadow on scroll
-      const filtersEl = document.querySelector('.dashboard-filters');
-      if (filtersEl) {
-        const navbarH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--navbar-height')) || 64;
-        const observer = new IntersectionObserver(
-          ([entry]) => {
-            filtersEl.classList.toggle('is-stuck', entry.intersectionRatio < 1);
-          },
-          { threshold: [1], rootMargin: `-${navbarH + 1}px 0px 0px 0px` }
-        );
-        observer.observe(filtersEl);
+      // Filter Drawer on Scroll
+      const filtersEl = document.getElementById('dashboardFilters');
+      const sentinel = document.getElementById('filtersSentinel');
+      const toggleBtn = document.getElementById('filterDrawerToggle');
+      const backdrop = document.getElementById('filterDrawerBackdrop');
+
+      if (filtersEl && sentinel && toggleBtn && backdrop) {
+        let drawerActive = false;
+
+        function openDrawer() {
+          filtersEl.classList.add('drawer-open');
+          toggleBtn.classList.add('active');
+          backdrop.classList.add('visible');
+        }
+
+        function closeDrawer() {
+          filtersEl.classList.remove('drawer-open');
+          toggleBtn.classList.remove('active');
+          backdrop.classList.remove('visible');
+          // After closing, check if scroll is back above filters → exit drawer mode
+          requestAnimationFrame(function() {
+            if (drawerActive && window.scrollY <= filtersBottom) {
+              exitDrawerMode();
+            }
+          });
+        }
+
+        // Cache normal height before any mode switch
+        let normalHeight = filtersEl.offsetHeight;
+
+        function enterDrawerMode() {
+          if (drawerActive) return;
+          drawerActive = true;
+          // Preserve space with sentinel
+          sentinel.style.height = normalHeight + 'px';
+          // Switch to drawer
+          filtersEl.classList.add('drawer-mode');
+          toggleBtn.classList.add('visible');
+        }
+
+        function exitDrawerMode() {
+          if (!drawerActive) return;
+          // Never exit while the drawer panel is open
+          if (filtersEl.classList.contains('drawer-open')) return;
+          drawerActive = false;
+          filtersEl.classList.remove('drawer-mode');
+          toggleBtn.classList.remove('visible');
+          sentinel.style.height = '0';
+          // Recalculate position after returning to normal flow
+          requestAnimationFrame(function() {
+            filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+          });
+        }
+
+        // Toggle button click
+        toggleBtn.addEventListener('click', function() {
+          if (filtersEl.classList.contains('drawer-open')) {
+            closeDrawer();
+          } else {
+            openDrawer();
+          }
+        });
+
+        // Click outside drawer closes it (document-level, avoids stacking context issues)
+        document.addEventListener('mousedown', function(e) {
+          if (filtersEl.classList.contains('drawer-open') &&
+              !filtersEl.contains(e.target) &&
+              !toggleBtn.contains(e.target)) {
+            closeDrawer();
+          }
+        });
+
+        // Escape key closes drawer
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && drawerActive) closeDrawer();
+        });
+
+        // Scroll-based detection (replaces IntersectionObserver to avoid initial-load glitch)
+        let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+        let ticking = false;
+
+        // Recalculate on resize
+        window.addEventListener('resize', function() {
+          if (!drawerActive) {
+            filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+          }
+        });
+
+        window.addEventListener('scroll', function() {
+          if (!ticking) {
+            requestAnimationFrame(function() {
+              const scrolledPast = window.scrollY > filtersBottom;
+              if (scrolledPast && !drawerActive) {
+                enterDrawerMode();
+              } else if (!scrolledPast && drawerActive && !filtersEl.classList.contains('drawer-open')) {
+                exitDrawerMode();
+              }
+              ticking = false;
+            });
+            ticking = true;
+          }
+        }, { passive: true });
       }
     });
