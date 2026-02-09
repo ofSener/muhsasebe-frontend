@@ -81,23 +81,19 @@
               </div>
             </div>
             <div class="page-header-filter">
-              <div class="date-presets" id="datePresets">
-                <button type="button" class="date-preset-btn active" data-range="today" onclick="handlePresetClick(this, 'today')">Bugün</button>
-                <button type="button" class="date-preset-btn" data-range="yesterday" onclick="handlePresetClick(this, 'yesterday')">Dün</button>
-                <button type="button" class="date-preset-btn" data-range="thisWeek" onclick="handlePresetClick(this, 'thisWeek')">Bu Hafta</button>
-                <button type="button" class="date-preset-btn" data-range="thisMonth" onclick="handlePresetClick(this, 'thisMonth')">Bu Ay</button>
-              </div>
-              <div class="date-range-picker" id="dateRangePicker">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                <input type="text" id="dateRangeInput" placeholder="Tarih aralığı seçin" readonly>
-                <svg class="picker-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="6,9 12,15 18,9"/>
-                </svg>
+              <div class="date-pills" id="datePills">
+                <button class="date-pill active" onclick="setQuickDate('today', this)">Bugün</button>
+                <button class="date-pill" onclick="setQuickDate('yesterday', this)">Dün</button>
+                <button class="date-pill" onclick="setQuickDate('week', this)">Bu Hafta</button>
+                <button class="date-pill" onclick="setQuickDate('month', this)">Bu Ay</button>
+                <button class="date-pill" onclick="setQuickDate('last7', this)">Son 7 Gün</button>
+                <button class="date-pill" onclick="setQuickDate('last30', this)">Son 30 Gün</button>
+                <button class="date-pill" onclick="setQuickDate('year', this)">Bu Yıl</button>
+                <button class="date-pill" onclick="setQuickDate('last365', this)">Son 365 Gün</button>
+                <label class="date-pill date-pill-range" id="rangePill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <input type="text" id="dateRangeFilter" placeholder="Özel" readonly>
+                </label>
               </div>
             </div>
           </div>
@@ -715,106 +711,87 @@
     .page-header-filter {
       display: flex;
       align-items: center;
-      gap: 1rem;
       padding-top: 1rem;
       border-top: 1px solid var(--border-color);
     }
 
-    /* Date Presets */
-    .date-presets {
+    /* Date Pills */
+    .date-pills {
       display: flex;
-      gap: 0.5rem;
-    }
-
-    .date-preset-btn {
-      padding: 0.5rem 1rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--text-muted);
+      flex: 1;
+      justify-content: center;
+      gap: 0;
       background: var(--bg-elevated);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
-      overflow: hidden;
+      border-radius: 999px;
+      padding: 4px;
+      border: 1px solid var(--border-subtle, var(--border-color));
     }
 
-    .date-preset-btn:hover {
+    .date-pill {
+      flex: 1;
+      padding: 0.4rem 0.85rem;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      font-family: var(--font-sans, inherit);
+      text-align: center;
+    }
+
+    .date-pill:hover {
       color: var(--text-primary);
-      border-color: var(--primary);
+      background: var(--bg-surface, rgba(0,0,0,0.04));
     }
 
-    .date-preset-btn.active {
-      color: #ffffff !important;
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-      border-color: #6366f1 !important;
-      font-weight: 600 !important;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4), 0 2px 4px rgba(99, 102, 241, 0.2) !important;
-      transform: translateY(-1px);
+    .date-pill.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
     }
 
-    .date-preset-btn .ripple {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(99, 102, 241, 0.3);
-      transform: scale(0);
-      animation: ripple 0.6s linear;
-      pointer-events: none;
-    }
-
-    @keyframes ripple {
-      to {
-        transform: scale(4);
-        opacity: 0;
-      }
-    }
-
-    /* Date Range Picker */
-    .date-range-picker {
-      display: flex;
+    /* Range Pill (inside date-pills track) */
+    .date-pill-range {
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
+      gap: 0.3rem;
       cursor: pointer;
-      transition: all 0.2s ease;
     }
 
-    .date-range-picker:hover,
-    .date-range-picker.active {
-      border-color: var(--primary);
+    .date-pill-range svg {
+      flex-shrink: 0;
     }
 
-    .date-range-picker svg {
-      width: 18px;
-      height: 18px;
-      color: var(--text-muted);
-    }
-
-    .date-range-picker input {
+    .date-pill-range input {
       border: none;
       background: transparent;
-      font-size: 0.8rem;
-      color: var(--text-primary);
-      width: 200px;
-      cursor: pointer;
-    }
-
-    .date-range-picker input:focus {
+      color: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: var(--font-sans, inherit);
+      width: 3.2em;
+      padding: 0;
       outline: none;
+      cursor: pointer;
+      transition: width 0.2s ease;
     }
 
-    .date-range-picker .picker-arrow {
-      width: 14px;
-      height: 14px;
-      transition: transform 0.2s ease;
+    .date-pill-range.active input {
+      width: 130px;
     }
 
-    .date-range-picker.active .picker-arrow {
-      transform: rotate(180deg);
+    .date-pill-range input::placeholder {
+      color: inherit;
+      opacity: 0.8;
+    }
+
+    .date-pill-range.active input::placeholder {
+      color: white;
+      opacity: 0.85;
     }
 
     /* Card Header */
@@ -2892,8 +2869,9 @@
         align-items: flex-start;
       }
 
-      .date-presets {
+      .date-pills {
         flex-wrap: wrap;
+        border-radius: 12px;
       }
 
       .permission-bar {
@@ -3825,8 +3803,23 @@
           loadInsuranceCompanies()
         ]);
 
-        // 3. Date picker başlat (ortak utils'ten)
-        initDatePicker(filterByDateRange);
+        // 3. Date pill flatpickr (range pill)
+        flatpickr('#dateRangeFilter', {
+          mode: 'range',
+          dateFormat: 'd.m.Y',
+          locale: 'tr',
+          allowInput: false,
+          disableMobile: true,
+          onChange: function(selectedDates) {
+            const rangePill = document.getElementById('rangePill');
+            if (selectedDates.length === 2) {
+              document.querySelectorAll('.date-pill').forEach(btn => btn.classList.remove('active'));
+              rangePill.classList.add('active');
+              updateKpiPeriodLabel('custom');
+              filterByDateRange(selectedDates[0], selectedDates[1]);
+            }
+          }
+        });
 
         // 4. Ana veri ve istatistikler
         await Promise.all([
@@ -4082,6 +4075,63 @@
       } finally {
         showLoading(false);
       }
+    }
+
+    // Quick date pill handler
+    function setQuickDate(preset, btnEl) {
+      const today = new Date();
+      let startDate, endDate = today;
+
+      switch (preset) {
+        case 'today':
+          startDate = new Date(today);
+          break;
+        case 'yesterday':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 1);
+          endDate = new Date(startDate);
+          break;
+        case 'week':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - today.getDay() + 1);
+          break;
+        case 'month':
+          startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+          break;
+        case 'last7':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 6);
+          break;
+        case 'last30':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 29);
+          break;
+        case 'year':
+          startDate = new Date(today.getFullYear(), 0, 1);
+          break;
+        case 'last365':
+          startDate = new Date(today);
+          startDate.setDate(today.getDate() - 364);
+          break;
+        default:
+          return;
+      }
+
+      // Update active pill
+      document.querySelectorAll('.date-pill').forEach(btn => btn.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      document.getElementById('rangePill').classList.remove('active');
+
+      // Clear flatpickr selection
+      const dateInput = document.getElementById('dateRangeFilter');
+      if (dateInput && dateInput._flatpickr) dateInput._flatpickr.clear();
+
+      // Update KPI label
+      const labelMap = { today: 'today', yesterday: 'yesterday', week: 'thisWeek', month: 'thisMonth', last7: 'custom', last30: 'custom', year: 'custom', last365: 'custom' };
+      updateKpiPeriodLabel(labelMap[preset] || 'custom');
+
+      // Filter
+      filterByDateRange(startDate, endDate);
     }
 
     // Filter by date range (sayfa-spesifik - API çağrıları)
