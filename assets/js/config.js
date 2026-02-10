@@ -93,7 +93,7 @@ const APP_CONFIG = {
     // Musti: https://localhost:36200 (http://localhost:36201)
     // Production: https://muhasebeapi.sigorta.teklifi.al
     // localhost ise dev profil URL'i kullan, değilse production
-    BASE_URL: isLocalhost ? DEV_PROFILES[currentDev].https : 'https://muhasebeapi.sigorta.teklifi.al',
+    BASE_URL: isLocalhost ? DEV_PROFILES[currentDev].http : 'https://muhasebeapi.sigorta.teklifi.al',
     VERSION: 'v1',
     TIMEOUT: 30000, // 30 saniye
 
