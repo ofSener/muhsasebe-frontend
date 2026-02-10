@@ -881,8 +881,8 @@
             <td>
               <div class="name-cell">
                 <span class="expand-icon">▶</span>
-                <a href="pages/employees/detail.html?id=${item.kullaniciId || ''}" class="table-link" onclick="event.stopPropagation()">
-                  ${item.adSoyad || 'Belirsiz'}
+                <a href="pages/employees/details.html?id=${item.uyeId || ''}" class="table-link" onclick="event.stopPropagation()" style="${item.aktif === false ? 'color:#ef4444;' : ''}">
+                  ${item.adSoyad || 'Belirsiz'}${item.aktif === false ? ' (Pasif)' : ''}
                 </a>
               </div>
             </td>
