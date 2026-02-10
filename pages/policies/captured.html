@@ -80,7 +80,8 @@
                 </button>
               </div>
             </div>
-            <div class="page-header-filter">
+            <div id="dateFilterSentinel" style="height:0;"></div>
+            <div class="page-header-filter" id="dateFilterSection">
               <div class="date-pills" id="datePills">
                 <button class="date-pill active" onclick="setQuickDate('today', this)">Bugün</button>
                 <button class="date-pill" onclick="setQuickDate('yesterday', this)">Dün</button>
@@ -96,6 +97,14 @@
                 </label>
               </div>
             </div>
+            <!-- Date Filter Drawer Toggle + Backdrop -->
+            <button class="filter-drawer-toggle" id="filterDrawerToggle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Tarih
+            </button>
+            <div class="filter-drawer-backdrop" id="filterDrawerBackdrop"></div>
           </div>
 
           <!-- KPI Stats - Modern Design -->
@@ -805,6 +814,110 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
+    }
+
+    /* ── Date Filter Drawer Mode ── */
+    .page-header-filter.drawer-mode {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(100%);
+      width: 320px;
+      max-height: calc(100vh - 2rem);
+      margin: 0;
+      padding: 1.25rem;
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-color, #e2e8f0);
+      border-radius: 16px 0 0 16px;
+      box-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
+      z-index: 999;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .page-header-filter.drawer-mode.drawer-open {
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .page-header-filter.drawer-mode .date-pills {
+      flex-wrap: wrap;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    .page-header-filter.drawer-mode .date-pill {
+      flex: 1 1 calc(50% - 4px);
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* ── Date Drawer Toggle Tab ── */
+    .filter-drawer-toggle {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(100%);
+      z-index: 998;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 0.55rem 0.65rem 0.7rem;
+      background: linear-gradient(135deg, var(--primary, #6366f1) 0%, #4f46e5 100%);
+      color: white;
+      border: none;
+      border-radius: 12px 0 0 12px;
+      cursor: pointer;
+      box-shadow: -4px 2px 16px rgba(99, 102, 241, 0.3);
+      writing-mode: vertical-lr;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s ease;
+    }
+
+    .filter-drawer-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .filter-drawer-toggle.visible {
+      transform: translateY(-50%) translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .filter-drawer-toggle:hover {
+      padding-right: 0.75rem;
+      box-shadow: -6px 2px 24px rgba(99, 102, 241, 0.4);
+    }
+
+    .filter-drawer-toggle.active {
+      background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+      border-radius: 0;
+      right: 320px;
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s ease;
+    }
+
+    /* ── Drawer Backdrop ── */
+    .filter-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .filter-drawer-backdrop.visible {
+      opacity: 1;
+      pointer-events: none;
     }
 
     /* Table Search */
@@ -3480,6 +3593,122 @@
       // Filtreleme uygula
       filterTable();
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    // TARIH FILTER DRAWER (sayfa dışına çıkınca drawer olur)
+    // ═══════════════════════════════════════════════════════════════
+    (function() {
+      const filtersEl = document.getElementById('dateFilterSection');
+      const sentinel = document.getElementById('dateFilterSentinel');
+      const toggleBtn = document.getElementById('filterDrawerToggle');
+      const backdrop = document.getElementById('filterDrawerBackdrop');
+      if (!filtersEl || !sentinel || !toggleBtn || !backdrop) return;
+
+      let drawerActive = false;
+      let normalHeight = filtersEl.offsetHeight;
+
+      function openDrawer() {
+        filtersEl.classList.add('drawer-open');
+        toggleBtn.classList.add('active');
+        backdrop.classList.add('visible');
+      }
+
+      function closeDrawer() {
+        filtersEl.classList.remove('drawer-open');
+        toggleBtn.classList.remove('active');
+        backdrop.classList.remove('visible');
+        requestAnimationFrame(function() {
+          if (drawerActive && window.scrollY <= filtersBottom) {
+            exitDrawerMode();
+          }
+        });
+      }
+
+      function enterDrawerMode() {
+        if (drawerActive) return;
+        drawerActive = true;
+        sentinel.style.height = normalHeight + 'px';
+        filtersEl.classList.add('drawer-mode');
+        toggleBtn.classList.add('visible');
+      }
+
+      function exitDrawerMode() {
+        if (!drawerActive) return;
+        if (filtersEl.classList.contains('drawer-open')) return;
+        drawerActive = false;
+        filtersEl.classList.remove('drawer-mode');
+        toggleBtn.classList.remove('visible');
+        sentinel.style.height = '0';
+        requestAnimationFrame(function() {
+          normalHeight = filtersEl.offsetHeight;
+          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+        });
+      }
+
+      // Toggle button click
+      toggleBtn.addEventListener('click', function() {
+        if (filtersEl.classList.contains('drawer-open')) {
+          closeDrawer();
+        } else {
+          openDrawer();
+        }
+      });
+
+      // Click outside drawer closes it
+      document.addEventListener('mousedown', function(e) {
+        if (filtersEl.classList.contains('drawer-open') &&
+            !filtersEl.contains(e.target) &&
+            !toggleBtn.contains(e.target)) {
+          closeDrawer();
+        }
+      });
+
+      // Escape key closes drawer
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && drawerActive) closeDrawer();
+      });
+
+      // Overflow + scroll detection
+      let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+      let ticking = false;
+
+      function isOverflowing() {
+        // Filtreler sayfanın sağına taşıyor mu?
+        const rect = filtersEl.getBoundingClientRect();
+        return rect.right > window.innerWidth + 2;
+      }
+
+      function checkDrawer() {
+        const scrolledPast = window.scrollY > filtersBottom;
+        const overflows = !drawerActive && isOverflowing();
+        if ((scrolledPast || overflows) && !drawerActive) {
+          enterDrawerMode();
+        } else if (!scrolledPast && !overflows && drawerActive && !filtersEl.classList.contains('drawer-open')) {
+          exitDrawerMode();
+        }
+      }
+
+      window.addEventListener('resize', function() {
+        if (!drawerActive) {
+          normalHeight = filtersEl.offsetHeight;
+          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+        }
+        checkDrawer();
+      });
+
+      // İlk yüklemede de kontrol et
+      requestAnimationFrame(checkDrawer);
+
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          requestAnimationFrame(function() {
+            checkDrawer();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+    })();
 
     // Click outside to close dropdown
     document.addEventListener('click', function(event) {
