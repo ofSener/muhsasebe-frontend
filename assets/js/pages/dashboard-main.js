@@ -1441,6 +1441,15 @@
 
       if (filtersEl && sentinel && toggleBtn && backdrop) {
         let drawerActive = false;
+        let normalHeight = filtersEl.offsetHeight;
+        let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+
+        function recalcPosition() {
+          if (!drawerActive) {
+            normalHeight = filtersEl.offsetHeight;
+            filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+          }
+        }
 
         function openDrawer() {
           filtersEl.classList.add('drawer-open');
@@ -1452,39 +1461,24 @@
           filtersEl.classList.remove('drawer-open');
           toggleBtn.classList.remove('active');
           backdrop.classList.remove('visible');
-          // After closing, check if scroll is back above filters → exit drawer mode
-          requestAnimationFrame(function() {
-            if (drawerActive && window.scrollY <= filtersBottom) {
-              exitDrawerMode();
-            }
-          });
         }
-
-        // Cache normal height before any mode switch
-        let normalHeight = filtersEl.offsetHeight;
 
         function enterDrawerMode() {
           if (drawerActive) return;
           drawerActive = true;
-          // Preserve space with sentinel
           sentinel.style.height = normalHeight + 'px';
-          // Switch to drawer
           filtersEl.classList.add('drawer-mode');
           toggleBtn.classList.add('visible');
         }
 
         function exitDrawerMode() {
           if (!drawerActive) return;
-          // Never exit while the drawer panel is open
-          if (filtersEl.classList.contains('drawer-open')) return;
+          closeDrawer();
           drawerActive = false;
           filtersEl.classList.remove('drawer-mode');
           toggleBtn.classList.remove('visible');
           sentinel.style.height = '0';
-          // Recalculate position after returning to normal flow
-          requestAnimationFrame(function() {
-            filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
-          });
+          requestAnimationFrame(recalcPosition);
         }
 
         // Toggle button click
@@ -1496,7 +1490,7 @@
           }
         });
 
-        // Click outside drawer closes it (document-level, avoids stacking context issues)
+        // Click outside drawer closes it
         document.addEventListener('mousedown', function(e) {
           if (filtersEl.classList.contains('drawer-open') &&
               !filtersEl.contains(e.target) &&
@@ -1510,30 +1504,37 @@
           if (e.key === 'Escape' && drawerActive) closeDrawer();
         });
 
-        // Scroll-based detection (replaces IntersectionObserver to avoid initial-load glitch)
-        let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
         let ticking = false;
 
-        // Recalculate on resize
-        window.addEventListener('resize', function() {
-          if (!drawerActive) {
-            filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+        function checkDrawer() {
+          const scrolledPast = window.scrollY > filtersBottom;
+          if (scrolledPast && !drawerActive) {
+            enterDrawerMode();
+          } else if (!scrolledPast && drawerActive) {
+            exitDrawerMode();
           }
+        }
+
+        window.addEventListener('resize', function() {
+          recalcPosition();
+          checkDrawer();
         });
 
         window.addEventListener('scroll', function() {
           if (!ticking) {
             requestAnimationFrame(function() {
-              const scrolledPast = window.scrollY > filtersBottom;
-              if (scrolledPast && !drawerActive) {
-                enterDrawerMode();
-              } else if (!scrolledPast && drawerActive && !filtersEl.classList.contains('drawer-open')) {
-                exitDrawerMode();
-              }
+              checkDrawer();
               ticking = false;
             });
             ticking = true;
           }
         }, { passive: true });
+
+        // İçerik değişince pozisyonu tekrar hesapla
+        var pageContent = document.querySelector('.page-content') || document.querySelector('.main-content');
+        if (pageContent) {
+          var obs = new MutationObserver(function() { if (!drawerActive) recalcPosition(); });
+          obs.observe(pageContent, { childList: true, subtree: true });
+        }
       }
     });

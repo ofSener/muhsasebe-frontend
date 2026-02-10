@@ -3606,6 +3606,14 @@
 
       let drawerActive = false;
       let normalHeight = filtersEl.offsetHeight;
+      let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+
+      function recalcPosition() {
+        if (!drawerActive) {
+          normalHeight = filtersEl.offsetHeight;
+          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+        }
+      }
 
       function openDrawer() {
         filtersEl.classList.add('drawer-open');
@@ -3617,11 +3625,6 @@
         filtersEl.classList.remove('drawer-open');
         toggleBtn.classList.remove('active');
         backdrop.classList.remove('visible');
-        requestAnimationFrame(function() {
-          if (drawerActive && window.scrollY <= filtersBottom) {
-            exitDrawerMode();
-          }
-        });
       }
 
       function enterDrawerMode() {
@@ -3634,15 +3637,12 @@
 
       function exitDrawerMode() {
         if (!drawerActive) return;
-        if (filtersEl.classList.contains('drawer-open')) return;
+        closeDrawer();
         drawerActive = false;
         filtersEl.classList.remove('drawer-mode');
         toggleBtn.classList.remove('visible');
         sentinel.style.height = '0';
-        requestAnimationFrame(function() {
-          normalHeight = filtersEl.offsetHeight;
-          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
-        });
+        requestAnimationFrame(recalcPosition);
       }
 
       // Toggle button click
@@ -3668,31 +3668,19 @@
         if (e.key === 'Escape' && drawerActive) closeDrawer();
       });
 
-      // Overflow + scroll detection
-      let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
       let ticking = false;
-
-      function isOverflowing() {
-        // Filtreler sayfanın sağına taşıyor mu?
-        const rect = filtersEl.getBoundingClientRect();
-        return rect.right > window.innerWidth + 2;
-      }
 
       function checkDrawer() {
         const scrolledPast = window.scrollY > filtersBottom;
-        const overflows = !drawerActive && isOverflowing();
-        if ((scrolledPast || overflows) && !drawerActive) {
+        if (scrolledPast && !drawerActive) {
           enterDrawerMode();
-        } else if (!scrolledPast && !overflows && drawerActive && !filtersEl.classList.contains('drawer-open')) {
+        } else if (!scrolledPast && drawerActive) {
           exitDrawerMode();
         }
       }
 
       window.addEventListener('resize', function() {
-        if (!drawerActive) {
-          normalHeight = filtersEl.offsetHeight;
-          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
-        }
+        recalcPosition();
         checkDrawer();
       });
 
@@ -3708,6 +3696,13 @@
           ticking = true;
         }
       }, { passive: true });
+
+      // İçerik değişince pozisyonu tekrar hesapla
+      const pageContent = document.querySelector('.page-content') || document.querySelector('.main-content');
+      if (pageContent) {
+        const obs = new MutationObserver(function() { if (!drawerActive) recalcPosition(); });
+        obs.observe(pageContent, { childList: true, subtree: true });
+      }
     })();
 
     // Click outside to close dropdown

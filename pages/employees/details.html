@@ -147,14 +147,16 @@
                   <input type="text" id="dateRangeFilter" placeholder="Özel" readonly>
                 </label>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="openExcelModal()" style="margin-left:0.75rem;white-space:nowrap;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                  <polyline points="7,10 12,15 17,10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                Excel İndir
-              </button>
+              <div style="display:flex;justify-content:flex-end;margin-top:0.6rem;">
+                <button class="btn btn-secondary btn-sm" onclick="openExcelModal()" style="white-space:nowrap;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="7,10 12,15 17,10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                  Excel İndir
+                </button>
+              </div>
             </div>
             <button class="filter-drawer-toggle" id="filterDrawerToggle">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -407,7 +409,7 @@
 
     .page-header-filter {
       display: flex;
-      align-items: center;
+      flex-direction: column;
     }
 
     /* ── Date Pills ── */
@@ -839,6 +841,11 @@
 
     .font-mono { font-family: var(--font-mono, 'JetBrains Mono', monospace); }
 
+    .logo-tooltip-wrapper {
+      position: relative;
+      display: inline-flex;
+    }
+
     .company-logo {
       width: 32px;
       height: 32px;
@@ -865,27 +872,14 @@
       border-radius: 6px;
     }
 
-    /* ── Tooltip ── */
+    /* ── Tooltip (JS-based, appended to body) ── */
     [data-tooltip] {
-      position: relative;
       cursor: pointer;
     }
 
-    [data-tooltip]::before,
-    [data-tooltip]::after {
-      position: absolute;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.2s ease;
-      z-index: 1000;
-      pointer-events: none;
-    }
-
-    [data-tooltip]::before {
-      content: attr(data-tooltip);
-      bottom: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%) translateY(4px);
+    .floating-tooltip {
+      position: fixed;
+      z-index: 10000;
       padding: 0.4rem 0.65rem;
       font-size: 0.72rem;
       font-weight: 600;
@@ -894,22 +888,13 @@
       background: rgba(15, 23, 42, 0.92);
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
     }
 
-    [data-tooltip]::after {
-      content: '';
-      bottom: calc(100% + 4px);
-      left: 50%;
-      transform: translateX(-50%) translateY(4px);
-      border: 5px solid transparent;
-      border-top-color: rgba(15, 23, 42, 0.92);
-    }
-
-    [data-tooltip]:hover::before,
-    [data-tooltip]:hover::after {
+    .floating-tooltip.visible {
       opacity: 1;
-      visibility: visible;
-      transform: translateX(-50%) translateY(0);
     }
 
     /* ── Excel Modal Pills ── */
@@ -983,6 +968,33 @@
     // ═══════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════
+    // ═══════════════════════════════════════════════
+    // FLOATING TOOLTIP (overflow-safe)
+    // ═══════════════════════════════════════════════
+    (function() {
+      const tip = document.createElement('div');
+      tip.className = 'floating-tooltip';
+      document.body.appendChild(tip);
+
+      document.addEventListener('mouseenter', function(e) {
+        if (!(e.target instanceof Element)) return;
+        const el = e.target.closest('[data-tooltip]');
+        if (!el || !el.dataset.tooltip) return;
+        tip.textContent = el.dataset.tooltip;
+        tip.classList.add('visible');
+        const rect = el.getBoundingClientRect();
+        tip.style.left = (rect.left + rect.width / 2 - tip.offsetWidth / 2) + 'px';
+        tip.style.top = (rect.top - tip.offsetHeight - 8) + 'px';
+      }, true);
+
+      document.addEventListener('mouseleave', function(e) {
+        if (!(e.target instanceof Element)) return;
+        if (e.target.closest('[data-tooltip]')) {
+          tip.classList.remove('visible');
+        }
+      }, true);
+    })();
+
     document.addEventListener('DOMContentLoaded', function() {
       const params = new URLSearchParams(window.location.search);
       employeeId = parseInt(params.get('id'));
@@ -1205,6 +1217,16 @@
     function renderDonutChart(containerId, items, nameKey, valueKey, countKey) {
       const container = document.getElementById(containerId);
       if (!container) return;
+
+      // Önce eski chart'ı destroy et, sonra yenisini oluştur
+      if (containerId === 'chartBrans' && chartBrans) {
+        chartBrans.destroy();
+        chartBrans = null;
+      } else if (containerId === 'chartSirket' && chartSirket) {
+        chartSirket.destroy();
+        chartSirket = null;
+      }
+
       container.innerHTML = '';
 
       if (items.length === 0) {
@@ -1212,14 +1234,16 @@
         return;
       }
 
-      const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6d28d9'];
+      const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6d28d9',
+        '#0ea5e9', '#d946ef', '#84cc16', '#f43f5e', '#22d3ee', '#a855f7', '#fb923c', '#2dd4bf', '#e11d48', '#7c3aed',
+        '#059669', '#dc2626', '#0284c7', '#c026d3', '#65a30d', '#e879f9', '#facc15', '#4ade80', '#f472b6', '#38bdf8'];
       const labels = items.map(i => i[nameKey]);
       const values = items.map(i => i[valueKey]);
 
       const options = {
         chart: {
           type: 'donut',
-          height: 280,
+          height: 320,
           animations: { enabled: true, easing: 'easeinout', speed: 600 }
         },
         series: values,
@@ -1229,7 +1253,8 @@
           position: 'bottom',
           fontSize: '12px',
           labels: { colors: '#475569' },
-          markers: { radius: 4 }
+          markers: { radius: 4 },
+          height: 80
         },
         plotOptions: {
           pie: {
@@ -1257,17 +1282,15 @@
           }
         },
         dataLabels: { enabled: false },
-        responsive: [{ breakpoint: 480, options: { chart: { height: 240 } } }]
+        responsive: [{ breakpoint: 480, options: { chart: { height: 260 } } }]
       };
 
       const chart = new ApexCharts(container, options);
       chart.render();
 
       if (containerId === 'chartBrans') {
-        if (chartBrans) chartBrans.destroy();
         chartBrans = chart;
       } else {
-        if (chartSirket) chartSirket.destroy();
         chartSirket = chart;
       }
     }
@@ -1275,6 +1298,7 @@
     function renderDailyChart(items) {
       const container = document.getElementById('chartGunluk');
       if (!container) return;
+      if (chartGunluk) { chartGunluk.destroy(); chartGunluk = null; }
       container.innerHTML = '';
 
       if (items.length === 0) {
@@ -1360,7 +1384,6 @@
         }
       };
 
-      if (chartGunluk) chartGunluk.destroy();
       chartGunluk = new ApexCharts(container, options);
       chartGunluk.render();
     }
@@ -1387,7 +1410,7 @@
           : initials;
 
         return `<tr>
-          <td><div class="company-logo" data-tooltip="${p.sirketAdi || ''}">${logoHtml}</div></td>
+          <td><div class="logo-tooltip-wrapper" data-tooltip="${p.sirketAdi || ''}"><div class="company-logo">${logoHtml}</div></div></td>
           <td class="font-mono" style="font-weight:600;">${p.policeNo || '-'}</td>
           <td>${p.bransAdi || '-'}</td>
           <td class="font-mono">${formatMoney(p.brutPrim)}</td>
@@ -1612,6 +1635,13 @@
       let normalHeight = filtersEl.offsetHeight;
       let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
 
+      function recalcPosition() {
+        if (!drawerActive) {
+          normalHeight = filtersEl.offsetHeight;
+          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+        }
+      }
+
       function openDrawer() {
         filtersEl.classList.add('drawer-open');
         toggleBtn.classList.add('active');
@@ -1622,9 +1652,6 @@
         filtersEl.classList.remove('drawer-open');
         toggleBtn.classList.remove('active');
         backdrop.classList.remove('visible');
-        requestAnimationFrame(function() {
-          if (drawerActive && window.scrollY <= filtersBottom) exitDrawerMode();
-        });
       }
 
       function enterDrawerMode() {
@@ -1637,27 +1664,22 @@
 
       function exitDrawerMode() {
         if (!drawerActive) return;
-        if (filtersEl.classList.contains('drawer-open')) return;
+        // Önce açık drawer'ı kapat
+        closeDrawer();
         drawerActive = false;
         filtersEl.classList.remove('drawer-mode');
         toggleBtn.classList.remove('visible');
         sentinel.style.height = '0';
-        requestAnimationFrame(function() {
-          normalHeight = filtersEl.offsetHeight;
-          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
-        });
-      }
-
-      function isOverflowing() {
-        const rect = filtersEl.getBoundingClientRect();
-        return rect.right > window.innerWidth + 2;
+        requestAnimationFrame(recalcPosition);
       }
 
       function checkDrawer() {
         const scrolledPast = window.scrollY > filtersBottom;
-        const overflows = !drawerActive && isOverflowing();
-        if ((scrolledPast || overflows) && !drawerActive) enterDrawerMode();
-        else if (!scrolledPast && !overflows && drawerActive && !filtersEl.classList.contains('drawer-open')) exitDrawerMode();
+        if (scrolledPast && !drawerActive) {
+          enterDrawerMode();
+        } else if (!scrolledPast && drawerActive) {
+          exitDrawerMode();
+        }
       }
 
       toggleBtn.addEventListener('click', function() {
@@ -1681,12 +1703,15 @@
       }, { passive: true });
 
       window.addEventListener('resize', function() {
-        if (!drawerActive) {
-          normalHeight = filtersEl.offsetHeight;
-          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
-        }
+        recalcPosition();
         checkDrawer();
       });
+
+      // Data yüklendikten sonra pozisyonu tekrar hesapla
+      const obs = new MutationObserver(function() {
+        if (!drawerActive) recalcPosition();
+      });
+      obs.observe(document.querySelector('.page-content'), { childList: true, subtree: true });
 
       requestAnimationFrame(checkDrawer);
     }
