@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çalışan Detayı - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <script src="../../assets/js/config.js"></script>
+</head>
+<body>
+  <div class="gradient-mesh"></div>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menü">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+          <button class="back-btn" onclick="history.back()" title="Geri">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Çalışanlar</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Çalışan Detayı</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar"></div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Yükleniyor...</div>
+              <div class="navbar-user-role"></div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="page-wrapper">
+        <div class="page-content">
+
+          <!-- Employee Header + KPIs -->
+          <div class="emp-header-section">
+            <div class="emp-profile">
+              <div class="emp-avatar" id="empAvatar">--</div>
+              <div class="emp-info">
+                <h1 class="emp-name" id="empName">Yükleniyor...</h1>
+                <div class="emp-meta">
+                  <span class="emp-meta-item" id="empSube">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                    <span>-</span>
+                  </span>
+                  <span class="emp-meta-item" id="empKayitTarihi">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span>-</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="emp-kpi-row">
+              <!-- Brüt Prim -->
+              <div class="kpi-card kpi-violet">
+                <div class="kpi-card-bg"></div>
+                <div class="kpi-header">
+                  <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                      <path d="M15 8h-4c-1.1 0-2 .9-2 2s.9 2 2 2h2c1.1 0 2 .9 2 2s-.9 2-2 2H9"/>
+                      <path d="M12 6v2"/><path d="M12 16v2"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-body">
+                  <div class="kpi-value" id="kpiBrutPrim">0 TL</div>
+                  <div class="kpi-label">Toplam Brüt Prim</div>
+                </div>
+              </div>
+              <!-- Poliçe Adedi -->
+              <div class="kpi-card kpi-cyan">
+                <div class="kpi-card-bg"></div>
+                <div class="kpi-header">
+                  <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-body">
+                  <div class="kpi-value" id="kpiPoliceAdedi">0</div>
+                  <div class="kpi-label">Toplam Poliçe Adedi</div>
+                </div>
+              </div>
+              <!-- Komisyon -->
+              <div class="kpi-card kpi-emerald">
+                <div class="kpi-card-bg"></div>
+                <div class="kpi-header">
+                  <div class="kpi-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M22 21v-2a4 4 0 00-3-3.87"/>
+                      <path d="M16 3.13a4 4 0 010 7.75"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="kpi-body">
+                  <div class="kpi-value" id="kpiKomisyon">0 TL</div>
+                  <div class="kpi-label">Toplam Komisyon</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date Filter -->
+          <div class="page-header-extended">
+            <div id="dateFilterSentinel" style="height:0;"></div>
+            <div class="page-header-filter" id="dateFilterSection">
+              <div class="date-pills" id="datePills">
+                <button class="date-pill" onclick="setQuickDate('today', this)">Bugün</button>
+                <button class="date-pill" onclick="setQuickDate('yesterday', this)">Dün</button>
+                <button class="date-pill" onclick="setQuickDate('week', this)">Bu Hafta</button>
+                <button class="date-pill active" onclick="setQuickDate('month', this)">Bu Ay</button>
+                <button class="date-pill" onclick="setQuickDate('year', this)">Bu Yıl</button>
+                <button class="date-pill" onclick="setQuickDate('last7', this)">Son 7 Gün</button>
+                <button class="date-pill" onclick="setQuickDate('last30', this)">Son 30 Gün</button>
+                <button class="date-pill" onclick="setQuickDate('last365', this)">Son 365 Gün</button>
+                <label class="date-pill date-pill-range" id="rangePill">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <input type="text" id="dateRangeFilter" placeholder="Özel" readonly>
+                </label>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="openExcelModal()" style="margin-left:0.75rem;white-space:nowrap;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="7,10 12,15 17,10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Excel İndir
+              </button>
+            </div>
+            <button class="filter-drawer-toggle" id="filterDrawerToggle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              Tarih
+            </button>
+            <div class="filter-drawer-backdrop" id="filterDrawerBackdrop"></div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="charts-row">
+            <div class="card chart-card">
+              <div class="card-header"><h3 class="card-title">Branş Dağılımı</h3></div>
+              <div class="card-body"><div id="chartBrans" style="min-height:280px;"></div></div>
+            </div>
+            <div class="card chart-card">
+              <div class="card-header"><h3 class="card-title">Şirket Dağılımı</h3></div>
+              <div class="card-body"><div id="chartSirket" style="min-height:280px;"></div></div>
+            </div>
+          </div>
+
+          <!-- Daily Production Chart -->
+          <div class="card" style="margin-bottom:1.5rem;">
+            <div class="card-header"><h3 class="card-title">Güne Göre Üretimler</h3></div>
+            <div class="card-body"><div id="chartGunluk" style="min-height:320px;"></div></div>
+          </div>
+
+          <!-- Policies Table -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-header-left">
+                <h3 class="card-title">Poliçeler</h3>
+                <span class="badge badge-info" id="policeCount">0 poliçe</span>
+              </div>
+              <div class="card-header-right">
+                <div class="custom-select" id="filterBrans" data-value="">
+                  <div class="custom-select-trigger" onclick="toggleCustomSelect(this.parentElement)">
+                    <span class="custom-select-text">Tüm Branşlar</span>
+                    <svg class="custom-select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                  </div>
+                  <div class="custom-select-dropdown">
+                    <div class="custom-select-options" id="filterBransOptions">
+                      <div class="custom-select-option selected" data-value="" onclick="selectOption(this)">Tüm Branşlar</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="custom-select" id="filterSirket" data-value="">
+                  <div class="custom-select-trigger" onclick="toggleCustomSelect(this.parentElement)">
+                    <span class="custom-select-text">Tüm Şirketler</span>
+                    <svg class="custom-select-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 12,15 18,9"/></svg>
+                  </div>
+                  <div class="custom-select-dropdown">
+                    <div class="custom-select-options" id="filterSirketOptions">
+                      <div class="custom-select-option selected" data-value="" onclick="selectOption(this)">Tüm Şirketler</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="search-input-wrapper">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                  </svg>
+                  <input type="text" class="form-input" id="searchPoliceNo" placeholder="Poliçe No ara..." oninput="onSearchChange()">
+                </div>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-container">
+                <table class="data-table" id="policeTable">
+                  <thead>
+                    <tr>
+                      <th style="width:50px;">Şirket</th>
+                      <th>Poliçe No</th>
+                      <th>Branş</th>
+                      <th>Brüt Prim</th>
+                      <th>Net Prim</th>
+                      <th>Komisyon</th>
+                      <th>Başlangıç</th>
+                      <th>Bitiş</th>
+                      <th>Tanzim</th>
+                      <th>Müşteri Adı</th>
+                    </tr>
+                  </thead>
+                  <tbody id="policeTableBody">
+                    <tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:2rem;">Yükleniyor...</td></tr>
+                  </tbody>
+                  <tfoot id="policeTableFoot" style="display:none;">
+                    <tr>
+                      <td colspan="3" style="font-weight:700;text-align:right;">TOPLAM</td>
+                      <td class="font-mono" style="font-weight:700;" id="totalBrutPrim">0 TL</td>
+                      <td class="font-mono" style="font-weight:700;" id="totalNetPrim">0 TL</td>
+                      <td class="font-mono" style="font-weight:700;" id="totalKomisyon">0 TL</td>
+                      <td colspan="4"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Excel Export Modal -->
+  <div class="modal-overlay" id="excelModal">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Excel İndir</h3>
+        <button class="modal-close" onclick="closeExcelModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p style="margin:0 0 1rem;font-size:0.85rem;color:var(--text-muted);">İndirilecek poliçeler için tarih aralığı seçin:</p>
+        <div class="excel-date-pills">
+          <button class="date-pill" onclick="setExcelDate('month', this)">Bu Ay</button>
+          <button class="date-pill" onclick="setExcelDate('year', this)">Bu Yıl</button>
+          <button class="date-pill" onclick="setExcelDate('last30', this)">Son 30 Gün</button>
+          <button class="date-pill" onclick="setExcelDate('last365', this)">Son 365 Gün</button>
+          <label class="date-pill date-pill-range" id="excelRangePill">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <input type="text" id="excelDateRange" placeholder="Özel" readonly>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeExcelModal()">İptal</button>
+        <button class="btn btn-primary" id="excelDownloadBtn" onclick="downloadExcel()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+            <polyline points="7,10 12,15 17,10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          İndir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../components/sidebar.js"></script>
+  <style>
+    /* ── Back Button ── */
+    .back-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      margin-right: 0.5rem;
+    }
+
+    .back-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* ── Employee Header ── */
+    .emp-header-section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .emp-profile {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .emp-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+
+    .emp-name {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 0 0 0.35rem 0;
+      letter-spacing: -0.01em;
+    }
+
+    .emp-meta {
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .emp-meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .emp-meta-item svg {
+      opacity: 0.6;
+      flex-shrink: 0;
+    }
+
+    .emp-kpi-row {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .emp-kpi-row .kpi-card {
+      min-width: 170px;
+    }
+
+    /* ── Page Header Extended ── */
+    .page-header-extended {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-header-filter {
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── Date Pills ── */
+    .date-pills {
+      display: flex;
+      flex: 1;
+      justify-content: center;
+      gap: 0;
+      background: var(--bg-elevated);
+      border-radius: 999px;
+      padding: 4px;
+      border: 1px solid var(--border-subtle, var(--border-color));
+    }
+
+    .date-pill {
+      flex: 1;
+      padding: 0.4rem 0.85rem;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      font-family: var(--font-sans, inherit);
+      text-align: center;
+    }
+
+    .date-pill:hover {
+      color: var(--text-primary);
+      background: var(--bg-surface, rgba(0,0,0,0.04));
+    }
+
+    .date-pill.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    .date-pill-range {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+    }
+
+    .date-pill-range svg { flex-shrink: 0; }
+
+    .date-pill-range input {
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: var(--font-sans, inherit);
+      width: 3.2em;
+      padding: 0;
+      outline: none;
+      cursor: pointer;
+      transition: width 0.2s ease;
+    }
+
+    .date-pill-range.active input { width: 130px; }
+    .date-pill-range input::placeholder { color: inherit; opacity: 0.8; }
+    .date-pill-range.active input::placeholder { color: white; opacity: 0.85; }
+
+    /* ── Date Filter Drawer ── */
+    .page-header-filter.drawer-mode {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(100%);
+      width: 320px;
+      max-height: calc(100vh - 2rem);
+      margin: 0;
+      padding: 1.25rem;
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-color, #e2e8f0);
+      border-radius: 16px 0 0 16px;
+      box-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
+      z-index: 999;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .page-header-filter.drawer-mode.drawer-open {
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .page-header-filter.drawer-mode .date-pills {
+      flex-wrap: wrap;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    .page-header-filter.drawer-mode .date-pill {
+      flex: 1 1 calc(50% - 4px);
+      justify-content: center;
+      text-align: center;
+    }
+
+    .filter-drawer-toggle {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(100%);
+      z-index: 998;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 0.55rem 0.65rem 0.7rem;
+      background: linear-gradient(135deg, var(--primary, #6366f1) 0%, #4f46e5 100%);
+      color: white;
+      border: none;
+      border-radius: 12px 0 0 12px;
+      cursor: pointer;
+      box-shadow: -4px 2px 16px rgba(99, 102, 241, 0.3);
+      writing-mode: vertical-lr;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+
+    .filter-drawer-toggle svg { width: 16px; height: 16px; }
+
+    .filter-drawer-toggle.visible {
+      transform: translateY(-50%) translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .filter-drawer-toggle:hover {
+      padding-right: 0.75rem;
+      box-shadow: -6px 2px 24px rgba(99, 102, 241, 0.4);
+    }
+
+    .filter-drawer-toggle.active {
+      background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+      border-radius: 0;
+      right: 320px;
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    }
+
+    .filter-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .filter-drawer-backdrop.visible {
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    /* ── KPI Cards ── */
+    .kpi-card {
+      position: relative;
+      background: var(--bg-surface, #ffffff);
+      border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.2));
+      border-radius: 20px;
+      padding: 1.25rem;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--card-shadow, 0 1px 3px rgba(0, 0, 0, 0.04));
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-default, rgba(148, 163, 184, 0.3));
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .kpi-card-bg {
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.12;
+      transition: opacity 0.3s ease;
+    }
+
+    .kpi-card:hover .kpi-card-bg { opacity: 0.2; }
+
+    .kpi-card.kpi-violet .kpi-card-bg { background: #8b5cf6; }
+    .kpi-card.kpi-violet .kpi-icon { background: rgba(139, 92, 246, 0.12); color: #7c3aed; }
+    .kpi-card.kpi-violet .kpi-value { color: #5b21b6; }
+    .kpi-card.kpi-violet:hover { border-color: rgba(139, 92, 246, 0.3); }
+
+    .kpi-card.kpi-cyan .kpi-card-bg { background: #06b6d4; }
+    .kpi-card.kpi-cyan .kpi-icon { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
+    .kpi-card.kpi-cyan .kpi-value { color: #155e75; }
+    .kpi-card.kpi-cyan:hover { border-color: rgba(6, 182, 212, 0.3); }
+
+    .kpi-card.kpi-emerald .kpi-card-bg { background: #10b981; }
+    .kpi-card.kpi-emerald .kpi-icon { background: rgba(16, 185, 129, 0.12); color: #059669; }
+    .kpi-card.kpi-emerald .kpi-value { color: #065f46; }
+    .kpi-card.kpi-emerald:hover { border-color: rgba(16, 185, 129, 0.3); }
+
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .kpi-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .kpi-card:hover .kpi-icon { transform: scale(1.05); }
+    .kpi-icon svg { width: 20px; height: 20px; }
+
+    .kpi-body { position: relative; z-index: 1; }
+
+    .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 0.25rem;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      color: var(--text-muted, #64748b);
+      font-weight: 500;
+    }
+
+    /* ── Charts Row ── */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-card .card-body {
+      padding: 0.5rem 1rem 1rem;
+    }
+
+    /* ── Table ── */
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* ── Custom Select Dropdown ── */
+    .custom-select {
+      position: relative;
+      min-width: 160px;
+    }
+
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-surface, #f8fafc);
+      border: 1px solid var(--border-default, #e2e8f0);
+      border-radius: var(--radius-md, 8px);
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 36px;
+      user-select: none;
+    }
+
+    .custom-select-trigger:hover {
+      border-color: var(--primary, #6366f1);
+    }
+
+    .custom-select.open .custom-select-trigger {
+      border-color: var(--primary, #6366f1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    }
+
+    .custom-select-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .custom-select-arrow {
+      flex-shrink: 0;
+      color: var(--text-muted, #64748b);
+      transition: transform 0.2s ease;
+    }
+
+    .custom-select.open .custom-select-arrow {
+      transform: rotate(180deg);
+    }
+
+    .custom-select-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      min-width: 100%;
+      width: max-content;
+      max-width: 280px;
+      background: var(--bg-elevated, #fff);
+      border: 1px solid var(--border-default, #e2e8f0);
+      border-radius: var(--radius-md, 8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+      z-index: 100;
+      display: none;
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .custom-select.open .custom-select-dropdown {
+      display: block;
+    }
+
+    .custom-select-option {
+      padding: 0.45rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.1s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .custom-select-option:hover {
+      background: var(--bg-surface, #f1f5f9);
+    }
+
+    .custom-select-option.selected {
+      background: rgba(99, 102, 241, 0.1);
+      color: var(--primary, #6366f1);
+      font-weight: 600;
+    }
+
+    /* ── Search Input ── */
+    .search-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input-wrapper svg {
+      position: absolute;
+      left: 0.75rem;
+      color: var(--text-muted, #64748b);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .search-input-wrapper .form-input {
+      width: 180px;
+      padding-left: 2.25rem;
+      font-size: 0.8rem;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      padding: 0.65rem 0.75rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      padding: 0.55rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-subtle, rgba(148,163,184,0.1));
+      white-space: nowrap;
+    }
+
+    .data-table tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--bg-elevated);
+    }
+
+    .data-table tfoot td {
+      padding: 0.75rem;
+      background: var(--bg-elevated, #f8fafc);
+      border-top: 2px solid var(--border-color);
+      font-size: 0.82rem;
+    }
+
+    .font-mono { font-family: var(--font-mono, 'JetBrains Mono', monospace); }
+
+    .company-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.55rem;
+      letter-spacing: -0.5px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary, #6366f1), #8b5cf6);
+      flex-shrink: 0;
+      border: 2px solid var(--border-subtle, #e2e8f0);
+      overflow: hidden;
+    }
+
+    .company-logo img {
+      width: 100%;
+      height: 100%;
+      padding: 3px;
+      object-fit: contain;
+      background: white;
+      border-radius: 6px;
+    }
+
+    /* ── Tooltip ── */
+    [data-tooltip] {
+      position: relative;
+      cursor: pointer;
+    }
+
+    [data-tooltip]::before,
+    [data-tooltip]::after {
+      position: absolute;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    [data-tooltip]::before {
+      content: attr(data-tooltip);
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      padding: 0.4rem 0.65rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+      white-space: nowrap;
+      color: white;
+      background: rgba(15, 23, 42, 0.92);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    [data-tooltip]::after {
+      content: '';
+      bottom: calc(100% + 4px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      border: 5px solid transparent;
+      border-top-color: rgba(15, 23, 42, 0.92);
+    }
+
+    [data-tooltip]:hover::before,
+    [data-tooltip]:hover::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Excel Modal Pills ── */
+    .excel-date-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: var(--bg-elevated);
+      border-radius: 12px;
+      padding: 6px;
+      border: 1px solid var(--border-subtle, var(--border-color));
+    }
+
+    .excel-date-pills .date-pill {
+      flex: 1 1 calc(50% - 6px);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .emp-header-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .emp-kpi-row {
+        justify-content: stretch;
+      }
+
+      .emp-kpi-row .kpi-card {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .charts-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .emp-kpi-row {
+        flex-direction: column;
+      }
+
+      .card-header-right {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+
+  <script>
+    // ═══════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════
+    const LOGO_BASE_PATH = '../../assets/images/logos/insurance-companies/';
+    const LOGO_EXTENSION = '.png';
+
+    let employeeId = null;
+    let currentStartDate = null;
+    let currentEndDate = null;
+    let currentData = null;
+    let chartBrans = null;
+    let chartSirket = null;
+    let chartGunluk = null;
+    let searchTimeout = null;
+
+    // Excel modal state
+    let excelStartDate = null;
+    let excelEndDate = null;
+    let excelFlatpickr = null;
+
+    // ═══════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      employeeId = parseInt(params.get('id'));
+
+      if (!employeeId) {
+        document.querySelector('.emp-name').textContent = 'Çalışan bulunamadı';
+        return;
+      }
+
+      // Default: Bu Ay
+      setQuickDate('month', document.querySelector('.date-pill.active'));
+
+      // Flatpickr - main
+      flatpickr('#dateRangeFilter', {
+        mode: 'range',
+        dateFormat: 'd.m.Y',
+        locale: 'tr',
+        allowInput: false,
+        disableMobile: true,
+        onChange: function(selectedDates) {
+          if (selectedDates.length === 2) {
+            document.querySelectorAll('#datePills .date-pill').forEach(b => b.classList.remove('active'));
+            document.getElementById('rangePill').classList.add('active');
+            currentStartDate = selectedDates[0];
+            currentEndDate = selectedDates[1];
+            loadData();
+          }
+        }
+      });
+
+      // Flatpickr - excel modal
+      excelFlatpickr = flatpickr('#excelDateRange', {
+        mode: 'range',
+        dateFormat: 'd.m.Y',
+        locale: 'tr',
+        allowInput: false,
+        disableMobile: true,
+        onChange: function(selectedDates) {
+          if (selectedDates.length === 2) {
+            document.querySelectorAll('.excel-date-pills .date-pill').forEach(b => b.classList.remove('active'));
+            document.getElementById('excelRangePill').classList.add('active');
+            excelStartDate = selectedDates[0];
+            excelEndDate = selectedDates[1];
+          }
+        }
+      });
+
+      initDrawer();
+    });
+
+    // ═══════════════════════════════════════════════
+    // DATE HELPERS
+    // ═══════════════════════════════════════════════
+    function getDateRange(preset) {
+      const today = new Date();
+      let start, end = new Date(today);
+      end.setHours(23, 59, 59, 999);
+
+      switch (preset) {
+        case 'today':
+          start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+          break;
+        case 'yesterday':
+          start = new Date(today);
+          start.setDate(today.getDate() - 1);
+          start.setHours(0, 0, 0, 0);
+          end = new Date(start);
+          end.setHours(23, 59, 59, 999);
+          break;
+        case 'week':
+          start = new Date(today);
+          start.setDate(today.getDate() - today.getDay() + 1);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'month':
+          start = new Date(today.getFullYear(), today.getMonth(), 1);
+          break;
+        case 'year':
+          start = new Date(today.getFullYear(), 0, 1);
+          break;
+        case 'last7':
+          start = new Date(today);
+          start.setDate(today.getDate() - 6);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'last30':
+          start = new Date(today);
+          start.setDate(today.getDate() - 29);
+          start.setHours(0, 0, 0, 0);
+          break;
+        case 'last365':
+          start = new Date(today);
+          start.setDate(today.getDate() - 364);
+          start.setHours(0, 0, 0, 0);
+          break;
+        default:
+          start = new Date(today.getFullYear(), today.getMonth(), 1);
+      }
+      return { start, end };
+    }
+
+    function setQuickDate(preset, btnEl) {
+      document.querySelectorAll('#datePills .date-pill').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      document.getElementById('rangePill').classList.remove('active');
+
+      const fp = document.getElementById('dateRangeFilter');
+      if (fp && fp._flatpickr) fp._flatpickr.clear();
+
+      const range = getDateRange(preset);
+      currentStartDate = range.start;
+      currentEndDate = range.end;
+      loadData();
+    }
+
+    function setExcelDate(preset, btnEl) {
+      document.querySelectorAll('.excel-date-pills .date-pill').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      document.getElementById('excelRangePill').classList.remove('active');
+      if (excelFlatpickr) excelFlatpickr.clear();
+
+      const range = getDateRange(preset);
+      excelStartDate = range.start;
+      excelEndDate = range.end;
+    }
+
+    function formatDateISO(d) {
+      if (!d) return '';
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('tr-TR');
+    }
+
+    function formatMoney(val) {
+      if (!val && val !== 0) return '0 TL';
+      return new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val) + ' TL';
+    }
+
+    function formatCompact(val) {
+      if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+      if (val >= 1000) return (val / 1000).toFixed(0) + 'K';
+      return Math.round(val).toString();
+    }
+
+    function getCompanyLogoPath(sirketKodu) {
+      if (!sirketKodu) return '';
+      return `${LOGO_BASE_PATH}${sirketKodu.toLowerCase()}${LOGO_EXTENSION}`;
+    }
+
+    function getCompanyInitials(sirketAdi) {
+      if (!sirketAdi) return '?';
+      const words = sirketAdi.split(' ').filter(w => w.length > 0);
+      if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+      return sirketAdi.substring(0, 2).toUpperCase();
+    }
+
+    // ═══════════════════════════════════════════════
+    // DATA LOADING
+    // ═══════════════════════════════════════════════
+    async function loadData() {
+      if (!employeeId) return;
+
+      const params = {};
+      if (currentStartDate) params.startDate = formatDateISO(currentStartDate);
+      if (currentEndDate) params.endDate = formatDateISO(currentEndDate);
+
+      const bransFilter = document.getElementById('filterBrans')?.value;
+      const sirketFilter = document.getElementById('filterSirket')?.value;
+      const searchVal = document.getElementById('searchPoliceNo')?.value?.trim();
+
+      if (bransFilter) params.bransId = bransFilter;
+      if (sirketFilter) params.sirketId = sirketFilter;
+      if (searchVal) params.search = searchVal;
+
+      try {
+        const data = await apiGet(`kullanicilar/${employeeId}/details`, params);
+        if (!data) {
+          document.querySelector('.emp-name').textContent = 'Çalışan bulunamadı';
+          return;
+        }
+        currentData = data;
+        renderHeader(data.kullanici);
+        renderKPIs(data.stats);
+        renderCharts(data);
+        renderTable(data.policeler);
+        populateFilters(data);
+      } catch (err) {
+        console.error('Veri yüklenirken hata:', err);
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // RENDER FUNCTIONS
+    // ═══════════════════════════════════════════════
+    function renderHeader(k) {
+      if (!k) return;
+      const initials = ((k.adi || '').charAt(0) + (k.soyadi || '').charAt(0)).toUpperCase() || '--';
+      document.getElementById('empAvatar').textContent = initials;
+      document.getElementById('empName').textContent = `${k.adi || ''} ${k.soyadi || ''}`.trim();
+      document.querySelector('#empSube span').textContent = k.subeAdi || '-';
+      document.querySelector('#empKayitTarihi span').textContent = k.kayitTarihi ? formatDate(k.kayitTarihi) : '-';
+    }
+
+    function renderKPIs(stats) {
+      if (!stats) return;
+      document.getElementById('kpiBrutPrim').textContent = formatMoney(stats.toplamBrutPrim);
+      document.getElementById('kpiPoliceAdedi').textContent = stats.toplamPoliceSayisi || 0;
+      document.getElementById('kpiKomisyon').textContent = formatMoney(stats.toplamKomisyon);
+    }
+
+    function renderCharts(data) {
+      renderDonutChart('chartBrans', data.bransDagilim || [], 'bransAdi', 'toplamBrutPrim', 'policeSayisi');
+      renderDonutChart('chartSirket', data.sirketDagilim || [], 'sirketAdi', 'toplamBrutPrim', 'policeSayisi');
+      renderDailyChart(data.gunlukUretim || []);
+    }
+
+    function renderDonutChart(containerId, items, nameKey, valueKey, countKey) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (items.length === 0) {
+        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:280px;color:var(--text-muted);font-size:0.85rem;">Veri bulunamadı</div>';
+        return;
+      }
+
+      const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#06b6d4', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#6d28d9'];
+      const labels = items.map(i => i[nameKey]);
+      const values = items.map(i => i[valueKey]);
+
+      const options = {
+        chart: {
+          type: 'donut',
+          height: 280,
+          animations: { enabled: true, easing: 'easeinout', speed: 600 }
+        },
+        series: values,
+        labels: labels,
+        colors: colors.slice(0, items.length),
+        legend: {
+          position: 'bottom',
+          fontSize: '12px',
+          labels: { colors: '#475569' },
+          markers: { radius: 4 }
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '60%',
+              labels: {
+                show: true,
+                total: {
+                  show: true,
+                  label: 'Toplam',
+                  formatter: function(w) {
+                    return formatMoney(w.globals.seriesTotals.reduce((a, b) => a + b, 0));
+                  }
+                }
+              }
+            }
+          }
+        },
+        tooltip: {
+          y: {
+            formatter: function(val, { seriesIndex }) {
+              const count = items[seriesIndex]?.[countKey] || 0;
+              return formatMoney(val) + ' (' + count + ' poliçe)';
+            }
+          }
+        },
+        dataLabels: { enabled: false },
+        responsive: [{ breakpoint: 480, options: { chart: { height: 240 } } }]
+      };
+
+      const chart = new ApexCharts(container, options);
+      chart.render();
+
+      if (containerId === 'chartBrans') {
+        if (chartBrans) chartBrans.destroy();
+        chartBrans = chart;
+      } else {
+        if (chartSirket) chartSirket.destroy();
+        chartSirket = chart;
+      }
+    }
+
+    function renderDailyChart(items) {
+      const container = document.getElementById('chartGunluk');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (items.length === 0) {
+        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:320px;color:var(--text-muted);font-size:0.85rem;">Veri bulunamadı</div>';
+        return;
+      }
+
+      const labels = items.map(i => {
+        const d = new Date(i.tarih);
+        return d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' });
+      });
+      const primValues = items.map(i => i.toplamBrutPrim);
+      const adetValues = items.map(i => i.policeSayisi);
+
+      const options = {
+        chart: {
+          height: 320,
+          type: 'line',
+          toolbar: { show: false },
+          animations: { enabled: true, easing: 'easeinout', speed: 600 }
+        },
+        series: [
+          { name: 'Brüt Prim (TL)', type: 'bar', data: primValues },
+          { name: 'Poliçe Adedi', type: 'line', data: adetValues }
+        ],
+        colors: ['#6366f1', '#10b981'],
+        plotOptions: {
+          bar: {
+            columnWidth: items.length > 20 ? '90%' : '60%',
+            borderRadius: 3
+          }
+        },
+        stroke: { width: [0, 3], curve: 'smooth' },
+        fill: { opacity: [1, 1] },
+        xaxis: {
+          categories: labels,
+          labels: {
+            rotate: -45,
+            rotateAlways: items.length > 10,
+            style: { colors: '#64748b', fontSize: '11px', fontWeight: 500 }
+          },
+          axisBorder: { show: false },
+          axisTicks: { show: false }
+        },
+        yaxis: [
+          {
+            title: { text: 'Brüt Prim', style: { color: '#64748b', fontSize: '11px' } },
+            labels: {
+              style: { colors: '#64748b', fontSize: '11px' },
+              formatter: (val) => formatCompact(val)
+            }
+          },
+          {
+            opposite: true,
+            title: { text: 'Adet', style: { color: '#64748b', fontSize: '11px' } },
+            labels: {
+              style: { colors: '#64748b', fontSize: '11px' },
+              formatter: (val) => Math.round(val).toString()
+            }
+          }
+        ],
+        grid: {
+          borderColor: 'rgba(148, 163, 184, 0.1)',
+          strokeDashArray: 4,
+          xaxis: { lines: { show: false } },
+          yaxis: { lines: { show: true } },
+          padding: { left: 10, right: 10, bottom: 5 }
+        },
+        tooltip: {
+          shared: true,
+          intersect: false,
+          y: {
+            formatter: (val, { seriesIndex }) => {
+              if (seriesIndex === 0) return formatMoney(val);
+              return Math.round(val) + ' poliçe';
+            }
+          }
+        },
+        dataLabels: { enabled: false },
+        legend: {
+          labels: { colors: '#475569' },
+          fontSize: '12px'
+        }
+      };
+
+      if (chartGunluk) chartGunluk.destroy();
+      chartGunluk = new ApexCharts(container, options);
+      chartGunluk.render();
+    }
+
+    function renderTable(policeler) {
+      const tbody = document.getElementById('policeTableBody');
+      const tfoot = document.getElementById('policeTableFoot');
+      const countBadge = document.getElementById('policeCount');
+
+      if (!policeler || policeler.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--text-muted);padding:2rem;">Poliçe bulunamadı</td></tr>';
+        tfoot.style.display = 'none';
+        countBadge.textContent = '0 poliçe';
+        return;
+      }
+
+      countBadge.textContent = policeler.length + ' poliçe';
+
+      tbody.innerHTML = policeler.map(p => {
+        const logoPath = getCompanyLogoPath(p.sirketKodu);
+        const initials = getCompanyInitials(p.sirketAdi);
+        const logoHtml = logoPath
+          ? `<img src="${logoPath}" alt="${p.sirketAdi || ''}" onerror="this.parentElement.innerHTML='${initials}'">`
+          : initials;
+
+        return `<tr>
+          <td><div class="company-logo" data-tooltip="${p.sirketAdi || ''}">${logoHtml}</div></td>
+          <td class="font-mono" style="font-weight:600;">${p.policeNo || '-'}</td>
+          <td>${p.bransAdi || '-'}</td>
+          <td class="font-mono">${formatMoney(p.brutPrim)}</td>
+          <td class="font-mono">${formatMoney(p.netPrim)}</td>
+          <td class="font-mono">${formatMoney(p.komisyon)}</td>
+          <td>${formatDate(p.baslangicTarihi)}</td>
+          <td>${formatDate(p.bitisTarihi)}</td>
+          <td>${formatDate(p.tanzimTarihi)}</td>
+          <td>${p.musteriAdi || '-'}</td>
+        </tr>`;
+      }).join('');
+
+      // Totals
+      const totBrut = policeler.reduce((s, p) => s + (p.brutPrim || 0), 0);
+      const totNet = policeler.reduce((s, p) => s + (p.netPrim || 0), 0);
+      const totKom = policeler.reduce((s, p) => s + (p.komisyon || 0), 0);
+
+      document.getElementById('totalBrutPrim').textContent = formatMoney(totBrut);
+      document.getElementById('totalNetPrim').textContent = formatMoney(totNet);
+      document.getElementById('totalKomisyon').textContent = formatMoney(totKom);
+      tfoot.style.display = '';
+    }
+
+    // ═══════════════════════════════════════════════
+    // CUSTOM SELECT
+    // ═══════════════════════════════════════════════
+    function toggleCustomSelect(selectEl) {
+      const wasOpen = selectEl.classList.contains('open');
+      // Tüm açık dropdown'ları kapat
+      document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
+      if (!wasOpen) selectEl.classList.add('open');
+    }
+
+    function selectOption(optionEl) {
+      const selectEl = optionEl.closest('.custom-select');
+      const value = optionEl.dataset.value;
+      const text = optionEl.textContent;
+
+      selectEl.dataset.value = value;
+      selectEl.querySelector('.custom-select-text').textContent = text;
+      selectEl.querySelectorAll('.custom-select-option').forEach(o => o.classList.remove('selected'));
+      optionEl.classList.add('selected');
+      selectEl.classList.remove('open');
+
+      onFilterChange();
+    }
+
+    // Sayfa tıklanınca açık dropdown'ları kapat
+    document.addEventListener('mousedown', function(e) {
+      if (!e.target.closest('.custom-select')) {
+        document.querySelectorAll('.custom-select.open').forEach(el => el.classList.remove('open'));
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // FILTERS
+    // ═══════════════════════════════════════════════
+    function populateFilters(data) {
+      const bransContainer = document.getElementById('filterBransOptions');
+      const sirketContainer = document.getElementById('filterSirketOptions');
+      const bransSelect = document.getElementById('filterBrans');
+      const sirketSelect = document.getElementById('filterSirket');
+
+      const prevBrans = bransSelect.dataset.value || '';
+      const prevSirket = sirketSelect.dataset.value || '';
+
+      // Branş dropdown
+      let bransHtml = '<div class="custom-select-option' + (prevBrans === '' ? ' selected' : '') + '" data-value="" onclick="selectOption(this)">Tüm Branşlar</div>';
+      if (data.bransDagilim) {
+        data.bransDagilim.forEach(b => {
+          const sel = prevBrans === b.bransAdi ? ' selected' : '';
+          bransHtml += `<div class="custom-select-option${sel}" data-value="${b.bransAdi}" onclick="selectOption(this)">${b.bransAdi} <span style="color:var(--text-muted);font-size:0.72rem;">(${b.policeSayisi})</span></div>`;
+        });
+      }
+      bransContainer.innerHTML = bransHtml;
+
+      // Şirket dropdown
+      let sirketHtml = '<div class="custom-select-option' + (prevSirket === '' ? ' selected' : '') + '" data-value="" onclick="selectOption(this)">Tüm Şirketler</div>';
+      if (data.sirketDagilim) {
+        data.sirketDagilim.forEach(s => {
+          const sel = prevSirket === s.sirketAdi ? ' selected' : '';
+          sirketHtml += `<div class="custom-select-option${sel}" data-value="${s.sirketAdi}" onclick="selectOption(this)">${s.sirketAdi} <span style="color:var(--text-muted);font-size:0.72rem;">(${s.policeSayisi})</span></div>`;
+        });
+      }
+      sirketContainer.innerHTML = sirketHtml;
+
+      // Trigger text'i güncelle
+      if (prevBrans) {
+        const match = (data.bransDagilim || []).find(b => b.bransAdi === prevBrans);
+        if (match) bransSelect.querySelector('.custom-select-text').textContent = `${match.bransAdi} (${match.policeSayisi})`;
+        else { bransSelect.dataset.value = ''; bransSelect.querySelector('.custom-select-text').textContent = 'Tüm Branşlar'; }
+      }
+      if (prevSirket) {
+        const match = (data.sirketDagilim || []).find(s => s.sirketAdi === prevSirket);
+        if (match) sirketSelect.querySelector('.custom-select-text').textContent = `${match.sirketAdi} (${match.policeSayisi})`;
+        else { sirketSelect.dataset.value = ''; sirketSelect.querySelector('.custom-select-text').textContent = 'Tüm Şirketler'; }
+      }
+    }
+
+    function onFilterChange() {
+      if (!currentData || !currentData.policeler) return;
+
+      const bransName = document.getElementById('filterBrans').dataset.value || '';
+      const sirketName = document.getElementById('filterSirket').dataset.value || '';
+
+      let filtered = currentData.policeler;
+
+      if (bransName) {
+        filtered = filtered.filter(p => p.bransAdi === bransName);
+      }
+      if (sirketName) {
+        filtered = filtered.filter(p => p.sirketAdi === sirketName);
+      }
+
+      const searchVal = document.getElementById('searchPoliceNo').value.trim().toLowerCase();
+      if (searchVal) {
+        filtered = filtered.filter(p => (p.policeNo || '').toLowerCase().includes(searchVal));
+      }
+
+      renderTable(filtered);
+    }
+
+    function onSearchChange() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(onFilterChange, 300);
+    }
+
+    // ═══════════════════════════════════════════════
+    // EXCEL EXPORT
+    // ═══════════════════════════════════════════════
+    function openExcelModal() {
+      document.getElementById('excelModal').classList.add('active');
+      // Default: Bu Ay
+      excelStartDate = null;
+      excelEndDate = null;
+      document.querySelectorAll('.excel-date-pills .date-pill').forEach(b => b.classList.remove('active'));
+      if (excelFlatpickr) excelFlatpickr.clear();
+      setExcelDate('month', document.querySelector('.excel-date-pills .date-pill:first-child'));
+    }
+
+    function closeExcelModal() {
+      document.getElementById('excelModal').classList.remove('active');
+    }
+
+    async function downloadExcel() {
+      if (!employeeId || !excelStartDate || !excelEndDate) {
+        alert('Lütfen tarih aralığı seçin.');
+        return;
+      }
+
+      const btn = document.getElementById('excelDownloadBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span>İndiriliyor...</span>';
+
+      try {
+        const params = {
+          startDate: formatDateISO(excelStartDate),
+          endDate: formatDateISO(excelEndDate)
+        };
+
+        const data = await apiGet(`kullanicilar/${employeeId}/details`, params);
+
+        if (!data || !data.policeler || data.policeler.length === 0) {
+          alert('Seçilen tarih aralığında poliçe bulunamadı.');
+          return;
+        }
+
+        const headers = ['Poliçe No', 'Branş', 'Sigorta Şirketi', 'Brüt Prim', 'Net Prim', 'Komisyon', 'Başlangıç', 'Bitiş', 'Tanzim', 'Müşteri Adı'];
+
+        const rows = data.policeler.map(p => [
+          p.policeNo || '',
+          p.bransAdi || '',
+          p.sirketAdi || '',
+          p.brutPrim || 0,
+          p.netPrim || 0,
+          p.komisyon || 0,
+          formatDate(p.baslangicTarihi),
+          formatDate(p.bitisTarihi),
+          formatDate(p.tanzimTarihi),
+          p.musteriAdi || ''
+        ]);
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+        ws['!cols'] = [
+          { wch: 15 }, { wch: 15 }, { wch: 25 },
+          { wch: 15 }, { wch: 15 }, { wch: 15 },
+          { wch: 12 }, { wch: 12 }, { wch: 12 },
+          { wch: 25 }
+        ];
+
+        const empName = `${data.kullanici?.adi || ''}_${data.kullanici?.soyadi || ''}`.trim().replace(/\s+/g, '_');
+        XLSX.utils.book_append_sheet(wb, ws, 'Poliçeler');
+
+        const startStr = formatDateISO(excelStartDate).replace(/-/g, '');
+        const endStr = formatDateISO(excelEndDate).replace(/-/g, '');
+        XLSX.writeFile(wb, `${empName}_policeler_${startStr}_${endStr}.xlsx`);
+
+        closeExcelModal();
+      } catch (err) {
+        console.error('Excel export hatası:', err);
+        alert('Excel oluşturulurken hata: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7,10 12,15 17,10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> İndir`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // DRAWER (date filter)
+    // ═══════════════════════════════════════════════
+    function initDrawer() {
+      const filtersEl = document.getElementById('dateFilterSection');
+      const sentinel = document.getElementById('dateFilterSentinel');
+      const toggleBtn = document.getElementById('filterDrawerToggle');
+      const backdrop = document.getElementById('filterDrawerBackdrop');
+
+      if (!filtersEl || !toggleBtn) return;
+
+      let drawerActive = false;
+      let normalHeight = filtersEl.offsetHeight;
+      let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+
+      function openDrawer() {
+        filtersEl.classList.add('drawer-open');
+        toggleBtn.classList.add('active');
+        backdrop.classList.add('visible');
+      }
+
+      function closeDrawer() {
+        filtersEl.classList.remove('drawer-open');
+        toggleBtn.classList.remove('active');
+        backdrop.classList.remove('visible');
+        requestAnimationFrame(function() {
+          if (drawerActive && window.scrollY <= filtersBottom) exitDrawerMode();
+        });
+      }
+
+      function enterDrawerMode() {
+        if (drawerActive) return;
+        drawerActive = true;
+        sentinel.style.height = normalHeight + 'px';
+        filtersEl.classList.add('drawer-mode');
+        toggleBtn.classList.add('visible');
+      }
+
+      function exitDrawerMode() {
+        if (!drawerActive) return;
+        if (filtersEl.classList.contains('drawer-open')) return;
+        drawerActive = false;
+        filtersEl.classList.remove('drawer-mode');
+        toggleBtn.classList.remove('visible');
+        sentinel.style.height = '0';
+        requestAnimationFrame(function() {
+          normalHeight = filtersEl.offsetHeight;
+          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+        });
+      }
+
+      function isOverflowing() {
+        const rect = filtersEl.getBoundingClientRect();
+        return rect.right > window.innerWidth + 2;
+      }
+
+      function checkDrawer() {
+        const scrolledPast = window.scrollY > filtersBottom;
+        const overflows = !drawerActive && isOverflowing();
+        if ((scrolledPast || overflows) && !drawerActive) enterDrawerMode();
+        else if (!scrolledPast && !overflows && drawerActive && !filtersEl.classList.contains('drawer-open')) exitDrawerMode();
+      }
+
+      toggleBtn.addEventListener('click', function() {
+        filtersEl.classList.contains('drawer-open') ? closeDrawer() : openDrawer();
+      });
+
+      document.addEventListener('mousedown', function(e) {
+        if (filtersEl.classList.contains('drawer-open') && !filtersEl.contains(e.target) && !toggleBtn.contains(e.target)) closeDrawer();
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && drawerActive) closeDrawer();
+      });
+
+      let ticking = false;
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          requestAnimationFrame(function() { checkDrawer(); ticking = false; });
+          ticking = true;
+        }
+      }, { passive: true });
+
+      window.addEventListener('resize', function() {
+        if (!drawerActive) {
+          normalHeight = filtersEl.offsetHeight;
+          filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+        }
+        checkDrawer();
+      });
+
+      requestAnimationFrame(checkDrawer);
+    }
+  </script>
+</body>
+</html>

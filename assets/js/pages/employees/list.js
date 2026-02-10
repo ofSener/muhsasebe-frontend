@@ -290,7 +290,7 @@
               <div class="flex items-center gap-3">
                 <div class="${avatarStyle}">${initials}</div>
                 <div>
-                  <div class="font-semibold ${isActive ? '' : 'text-muted'}">${k.adi || ''} ${k.soyadi || ''}</div>
+                  <a href="details.html?id=${k.id}" class="font-semibold ${isActive ? '' : 'text-muted'}" style="text-decoration:none;color:inherit;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='inherit'">${k.adi || ''} ${k.soyadi || ''}</a>
                   <div class="text-muted text-sm">${getRolText(k.anaYoneticimi, k.yetkiAdi)}</div>
                 </div>
               </div>
@@ -668,7 +668,7 @@
 
     // Çalışan kartına git
     function goToEmployeeCard(id) {
-      window.location.href = `detail.html?id=${id}`;
+      window.location.href = `details.html?id=${id}`;
     }
 
     function activateKullanici(id) {
