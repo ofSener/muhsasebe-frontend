@@ -84,6 +84,16 @@
       }
     };
 
+    // Müşterisi Bulunmayanlar (MusteriId=NULL onaylı poliçeler) state
+    const noCustomerState = {
+      data: null,
+      loading: false,
+      pagination: { currentPage: 1, pageSize: 20 },
+      filters: { search: '', sigortaSirketiId: null },
+      selectedIds: new Set(),
+      currentAssignPolicyId: null
+    };
+
     // Eşleşmeyenler (Yakalanan ama havuzda olmayan) state
     const unmatchedCapturedState = {
       data: null,
@@ -578,6 +588,11 @@
         document.getElementById('pageTitle').textContent = 'Eşleşmeyenler';
         document.getElementById('pageSubtitle').textContent = 'Yakalanan ama havuzda olmayan poliçeler';
         loadUnmatchedCaptured(true);
+      } else if (tab === 'no-customer') {
+        // Müşterisi Bulunmayanlar: Onaylı poliçe, MusteriId = null
+        document.getElementById('pageTitle').textContent = 'Müşterisi Bulunmayan Poliçeler';
+        document.getElementById('pageSubtitle').textContent = 'Onaylanmış ancak müşteri kaydı eşleşmemiş poliçeler';
+        loadNoCustomerPolicies(true);
       }
     }
 
@@ -1596,6 +1611,380 @@
       poolContent.innerHTML = html;
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // MÜŞTERİSİ BULUNMAYANLAR (MusteriId=NULL ONAYLI POLİÇELER)
+    // ═══════════════════════════════════════════════════════════════
+
+    async function loadNoCustomerPolicies(resetPage = false) {
+      const poolContent = document.getElementById('poolContent');
+      if (!poolContent) return;
+
+      if (resetPage) {
+        noCustomerState.pagination.currentPage = 1;
+        noCustomerState.selectedIds.clear();
+      }
+
+      try {
+        noCustomerState.loading = true;
+        const params = {
+          page: noCustomerState.pagination.currentPage,
+          pageSize: noCustomerState.pagination.pageSize
+        };
+
+        if (noCustomerState.filters.search) params.search = noCustomerState.filters.search;
+        if (noCustomerState.filters.sigortaSirketiId) params.sigortaSirketiId = noCustomerState.filters.sigortaSirketiId;
+
+        const data = await apiGet('policies/unmatched', params);
+        noCustomerState.data = data;
+        noCustomerState.loading = false;
+
+        renderNoCustomerContent(data);
+      } catch (error) {
+        console.error('Müşterisi bulunmayanlar yüklenemedi:', error);
+        noCustomerState.loading = false;
+        poolContent.innerHTML = `
+          <div class="card">
+            <div class="card-body text-center py-5">
+              <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Yüklenemedi</h3>
+              <p class="text-muted">${error.message || 'Bir hata oluştu'}</p>
+              <button class="btn btn-primary btn-sm mt-3" onclick="loadNoCustomerPolicies()">Tekrar Dene</button>
+            </div>
+          </div>`;
+      }
+    }
+
+    function renderNoCustomerContent(data) {
+      const poolContent = document.getElementById('poolContent');
+      if (!poolContent) return;
+
+      const items = data.items || [];
+      const totalPages = Math.ceil((data.totalCount || 0) / noCustomerState.pagination.pageSize);
+
+      poolContent.innerHTML = `
+        <!-- İstatistikler -->
+        <div class="no-customer-stats">
+          <div class="no-customer-stat-card">
+            <div class="no-customer-stat-value">${data.totalUnmatched || 0}</div>
+            <div class="no-customer-stat-label">Toplam Müşterisiz</div>
+          </div>
+          <div class="no-customer-stat-card">
+            <div class="no-customer-stat-value">${data.thisMonthUnmatched || 0}</div>
+            <div class="no-customer-stat-label">Bu Ay Eklenen</div>
+          </div>
+          <div class="no-customer-stat-card">
+            <div class="no-customer-stat-value">%${data.matchPercentage || 0}</div>
+            <div class="no-customer-stat-label">Eşleşme Oranı</div>
+          </div>
+        </div>
+
+        <!-- Toplu İşlem Barı -->
+        <div class="no-customer-batch-bar" id="noCustomerBatchBar">
+          <span><strong id="noCustomerSelectedCount">0</strong> poliçe seçildi</span>
+          <button class="btn btn-sm btn-primary" onclick="batchAssignTcFromPool()">Toplu TC Ata</button>
+          <button class="btn btn-sm btn-secondary" onclick="clearNoCustomerSelection()">Seçimi Temizle</button>
+        </div>
+
+        <!-- Arama -->
+        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: center;">
+          <input type="text" class="form-control" id="noCustomerSearch" placeholder="Poliçe no, sigortalı adı veya plaka ara..."
+            value="${noCustomerState.filters.search || ''}"
+            style="max-width: 350px; font-size: 0.85rem;"
+            onkeydown="if(event.key==='Enter') applyNoCustomerSearch()">
+          <button class="btn btn-sm btn-secondary" onclick="applyNoCustomerSearch()">Ara</button>
+          ${noCustomerState.filters.search ? '<button class="btn btn-sm btn-ghost" onclick="clearNoCustomerSearch()">Temizle</button>' : ''}
+        </div>
+
+        <!-- Tablo -->
+        <div class="card">
+          <div class="card-body" style="padding: 0;">
+            <div class="table-container" style="overflow-x: auto;">
+              <table class="data-table" style="min-width: 1200px;">
+                <thead>
+                  <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="noCustomerSelectAll" onchange="toggleNoCustomerSelectAll(this.checked)"></th>
+                    <th style="min-width: 130px;">Poliçe No</th>
+                    <th style="min-width: 150px;">Sigortalı Adı</th>
+                    <th style="min-width: 120px;">TC / VKN</th>
+                    <th style="min-width: 90px;">Plaka</th>
+                    <th class="text-right" style="min-width: 100px;">Brüt Prim</th>
+                    <th style="min-width: 90px;">Başlangıç</th>
+                    <th style="min-width: 90px;">Bitiş</th>
+                    <th style="min-width: 120px;">Sigorta Şirketi</th>
+                    <th style="min-width: 90px;">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${items.length === 0 ? `
+                    <tr>
+                      <td colspan="10" class="text-center text-muted" style="padding: 3rem;">
+                        Müşterisi bulunmayan poliçe bulunamadı
+                      </td>
+                    </tr>
+                  ` : items.map(p => `
+                    <tr>
+                      <td><input type="checkbox" class="nc-row-cb" data-id="${p.id}" ${noCustomerState.selectedIds.has(p.id) ? 'checked' : ''} onchange="toggleNoCustomerSelect(${p.id}, this.checked)"></td>
+                      <td><span class="font-mono" style="font-weight: 600;">${escHtml(p.policeNumarasi)}</span></td>
+                      <td>${escHtml(p.sigortaliAdi || '-')}</td>
+                      <td>
+                        ${p.tcKimlikNo ? `<span class="badge badge-success" style="font-size:0.72rem;">TC: ${escHtml(p.tcKimlikNo)}</span>` : ''}
+                        ${p.vergiNo ? `<span class="badge badge-info" style="font-size:0.72rem;">VKN: ${escHtml(p.vergiNo)}</span>` : ''}
+                        ${!p.tcKimlikNo && !p.vergiNo ? '<span class="text-muted">-</span>' : ''}
+                      </td>
+                      <td>${escHtml(p.plaka || '-')}</td>
+                      <td class="text-right"><span class="font-mono">${(p.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</span></td>
+                      <td><span class="text-sm">${p.baslangicTarihi ? new Date(p.baslangicTarihi).toLocaleDateString('tr-TR') : '-'}</span></td>
+                      <td><span class="text-sm">${p.bitisTarihi ? new Date(p.bitisTarihi).toLocaleDateString('tr-TR') : '-'}</span></td>
+                      <td>${escHtml(p.sigortaSirketiAdi || '-')}</td>
+                      <td>
+                        <button class="btn btn-sm btn-primary" onclick="openTcAssignModal(${p.id})" title="Müşteri Eşleştir">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <line x1="20" y1="8" x2="20" y2="14"/>
+                            <line x1="17" y1="11" x2="23" y2="11"/>
+                          </svg>
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sayfalama -->
+        ${totalPages > 1 ? `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem;">
+            <button class="btn btn-sm btn-ghost" ${noCustomerState.pagination.currentPage <= 1 ? 'disabled' : ''} onclick="goToNoCustomerPage(${noCustomerState.pagination.currentPage - 1})">Önceki</button>
+            <span class="text-sm text-muted">Sayfa ${noCustomerState.pagination.currentPage} / ${totalPages} (${data.totalCount} kayıt)</span>
+            <button class="btn btn-sm btn-ghost" ${noCustomerState.pagination.currentPage >= totalPages ? 'disabled' : ''} onclick="goToNoCustomerPage(${noCustomerState.pagination.currentPage + 1})">Sonraki</button>
+          </div>
+        ` : ''}
+      `;
+    }
+
+    // Sayfalama
+    function goToNoCustomerPage(page) {
+      noCustomerState.pagination.currentPage = page;
+      loadNoCustomerPolicies();
+    }
+
+    // Arama
+    function applyNoCustomerSearch() {
+      const search = document.getElementById('noCustomerSearch')?.value?.trim() || '';
+      noCustomerState.filters.search = search;
+      loadNoCustomerPolicies(true);
+    }
+
+    function clearNoCustomerSearch() {
+      noCustomerState.filters.search = '';
+      loadNoCustomerPolicies(true);
+    }
+
+    // Seçim yönetimi
+    function toggleNoCustomerSelect(id, checked) {
+      if (checked) noCustomerState.selectedIds.add(id);
+      else noCustomerState.selectedIds.delete(id);
+      updateNoCustomerBatchBar();
+    }
+
+    function toggleNoCustomerSelectAll(checked) {
+      const items = noCustomerState.data?.items || [];
+      items.forEach(p => {
+        if (checked) noCustomerState.selectedIds.add(p.id);
+        else noCustomerState.selectedIds.delete(p.id);
+      });
+      // Checkbox'ları güncelle
+      document.querySelectorAll('.nc-row-cb').forEach(cb => { cb.checked = checked; });
+      updateNoCustomerBatchBar();
+    }
+
+    function clearNoCustomerSelection() {
+      noCustomerState.selectedIds.clear();
+      document.querySelectorAll('.nc-row-cb').forEach(cb => { cb.checked = false; });
+      const selectAll = document.getElementById('noCustomerSelectAll');
+      if (selectAll) selectAll.checked = false;
+      updateNoCustomerBatchBar();
+    }
+
+    function updateNoCustomerBatchBar() {
+      const bar = document.getElementById('noCustomerBatchBar');
+      const countEl = document.getElementById('noCustomerSelectedCount');
+      if (!bar) return;
+      if (noCustomerState.selectedIds.size > 0) {
+        bar.classList.add('active');
+        if (countEl) countEl.textContent = noCustomerState.selectedIds.size;
+      } else {
+        bar.classList.remove('active');
+      }
+    }
+
+    // TC Atama Modal
+    function openTcAssignModal(policyId) {
+      noCustomerState.currentAssignPolicyId = policyId;
+      const policy = (noCustomerState.data?.items || []).find(p => p.id === policyId);
+
+      const modal = document.getElementById('tcAssignModal');
+      if (!modal) return;
+
+      document.getElementById('tcAssignInput').value = policy?.tcKimlikNo || '';
+      document.getElementById('vknAssignInput').value = policy?.vergiNo || '';
+      document.getElementById('tcCandidatesList').innerHTML = '';
+      document.getElementById('tcModalPolicyInfo').textContent =
+        `${policy?.policeNumarasi || ''} - ${policy?.sigortaliAdi || 'Bilinmiyor'}`;
+
+      modal.classList.add('active');
+    }
+
+    function closeTcAssignModal() {
+      const modal = document.getElementById('tcAssignModal');
+      if (modal) modal.classList.remove('active');
+      noCustomerState.currentAssignPolicyId = null;
+    }
+
+    // Aday müşteri arama
+    async function searchTcCandidates() {
+      const tc = document.getElementById('tcAssignInput')?.value?.trim();
+      const vkn = document.getElementById('vknAssignInput')?.value?.trim();
+      const policy = (noCustomerState.data?.items || []).find(p => p.id === noCustomerState.currentAssignPolicyId);
+
+      const params = {};
+      if (tc) params.tc = tc;
+      if (vkn) params.vkn = vkn;
+      if (policy?.sigortaliAdi) params.name = policy.sigortaliAdi;
+      if (policy?.plaka) params.plaka = policy.plaka;
+
+      try {
+        const res = await apiGet('customers/candidates', params);
+        renderTcCandidates(res.candidates || []);
+      } catch (e) {
+        showToast('Aday arama hatası', 'error');
+      }
+    }
+
+    function renderTcCandidates(candidates) {
+      const container = document.getElementById('tcCandidatesList');
+      if (!container) return;
+
+      if (candidates.length === 0) {
+        container.innerHTML = '<div class="text-muted" style="padding: 1rem; text-align: center;">Aday müşteri bulunamadı</div>';
+        return;
+      }
+
+      const signalLabels = { TcKimlikNo: 'TC', VergiNo: 'VKN', Plaka: 'Plaka', Name: 'İsim' };
+      container.innerHTML = candidates.map(c => {
+        const confClass = c.confidence === 'Exact' ? 'success' : c.confidence === 'Medium' ? 'warning' : 'default';
+        return `
+          <div class="tc-candidate-card" onclick="assignToCustomerFromPool(${c.id})">
+            <div>
+              <div class="tc-candidate-name">${escHtml(c.adi || '')} ${escHtml(c.soyadi || '')}</div>
+              <div class="tc-candidate-details">
+                ${c.tcKimlikNo ? `<span>TC: ${escHtml(c.tcKimlikNo)}</span>` : ''}
+                ${c.vergiNo ? `<span>VKN: ${escHtml(c.vergiNo)}</span>` : ''}
+                ${c.gsm ? `<span>GSM: ${escHtml(c.gsm)}</span>` : ''}
+                <span>${c.policyCount || 0} poliçe</span>
+              </div>
+            </div>
+            <div class="tc-candidate-badges">
+              <span class="badge badge-${confClass}">${signalLabels[c.matchSignal] || c.matchSignal}</span>
+              <span class="badge badge-${confClass}">${c.confidence}</span>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    // TC/VKN ata
+    async function submitTcAssign() {
+      const policyId = noCustomerState.currentAssignPolicyId;
+      if (!policyId) return;
+
+      const tc = document.getElementById('tcAssignInput')?.value?.trim();
+      const vkn = document.getElementById('vknAssignInput')?.value?.trim();
+
+      if (!tc && !vkn) {
+        showToast('TC Kimlik No veya Vergi No giriniz', 'warning');
+        return;
+      }
+
+      try {
+        const res = await apiPost(`policies/${policyId}/assign-tc`, {
+          tcKimlikNo: tc || null,
+          vergiNo: vkn || null
+        });
+
+        if (res.success) {
+          let msg = 'TC/VKN başarıyla atandı';
+          if (res.autoCreated) msg += ' (yeni müşteri oluşturuldu)';
+          if (res.cascadeUpdated > 0) msg += `, ${res.cascadeUpdated} ek poliçe güncellendi`;
+          showToast(msg, 'success');
+          closeTcAssignModal();
+          await loadNoCustomerPolicies();
+          await loadTabCounts();
+        } else {
+          showToast(res.errorMessage || 'Atama hatası', 'error');
+        }
+      } catch (e) {
+        showToast('Atama sırasında hata oluştu', 'error');
+      }
+    }
+
+    // Mevcut müşteriye ata (aday kartına tıklama)
+    async function assignToCustomerFromPool(musteriId) {
+      const policyId = noCustomerState.currentAssignPolicyId;
+      if (!policyId) return;
+
+      try {
+        await apiPut('policies/batch-update', {
+          updates: [{ id: policyId, musteriId: musteriId }]
+        });
+        showToast('Müşteri başarıyla eşleşti', 'success');
+        closeTcAssignModal();
+        await loadNoCustomerPolicies();
+        await loadTabCounts();
+      } catch (e) {
+        showToast('Eşleştirme hatası', 'error');
+      }
+    }
+
+    // Toplu TC atama
+    async function batchAssignTcFromPool() {
+      if (noCustomerState.selectedIds.size === 0) return;
+
+      const tc = prompt('Toplu atanacak TC Kimlik No (11 hane):');
+      if (!tc || tc.trim().length !== 11) {
+        if (tc !== null) showToast('Geçerli bir TC Kimlik No giriniz (11 hane)', 'warning');
+        return;
+      }
+
+      try {
+        const items = Array.from(noCustomerState.selectedIds).map(id => ({
+          policyId: id,
+          tcKimlikNo: tc.trim()
+        }));
+
+        const res = await apiPost('policies/batch-assign-tc', { items });
+        showToast(
+          `${res.successCount} başarılı, ${res.failedCount} başarısız${res.totalCascadeUpdated > 0 ? `, ${res.totalCascadeUpdated} kaskad güncelleme` : ''}`,
+          res.failedCount === 0 ? 'success' : 'warning'
+        );
+
+        noCustomerState.selectedIds.clear();
+        await loadNoCustomerPolicies(true);
+        await loadTabCounts();
+      } catch (e) {
+        showToast('Toplu atama hatası', 'error');
+      }
+    }
+
+    // HTML escape helper
+    function escHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     // Yakalanan poliçeyi direkt kaydet (havuzu bypass et)
     async function sendCapturedToPool(capturedId) {
       if (!confirm('Bu poliçeyi Poliçelerime kaydetmek istediğinize emin misiniz?')) {
@@ -1756,6 +2145,10 @@
         // Eşleşmeyenler sayısı (Yakalanan ama havuzda olmayan)
         const unmatchedCapturedData = await apiGet('policies/captured/not-in-pool', { pageSize: 1 });
         document.getElementById('unmatchedCapturedTabCount').textContent = unmatchedCapturedData?.totalCount || 0;
+
+        // Müşterisi Bulunmayanlar sayısı (MusteriId=NULL onaylı poliçeler)
+        const noCustomerData = await apiGet('policies/unmatched', { page: 1, pageSize: 1 });
+        document.getElementById('noCustomerTabCount').textContent = noCustomerData?.totalUnmatched || 0;
       } catch (error) {
         console.error('Tab sayıları yüklenemedi:', error);
       }
@@ -1766,7 +2159,12 @@
       showLoading(true);
       try {
         // Mevcut sekmeye göre doğru veriyi yükle
-        if (currentMainTab === 'unmatched-captured') {
+        if (currentMainTab === 'no-customer') {
+          await Promise.all([
+            loadNoCustomerPolicies(true),
+            loadTabCounts()
+          ]);
+        } else if (currentMainTab === 'unmatched-captured') {
           await Promise.all([
             loadUnmatchedCaptured(true),
             loadTabCounts()
