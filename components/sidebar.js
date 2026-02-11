@@ -105,7 +105,7 @@
           </a>
           <div class="nav-submenu">
             <a href="${pagesPath}employees/list.html" class="nav-link" data-page="list.html" data-folder="employees"><span class="nav-text">Calisan Listesi</span></a>
-            <a href="${pagesPath}employees/performance.html" class="nav-link" data-page="performance.html"><span class="nav-text">Performans</span></a>
+            <span id="sidebarEmployeeDetail"></span>
             <a href="${pagesPath}employees/tracking.html" class="nav-link" data-page="tracking.html"><span class="nav-text">Takip/Hakedis</span></a>
           </div>
         </div>
@@ -134,6 +134,12 @@
           <a href="${pagesPath}finance/reports.html" class="nav-link" data-page="reports.html" data-folder="finance">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
             <span class="nav-text">Raporlar</span>
+          </a>
+        </div>
+        <div class="nav-item">
+          <a href="${pagesPath}employees/performance.html" class="nav-link" data-page="performance.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            <span class="nav-text">Sirket Performansi</span>
           </a>
         </div>
         <div class="nav-item">
@@ -180,6 +186,9 @@
 
     sidebarElement.innerHTML = sidebarHTML;
 
+    // Dinamik çalışan detay linki
+    initDynamicEmployeeLink();
+
     // Aktif sayfayı işaretle
     highlightActivePage();
 
@@ -189,6 +198,34 @@
     // Apply permissions AFTER sidebar is rendered
     if (typeof applyPermissions === 'function') {
       applyPermissions();
+    }
+  }
+
+  // Dinamik çalışan detay linki (localStorage'dan)
+  function initDynamicEmployeeLink() {
+    const placeholder = document.getElementById('sidebarEmployeeDetail');
+    if (!placeholder) return;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem('lastViewedEmployee'));
+      if (!saved || !saved.id || !saved.name) return;
+
+      const isOnDetailsPage = currentPage === 'details.html' && currentFolder === 'employees';
+      const link = document.createElement('a');
+      link.href = (basePath === './' ? './pages/' : '../') + 'employees/details.html?id=' + saved.id;
+      link.className = 'nav-link' + (isOnDetailsPage ? ' active' : '');
+      link.setAttribute('data-page', 'details.html');
+      link.setAttribute('data-folder', 'employees');
+      link.innerHTML = '<span class="nav-text">Calisan Karti</span>';
+      placeholder.replaceWith(link);
+
+      // Detay sayfasındaysak parent submenu'yu aç
+      if (isOnDetailsPage) {
+        const parentSubmenu = link.closest('.nav-item.has-submenu');
+        if (parentSubmenu) parentSubmenu.classList.add('open');
+      }
+    } catch (e) {
+      // localStorage parse hatası — sessizce geç
     }
   }
 

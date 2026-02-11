@@ -62,7 +62,31 @@
             <div class="emp-profile">
               <div class="emp-avatar" id="empAvatar">--</div>
               <div class="emp-info">
-                <h1 class="emp-name" id="empName">Yükleniyor...</h1>
+                <div class="emp-name-row">
+                  <button class="emp-nav-btn" id="empPrev" title="Önceki çalışan" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <div class="emp-name-wrapper" id="empNameWrapper">
+                    <h1 class="emp-name" id="empName">Yükleniyor...</h1>
+                    <button class="emp-switcher-toggle" id="empSwitcherToggle" title="Çalışan değiştir">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <!-- Dropdown -->
+                    <div class="emp-switcher-dropdown" id="empSwitcherDropdown">
+                      <div class="emp-switcher-search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="empSwitcherInput" placeholder="Çalışan ara..." autocomplete="off">
+                      </div>
+                      <div class="emp-switcher-list" id="empSwitcherList">
+                        <!-- JS ile doldurulacak -->
+                      </div>
+                    </div>
+                  </div>
+                  <button class="emp-nav-btn" id="empNext" title="Sonraki çalışan" disabled>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                  <span class="emp-nav-counter" id="empNavCounter"></span>
+                </div>
                 <div class="emp-meta">
                   <span class="emp-meta-item" id="empSube">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
@@ -361,15 +385,189 @@
       flex-shrink: 0;
     }
 
+    .emp-name-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .emp-name-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
     .emp-name {
       font-size: 1.35rem;
       font-weight: 800;
       color: var(--text-primary);
-      margin: 0 0 0.35rem 0;
+      margin: 0;
       letter-spacing: -0.01em;
       display: flex;
       align-items: center;
       gap: 0.5rem;
+    }
+
+    /* Switcher Toggle Button */
+    .emp-switcher-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .emp-switcher-toggle:hover {
+      background: var(--bg-elevated);
+      color: var(--primary);
+    }
+    .emp-switcher-toggle.open svg {
+      transform: rotate(180deg);
+    }
+
+    /* Prev/Next Arrows */
+    .emp-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border-default);
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .emp-nav-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.06);
+    }
+    .emp-nav-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .emp-nav-counter {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      white-space: nowrap;
+      margin-left: 0.25rem;
+    }
+
+    /* Switcher Dropdown */
+    .emp-switcher-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 280px;
+      max-height: 320px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+      z-index: 100;
+      overflow: hidden;
+    }
+    .emp-switcher-dropdown.open {
+      display: block;
+    }
+
+    .emp-switcher-search {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid var(--border-default);
+      color: var(--text-muted);
+    }
+    .emp-switcher-search input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 0.8rem;
+      font-family: inherit;
+      color: var(--text-primary);
+      width: 100%;
+    }
+    .emp-switcher-search input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .emp-switcher-list {
+      overflow-y: auto;
+      max-height: 260px;
+    }
+
+    .emp-switcher-item {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      transition: background 0.1s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .emp-switcher-item:hover {
+      background: var(--bg-elevated);
+    }
+    .emp-switcher-item.active {
+      background: rgba(99, 102, 241, 0.08);
+    }
+
+    .emp-switcher-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dim));
+      color: white;
+      font-size: 0.625rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .emp-switcher-item.active .emp-switcher-avatar {
+      background: linear-gradient(135deg, var(--primary), #7c3aed);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .emp-switcher-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .emp-switcher-item.active .emp-switcher-name {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .emp-switcher-sub {
+      font-size: 0.675rem;
+      color: var(--text-dim);
+    }
+
+    .emp-switcher-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
     }
 
     .emp-deleted-tag {
@@ -982,6 +1180,10 @@
     let excelEndDate = null;
     let excelFlatpickr = null;
 
+    // Employee switcher state
+    let allEmployees = [];
+    let currentEmpIndex = -1;
+
     // ═══════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════
@@ -1060,7 +1262,138 @@
       });
 
       initDrawer();
+      initEmployeeSwitcher();
     });
+
+    // ═══════════════════════════════════════════════
+    // EMPLOYEE SWITCHER
+    // ═══════════════════════════════════════════════
+    async function initEmployeeSwitcher() {
+      const dropdown = document.getElementById('empSwitcherDropdown');
+      const toggle = document.getElementById('empSwitcherToggle');
+      const input = document.getElementById('empSwitcherInput');
+      const listEl = document.getElementById('empSwitcherList');
+      const prevBtn = document.getElementById('empPrev');
+      const nextBtn = document.getElementById('empNext');
+      const counterEl = document.getElementById('empNavCounter');
+
+      // Çalışan listesini yükle
+      try {
+        const currentUser = JSON.parse(localStorage.getItem('current_user') || '{}');
+        const firmaId = currentUser.firmaId;
+        if (firmaId) {
+          allEmployees = await apiGet('kullanicilar', { firmaId: firmaId });
+        } else {
+          allEmployees = await apiGet('kullanicilar');
+        }
+        allEmployees = (allEmployees || []).filter(e => !e.silinmis);
+      } catch (e) {
+        console.error('Çalışan listesi yüklenemedi:', e);
+        return;
+      }
+
+      if (!allEmployees.length) return;
+
+      // Mevcut çalışanın index'ini bul
+      currentEmpIndex = allEmployees.findIndex(e => e.id === employeeId);
+
+      // Counter güncelle
+      function updateNav() {
+        if (currentEmpIndex >= 0) {
+          counterEl.textContent = `${currentEmpIndex + 1}/${allEmployees.length}`;
+        }
+        prevBtn.disabled = currentEmpIndex <= 0;
+        nextBtn.disabled = currentEmpIndex >= allEmployees.length - 1;
+      }
+      updateNav();
+
+      // Dropdown listeyi render et
+      function renderList(filter) {
+        const q = (filter || '').toLowerCase();
+        const filtered = q
+          ? allEmployees.filter(e => `${e.adi} ${e.soyadi}`.toLowerCase().includes(q))
+          : allEmployees;
+
+        listEl.innerHTML = filtered.map(e => {
+          const name = `${e.adi || ''} ${e.soyadi || ''}`.trim();
+          const initials = ((e.adi || '').charAt(0) + (e.soyadi || '').charAt(0)).toUpperCase();
+          const isActive = e.id === employeeId;
+          return `
+            <a href="details.html?id=${e.id}" class="emp-switcher-item ${isActive ? 'active' : ''}">
+              <div class="emp-switcher-avatar">${initials}</div>
+              <div class="emp-switcher-info">
+                <div class="emp-switcher-name">${name}</div>
+                ${e.subeAdi ? `<div class="emp-switcher-sub">${e.subeAdi}</div>` : ''}
+              </div>
+            </a>
+          `;
+        }).join('');
+
+        if (!filtered.length) {
+          listEl.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--text-dim);font-size:0.8rem;">Sonuç bulunamadı</div>';
+        }
+      }
+      renderList('');
+
+      // Toggle dropdown
+      toggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.toggle('open');
+        toggle.classList.toggle('open', isOpen);
+        if (isOpen) {
+          input.value = '';
+          renderList('');
+          input.focus();
+          // Aktif öğeye scroll
+          setTimeout(() => {
+            const active = listEl.querySelector('.active');
+            if (active) active.scrollIntoView({ block: 'center' });
+          }, 50);
+        }
+      });
+
+      // Arama
+      input.addEventListener('input', function() {
+        renderList(this.value);
+      });
+
+      // Dışarı tıklayınca kapat
+      document.addEventListener('click', function(e) {
+        if (!dropdown.contains(e.target) && e.target !== toggle) {
+          dropdown.classList.remove('open');
+          toggle.classList.remove('open');
+        }
+      });
+
+      // Önceki/Sonraki
+      prevBtn.addEventListener('click', function() {
+        if (currentEmpIndex > 0) {
+          window.location.href = 'details.html?id=' + allEmployees[currentEmpIndex - 1].id;
+        }
+      });
+      nextBtn.addEventListener('click', function() {
+        if (currentEmpIndex < allEmployees.length - 1) {
+          window.location.href = 'details.html?id=' + allEmployees[currentEmpIndex + 1].id;
+        }
+      });
+
+      // Klavye kısayolları
+      document.addEventListener('keydown', function(e) {
+        // Dropdown açıkken ESC ile kapat
+        if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+          dropdown.classList.remove('open');
+          toggle.classList.remove('open');
+          return;
+        }
+        // Input'a focus yoksa ok tuşlarıyla gezinme
+        if (document.activeElement === input) return;
+        if (e.key === 'ArrowLeft' && !prevBtn.disabled) {
+          prevBtn.click();
+        } else if (e.key === 'ArrowRight' && !nextBtn.disabled) {
+          nextBtn.click();
+        }
+      });
+    }
 
     // ═══════════════════════════════════════════════
     // DATE HELPERS
@@ -1212,19 +1545,25 @@
     function renderHeader(k) {
       if (!k) return;
       const initials = ((k.adi || '').charAt(0) + (k.soyadi || '').charAt(0)).toUpperCase() || '--';
+      const fullName = `${k.adi || ''} ${k.soyadi || ''}`.trim();
       const avatar = document.getElementById('empAvatar');
       const nameEl = document.getElementById('empName');
       avatar.textContent = initials;
 
       if (k.silinmis) {
         avatar.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-        nameEl.innerHTML = `<span style="color:#ef4444;">${k.adi || ''} ${k.soyadi || ''}</span><span class="emp-deleted-tag">Silinmiş Kullanıcı</span>`;
+        nameEl.innerHTML = `<span style="color:#ef4444;">${fullName}</span><span class="emp-deleted-tag">Silinmiş Kullanıcı</span>`;
       } else {
-        nameEl.textContent = `${k.adi || ''} ${k.soyadi || ''}`.trim();
+        nameEl.textContent = fullName;
       }
 
       document.querySelector('#empSube span').textContent = k.subeAdi || '-';
       document.querySelector('#empKayitTarihi span').textContent = k.kayitTarihi ? formatDate(k.kayitTarihi) : '-';
+
+      // Sidebar dinamik link için localStorage'a kaydet
+      try {
+        localStorage.setItem('lastViewedEmployee', JSON.stringify({ id: employeeId, name: fullName }));
+      } catch (e) { /* quota exceeded vb. */ }
     }
 
     function renderKPIs(stats) {
