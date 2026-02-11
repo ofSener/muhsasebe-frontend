@@ -1514,6 +1514,9 @@
     function renderUnmatchedCapturedContent(data) {
       const poolContent = document.getElementById('poolContent');
 
+      const fmtDate = (d) => d ? new Date(d).toLocaleDateString('tr-TR') : '-';
+      const fmtPrim = (v) => (v || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2});
+
       const html = `
         <div class="card">
           <div class="card-header">
@@ -1523,23 +1526,18 @@
             </div>
           </div>
           <div class="card-body" style="padding: 0;">
-            <div class="table-container" style="overflow-x: auto;">
-              <table class="data-table" style="min-width: 1600px;">
+            <div class="table-container">
+              <table class="data-table">
                 <thead>
                   <tr>
                     <th style="min-width: 140px;">Poliçe No</th>
-                    <th style="min-width: 95px;">Tanzim</th>
-                    <th style="min-width: 95px;">Başlangıç</th>
-                    <th style="min-width: 95px;">Bitiş</th>
+                    <th style="min-width: 150px;">Tarih</th>
                     <th style="min-width: 150px;">Sigortalı Adı</th>
                     <th style="min-width: 100px;">Branş</th>
                     <th style="min-width: 120px;">Sigorta Şirketi</th>
-                    <th style="min-width: 120px;">Prodüktör</th>
-                    <th style="min-width: 100px;">Şube</th>
-                    <th class="text-right" style="min-width: 100px;">Net Prim</th>
-                    <th class="text-right" style="min-width: 100px;">Brüt Prim</th>
-                    <th style="min-width: 95px;">Eklenme</th>
-                    <th style="min-width: 150px;">İşlemler</th>
+                    <th style="min-width: 140px;">Prodüktör / Şube</th>
+                    <th class="text-right" style="min-width: 120px;">Prim</th>
+                    <th style="min-width: 80px;">İşlemler</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1548,15 +1546,11 @@
                       <td>
                         <span class="font-mono" style="font-weight: 600;">${item.policeNo || '-'}</span>
                         ${item.plaka ? `<div class="text-muted text-xs">${item.plaka}</div>` : ''}
+                        <div class="text-muted text-xs">${fmtDate(item.eklenmeTarihi)}</div>
                       </td>
                       <td>
-                        <span class="text-sm">${new Date(item.tanzimTarihi).toLocaleDateString('tr-TR')}</span>
-                      </td>
-                      <td>
-                        <span class="text-sm">${new Date(item.baslangicTarihi).toLocaleDateString('tr-TR')}</span>
-                      </td>
-                      <td>
-                        <span class="text-sm">${new Date(item.bitisTarihi).toLocaleDateString('tr-TR')}</span>
+                        <span class="text-sm">${fmtDate(item.baslangicTarihi)} – ${fmtDate(item.bitisTarihi)}</span>
+                        <div class="text-muted text-xs">Tanzim: ${fmtDate(item.tanzimTarihi)}</div>
                       </td>
                       <td>
                         <span class="text-sm">${item.sigortaliAdi || '-'}</span>
@@ -1569,21 +1563,14 @@
                       </td>
                       <td>
                         <span class="text-sm" style="font-weight: 500; color: var(--primary);">${item.produktorAdi || '<span style="color: var(--danger);">Atanmamış</span>'}</span>
-                      </td>
-                      <td>
-                        <span class="text-sm">${item.subeAdi || '-'}</span>
+                        <div class="text-muted text-xs">${item.subeAdi || '-'}</div>
                       </td>
                       <td class="text-right">
-                        <span class="font-mono">${(item.netPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</span>
-                      </td>
-                      <td class="text-right">
-                        <span class="font-mono" style="font-weight: 600;">${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</span>
+                        <span class="font-mono" style="font-weight: 600;">${fmtPrim(item.brutPrim)} TL</span>
+                        <div class="text-muted text-xs font-mono">Net: ${fmtPrim(item.netPrim)} TL</div>
                       </td>
                       <td>
-                        <span class="text-xs text-muted">${new Date(item.eklenmeTarihi).toLocaleDateString('tr-TR')}</span>
-                      </td>
-                      <td>
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div style="display: flex; gap: 0.25rem;">
                           <button class="btn btn-sm btn-secondary" onclick="openEditUnmatchedModal(${item.id})" title="Düzenle">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
