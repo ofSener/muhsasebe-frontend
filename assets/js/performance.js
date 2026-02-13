@@ -10,17 +10,30 @@ let performanceState = {
     start: new Date(),
     end: new Date()
   },
-  companyPeriod: 'hour',       // 'hour', 'day', 'week', 'month'
   treeMapView: 'employee',     // 'employee', 'branch'
-  treeMapMode: 'amount'        // 'amount', 'count'
+  treeMapMode: 'amount',       // 'amount', 'count'
+  selectedBransIds: [],
+  selectedSirketIds: [],
+  bransOptions: [],
+  sirketOptions: []
 };
+
+// ===== ZOOM STATE =====
+let zoomState = {
+  baseLevel: 'day',    // Tarih aralığına göre belirlenir: 'month', 'day'
+  level: 'day',        // Mevcut zoom seviyesi
+  context: null         // Zoom bağlamı: { year, month }
+};
+let zoomStack = [];     // Zoom geçmişi (geri almak için)
 
 // ===== CACHE SYSTEM =====
 const performanceCache = {};
 const CACHE_TTL = 5 * 60 * 1000; // 5 dakika
 
 function getCacheKey(mode, startDate, endDate) {
-  return `${mode}_${startDate.toISOString()}_${endDate.toISOString()}`;
+  const brans = (performanceState.selectedBransIds || []).sort().join(',');
+  const sirket = (performanceState.selectedSirketIds || []).sort().join(',');
+  return `${mode}_${startDate.toISOString()}_${endDate.toISOString()}_b${brans}_s${sirket}`;
 }
 
 function getCachedData(key) {
@@ -44,82 +57,94 @@ function setCachedData(key, data) {
 }
 
 // ===== API SERVICE LAYER =====
+function _buildFilterParams(mode, startDate, endDate) {
+  const params = {
+    mode: mode,
+    startDate: startDate.toISOString().split('T')[0],
+    endDate: endDate.toISOString().split('T')[0]
+  };
+  if (performanceState.selectedBransIds.length > 0)
+    params.bransIds = performanceState.selectedBransIds.join(',');
+  if (performanceState.selectedSirketIds.length > 0)
+    params.sirketIds = performanceState.selectedSirketIds.join(',');
+  return params;
+}
+
 const PerformanceAPI = {
-  /**
-   * Branş dağılımını getir
-   */
   async getBransDagilim(mode, startDate, endDate) {
-    const params = {
-      mode: mode,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
-    };
-    console.log('[API] Calling brans-dagilim with params:', params);
+    const params = _buildFilterParams(mode, startDate, endDate);
     const result = await apiGet('dashboard/brans-dagilim', params);
-    console.log('[API] brans-dagilim response:', result);
     return result;
   },
 
-  /**
-   * Şube dağılımını getir
-   */
   async getSubeDagilim(mode, startDate, endDate) {
-    const params = {
-      mode: mode,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
-    };
-    console.log('[API] Calling sube-dagilim with params:', params);
+    const params = _buildFilterParams(mode, startDate, endDate);
     const result = await apiGet('dashboard/sube-dagilim', params);
-    console.log('[API] sube-dagilim response:', result);
     return result;
   },
 
-  /**
-   * Top performansçıları getir
-   */
   async getTopPerformers(mode, startDate, endDate, limit = 10) {
-    const params = {
-      mode: mode,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
-      limit: limit
-    };
-    console.log('[API] Calling top-performers with params:', params);
+    const params = { ..._buildFilterParams(mode, startDate, endDate), limit };
     const result = await apiGet('dashboard/top-performers', params);
-    console.log('[API] top-performers response:', result);
     return result;
   },
 
-  /**
-   * Dashboard stats getir (tarih aralığına göre)
-   */
   async getStats(mode, startDate, endDate) {
-    const params = {
-      mode: mode,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
-    };
-    console.log('[API] Calling dashboard/stats with params:', params);
+    const params = _buildFilterParams(mode, startDate, endDate);
     const result = await apiGet('dashboard/stats', params);
-    console.log('[API] dashboard/stats response:', result);
     return result;
   },
 
-  /**
-   * Aylık trend getir
-   */
-  async getAylikTrend(mode, months = 12) {
-    const params = {
-      mode: mode,
-      months: months
-    };
-    console.log('[API] Calling aylik-trend with params:', params);
+  async getAylikTrend(mode, startDate, endDate) {
+    const params = _buildFilterParams(mode, startDate, endDate);
     const result = await apiGet('dashboard/aylik-trend', params);
-    console.log('[API] aylik-trend response:', result);
+    return result;
+  },
+
+  async getGunlukTrend(mode, startDate, endDate) {
+    const params = _buildFilterParams(mode, startDate, endDate);
+    const result = await apiGet('dashboard/gunluk-trend', params);
+    return result;
+  },
+
+  async getSirketDagilim(mode, startDate, endDate) {
+    const params = _buildFilterParams(mode, startDate, endDate);
+    const result = await apiGet('dashboard/sirket-dagilim', params);
+    return result;
+  },
+
+  async getKarsilastirmaTrend(mode, startDate, endDate, groupBy, entityIds) {
+    const params = {
+      ..._buildFilterParams(mode, startDate, endDate),
+      groupBy: groupBy,
+      entityIds: entityIds.join(',')
+    };
+    const result = await apiGet('dashboard/karsilastirma-trend', params);
     return result;
   }
 };
+
+// ===== ZOOM HELPERS =====
+function getAutoLevel(start, end) {
+  const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  if (diffDays <= 31) return 'day';
+  return 'month';
+}
+
+function parseMonthNumber(ayStr) {
+  const shorts = ['oca', 'şub', 'mar', 'nis', 'may', 'haz', 'tem', 'ağu', 'eyl', 'eki', 'kas', 'ara'];
+  const lower = (ayStr || '').toLocaleLowerCase('tr-TR');
+  for (let i = 0; i < shorts.length; i++) {
+    if (lower.startsWith(shorts[i])) return i + 1;
+  }
+  return 1;
+}
+
+function resetZoom(start, end) {
+  const base = getAutoLevel(start, end);
+  zoomState = { baseLevel: base, level: base, context: null };
+  zoomStack = [];
+}
 
 // ===== DATA MAPPERS =====
 const DataMappers = {
@@ -198,13 +223,34 @@ const DataMappers = {
     // API ay, yil, brutPrim olarak dönüyor (tarih ve toplamBrutPrim değil)
     const labels = apiResponse.trend.map(item => item.ay || 'N/A');
     const current = apiResponse.trend.map(item => item.brutPrim || 0);
-
-    // Önceki dönem için mock data (backend'de henüz yok)
-    const previous = current.map(val => val * 0.85);
+    const meta = apiResponse.trend.map(item => ({
+      ay: item.ay,
+      yil: item.yil || new Date().getFullYear(),
+      monthNo: parseMonthNumber(item.ay),
+      brutPrim: item.brutPrim || 0
+    }));
 
     console.log('[DataMappers] Trend mapped:', { labels, currentSample: current.slice(0, 3) });
 
-    return { labels, current, previous };
+    return { labels, current, previous: [], meta };
+  },
+
+  /**
+   * Günlük trend API response'unu chart formatına çevirir
+   */
+  mapGunlukTrend(apiResponse) {
+    if (!apiResponse || !apiResponse.trend || !Array.isArray(apiResponse.trend)) {
+      return { labels: [], current: [], meta: [] };
+    }
+    const labels = apiResponse.trend.map(item => item.gun || 'N/A');
+    const current = apiResponse.trend.map(item => item.brutPrim || 0);
+    const meta = apiResponse.trend.map(item => ({
+      gun: item.gun,
+      tarih: item.tarih,
+      gunSirasi: item.gunSirasi,
+      brutPrim: item.brutPrim || 0
+    }));
+    return { labels, current, previous: [], meta };
   },
 
   /**
@@ -262,24 +308,7 @@ function initializeFlatpickr() {
         document.querySelectorAll('.preset-btn').forEach(btn =>
           btn.classList.remove('active'));
 
-        // Tarih aralığına göre otomatik period seçimi
-        const diffDays = Math.ceil((selectedDates[1] - selectedDates[0]) / (1000 * 60 * 60 * 24));
-        let autoPeriod;
-        if (diffDays <= 1) {
-          autoPeriod = 'hour';
-        } else if (diffDays <= 7) {
-          autoPeriod = 'day';
-        } else if (diffDays <= 31) {
-          autoPeriod = 'week';
-        } else {
-          autoPeriod = 'month';
-        }
-        performanceState.companyPeriod = autoPeriod;
-        document.querySelectorAll('.period-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.period === autoPeriod);
-        });
-
-        console.log('[Performance] Date range changed:', performanceState.dateRange, '→ period:', autoPeriod);
+        console.log('[Performance] Date range changed:', performanceState.dateRange);
         onFilterChange();
       }
     }
@@ -313,35 +342,32 @@ function handlePreset(range, button) {
       start = new Date(today.getFullYear(), 0, 1);
       end = new Date();
       break;
+    case 'last7':
+      start = new Date(today);
+      start.setDate(today.getDate() - 6);
+      end = new Date();
+      break;
+    case 'last30':
+      start = new Date(today);
+      start.setDate(today.getDate() - 29);
+      end = new Date();
+      break;
+    case 'last365':
+      start = new Date(today);
+      start.setDate(today.getDate() - 364);
+      end = new Date();
+      break;
   }
 
   performanceState.dateRange = { start, end };
-  if (flatpickrInstance) {
-    flatpickrInstance.setDate([start, end]);
-  }
+  if (flatpickrInstance) flatpickrInstance.setDate([start, end]);
 
   // Update active state
   document.querySelectorAll('.preset-btn').forEach(btn =>
     btn.classList.remove('active'));
   button.classList.add('active');
 
-  // Preset'e göre otomatik period seçimi
-  const presetPeriodMap = {
-    'today': 'hour',
-    'yesterday': 'hour',
-    'thisWeek': 'day',
-    'thisMonth': 'week',
-    'thisYear': 'month'
-  };
-  const autoPeriod = presetPeriodMap[range] || 'week';
-  performanceState.companyPeriod = autoPeriod;
-
-  // Period butonlarını güncelle
-  document.querySelectorAll('.period-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.period === autoPeriod);
-  });
-
-  console.log('[Performance] Preset selected:', range, '→ period:', autoPeriod);
+  console.log('[Performance] Preset selected:', range);
   onFilterChange();
 }
 
@@ -357,38 +383,12 @@ function setMode(mode) {
   onFilterChange();
 }
 
-// ===== COMPANY PERIOD TOGGLE =====
-function setPeriod(period) {
-  performanceState.companyPeriod = period;
-
-  document.querySelectorAll('.period-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.period === period);
-  });
-
-  console.log('[Performance] Period changed:', period);
-
-  // Cache'den data al ve chart'ı güncelle
-  const cacheKey = getCacheKey(
-    performanceState.currentMode,
-    performanceState.dateRange.start,
-    performanceState.dateRange.end
-  );
-  const cachedData = getCachedData(cacheKey);
-
-  if (cachedData) {
-    updateCompanyPerformanceChart(cachedData);
-    updateMetrics(cachedData);
-  } else {
-    console.warn('[Performance] No cached data for period change');
-  }
-}
-
 // ===== TREEMAP CONTROLS =====
 function setTreeView(view) {
   performanceState.treeMapView = view;
 
-  // Update buttons
-  document.querySelectorAll('.control-section:first-of-type .option-btn').forEach(btn => {
+  // Update buttons (.control-section:nth-of-type(2) = Grouping section)
+  document.querySelectorAll('.control-section:nth-of-type(2) .option-btn').forEach(btn => {
     const isEmployee = btn.textContent.includes('Çalışanlara');
     btn.classList.toggle('active', (view === 'employee' && isEmployee) || (view === 'branch' && !isEmployee));
   });
@@ -398,19 +398,21 @@ function setTreeView(view) {
 
   console.log('[Performance] TreeMap view changed:', view);
   updateTreeMapChart();
+  populateComparisonOptions();
 }
 
 function setTreeMode(mode) {
   performanceState.treeMapMode = mode;
 
-  // Update buttons
-  document.querySelectorAll('.control-section:last-of-type .option-btn').forEach(btn => {
+  // Update buttons (.control-section:nth-of-type(3) = Metric Type section)
+  document.querySelectorAll('.control-section:nth-of-type(3) .option-btn').forEach(btn => {
     const isAmount = btn.textContent.includes('Tutar');
     btn.classList.toggle('active', (mode === 'amount' && isAmount) || (mode === 'count' && !isAmount));
   });
 
   console.log('[Performance] TreeMap mode changed:', mode);
   updateTreeMapChart();
+  updateComparisonChart();
 }
 
 // ===== CHART INSTANCES =====
@@ -422,11 +424,15 @@ let charts = {
   bransTutar: null,
   subeTutar: null,
   calisanTutar: null,
-  treemap: null
+  treemap: null,
+  comparison: null
 };
 
 // ===== FILTER CHANGE HANDLER =====
 function onFilterChange() {
+  // Reset zoom on filter change
+  resetZoom(performanceState.dateRange.start, performanceState.dateRange.end);
+
   const cacheKey = getCacheKey(
     performanceState.currentMode,
     performanceState.dateRange.start,
@@ -441,7 +447,6 @@ function onFilterChange() {
     return;
   }
 
-  // Load data (with mock data for now)
   console.log('[Performance] Loading fresh data...');
   loadPerformanceData();
 }
@@ -461,13 +466,20 @@ async function loadPerformanceData() {
       endDate: end.toISOString().split('T')[0]
     });
 
+    // Tarih aralığına göre günlük/aylık trend seç
+    const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+    const useDaily = diffDays <= 31;
+
     // Paralel API çağrıları
-    const [bransResponse, subeResponse, performersResponse, trendResponse, statsResponse] = await Promise.all([
+    const [bransResponse, subeResponse, performersResponse, trendResponse, statsResponse, sirketResponse] = await Promise.all([
       PerformanceAPI.getBransDagilim(currentMode, start, end),
       PerformanceAPI.getSubeDagilim(currentMode, start, end),
       PerformanceAPI.getTopPerformers(currentMode, start, end, 10),
-      PerformanceAPI.getAylikTrend(currentMode, 8),
-      PerformanceAPI.getStats(currentMode, start, end)
+      useDaily
+        ? PerformanceAPI.getGunlukTrend(currentMode, start, end)
+        : PerformanceAPI.getAylikTrend(currentMode, start, end),
+      PerformanceAPI.getStats(currentMode, start, end),
+      PerformanceAPI.getSirketDagilim(currentMode, start, end)
     ]);
 
     console.log('[Performance] API responses received:', {
@@ -475,7 +487,8 @@ async function loadPerformanceData() {
       sube: subeResponse,
       performers: performersResponse,
       trend: trendResponse,
-      stats: statsResponse
+      stats: statsResponse,
+      sirket: sirketResponse
     });
 
     // API'den toplam değerleri sakla (stats endpoint tarih filtreli, en doğru kaynak)
@@ -503,17 +516,13 @@ async function loadPerformanceData() {
       const bransData = DataMappers.mapBransDagilim(bransResponse);
       const subeData = DataMappers.mapSubeDagilim(subeResponse);
       const performersData = DataMappers.mapTopPerformers(performersResponse);
-      const trendData = DataMappers.mapAylikTrend(trendResponse);
-
-      console.log('[Performance] Mapped data:', {
-        bransData,
-        subeData,
-        performersData,
-        trendData
-      });
+      const trendData = useDaily
+        ? DataMappers.mapGunlukTrend(trendResponse)
+        : DataMappers.mapAylikTrend(trendResponse);
 
       chartData = {
         companyPerformance: trendData,
+        _trendGranularity: useDaily ? 'daily' : 'monthly',
         bransAdet: bransData,
         subeAdet: subeData,
         calisanAdet: performersData,
@@ -529,12 +538,15 @@ async function loadPerformanceData() {
           labels: performersData.labels || [],
           values: performersData.tutarlar || []
         },
-        // API'den gelen toplam değerler
         _apiTotals: apiTotals,
-        // TreeMap için raw data'yı sakla
         _rawPerformers: performersResponse,
-        _rawSubeler: subeResponse
+        _rawSubeler: subeResponse,
+        _rawSirketler: sirketResponse
       };
+
+      // İlk yüklemede filtre seçeneklerini doldur
+      populateBransFilterOptions(bransResponse);
+      populateSirketFilterOptions(sirketResponse);
 
       console.log('[Performance] Final chartData:', chartData);
     } catch (mappingError) {
@@ -648,156 +660,72 @@ function updateAllCharts(data) {
   updateCompanyPerformanceChart(data);
   updateDonutCharts(data);
   updateTreeMapChart();
+  populateComparisonOptions();
 }
 
 function updateCompanyPerformanceChart(data) {
   const container = document.querySelector('#performanceChart');
 
-  // Subtitle'ı period'a göre güncelle
-  const subtitleEl = document.querySelector('.performance-card .perf-card-subtitle');
-  if (subtitleEl) {
-    const periodLabels = {
-      'hour': 'Saatlik Görünüm',
-      'day': 'Günlük Görünüm',
-      'week': 'Haftalık Görünüm',
-      'month': 'Aylık Görünüm'
-    };
-    subtitleEl.textContent = periodLabels[performanceState.companyPeriod] || 'Dönem Karşılaştırması';
-  }
+  // Zoom UI güncelle
+  updateZoomUI();
+
+  const emptyHTML = `
+    <div class="chart-empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
+      </svg>
+      <p>Veri bulunamadı</p>
+    </div>`;
 
   if (!data) {
-    console.warn('[Performance] No data for company performance chart');
-    if (container) {
-      container.innerHTML = `
-        <div class="chart-empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 3v18h18"/>
-            <path d="M18 17V9"/>
-            <path d="M13 17V5"/>
-            <path d="M8 17v-3"/>
-          </svg>
-          <p>Veri bulunamadı</p>
-        </div>
-      `;
-    }
+    if (container) container.innerHTML = emptyHTML;
     return;
   }
 
-  const period = performanceState.companyPeriod;
   const { start: rangeStart, end: rangeEnd } = performanceState.dateRange;
   const totals = data._apiTotals || {};
   let currentData = [];
   let previousData = [];
   let labels = [];
+  const level = zoomState.level;
 
-  if (period === 'month') {
-    // Aylık: aylik-trend verisini kullan (doğru veri kaynağı)
-    if (data.companyPerformance && data.companyPerformance.current && data.companyPerformance.current.length > 0) {
-      currentData = data.companyPerformance.current;
-      previousData = data.companyPerformance.previous || [];
-      labels = data.companyPerformance.labels || [];
+  if (level === 'month') {
+    // Aylık: aylik-trend verisini kullan (gerçek veri)
+    if (data.companyPerformance?.current?.length > 0) {
+      currentData = [...data.companyPerformance.current];
+      labels = [...(data.companyPerformance.labels || [])];
       if (labels.length === 0) {
         labels = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'].slice(0, currentData.length);
       }
     }
-  } else if (period === 'week') {
-    // Haftalık: Ay verilerini haftalık yaklaşık gösterim olarak kullan
-    // Son 4-5 ayın verisini haftalara böl
-    if (data.companyPerformance && data.companyPerformance.current && data.companyPerformance.current.length > 0) {
-      const monthData = data.companyPerformance.current;
-      const monthPrev = data.companyPerformance.previous || [];
-      // Son 2 ayı al, her ayı ~4 haftaya böl
-      const recentMonths = monthData.slice(-2);
-      const recentPrev = monthPrev.slice(-2);
-      recentMonths.forEach((monthVal, mi) => {
-        for (let w = 0; w < 4; w++) {
-          currentData.push(Math.round(monthVal / 4));
-          previousData.push(Math.round((recentPrev[mi] || 0) / 4));
-          labels.push(`${labels.length + 1}. Hafta`);
-        }
-      });
-    }
-    // Stats'tan veri varsa ama trend boşsa, basit gösterim
-    if (currentData.length === 0 && totals.toplamPrim > 0) {
-      const weekCount = 4;
-      const weeklyAvg = totals.toplamPrim / weekCount;
-      const prevWeeklyAvg = (totals.oncekiDonemPrim || 0) / weekCount;
-      for (let w = 0; w < weekCount; w++) {
-        currentData.push(Math.round(weeklyAvg));
-        previousData.push(Math.round(prevWeeklyAvg));
-        labels.push(`${w + 1}. Hafta`);
-      }
-    }
-  } else if (period === 'day') {
-    // Günlük: Seçilen tarih aralığındaki günleri göster
-    // Backend'de günlük veri yok - stats toplamını gün sayısına böl
-    const gunler = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
-    if (rangeStart && rangeEnd) {
-      const diffMs = rangeEnd.getTime() - rangeStart.getTime();
-      const dayCount = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)) + 1);
-      const dailyAvg = (totals.toplamPrim || 0) / dayCount;
-      const prevDailyAvg = (totals.oncekiDonemPrim || 0) / dayCount;
-      for (let i = 0; i < dayCount; i++) {
-        const d = new Date(rangeStart);
-        d.setDate(d.getDate() + i);
-        labels.push(`${gunler[d.getDay()]} ${d.getDate()}`);
-        currentData.push(Math.round(dailyAvg));
-        previousData.push(Math.round(prevDailyAvg));
-      }
-    }
-  } else if (period === 'hour') {
-    // Saatlik: Bugün/dün toplam verisi saatlere dağıtılır
-    // Backend'de saatlik veri yok - stats toplamını saatlere böl
-    const hourCount = 24;
-    const now = new Date();
-    const currentHour = (rangeStart && rangeStart.toDateString() === now.toDateString())
-      ? now.getHours() + 1  // Bugünse şu anki saate kadar göster
-      : hourCount;           // Dünse tam 24 saat göster
-    const hourlyAvg = currentHour > 0 ? (totals.toplamPrim || 0) / currentHour : 0;
-    const prevHourlyAvg = currentHour > 0 ? (totals.oncekiDonemPrim || 0) / currentHour : 0;
-    for (let h = 0; h < currentHour; h++) {
-      labels.push(`${String(h).padStart(2, '0')}:00`);
-      currentData.push(Math.round(hourlyAvg));
-      previousData.push(Math.round(prevHourlyAvg));
+  } else if (level === 'day') {
+    // Zoom'dan gelen günlük veri varsa onu kullan
+    if (zoomState.context?.dailyData) {
+      const daily = zoomState.context.dailyData;
+      labels = [...(daily.labels || [])];
+      currentData = [...(daily.current || [])];
+    } else if (data._trendGranularity === 'daily' && data.companyPerformance?.current?.length > 0) {
+      // Base level: API'den gelen gerçek günlük veri
+      currentData = [...data.companyPerformance.current];
+      labels = [...(data.companyPerformance.labels || [])];
     }
   }
 
-  // Hiç veri yoksa boş durum göster
-  if (currentData.length === 0 && previousData.length === 0) {
-    console.warn('[Performance] No chart data for period:', period);
-    const totalStr = totals.toplamPrim
-      ? Math.round(totals.toplamPrim).toLocaleString('tr-TR') + ' TL'
-      : '';
-    container.innerHTML = `
-      <div class="chart-empty-state">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 3v18h18"/>
-          <path d="M18 17V9"/>
-          <path d="M13 17V5"/>
-          <path d="M8 17v-3"/>
-        </svg>
-        <p>Bu dönem için veri bulunamadı</p>
-      </div>
-    `;
+  // Veri yoksa
+  if (currentData.length === 0) {
+    if (container) container.innerHTML = emptyHTML.replace('Veri bulunamadı', 'Bu dönem için veri bulunamadı');
     return;
   }
 
-  console.log('[Performance] Company chart data:', {
-    currentLength: currentData.length,
-    previousLength: previousData.length,
-    labels: labels,
-    currentSample: currentData.slice(0, 3),
-    previousSample: previousData.slice(0, 3)
-  });
+  const series = [{ name: 'Mevcut Dönem', data: currentData }];
+  if (previousData.length > 0 && previousData.some(v => v > 0)) {
+    series.push({ name: 'Önceki Dönem', data: previousData });
+  }
+
+  const canZoomIn = level === 'month';
 
   const options = {
-    series: [{
-      name: 'Mevcut Dönem',
-      data: currentData
-    }, {
-      name: 'Önceki Dönem',
-      data: previousData
-    }],
+    series: series,
     chart: {
       type: 'area',
       height: 280,
@@ -806,13 +734,13 @@ function updateCompanyPerformanceChart(data) {
       zoom: { enabled: false }
     },
     colors: ['#6366f1', '#94a3b8'],
-    stroke: { curve: 'smooth', width: [3, 2] },
+    stroke: { curve: 'smooth', width: series.length > 1 ? [3, 2] : [3] },
     fill: {
       type: 'gradient',
       gradient: {
         shadeIntensity: 1,
-        opacityFrom: [0.4, 0.2],
-        opacityTo: [0.05, 0],
+        opacityFrom: series.length > 1 ? [0.4, 0.2] : [0.4],
+        opacityTo: series.length > 1 ? [0.05, 0] : [0.05],
         stops: [0, 100]
       }
     },
@@ -827,7 +755,9 @@ function updateCompanyPerformanceChart(data) {
     xaxis: {
       categories: labels,
       labels: {
-        style: { colors: '#64748b', fontSize: '12px', fontWeight: 500 }
+        style: { colors: '#64748b', fontSize: '12px', fontWeight: 500 },
+        rotate: labels.length > 15 ? -45 : 0,
+        rotateAlways: labels.length > 15
       },
       axisBorder: { show: false },
       axisTicks: { show: false }
@@ -835,35 +765,17 @@ function updateCompanyPerformanceChart(data) {
     yaxis: {
       labels: {
         style: { colors: '#64748b', fontSize: '12px' },
-        formatter: (val) => (val / 1000).toFixed(0) + 'K TL'
+        formatter: (val) => {
+          if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M TL';
+          if (val >= 1000) return (val / 1000).toFixed(0) + 'K TL';
+          return Math.round(val) + ' TL';
+        }
       }
     },
     tooltip: {
       theme: 'light',
-      x: {
-        show: true,
-        formatter: (val, opts) => {
-          const p = performanceState.companyPeriod;
-          const idx = opts.dataPointIndex;
-          const targetDate = performanceState.dateRange.start;
-
-          if (p === 'hour') {
-            const dateStr = targetDate ? targetDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' }) : '';
-            return `${dateStr} ${labels[idx] || ''}`;
-          } else if (p === 'day') {
-            const d = new Date(targetDate);
-            d.setDate(d.getDate() + idx);
-            return d.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' });
-          } else if (p === 'week') {
-            return labels[idx] || `${idx + 1}. Hafta`;
-          } else {
-            return labels[idx] || '';
-          }
-        }
-      },
-      y: {
-        formatter: (val) => val.toLocaleString('tr-TR') + ' TL'
-      }
+      x: { show: true },
+      y: { formatter: (val) => val.toLocaleString('tr-TR') + ' TL' }
     },
     legend: {
       position: 'top',
@@ -882,23 +794,149 @@ function updateCompanyPerformanceChart(data) {
   try {
     charts.performance = new ApexCharts(container, options);
     charts.performance.render();
-    console.log('[Performance] Company performance chart rendered successfully');
+    // Cursor: zoom-in if can drill deeper
+    container.style.cursor = canZoomIn ? 'zoom-in' : 'default';
   } catch (error) {
-    console.error('[Performance] Error rendering company performance chart:', error);
-    if (container) {
-      container.innerHTML = `
-        <div class="chart-empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 3v18h18"/>
-            <path d="M18 17V9"/>
-            <path d="M13 17V5"/>
-            <path d="M8 17v-3"/>
-          </svg>
-          <p>Grafik render hatası</p>
-        </div>
-      `;
+    console.error('[Performance] Error rendering chart:', error);
+    if (container) container.innerHTML = emptyHTML.replace('Veri bulunamadı', 'Grafik render hatası');
+  }
+}
+
+// ===== ZOOM FUNCTIONS =====
+function getCurrentCachedData() {
+  const cacheKey = getCacheKey(
+    performanceState.currentMode,
+    performanceState.dateRange.start,
+    performanceState.dateRange.end
+  );
+  return getCachedData(cacheKey);
+}
+
+async function handleZoomIn(dataPointIndex) {
+  const cachedData = getCurrentCachedData();
+  if (!cachedData) return;
+
+  if (zoomState.level === 'month') {
+    // Month → Day: belirli aya zoom, API'den günlük veri çek
+    const meta = cachedData.companyPerformance?.meta;
+    if (!meta || !meta[dataPointIndex]) return;
+
+    const m = meta[dataPointIndex];
+    const year = m.yil;
+    const month = m.monthNo;
+    const monthStart = new Date(year, month - 1, 1);
+    const monthEnd = new Date(year, month, 0); // Ayın son günü
+
+    // API'den gerçek günlük veri çek
+    try {
+      const { currentMode } = performanceState;
+      const dailyResponse = await PerformanceAPI.getGunlukTrend(currentMode, monthStart, monthEnd);
+      const dailyData = DataMappers.mapGunlukTrend(dailyResponse);
+
+      zoomStack.push({ level: 'month', context: zoomState.context ? { ...zoomState.context } : null });
+      zoomState.level = 'day';
+      zoomState.context = { year, month, dailyData };
+    } catch (err) {
+      console.error('[Performance] Zoom günlük veri hatası:', err);
+      return;
+    }
+  } else {
+    return; // day'den ileriye gidemez
+  }
+
+  updateCompanyPerformanceChart(cachedData);
+  updateMetrics(cachedData);
+}
+
+function handleZoomOut() {
+  if (zoomStack.length === 0) return;
+
+  const prev = zoomStack.pop();
+  zoomState.level = prev.level;
+  zoomState.context = prev.context;
+
+  const cachedData = getCurrentCachedData();
+  updateCompanyPerformanceChart(cachedData);
+  updateMetrics(cachedData);
+}
+
+function updateZoomUI() {
+  const breadcrumb = document.getElementById('zoomBreadcrumb');
+  const zoomOutBtn = document.getElementById('zoomOutBtn');
+  const zoomHint = document.getElementById('zoomHint');
+  const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+    'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+
+  const canZoomOut = zoomStack.length > 0;
+  const canZoomIn = zoomState.level === 'month';
+
+  if (zoomOutBtn) zoomOutBtn.style.display = canZoomOut ? 'flex' : 'none';
+
+  if (breadcrumb) {
+    if (zoomState.level === 'month') {
+      breadcrumb.textContent = 'Aylık Görünüm';
+    } else if (zoomState.level === 'day') {
+      if (zoomState.context?.month) {
+        breadcrumb.textContent = `${monthNames[zoomState.context.month - 1]} ${zoomState.context.year} · Günlük`;
+      } else {
+        breadcrumb.textContent = 'Günlük Görünüm';
+      }
     }
   }
+
+  if (zoomHint) {
+    zoomHint.style.display = canZoomIn ? '' : 'none';
+  }
+}
+
+function getHoveredDataIndex(e, container) {
+  const plotArea = container.querySelector('.apexcharts-plot-area');
+  if (!plotArea) return 0;
+
+  const rect = plotArea.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const plotWidth = rect.width;
+
+  const chart = charts.performance;
+  if (!chart || !chart.w) return 0;
+
+  const dataLength = chart.w.globals.dataPoints;
+  if (dataLength <= 1) return 0;
+
+  const index = Math.round((mouseX / plotWidth) * (dataLength - 1));
+  return Math.max(0, Math.min(dataLength - 1, index));
+}
+
+function initChartZoom() {
+  const perfChart = document.querySelector('#performanceChart');
+  if (!perfChart) return;
+
+  const chartContainer = perfChart.closest('.chart-container');
+  if (!chartContainer) return;
+
+  let lastZoomTime = 0;
+  const ZOOM_DEBOUNCE = 400;
+
+  chartContainer.addEventListener('wheel', (e) => {
+    const rect = perfChart.getBoundingClientRect();
+    if (e.clientX < rect.left || e.clientX > rect.right ||
+        e.clientY < rect.top || e.clientY > rect.bottom) return;
+
+    e.preventDefault();
+
+    const now = Date.now();
+    if (now - lastZoomTime < ZOOM_DEBOUNCE) return;
+    lastZoomTime = now;
+
+    if (e.deltaY < 0) {
+      // Scroll up = zoom in
+      const index = getHoveredDataIndex(e, perfChart);
+      handleZoomIn(index);
+    } else if (e.deltaY > 0) {
+      // Scroll down = zoom out
+      handleZoomOut();
+    }
+  }, { passive: false });
 }
 
 function updateDonutCharts(data) {
@@ -985,7 +1023,9 @@ function updateDonutCharts(data) {
       fontFamily: 'Plus Jakarta Sans, sans-serif',
       labels: { colors: '#64748b' },
       markers: { width: 10, height: 10, radius: 3 },
-      itemMargin: { horizontal: 8, vertical: 4 }
+      itemMargin: { horizontal: 8, vertical: 4 },
+      height: 60,
+      floating: false
     },
     tooltip: {
       theme: 'light',
@@ -1127,6 +1167,12 @@ function updateDonutCharts(data) {
     const el = document.getElementById(id);
     if (el) el.textContent = text;
   });
+
+  // Footer istatistiklerini güncelle
+  const footerBrans = document.getElementById('footerBransAdet');
+  if (footerBrans) footerBrans.textContent = (data.bransAdet?.labels?.length || 0) + ' farklı branş';
+  const footerSube = document.getElementById('footerSubeAdet');
+  if (footerSube) footerSube.textContent = (data.subeAdet?.labels?.length || 0) + ' şube';
 }
 
 function updateTreeMapChart() {
@@ -1288,6 +1334,484 @@ function updateTreeMapChart() {
   }
 }
 
+// ===== FILTER DRAWER (scroll-activated, captured.html style) =====
+let _drawerActive = false;
+
+function initFilterDrawer() {
+  const filtersEl = document.getElementById('filterCard');
+  const sentinel = document.getElementById('filterCardSentinel');
+  const toggleBtn = document.getElementById('filterDrawerToggle');
+  const backdrop = document.getElementById('filterDrawerBackdrop');
+  if (!filtersEl || !sentinel || !toggleBtn || !backdrop) return;
+
+  let normalHeight = filtersEl.offsetHeight;
+  let filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+
+  function recalcPosition() {
+    if (!_drawerActive) {
+      normalHeight = filtersEl.offsetHeight;
+      filtersBottom = filtersEl.getBoundingClientRect().bottom + window.scrollY;
+    }
+  }
+
+  function openDrawer() {
+    filtersEl.classList.add('drawer-open');
+    toggleBtn.classList.add('active');
+    backdrop.classList.add('visible');
+  }
+
+  function closeDrawer() {
+    filtersEl.classList.remove('drawer-open');
+    toggleBtn.classList.remove('active');
+    backdrop.classList.remove('visible');
+  }
+
+  function enterDrawerMode() {
+    if (_drawerActive) return;
+    _drawerActive = true;
+    sentinel.style.height = normalHeight + 'px';
+    filtersEl.classList.add('drawer-mode');
+    toggleBtn.classList.add('visible');
+  }
+
+  function exitDrawerMode() {
+    if (!_drawerActive) return;
+    closeDrawer();
+    _drawerActive = false;
+    filtersEl.classList.remove('drawer-mode');
+    toggleBtn.classList.remove('visible');
+    sentinel.style.height = '0';
+    requestAnimationFrame(recalcPosition);
+  }
+
+  // Toggle button click
+  toggleBtn.addEventListener('click', function() {
+    if (filtersEl.classList.contains('drawer-open')) {
+      closeDrawer();
+    } else {
+      openDrawer();
+    }
+  });
+
+  // Click outside drawer closes it
+  document.addEventListener('mousedown', function(e) {
+    if (filtersEl.classList.contains('drawer-open') &&
+        !filtersEl.contains(e.target) &&
+        !toggleBtn.contains(e.target)) {
+      closeDrawer();
+    }
+  });
+
+  // Escape key closes drawer
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && _drawerActive) closeDrawer();
+  });
+
+  let ticking = false;
+
+  function checkDrawer() {
+    const scrolledPast = window.scrollY > filtersBottom;
+    if (scrolledPast && !_drawerActive) {
+      enterDrawerMode();
+    } else if (!scrolledPast && _drawerActive) {
+      exitDrawerMode();
+    }
+  }
+
+  window.addEventListener('resize', function() {
+    recalcPosition();
+    checkDrawer();
+  });
+
+  requestAnimationFrame(checkDrawer);
+
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      requestAnimationFrame(function() {
+        checkDrawer();
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  // Recalc on content changes
+  const pageContent = document.querySelector('.page-content') || document.querySelector('.main-content');
+  if (pageContent) {
+    const obs = new MutationObserver(function() { if (!_drawerActive) recalcPosition(); });
+    obs.observe(pageContent, { childList: true, subtree: true });
+  }
+}
+
+// ===== COMPARISON CHART =====
+const comparisonColors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#ef4444', '#84cc16', '#f97316', '#14b8a6'];
+
+function toggleComparisonDropdown(e) {
+  e?.stopPropagation();
+  const dd = document.getElementById('comparisonDropdown');
+  if (!dd) return;
+  const wasOpen = dd.classList.contains('open');
+  dd.classList.toggle('open');
+  if (!wasOpen) {
+    const searchInput = dd.querySelector('.multi-select-search input');
+    if (searchInput) {
+      searchInput.value = '';
+      filterDropdownSearch('comparisonList', '');
+    }
+  }
+}
+
+function comparisonSelectAll() {
+  document.querySelectorAll('#comparisonList input[type="checkbox"]').forEach(cb => {
+    cb.checked = true;
+    cb.closest('.multi-select-item')?.classList.add('checked');
+  });
+  onComparisonSelectionChange();
+}
+
+function comparisonClearAll() {
+  document.querySelectorAll('#comparisonList input[type="checkbox"]').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.multi-select-item')?.classList.remove('checked');
+  });
+  onComparisonSelectionChange();
+}
+
+function populateComparisonOptions() {
+  const list = document.getElementById('comparisonList');
+  if (!list) return;
+
+  const cachedData = getCurrentCachedData();
+  if (!cachedData) return;
+
+  const view = performanceState.treeMapView;
+  let items = [];
+
+  if (view === 'employee' && cachedData._rawPerformers?.performers) {
+    items = cachedData._rawPerformers.performers
+      .filter(p => p && p.adSoyad)
+      .map(p => ({
+        label: p.adSoyad,
+        value: p.toplamBrutPrim || 0,
+        count: p.policeSayisi || 0
+      }));
+  } else if (view === 'branch' && cachedData._rawSubeler?.dagilim) {
+    items = cachedData._rawSubeler.dagilim
+      .filter(s => s && s.subeAdi)
+      .map(s => ({
+        label: s.subeAdi,
+        value: s.toplamBrutPrim || 0,
+        count: s.policeSayisi || 0
+      }));
+  }
+
+  list.innerHTML = items.map((item, i) => `
+    <label class="multi-select-item">
+      <input type="checkbox" value="${i}" data-label="${item.label}" data-value="${item.value}" data-count="${item.count}" onchange="onComparisonItemChange(this)">
+      <span>${item.label}</span>
+    </label>
+  `).join('');
+
+  // Update title
+  const title = document.getElementById('comparisonTitle');
+  if (title) title.textContent = `Karşılaştırma · ${view === 'employee' ? 'Çalışanlar' : 'Şubeler'}`;
+
+  // Update label
+  const label = document.getElementById('comparisonSelectLabel');
+  if (label) label.textContent = view === 'employee' ? 'Çalışan seçin...' : 'Şube seçin...';
+
+  // Reset count
+  const count = document.getElementById('comparisonSelectCount');
+  if (count) { count.style.display = 'none'; count.textContent = '0'; }
+
+  // Reset chart to empty state
+  updateComparisonChart();
+}
+
+function onComparisonItemChange(cb) {
+  const item = cb.closest('.multi-select-item');
+  if (item) item.classList.toggle('checked', cb.checked);
+  onComparisonSelectionChange();
+}
+
+function onComparisonSelectionChange() {
+  const checked = document.querySelectorAll('#comparisonList input[type="checkbox"]:checked');
+  const count = document.getElementById('comparisonSelectCount');
+  const label = document.getElementById('comparisonSelectLabel');
+
+  if (count) {
+    count.textContent = checked.length;
+    count.style.display = checked.length > 0 ? '' : 'none';
+  }
+  if (label) {
+    if (checked.length === 0) {
+      label.textContent = performanceState.treeMapView === 'employee' ? 'Çalışan seçin...' : 'Şube seçin...';
+    } else {
+      label.textContent = `${checked.length} seçili`;
+    }
+  }
+
+  updateComparisonChart();
+}
+
+async function updateComparisonChart() {
+  const container = document.getElementById('comparisonChart');
+  if (!container) return;
+
+  const checked = document.querySelectorAll('#comparisonList input[type="checkbox"]:checked');
+
+  if (checked.length < 2) {
+    if (charts.comparison) {
+      charts.comparison.destroy();
+      charts.comparison = null;
+    }
+    container.innerHTML = `
+      <div class="comparison-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        <p>Karşılaştırma için en az 2 öğe seçin</p>
+      </div>`;
+    return;
+  }
+
+  // Entity ID'lerini çözümle
+  const cachedData = getCurrentCachedData();
+  const view = performanceState.treeMapView;
+  const entityIds = [];
+
+  checked.forEach(cb => {
+    const idx = parseInt(cb.value);
+    if (view === 'employee' && cachedData?._rawPerformers?.performers?.[idx]) {
+      entityIds.push(cachedData._rawPerformers.performers[idx].uyeId);
+    } else if (view === 'branch' && cachedData?._rawSubeler?.dagilim?.[idx]) {
+      entityIds.push(cachedData._rawSubeler.dagilim[idx].subeId);
+    }
+  });
+
+  if (entityIds.length < 2) {
+    container.innerHTML = '<div class="comparison-empty"><p>Seçilen öğeler için ID bulunamadı</p></div>';
+    return;
+  }
+
+  // Loading göster
+  container.innerHTML = '<div class="comparison-empty"><p>Yükleniyor...</p></div>';
+
+  try {
+    const { currentMode, dateRange } = performanceState;
+    const groupBy = view === 'employee' ? 'calisan' : 'sube';
+    const trendResponse = await PerformanceAPI.getKarsilastirmaTrend(
+      currentMode, dateRange.start, dateRange.end, groupBy, entityIds
+    );
+
+    if (!trendResponse || !trendResponse.series || trendResponse.series.length === 0) {
+      container.innerHTML = '<div class="comparison-empty"><p>Karşılaştırma verisi bulunamadı</p></div>';
+      return;
+    }
+
+    // Her entity için bir seri oluştur
+    const mode = performanceState.treeMapMode;
+    const allLabels = trendResponse.series[0]?.trend?.map(t => t.etiket) || [];
+    const series = trendResponse.series.map((s, i) => ({
+      name: s.entityAdi,
+      data: s.trend.map(t => mode === 'amount' ? (t.brutPrim || 0) : (t.policeSayisi || 0))
+    }));
+    const colors = series.map((_, i) => comparisonColors[i % comparisonColors.length]);
+
+    const options = {
+      series: series,
+      chart: {
+        type: 'area',
+        height: 320,
+        fontFamily: 'Plus Jakarta Sans, sans-serif',
+        toolbar: { show: false },
+        zoom: { enabled: false }
+      },
+      colors: colors,
+      stroke: { curve: 'smooth', width: 2.5 },
+      fill: {
+        type: 'gradient',
+        gradient: { shadeIntensity: 1, opacityFrom: 0.3, opacityTo: 0.05, stops: [0, 100] }
+      },
+      dataLabels: { enabled: false },
+      grid: {
+        borderColor: 'rgba(148, 163, 184, 0.15)',
+        strokeDashArray: 4,
+        xaxis: { lines: { show: false } },
+        yaxis: { lines: { show: true } }
+      },
+      xaxis: {
+        categories: allLabels,
+        labels: {
+          style: { colors: '#64748b', fontSize: '11px' },
+          rotate: allLabels.length > 15 ? -45 : 0,
+          rotateAlways: allLabels.length > 15
+        },
+        axisBorder: { show: false },
+        axisTicks: { show: false }
+      },
+      yaxis: {
+        labels: {
+          style: { colors: '#64748b', fontSize: '12px' },
+          formatter: (val) => {
+            if (mode === 'amount') {
+              if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M';
+              if (val >= 1000) return (val / 1000).toFixed(0) + 'K';
+              return Math.round(val) + '';
+            }
+            return Math.round(val).toLocaleString('tr-TR');
+          }
+        }
+      },
+      tooltip: {
+        theme: 'light',
+        y: {
+          formatter: (val) => mode === 'amount'
+            ? val.toLocaleString('tr-TR') + ' TL'
+            : val.toLocaleString('tr-TR') + ' adet'
+        }
+      },
+      legend: {
+        position: 'top',
+        horizontalAlign: 'left',
+        labels: { colors: '#64748b' },
+        markers: { width: 10, height: 10, radius: 3 }
+      }
+    };
+
+    if (charts.comparison) {
+      charts.comparison.destroy();
+      charts.comparison = null;
+    }
+    container.innerHTML = '';
+
+    charts.comparison = new ApexCharts(container, options);
+    charts.comparison.render();
+  } catch (error) {
+    console.error('[Performance] Comparison chart error:', error);
+    container.innerHTML = '<div class="comparison-empty"><p>Grafik yüklenirken hata oluştu</p></div>';
+  }
+}
+
+// ===== FILTER DROPDOWNS (Branş / Şirket) =====
+function toggleFilterDropdown(type, e) {
+  e?.stopPropagation();
+  const dd = document.getElementById(type + 'FilterDropdown');
+  if (!dd) return;
+  // Diğer dropdown'ları kapat
+  ['brans', 'sirket'].forEach(t => {
+    if (t !== type) {
+      const other = document.getElementById(t + 'FilterDropdown');
+      if (other) other.classList.remove('open');
+    }
+  });
+  const wasOpen = dd.classList.contains('open');
+  dd.classList.toggle('open');
+  if (!wasOpen) {
+    const searchInput = dd.querySelector('.multi-select-search input');
+    if (searchInput) {
+      searchInput.value = '';
+      filterDropdownSearch(type + 'FilterList', '');
+    }
+  }
+}
+
+function filterSelectAll(type) {
+  document.querySelectorAll(`#${type}FilterList input[type="checkbox"]`).forEach(cb => {
+    cb.checked = true;
+    cb.closest('.multi-select-item')?.classList.add('checked');
+  });
+  onFilterDropdownChange(type);
+}
+
+function filterClearAll(type) {
+  document.querySelectorAll(`#${type}FilterList input[type="checkbox"]`).forEach(cb => {
+    cb.checked = false;
+    cb.closest('.multi-select-item')?.classList.remove('checked');
+  });
+  onFilterDropdownChange(type);
+}
+
+function filterDropdownSearch(listId, query) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+  const q = query.toLowerCase().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase();
+  list.querySelectorAll('.multi-select-item').forEach(item => {
+    const label = (item.querySelector('.item-label')?.textContent || item.textContent || '')
+      .toLowerCase().replace(/İ/g, 'i').replace(/I/g, 'ı').toLowerCase();
+    item.style.display = label.includes(q) ? '' : 'none';
+  });
+}
+
+function onFilterItemChange(type, cb) {
+  const item = cb.closest('.multi-select-item');
+  if (item) item.classList.toggle('checked', cb.checked);
+  onFilterDropdownChange(type);
+}
+
+function onFilterDropdownChange(type) {
+  const checked = document.querySelectorAll(`#${type}FilterList input[type="checkbox"]:checked`);
+  const ids = Array.from(checked).map(cb => parseInt(cb.value));
+
+  if (type === 'brans') {
+    performanceState.selectedBransIds = ids;
+  } else {
+    performanceState.selectedSirketIds = ids;
+  }
+
+  // Count badge güncelle
+  const countEl = document.getElementById(type + 'FilterCount');
+  if (countEl) {
+    countEl.textContent = ids.length;
+    countEl.style.display = ids.length > 0 ? '' : 'none';
+  }
+
+  // Cache temizle ve yeniden yükle
+  Object.keys(performanceCache).forEach(k => delete performanceCache[k]);
+  onFilterChange();
+}
+
+function populateBransFilterOptions(bransResponse) {
+  const list = document.getElementById('bransFilterList');
+  if (!list || !bransResponse?.dagilim) return;
+
+  // Eğer zaten aynı seçenekler varsa tekrar oluşturma
+  const newOptions = bransResponse.dagilim.filter(b => b && b.bransAdi).map(b => ({
+    id: b.bransId,
+    name: b.bransAdi
+  }));
+
+  if (JSON.stringify(performanceState.bransOptions) === JSON.stringify(newOptions)) return;
+  performanceState.bransOptions = newOptions;
+
+  list.innerHTML = newOptions.map(b => `
+    <label class="multi-select-item">
+      <input type="checkbox" value="${b.id}" onchange="onFilterItemChange('brans', this)">
+      <span>${b.name}</span>
+    </label>
+  `).join('');
+}
+
+function populateSirketFilterOptions(sirketResponse) {
+  const list = document.getElementById('sirketFilterList');
+  if (!list || !sirketResponse?.dagilim) return;
+
+  const newOptions = sirketResponse.dagilim.filter(s => s && s.sirketAdi).map(s => ({
+    id: s.sirketId,
+    name: s.sirketAdi
+  }));
+
+  if (JSON.stringify(performanceState.sirketOptions) === JSON.stringify(newOptions)) return;
+  performanceState.sirketOptions = newOptions;
+
+  list.innerHTML = newOptions.map(s => `
+    <label class="multi-select-item">
+      <input type="checkbox" value="${s.id}" onchange="onFilterItemChange('sirket', this)">
+      <span>${s.name}</span>
+    </label>
+  `).join('');
+}
+
 // ===== INITIALIZATION =====
 document.addEventListener('DOMContentLoaded', function() {
   console.log('[Performance] Page loaded, initializing...');
@@ -1295,8 +1819,42 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize Flatpickr
   initializeFlatpickr();
 
+  // Initialize chart zoom (scroll drill-down)
+  initChartZoom();
+
   // Set today as default
   handlePreset('today', document.querySelector('[data-range="today"]'));
+
+  // Initialize scroll-activated filter drawer
+  initFilterDrawer();
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', (e) => {
+    // Comparison dropdown
+    const dd = document.getElementById('comparisonDropdown');
+    const ms = document.getElementById('comparisonMultiSelect');
+    if (dd && dd.classList.contains('open') && ms && !ms.contains(e.target)) {
+      dd.classList.remove('open');
+    }
+    // Filter dropdowns
+    ['brans', 'sirket'].forEach(type => {
+      const fdd = document.getElementById(type + 'FilterDropdown');
+      const fms = document.getElementById(type + 'FilterSelect');
+      if (fdd && fdd.classList.contains('open') && fms && !fms.contains(e.target)) {
+        fdd.classList.remove('open');
+      }
+    });
+  });
+
+  // Escape key closes all dropdowns
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      ['comparisonDropdown', 'bransFilterDropdown', 'sirketFilterDropdown'].forEach(id => {
+        const dd = document.getElementById(id);
+        if (dd && dd.classList.contains('open')) dd.classList.remove('open');
+      });
+    }
+  });
 
   console.log('[Performance] Initialization complete');
 });
