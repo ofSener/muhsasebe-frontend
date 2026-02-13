@@ -434,8 +434,8 @@ function displaySearchResults(customers, policies, query) {
               </svg>
             </div>
             <div class="search-result-content">
-              <div class="search-result-title">${customer.adSoyad || customer.musteriAdi || customer.name}</div>
-              <div class="search-result-subtitle">${customer.telefon || customer.email || ''}</div>
+              <div class="search-result-title">${`${customer.adi || ''} ${customer.soyadi || ''}`.trim() || 'İsimsiz'}</div>
+              <div class="search-result-subtitle">${customer.gsm || customer.email || ''}</div>
             </div>
           </a>
         `).join('')}

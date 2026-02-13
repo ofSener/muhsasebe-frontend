@@ -6,8 +6,10 @@
     let allCustomers = [];
     let filteredCustomers = [];
     let currentPage = 1;
-    const pageSize = 10;
+    let pageSize = 10;
     let editingCustomerId = null;
+    let currentSort = { field: null, dir: null };
+    let selectedType = '';
 
     // ═══════════════════════════════════════════════════════════════
     // INITIALIZATION
@@ -31,6 +33,7 @@
 
       // Setup event listeners
       setupEventListeners();
+      setupDropdowns();
     });
 
     // ═══════════════════════════════════════════════════════════════
@@ -44,8 +47,8 @@
         filteredCustomers = [...customers];
         renderCustomers();
       } catch (error) {
-        console.error('Müşteriler yüklenirken hata:', error);
-        showToast('Müşteriler yüklenirken hata oluştu', 'error');
+        console.error('Musteriler yuklenirken hata:', error);
+        showToast('Musteriler yuklenirken hata olustu', 'error');
       }
     }
 
@@ -54,7 +57,7 @@
         const stats = await apiGet('customers/stats');
         updateStats(stats);
       } catch (error) {
-        console.error('İstatistikler yüklenirken hata:', error);
+        console.error('Istatistikler yuklenirken hata:', error);
       }
     }
 
@@ -63,7 +66,7 @@
     // ═══════════════════════════════════════════════════════════════
 
     function renderCustomers() {
-      const tbody = document.querySelector('.data-table tbody');
+      const tbody = document.querySelector('#customersTable tbody');
       if (!tbody) return;
 
       // Calculate pagination
@@ -74,8 +77,18 @@
       if (pageCustomers.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" style="text-align: center; padding: 2rem;">
-              <div style="color: var(--text-tertiary);">Müşteri bulunamadı</div>
+            <td colspan="7">
+              <div class="empty-state">
+                <div class="empty-state-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <line x1="17" y1="11" x2="23" y2="11"/>
+                  </svg>
+                </div>
+                <div class="empty-state-title">Musteri bulunamadi</div>
+                <div class="empty-state-text">Arama kriterlerinize uygun musteri yok</div>
+              </div>
             </td>
           </tr>
         `;
@@ -84,7 +97,7 @@
       }
 
       tbody.innerHTML = pageCustomers.map(customer => {
-        const isKurumsal = customer.sahipTuru === 2;
+        const isKurumsal = !!customer.vergiNo && !customer.tcKimlikNo;
         const displayName = isKurumsal
           ? customer.adi
           : `${customer.adi || ''} ${customer.soyadi || ''}`.trim();
@@ -94,7 +107,9 @@
         const registerDate = customer.eklenmeZamani
           ? new Date(customer.eklenmeZamani).toLocaleDateString('tr-TR')
           : '-';
-        const toplamPrim = formatCurrency(customer.toplamPrim || 0);
+        const toplamPrim = customer.toplamPrim || 0;
+        const primFormatted = formatCurrency(toplamPrim);
+        const policeSayisi = customer.policeSayisi || 0;
 
         return `
           <tr data-id="${customer.id}">
@@ -102,28 +117,28 @@
               <div class="flex items-center gap-3">
                 <div class="avatar avatar-sm ${avatarColor}">${initials}</div>
                 <div>
-                  <div class="cell-main">${escapeHtml(displayName)}</div>
-                  <div class="cell-sub">Kayıt: ${registerDate}</div>
+                  <div class="cell-main">${escapeHtml(displayName || 'Isimsiz')}</div>
+                  <div class="cell-sub">Kayit: ${registerDate}</div>
                 </div>
               </div>
             </td>
-            <td><span class="font-mono">${escapeHtml(tcVkn)}</span></td>
+            <td><span class="font-mono" style="font-size: 0.8125rem; letter-spacing: 0.02em;">${escapeHtml(tcVkn)}</span></td>
             <td>
               <div class="cell-main">${escapeHtml(customer.gsm || '-')}</div>
               <div class="cell-sub">${escapeHtml(customer.email || '-')}</div>
             </td>
             <td><span class="badge ${isKurumsal ? 'badge-neutral' : 'badge-info'}">${isKurumsal ? 'Kurumsal' : 'Bireysel'}</span></td>
-            <td><span class="font-semibold">${customer.policeSayisi || 0}</span></td>
-            <td><span class="font-mono font-semibold">${toplamPrim}</span></td>
+            <td><span class="police-count-badge ${policeSayisi > 0 ? 'has-policy' : 'no-policy'}">${policeSayisi}</span></td>
+            <td><span class="font-mono customer-prim ${toplamPrim === 0 ? 'zero' : ''}">${primFormatted}</span></td>
             <td>
               <div class="table-actions">
                 <a href="detail.html?id=${customer.id}" class="btn btn-icon btn-ghost" title="Detay">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                 </a>
-                <button class="btn btn-icon btn-ghost" title="Düzenle" onclick="editCustomer(${customer.id})">
+                <button class="btn btn-icon btn-ghost" title="Duzenle" onclick="editCustomer(${customer.id})">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
-                <button class="btn btn-icon btn-ghost" title="Sil" onclick="deleteCustomer(${customer.id})">
+                <button class="btn btn-icon btn-ghost btn-danger-hover" title="Sil" onclick="deleteCustomer(${customer.id})">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"/></svg>
                 </button>
               </div>
@@ -136,8 +151,8 @@
     }
 
     function renderPagination() {
-      const paginationInfo = document.querySelector('.pagination-info');
-      const paginationPages = document.querySelector('.pagination-pages');
+      const paginationInfo = document.getElementById('paginationInfo');
+      const paginationPages = document.getElementById('paginationPages');
 
       const totalCount = filteredCustomers.length;
       const totalPages = Math.ceil(totalCount / pageSize);
@@ -146,18 +161,17 @@
 
       if (paginationInfo) {
         paginationInfo.textContent = totalCount > 0
-          ? `Toplam ${totalCount.toLocaleString('tr-TR')} kayıttan ${startIndex}-${endIndex} arası gösteriliyor`
-          : 'Kayıt bulunamadı';
+          ? `Toplam ${totalCount.toLocaleString('tr-TR')} kayittan ${startIndex}-${endIndex} arasi`
+          : 'Kayit bulunamadi';
       }
 
       if (paginationPages) {
         let pagesHtml = `
-          <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">
+          <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})" title="Onceki">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>
           </button>
         `;
 
-        // Generate page buttons
         const pages = getPageNumbers(currentPage, totalPages);
         pages.forEach(page => {
           if (page === '...') {
@@ -168,7 +182,7 @@
         });
 
         pagesHtml += `
-          <button class="pagination-btn" ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">
+          <button class="pagination-btn" ${currentPage === totalPages || totalPages === 0 ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})" title="Sonraki">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>
           </button>
         `;
@@ -181,15 +195,12 @@
       if (total <= 7) {
         return Array.from({length: total}, (_, i) => i + 1);
       }
-
       if (current <= 3) {
         return [1, 2, 3, 4, '...', total];
       }
-
       if (current >= total - 2) {
         return [1, '...', total - 3, total - 2, total - 1, total];
       }
-
       return [1, '...', current - 1, current, current + 1, '...', total];
     }
 
@@ -198,16 +209,115 @@
       if (page < 1 || page > totalPages) return;
       currentPage = page;
       renderCustomers();
+      // Scroll to table top
+      document.getElementById('customersTable')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function updateStats(stats) {
-      const statCards = document.querySelectorAll('.stat-card .stat-value');
-      if (statCards.length >= 4) {
-        statCards[0].textContent = (stats.toplamMusteriSayisi || 0).toLocaleString('tr-TR');
-        statCards[1].textContent = (stats.bireyselMusteriSayisi || 0).toLocaleString('tr-TR');
-        statCards[2].textContent = (stats.kurumsalMusteriSayisi || 0).toLocaleString('tr-TR');
-        statCards[3].textContent = (stats.buAyYeniMusteriSayisi || 0).toLocaleString('tr-TR');
+      const el = (id, val) => {
+        const e = document.getElementById(id);
+        if (e) e.textContent = (val || 0).toLocaleString('tr-TR');
+      };
+      el('statTotal', stats.toplamMusteriSayisi);
+      el('statBireysel', stats.bireyselMusteriSayisi);
+      el('statKurumsal', stats.kurumsalMusteriSayisi);
+      el('statNewMonth', stats.buAyYeniMusteriSayisi);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // SORTING
+    // ═══════════════════════════════════════════════════════════════
+
+    function handleSort(field) {
+      // Toggle direction
+      if (currentSort.field === field) {
+        currentSort.dir = currentSort.dir === 'asc' ? 'desc' : (currentSort.dir === 'desc' ? null : 'asc');
+        if (!currentSort.dir) currentSort.field = null;
+      } else {
+        currentSort.field = field;
+        currentSort.dir = 'asc';
       }
+
+      // Update header classes
+      document.querySelectorAll('.sortable').forEach(th => {
+        th.classList.remove('asc', 'desc');
+        if (th.dataset.sort === currentSort.field && currentSort.dir) {
+          th.classList.add(currentSort.dir);
+        }
+      });
+
+      // Sort
+      if (currentSort.field && currentSort.dir) {
+        const dir = currentSort.dir === 'asc' ? 1 : -1;
+        filteredCustomers.sort((a, b) => {
+          let va, vb;
+          switch (currentSort.field) {
+            case 'name':
+              va = `${a.adi || ''} ${a.soyadi || ''}`.trim().toLowerCase();
+              vb = `${b.adi || ''} ${b.soyadi || ''}`.trim().toLowerCase();
+              return va.localeCompare(vb, 'tr') * dir;
+            case 'police':
+              return ((a.policeSayisi || 0) - (b.policeSayisi || 0)) * dir;
+            case 'prim':
+              return ((a.toplamPrim || 0) - (b.toplamPrim || 0)) * dir;
+            default:
+              return 0;
+          }
+        });
+      } else {
+        // Reset to original order (by eklenmeZamani desc)
+        filteredCustomers.sort((a, b) => {
+          const da = new Date(a.eklenmeZamani || 0);
+          const db = new Date(b.eklenmeZamani || 0);
+          return db - da;
+        });
+      }
+
+      currentPage = 1;
+      renderCustomers();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // CUSTOM DROPDOWNS
+    // ═══════════════════════════════════════════════════════════════
+
+    function setupDropdowns() {
+      // Type dropdown
+      const typeDropdown = document.getElementById('typeDropdown');
+      const typeToggle = document.getElementById('typeDropdownToggle');
+
+      if (typeToggle) {
+        typeToggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          typeDropdown.classList.toggle('open');
+        });
+      }
+
+      // Dropdown items
+      typeDropdown?.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const value = item.dataset.value;
+          selectedType = value;
+
+          // Update selected state
+          typeDropdown.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+
+          // Update toggle text
+          typeToggle.textContent = item.textContent;
+
+          // Close dropdown
+          typeDropdown.classList.remove('open');
+
+          // Apply filters
+          applyFilters();
+        });
+      });
+
+      // Close dropdowns on outside click
+      document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-dropdown.open').forEach(d => d.classList.remove('open'));
+      });
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -215,59 +325,52 @@
     // ═══════════════════════════════════════════════════════════════
 
     function setupEventListeners() {
-      // Type filter
-      const typeFilter = document.querySelector('.filter-row .form-select');
-      if (typeFilter) {
-        typeFilter.addEventListener('change', applyFilters);
-      }
+      // Filter inputs with debounce
+      const filterName = document.getElementById('filterName');
+      const filterTcVkn = document.getElementById('filterTcVkn');
 
-      // Filter inputs
-      const filterInputs = document.querySelectorAll('.filter-row .form-input');
-      filterInputs.forEach(input => {
-        input.addEventListener('input', debounce(applyFilters, 300));
-      });
-
-      // Filter button
-      const filterBtn = document.querySelector('.filter-row .btn-secondary');
-      if (filterBtn) {
-        filterBtn.addEventListener('click', applyFilters);
-      }
+      if (filterName) filterName.addEventListener('input', debounce(applyFilters, 300));
+      if (filterTcVkn) filterTcVkn.addEventListener('input', debounce(applyFilters, 300));
 
       // Clear filter button
-      const clearBtn = document.querySelector('.filter-row .btn-ghost');
-      if (clearBtn) {
-        clearBtn.addEventListener('click', clearFilters);
-      }
+      const clearBtn = document.getElementById('clearFiltersBtn');
+      if (clearBtn) clearBtn.addEventListener('click', clearFilters);
 
-      // Navbar search
-      const navbarSearch = document.querySelector('.navbar-search input');
-      if (navbarSearch) {
-        navbarSearch.addEventListener('input', debounce(searchCustomers, 300));
+      // Page size selector
+      const pageSizeSelect = document.getElementById('pageSizeSelect');
+      if (pageSizeSelect) {
+        pageSizeSelect.value = pageSize;
+        pageSizeSelect.addEventListener('change', (e) => {
+          pageSize = parseInt(e.target.value);
+          currentPage = 1;
+          renderCustomers();
+        });
       }
     }
 
-    function applyFilters() {
-      const typeFilter = document.querySelector('.filter-row .form-select');
-      const filterInputs = document.querySelectorAll('.filter-row .form-input');
+    function trLower(s) {
+      return (s || '').toLocaleLowerCase('tr-TR');
+    }
 
-      const type = typeFilter?.value || '';
-      const tcVkn = filterInputs[0]?.value?.toLowerCase() || '';
-      const name = filterInputs[1]?.value?.toLowerCase() || '';
+    function applyFilters() {
+      const name = trLower(document.getElementById('filterName')?.value).trim();
+      const tcVkn = trLower(document.getElementById('filterTcVkn')?.value).trim();
 
       filteredCustomers = allCustomers.filter(customer => {
         // Type filter
-        if (type === 'bireysel' && customer.sahipTuru !== 1) return false;
-        if (type === 'kurumsal' && customer.sahipTuru !== 2) return false;
+        const customerIsKurumsal = !!customer.vergiNo && !customer.tcKimlikNo;
+        if (selectedType === 'bireysel' && customerIsKurumsal) return false;
+        if (selectedType === 'kurumsal' && !customerIsKurumsal) return false;
 
         // TC/VKN filter
         if (tcVkn) {
-          const customerTcVkn = (customer.tcKimlikNo || customer.vergiNo || '').toLowerCase();
+          const customerTcVkn = trLower(customer.tcKimlikNo || customer.vergiNo);
           if (!customerTcVkn.includes(tcVkn)) return false;
         }
 
         // Name filter
         if (name) {
-          const displayName = `${customer.adi || ''} ${customer.soyadi || ''}`.toLowerCase();
+          const displayName = trLower(`${customer.adi || ''} ${customer.soyadi || ''}`);
           if (!displayName.includes(name)) return false;
         }
 
@@ -279,11 +382,20 @@
     }
 
     function clearFilters() {
-      const typeFilter = document.querySelector('.filter-row .form-select');
-      const filterInputs = document.querySelectorAll('.filter-row .form-input');
+      const filterName = document.getElementById('filterName');
+      const filterTcVkn = document.getElementById('filterTcVkn');
+      const typeDropdown = document.getElementById('typeDropdown');
+      const typeToggle = document.getElementById('typeDropdownToggle');
 
-      if (typeFilter) typeFilter.value = '';
-      filterInputs.forEach(input => input.value = '');
+      if (filterName) filterName.value = '';
+      if (filterTcVkn) filterTcVkn.value = '';
+
+      // Reset dropdown
+      selectedType = '';
+      if (typeToggle) typeToggle.textContent = 'Tum Tipler';
+      typeDropdown?.querySelectorAll('.dropdown-item').forEach((item, i) => {
+        item.classList.toggle('selected', i === 0);
+      });
 
       filteredCustomers = [...allCustomers];
       currentPage = 1;
@@ -291,15 +403,15 @@
     }
 
     function searchCustomers(event) {
-      const searchTerm = event.target.value.toLowerCase();
+      const searchTerm = trLower(event.target.value).trim();
 
       if (!searchTerm) {
         filteredCustomers = [...allCustomers];
       } else {
         filteredCustomers = allCustomers.filter(customer => {
-          const displayName = `${customer.adi || ''} ${customer.soyadi || ''}`.toLowerCase();
-          const tcVkn = (customer.tcKimlikNo || customer.vergiNo || '').toLowerCase();
-          const phone = (customer.gsm || '').toLowerCase();
+          const displayName = trLower(`${customer.adi || ''} ${customer.soyadi || ''}`);
+          const tcVkn = trLower(customer.tcKimlikNo || customer.vergiNo);
+          const phone = trLower(customer.gsm);
 
           return displayName.includes(searchTerm) ||
                  tcVkn.includes(searchTerm) ||
@@ -317,9 +429,10 @@
 
     function openAddModal() {
       editingCustomerId = null;
-      document.getElementById('modalTitle').textContent = 'Yeni Müşteri Ekle';
+      document.getElementById('modalTitle').textContent = 'Yeni Musteri Ekle';
       document.getElementById('customerForm').reset();
       document.getElementById('customerId').value = '';
+      toggleBireyselFields();
       document.getElementById('addCustomerModal').classList.add('active');
     }
 
@@ -328,30 +441,49 @@
       editingCustomerId = null;
     }
 
+    function toggleBireyselFields() {
+      const isBireysel = document.getElementById('customerType').value === '1';
+      document.querySelectorAll('.bireysel-field').forEach(el => {
+        el.style.display = isBireysel ? '' : 'none';
+      });
+    }
+
     async function editCustomer(id) {
       try {
         const customer = await apiGet(`customers/${id}`);
         if (!customer) {
-          showToast('Müşteri bulunamadı', 'error');
+          showToast('Musteri bulunamadi', 'error');
           return;
         }
 
         editingCustomerId = id;
-        document.getElementById('modalTitle').textContent = 'Müşteri Düzenle';
+        document.getElementById('modalTitle').textContent = 'Musteri Duzenle';
         document.getElementById('customerId').value = id;
-        document.getElementById('customerType').value = customer.sahipTuru || 1;
+        const editIsKurumsal = !!customer.vergiNo && !customer.tcKimlikNo;
+        document.getElementById('customerType').value = editIsKurumsal ? 2 : 1;
         document.getElementById('tcVkn').value = customer.tcKimlikNo || customer.vergiNo || '';
-        document.getElementById('customerName').value = customer.sahipTuru === 2
+        document.getElementById('customerName').value = editIsKurumsal
           ? customer.adi || ''
           : `${customer.adi || ''} ${customer.soyadi || ''}`.trim();
         document.getElementById('phone').value = customer.gsm || '';
         document.getElementById('email').value = customer.email || '';
-        // Address field not in current entity, but form has it
+        document.getElementById('gsm2').value = customer.gsm2 || '';
+        document.getElementById('telefon').value = customer.telefon || '';
+        document.getElementById('meslek').value = customer.meslek || '';
+        document.getElementById('dogumTarihi').value = customer.dogumTarihi ? customer.dogumTarihi.substring(0, 10) : '';
+        document.getElementById('cinsiyet').value = customer.cinsiyet || '';
+        document.getElementById('babaAdi').value = customer.babaAdi || '';
+        document.getElementById('yasadigiIl').value = customer.yasadigiIl || '';
+        document.getElementById('yasadigiIlce').value = customer.yasadigiIlce || '';
+        document.getElementById('address').value = customer.adres || '';
+        document.getElementById('boy').value = customer.boy || '';
+        document.getElementById('kilo').value = customer.kilo || '';
 
+        toggleBireyselFields();
         document.getElementById('addCustomerModal').classList.add('active');
       } catch (error) {
-        console.error('Müşteri yüklenirken hata:', error);
-        showToast('Müşteri bilgileri yüklenirken hata oluştu', 'error');
+        console.error('Musteri yuklenirken hata:', error);
+        showToast('Musteri bilgileri yuklenirken hata olustu', 'error');
       }
     }
 
@@ -388,6 +520,17 @@
         soyadi: soyadi,
         gsm: phone,
         email: email || null,
+        gsm2: document.getElementById('gsm2').value.trim() || null,
+        telefon: document.getElementById('telefon').value.trim() || null,
+        meslek: document.getElementById('meslek').value.trim() || null,
+        dogumTarihi: document.getElementById('dogumTarihi').value || null,
+        cinsiyet: document.getElementById('cinsiyet').value || null,
+        babaAdi: document.getElementById('babaAdi').value.trim() || null,
+        yasadigiIl: document.getElementById('yasadigiIl').value.trim() || null,
+        yasadigiIlce: document.getElementById('yasadigiIlce').value.trim() || null,
+        adres: document.getElementById('address').value.trim() || null,
+        boy: parseInt(document.getElementById('boy').value) || null,
+        kilo: parseInt(document.getElementById('kilo').value) || null,
         ekleyenFirmaId: user?.firmaId,
         ekleyenUyeId: user?.id,
         ekleyenSubeId: user?.subeId
@@ -395,20 +538,18 @@
 
       try {
         if (editingCustomerId) {
-          // Update
           await apiPut(`customers/${editingCustomerId}`, data);
-          showToast('Müşteri güncellendi', 'success');
+          showToast('Musteri guncellendi', 'success');
         } else {
-          // Create
           await apiPost('customers', data);
-          showToast('Müşteri oluşturuldu', 'success');
+          showToast('Musteri olusturuldu', 'success');
         }
 
         closeCustomerModal();
         await Promise.all([loadCustomers(), loadStats()]);
       } catch (error) {
-        console.error('Müşteri kaydedilirken hata:', error);
-        showToast(error.message || 'Müşteri kaydedilirken hata oluştu', 'error');
+        console.error('Musteri kaydedilirken hata:', error);
+        showToast(error.message || 'Musteri kaydedilirken hata olustu', 'error');
       }
     }
 
@@ -427,15 +568,15 @@
       try {
         const result = await apiDelete(`customers/${id}`);
         if (result.success) {
-          showToast('Müşteri silindi', 'success');
+          showToast('Musteri silindi', 'success');
           closeDeleteModal();
           await Promise.all([loadCustomers(), loadStats()]);
         } else {
-          showToast(result.errorMessage || 'Müşteri silinemedi', 'error');
+          showToast(result.errorMessage || 'Musteri silinemedi', 'error');
         }
       } catch (error) {
-        console.error('Müşteri silinirken hata:', error);
-        showToast(error.message || 'Müşteri silinirken hata oluştu', 'error');
+        console.error('Musteri silinirken hata:', error);
+        showToast(error.message || 'Musteri silinirken hata olustu', 'error');
       }
     }
 
