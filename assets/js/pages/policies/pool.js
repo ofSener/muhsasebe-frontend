@@ -32,6 +32,11 @@
     // ═══════════════════════════════════════════════════════════════
     let currentUserRole = 'admin';
 
+    // Logo path constants
+    const LOGO_BASE_PATH = '../../assets/images/logos/insurance-companies/';
+    const LOGO_EXTENSION = '.png';
+    let companyCodeMap = {}; // id -> kod mapping
+
     // Data arrays - API'den doldurulacak
     let policyTypes = [];
     let producersList = [];
@@ -201,6 +206,35 @@
       if (name.includes('konut')) return 'konut';
       if (name.includes('sağlık') || name.includes('saglik')) return 'saglik';
       return '';
+    }
+
+    // Sigorta şirketi logo path döndür
+    function getInsuranceCompanyLogo(sirketId) {
+      const companyCode = companyCodeMap[sirketId];
+      if (companyCode) {
+        return `${LOGO_BASE_PATH}${companyCode.toLowerCase()}${LOGO_EXTENSION}`;
+      }
+      return '';
+    }
+
+    // Sigorta şirketi baş harflerini döndür (logo yoksa fallback)
+    function getInsuranceCompanyInitials(sirketAdi) {
+      if (!sirketAdi) return '?';
+      const words = sirketAdi.split(' ').filter(w => w.length > 0);
+      if (words.length >= 2) {
+        return (words[0][0] + words[1][0]).toUpperCase();
+      }
+      return sirketAdi.substring(0, 2).toUpperCase();
+    }
+
+    // Prodüktör baş harflerini döndür
+    function getProducerInitials(name) {
+      if (!name) return '?';
+      const words = name.split(' ').filter(w => w.length > 0);
+      if (words.length >= 2) {
+        return (words[0][0] + words[1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
     }
 
     // API response'u frontend formatına dönüştür
@@ -584,10 +618,11 @@
         document.getElementById('pageSubtitle').textContent = 'Tam eşleşen ve onay bekleyen poliçeler';
         loadPoolData(true);
       } else if (tab === 'unmatched-captured') {
-        // Eşleşmeyenler: Yakalanan ama havuzda olmayan
+        // Eşleşmeyenler: Havuzda olup yakalananlarla eşleşmeyen
+        poolState.filters.status = 'unmatched';
         document.getElementById('pageTitle').textContent = 'Eşleşmeyenler';
-        document.getElementById('pageSubtitle').textContent = 'Yakalanan ama havuzda olmayan poliçeler';
-        loadUnmatchedCaptured(true);
+        document.getElementById('pageSubtitle').textContent = 'Havuzda olup yakalananlarla eşleşmeyen poliçeler';
+        loadPoolData(true);
       } else if (tab === 'no-customer') {
         // Müşterisi Bulunmayanlar: Onaylı poliçe, MusteriId = null
         document.getElementById('pageTitle').textContent = 'Müşterisi Bulunmayan Poliçeler';
@@ -613,6 +648,10 @@
         poolState.lookups.branslar = branslar || [];
         poolState.lookups.sigortaSirketleri = sigortaSirketleri || [];
         poolState.lookups.loaded = true;
+
+        // ID -> Kod mapping oluştur (logo için)
+        companyCodeMap = {};
+        (sigortaSirketleri || []).forEach(c => { companyCodeMap[c.id] = c.kod; });
 
         // Global değişkenlere de ata (eski kod uyumluluğu için)
         window.sigortaSirketleri = sigortaSirketleri || [];
@@ -994,15 +1033,16 @@
                         <span class="checkbox-custom"></span>
                       </label>
                     </th>
+                    <th style="width: 50px;"></th>
                     <th>Poliçe No</th>
                     <th>Tanzim Tarihi</th>
                     <th>Sigortalı Adı</th>
                     <th>Branş</th>
-                    <th>Sigorta Şirketi</th>
                     <th class="text-right">Havuz Prim</th>
                     <th class="text-right">Yakalanan Prim</th>
                     <th class="text-right">Fark</th>
                     <th class="text-right">Komisyon</th>
+                    <th>Prodüktör</th>
                     <th>Durum</th>
                     <th style="width: 100px;">İşlem</th>
                   </tr>
@@ -1033,8 +1073,19 @@
         ? new Date(item.tanzimTarihi).toLocaleDateString('tr-TR')
         : '-';
 
+      // Satır durum renklendirmesi (Bekleyen İşlemler sekmesinde)
+      const rowStatusClass = item.eslesmeDurumu === 'AKTARIMDA' ? 'row-status-aktarimda' :
+                             item.eslesmeDurumu === 'FARK_VAR' ? 'row-status-farkvar' : '';
+
+      // Logo
+      const logoPath = getInsuranceCompanyLogo(item.sigortaSirketiId);
+      const initials = getInsuranceCompanyInitials(item.sigortaSirketi);
+
+      // Prodüktör
+      const prodInitials = getProducerInitials(item.produktorAdi);
+
       return `
-        <tr class="${isSelected ? 'selected' : ''}" data-id="${item.id}">
+        <tr class="${isSelected ? 'selected' : ''} ${rowStatusClass}" data-id="${item.id}">
           <td>
             <label class="checkbox-wrapper">
               <input type="checkbox"
@@ -1042,6 +1093,13 @@
                      onchange="togglePoolSelection(${item.id}, this.checked)">
               <span class="checkbox-custom"></span>
             </label>
+          </td>
+          <td>
+            <div class="company-logo" data-tooltip="${escHtml(item.sigortaSirketi) || '-'}">
+              ${logoPath
+                ? `<img src="${logoPath}" alt="${escHtml(item.sigortaSirketi)}" onerror="this.parentElement.innerHTML='${initials}'">`
+                : initials}
+            </div>
           </td>
           <td>
             <span class="font-mono">${item.policeNo || '-'}</span>
@@ -1052,10 +1110,12 @@
             <span class="text-sm">${tanzimTarihiFormatted}</span>
           </td>
           <td>
-            <span class="text-sm">${item.sigortaliAdi || '-'}</span>
+            <span class="customer-cell-clickable text-sm" onclick="openCustomerAssignModal(${item.id})" title="Müşteri ata / değiştir">
+              ${escHtml(item.sigortaliAdi) || '<span style="color: var(--danger); font-size: 0.8rem;">Müşteri Yok</span>'}
+              <svg class="customer-edit-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </span>
           </td>
-          <td><span class="badge badge-outline">${item.brans || '-'}</span></td>
-          <td><span class="text-sm">${item.sigortaSirketi || '-'}</span></td>
+          <td><span class="policy-type-badge ${getTypeClass(item.brans)}">${item.brans || '-'}</span></td>
           <td class="font-mono text-right">${(item.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</td>
           <td class="font-mono text-right">
             ${item.yakalananPrim != null ? `${item.yakalananPrim.toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL` : '<span class="text-muted">-</span>'}
@@ -1065,6 +1125,27 @@
           </td>
           <td class="font-mono text-right">
             <span class="font-mono">${(item.komisyon || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</span>
+          </td>
+          <td style="overflow: visible; position: relative;">
+            <div class="producer-cell producer-clickable" onclick="openEditPoolProduktorModal(${item.id})" title="Prodüktör düzenle">
+              <div class="producer-avatar emerald">${prodInitials}</div>
+              <div class="producer-info">
+                <span class="producer-name">${escHtml(item.produktorAdi) || '-'}</span>
+                ${item.produktorAdi ? `<span class="producer-branch">${escHtml(item.produktorSubeAdi) || '-'}</span>` : ''}
+              </div>
+              <div class="producer-edit-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </div>
+              <div class="kesen-uye-hover">
+                <div class="kesen-uye-hover-label">Poliçeyi Kesen</div>
+                <div class="kesen-uye-hover-body">
+                  <span>${escHtml(item.policeKesenPersonel) || '-'}</span>
+                </div>
+              </div>
+            </div>
           </td>
           <td>
             <span class="badge ${statusClass}">${statusText}</span>
@@ -1447,6 +1528,9 @@
         unmatchedCapturedState.pagination.currentPage = 1;
       }
 
+      // Lookup verilerini yükle (filtre dropdown'ları için)
+      await loadPoolLookups();
+
       try {
         unmatchedCapturedState.loading = true;
         const params = {
@@ -1497,14 +1581,147 @@
     // Eşleşmeyenler boş durumu
     function renderUnmatchedCapturedEmpty() {
       const poolContent = document.getElementById('poolContent');
+
+      const hasFilters = unmatchedCapturedState.filters.search ||
+                         unmatchedCapturedState.filters.bransId ||
+                         unmatchedCapturedState.filters.sigortaSirketiId;
+
       poolContent.innerHTML = `
+        ${renderUnmatchedFilters()}
         <div class="card">
           <div class="card-body text-center py-5">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--success); margin-bottom: 1rem;">
               <polyline points="20,6 9,17 4,12"/>
             </svg>
-            <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">Tüm Poliçeler Eşleşti</h3>
-            <p class="text-muted">Yakalanan tüm poliçeler havuzda bulunuyor.</p>
+            <h3 style="margin-bottom: 0.5rem; color: var(--text-primary);">
+              ${hasFilters ? 'Sonuç Bulunamadı' : 'Tüm Poliçeler Eşleşti'}
+            </h3>
+            <p class="text-muted">
+              ${hasFilters ? 'Seçilen filtrelerle eşleşen kayıt bulunamadı.' : 'Yakalanan tüm poliçeler havuzda bulunuyor.'}
+            </p>
+            ${hasFilters ? `
+              <button class="btn btn-primary mt-3" onclick="clearUnmatchedFilters()">
+                Filtreleri Temizle
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Eşleşmeyenler filtre alanını render et
+    function renderUnmatchedFilters() {
+      const branslar = poolState.lookups.branslar || [];
+      const sirketler = poolState.lookups.sigortaSirketleri || [];
+
+      return `
+        <div class="pool-filters mb-4">
+          <div class="pool-filter-row">
+            <div class="pool-search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input type="text"
+                     id="unmatchedSearchInput"
+                     placeholder="Poliçe no, sigortalı ara..."
+                     value="${unmatchedCapturedState.filters.search || ''}"
+                     onkeyup="handleUnmatchedSearchKeyup(event)"
+                     oninput="debounceUnmatchedSearch(this.value)">
+              ${unmatchedCapturedState.filters.search ? `
+                <button class="pool-search-clear" onclick="clearUnmatchedSearch()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              ` : ''}
+            </div>
+
+            <select class="pool-filter-select" id="unmatchedBransFilter" onchange="handleUnmatchedBransFilter(this.value)">
+              <option value="">Tüm Branşlar</option>
+              ${branslar.map(b => {
+                const bId = b.id || b.bransId || '';
+                const bName = b.turu || b.ad || b.name || b.bransAdi || (typeof b === 'string' ? b : 'Branş');
+                return `<option value="${bId}" ${unmatchedCapturedState.filters.bransId == bId ? 'selected' : ''}>${bName}</option>`;
+              }).join('')}
+            </select>
+
+            <select class="pool-filter-select" id="unmatchedSirketFilter" onchange="handleUnmatchedSirketFilter(this.value)">
+              <option value="">Tüm Şirketler</option>
+              ${sirketler.map(s => {
+                const sId = s.id || s.sigortaSirketiId || '';
+                const sName = s.ad || s.name || s.sirketAdi || 'Şirket';
+                return `<option value="${sId}" ${unmatchedCapturedState.filters.sigortaSirketiId == sId ? 'selected' : ''}>${sName}</option>`;
+              }).join('')}
+            </select>
+
+            <div class="pool-filter-actions">
+              <button class="btn btn-outline btn-sm" onclick="clearUnmatchedFilters()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 6h18"/>
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                </svg>
+                Filtreleri Temizle
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="loadUnmatchedCaptured(true)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="23,4 23,10 17,10"/>
+                  <path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+                </svg>
+                Yenile
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Eşleşmeyenler sayfalama render et
+    function renderUnmatchedPagination(data) {
+      const currentPage = data.currentPage || unmatchedCapturedState.pagination.currentPage;
+      const totalPages = data.totalPages || Math.ceil((data.totalCount || 0) / unmatchedCapturedState.pagination.pageSize);
+      const pageSize = unmatchedCapturedState.pagination.pageSize;
+
+      if (totalPages <= 1) return '';
+
+      let pages = [];
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+          pages.push(i);
+        } else if (pages[pages.length - 1] !== '...') {
+          pages.push('...');
+        }
+      }
+
+      return `
+        <div class="pool-pagination mt-4">
+          <div class="pagination-info">
+            Sayfa ${currentPage} / ${totalPages}
+          </div>
+          <div class="pagination-controls">
+            <select class="pagination-size" onchange="changeUnmatchedPageSize(this.value)">
+              <option value="10" ${pageSize === 10 ? 'selected' : ''}>10</option>
+              <option value="20" ${pageSize === 20 ? 'selected' : ''}>20</option>
+              <option value="50" ${pageSize === 50 ? 'selected' : ''}>50</option>
+              <option value="100" ${pageSize === 100 ? 'selected' : ''}>100</option>
+            </select>
+            <div class="pagination-buttons">
+              <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="goToUnmatchedPage(${currentPage - 1})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="15,18 9,12 15,6"/>
+                </svg>
+              </button>
+              ${pages.map(p => p === '...' ?
+                `<span class="pagination-ellipsis">...</span>` :
+                `<button class="pagination-btn ${p === currentPage ? 'active' : ''}" onclick="goToUnmatchedPage(${p})">${p}</button>`
+              ).join('')}
+              <button class="pagination-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="goToUnmatchedPage(${currentPage + 1})">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9,18 15,12 9,6"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       `;
@@ -1518,6 +1735,7 @@
       const fmtPrim = (v) => (v || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2});
 
       const html = `
+        ${renderUnmatchedFilters()}
         <div class="card">
           <div class="card-header">
             <div class="card-header-left">
@@ -1530,69 +1748,82 @@
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th style="min-width: 140px;">Poliçe No</th>
-                    <th style="min-width: 150px;">Tarih</th>
-                    <th style="min-width: 150px;">Sigortalı Adı</th>
-                    <th style="min-width: 100px;">Branş</th>
-                    <th style="min-width: 120px;">Sigorta Şirketi</th>
-                    <th style="min-width: 140px;">Prodüktör / Şube</th>
-                    <th class="text-right" style="min-width: 120px;">Prim</th>
-                    <th style="min-width: 80px;">İşlemler</th>
+                    <th style="width: 50px;"></th>
+                    <th>Poliçe No</th>
+                    <th>Tanzim Tarihi</th>
+                    <th>Sigortalı Adı</th>
+                    <th>Branş</th>
+                    <th class="text-right">Prim</th>
+                    <th>Prodüktör</th>
+                    <th style="width: 100px;">İşlem</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${data.items.map(item => `
+                  ${data.items.map(item => {
+                    const logoPath = getInsuranceCompanyLogo(item.sigortaSirketiId);
+                    const companyInitials = getInsuranceCompanyInitials(item.sigortaSirketi);
+                    const prodInitials = getProducerInitials(item.produktorAdi);
+
+                    return `
                     <tr data-id="${item.id}">
+                      <td>
+                        <div class="company-logo" data-tooltip="${escHtml(item.sigortaSirketi) || '-'}">
+                          ${logoPath
+                            ? `<img src="${logoPath}" alt="${escHtml(item.sigortaSirketi)}" onerror="this.parentElement.innerHTML='${companyInitials}'">`
+                            : companyInitials}
+                        </div>
+                      </td>
                       <td>
                         <span class="font-mono" style="font-weight: 600;">${item.policeNo || '-'}</span>
                         ${item.plaka ? `<div class="text-muted text-xs">${item.plaka}</div>` : ''}
-                        <div class="text-muted text-xs">${fmtDate(item.eklenmeTarihi)}</div>
                       </td>
                       <td>
-                        <span class="text-sm">${fmtDate(item.baslangicTarihi)} – ${fmtDate(item.bitisTarihi)}</span>
-                        <div class="text-muted text-xs">Tanzim: ${fmtDate(item.tanzimTarihi)}</div>
+                        <span class="text-sm">${fmtDate(item.tanzimTarihi)}</span>
+                        <div class="text-muted text-xs">${fmtDate(item.baslangicTarihi)} – ${fmtDate(item.bitisTarihi)}</div>
                       </td>
                       <td>
-                        <span class="text-sm">${item.sigortaliAdi || '-'}</span>
+                        <span class="customer-cell-clickable text-sm" onclick="openCustomerAssignModal(${item.id})" title="Müşteri ata / değiştir">
+                          ${escHtml(item.sigortaliAdi) || '<span style="color: var(--danger); font-size: 0.8rem;">Müşteri Yok</span>'}
+                          <svg class="customer-edit-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </span>
                       </td>
-                      <td>
-                        <span class="badge badge-outline">${item.brans || '-'}</span>
-                      </td>
-                      <td>
-                        <span class="text-sm">${item.sigortaSirketi || '-'}</span>
-                      </td>
-                      <td>
-                        <span class="text-sm" style="font-weight: 500; color: var(--primary);">${item.produktorAdi || '<span style="color: var(--danger);">Atanmamış</span>'}</span>
-                        <div class="text-muted text-xs">${item.subeAdi || '-'}</div>
-                      </td>
+                      <td><span class="policy-type-badge ${getTypeClass(item.brans)}">${item.brans || '-'}</span></td>
                       <td class="text-right">
                         <span class="font-mono" style="font-weight: 600;">${fmtPrim(item.brutPrim)} TL</span>
                         <div class="text-muted text-xs font-mono">Net: ${fmtPrim(item.netPrim)} TL</div>
                       </td>
-                      <td>
-                        <div style="display: flex; gap: 0.25rem;">
-                          <button class="btn btn-sm btn-secondary" onclick="openEditUnmatchedModal(${item.id})" title="Düzenle">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <td style="overflow: visible; position: relative;">
+                        <div class="producer-cell producer-clickable" onclick="openEditUnmatchedModal(${item.id})" title="Prodüktör / Poliçeyi Kesen düzenle">
+                          <div class="producer-avatar emerald">${prodInitials}</div>
+                          <div class="producer-info">
+                            <span class="producer-name">${escHtml(item.produktorAdi) || '<span style="color: var(--danger);">Atanmamış</span>'}</span>
+                            ${item.produktorAdi ? `<span class="producer-branch">${escHtml(item.produktorSubeAdi || item.subeAdi) || '-'}</span>` : ''}
+                          </div>
+                          <div class="producer-edit-icon">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
                               <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
-                          </button>
-                          <button class="btn btn-sm btn-success" onclick="sendCapturedToPool(${item.id})" title="Poliçeyi Kaydet">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-                              <polyline points="17,21 17,13 7,13 7,21"/>
-                              <polyline points="7,3 7,8 15,8"/>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="action-buttons">
+                          <button class="action-btn action-btn-success" onclick="sendCapturedToPool(${item.id})" title="Poliçeyi Kaydet">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <polyline points="20,6 9,17 4,12"/>
                             </svg>
                           </button>
                         </div>
                       </td>
                     </tr>
-                  `).join('')}
+                  `}).join('')}
                 </tbody>
               </table>
             </div>
           </div>
         </div>
+        ${renderUnmatchedPagination(data)}
       `;
 
       poolContent.innerHTML = html;
@@ -1996,6 +2227,64 @@
     }
 
     // ═══════════════════════════════════════════════════════════════
+    // EŞLEŞMEYENLERde FİLTRE EVENT HANDLER'LARI
+    // ═══════════════════════════════════════════════════════════════
+
+    let unmatchedSearchTimeout = null;
+    function debounceUnmatchedSearch(value) {
+      if (unmatchedSearchTimeout) clearTimeout(unmatchedSearchTimeout);
+      unmatchedSearchTimeout = setTimeout(() => {
+        unmatchedCapturedState.filters.search = value;
+        loadUnmatchedCaptured(true);
+      }, 300);
+    }
+
+    function handleUnmatchedSearchKeyup(event) {
+      if (event.key === 'Enter') {
+        if (unmatchedSearchTimeout) clearTimeout(unmatchedSearchTimeout);
+        unmatchedCapturedState.filters.search = event.target.value;
+        loadUnmatchedCaptured(true);
+      }
+    }
+
+    function clearUnmatchedSearch() {
+      unmatchedCapturedState.filters.search = '';
+      const input = document.getElementById('unmatchedSearchInput');
+      if (input) input.value = '';
+      loadUnmatchedCaptured(true);
+    }
+
+    function handleUnmatchedBransFilter(value) {
+      unmatchedCapturedState.filters.bransId = value || null;
+      loadUnmatchedCaptured(true);
+    }
+
+    function handleUnmatchedSirketFilter(value) {
+      unmatchedCapturedState.filters.sigortaSirketiId = value || null;
+      loadUnmatchedCaptured(true);
+    }
+
+    function clearUnmatchedFilters() {
+      unmatchedCapturedState.filters = {
+        search: '',
+        bransId: null,
+        sigortaSirketiId: null
+      };
+      loadUnmatchedCaptured(true);
+    }
+
+    function goToUnmatchedPage(page) {
+      unmatchedCapturedState.pagination.currentPage = page;
+      loadUnmatchedCaptured();
+    }
+
+    function changeUnmatchedPageSize(size) {
+      unmatchedCapturedState.pagination.pageSize = parseInt(size);
+      unmatchedCapturedState.pagination.currentPage = 1;
+      loadUnmatchedCaptured();
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // EŞLEŞMEYENLERİ DÜZENLEME MODAL FONKSİYONLARI
     // ═══════════════════════════════════════════════════════════════
 
@@ -2111,10 +2400,462 @@
       }
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // POOL PRODÜKTÖR DÜZENLEME
+    // ═══════════════════════════════════════════════════════════════
+
+    let poolProduktorler = [];
+    let poolSubeler = [];
+    let poolProduktorLoaded = false;
+
+    async function loadPoolProduktorSubeLookups() {
+      if (poolProduktorLoaded) return;
+      try {
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+
+        const [produktorData, subeData] = await Promise.all([
+          apiGet(firmaId ? `kullanicilar/aktif?firmaId=${firmaId}` : 'kullanicilar/aktif').catch(() => []),
+          apiGet(firmaId ? `branches?firmaId=${firmaId}` : 'branches').catch(() => [])
+        ]);
+
+        poolProduktorler = (produktorData || []).map(u => ({
+          id: u.id,
+          name: `${u.adi || ''} ${u.soyadi || ''}`.trim() || `Kullanıcı #${u.id}`,
+          subeId: u.subeId
+        }));
+
+        poolSubeler = (subeData || []).map(s => ({
+          id: s.id,
+          name: s.subeAdi || s.name || `Şube #${s.id}`
+        }));
+
+        poolProduktorLoaded = true;
+      } catch (error) {
+        console.error('Prodüktör/Şube lookup yüklenemedi:', error);
+      }
+    }
+
+    // ═══════════════════════════════════════
+    // MODAL DROPDOWN COMPONENT (captured.html tarzı)
+    // ═══════════════════════════════════════
+
+    const AVATAR_COLORS = [
+      'linear-gradient(135deg, #10b981, #059669)',
+      'linear-gradient(135deg, #06b6d4, #0891b2)',
+      'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+      'linear-gradient(135deg, #f59e0b, #d97706)',
+      'linear-gradient(135deg, #f43f5e, #e11d48)',
+      'linear-gradient(135deg, #3b82f6, #2563eb)',
+      'linear-gradient(135deg, #ec4899, #db2777)',
+      'linear-gradient(135deg, #14b8a6, #0d9488)'
+    ];
+
+    function toggleModalDropdown(dropdownId, event) {
+      event.stopPropagation();
+      const dropdown = document.getElementById(dropdownId);
+      if (!dropdown) return;
+
+      // Diğer açık dropdown'ları kapat
+      document.querySelectorAll('.modal-dropdown.open').forEach(d => {
+        if (d.id !== dropdownId) d.classList.remove('open');
+      });
+
+      dropdown.classList.toggle('open');
+
+      if (dropdown.classList.contains('open')) {
+        const searchInput = dropdown.querySelector('.modal-dropdown-search input');
+        if (searchInput) {
+          searchInput.value = '';
+          filterModalDropdownList(dropdownId);
+          setTimeout(() => searchInput.focus(), 50);
+        }
+      }
+    }
+
+    function filterModalDropdownList(dropdownId) {
+      const dropdown = document.getElementById(dropdownId);
+      if (!dropdown) return;
+      const searchInput = dropdown.querySelector('.modal-dropdown-search input');
+      const term = (searchInput?.value || '').toLowerCase();
+      const items = dropdown.querySelectorAll('.modal-dropdown-item');
+
+      items.forEach(item => {
+        const name = (item.dataset.value || '').toLowerCase();
+        const text = item.textContent.toLowerCase();
+        item.style.display = (name.includes(term) || text.includes(term)) ? 'flex' : 'none';
+      });
+    }
+
+    function selectModalDropdownItem(dropdownId, hiddenInputId, textSpanId, value, displayText, element) {
+      // Hidden input güncelle
+      document.getElementById(hiddenInputId).value = value;
+
+      // Trigger text güncelle
+      const textEl = document.getElementById(textSpanId);
+      textEl.textContent = displayText || 'Seçin';
+      textEl.classList.toggle('placeholder', !value);
+
+      // Seçili durumu güncelle
+      const dropdown = document.getElementById(dropdownId);
+      dropdown.querySelectorAll('.modal-dropdown-item').forEach(item => item.classList.remove('selected'));
+      if (element) element.classList.add('selected');
+
+      // Dropdown kapat
+      dropdown.classList.remove('open');
+
+      // Prodüktör seçildiğinde şube bilgisi göster
+      if (hiddenInputId === 'editPoolProduktorSelectedValue') {
+        onPoolProduktorChange(value);
+      }
+    }
+
+    // Click outside to close
+    document.addEventListener('click', function(event) {
+      document.querySelectorAll('.modal-dropdown.open').forEach(d => {
+        if (!d.contains(event.target)) d.classList.remove('open');
+      });
+    });
+
+    function populateModalDropdown(dropdownId, listId, hiddenInputId, textSpanId, items, selectedValue) {
+      const list = document.getElementById(listId);
+      if (!list) return;
+
+      list.innerHTML = items.map((p, i) => {
+        const initials = p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+        const isSelected = p.name === selectedValue;
+        const escapedName = escHtml(p.name);
+        return `
+          <div class="modal-dropdown-item ${isSelected ? 'selected' : ''}" data-value="${escapedName}"
+               onclick="selectModalDropdownItem('${dropdownId}','${hiddenInputId}','${textSpanId}','${escapedName.replace(/'/g, "\\'")}','${escapedName.replace(/'/g, "\\'")}',this)">
+            <span class="modal-dropdown-item-avatar" style="background: ${color};">${initials}</span>
+            <span class="modal-dropdown-item-name">${escapedName}</span>
+            <svg class="modal-dropdown-item-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20,6 9,17 4,12"/>
+            </svg>
+          </div>`;
+      }).join('');
+
+      // Trigger text güncelle
+      const textEl = document.getElementById(textSpanId);
+      if (selectedValue) {
+        textEl.textContent = selectedValue;
+        textEl.classList.remove('placeholder');
+      } else {
+        textEl.classList.add('placeholder');
+      }
+
+      // Hidden input
+      document.getElementById(hiddenInputId).value = selectedValue || '';
+    }
+
+    function onPoolProduktorChange(selectedName) {
+      const infoEl = document.getElementById('editPoolProduktorSubeInfo');
+      if (!infoEl) return;
+      if (!selectedName) { infoEl.textContent = ''; return; }
+      const user = poolProduktorler.find(p => p.name === selectedName);
+      if (user && user.subeId) {
+        const sube = poolSubeler.find(s => s.id === user.subeId);
+        infoEl.textContent = sube ? `Şube: ${sube.name}` : '';
+      } else {
+        infoEl.textContent = '';
+      }
+    }
+
+    async function openEditPoolProduktorModal(id) {
+      const item = poolState.data?.items?.find(p => p.id === id);
+      if (!item) { showToast('Poliçe bulunamadı', 'error'); return; }
+
+      await loadPoolProduktorSubeLookups();
+
+      document.getElementById('editPoolProduktorPolicyId').value = id;
+      document.getElementById('editPoolProduktorPoliceNo').value = item.policeNo || '';
+
+      // Prodüktör dropdown doldur
+      populateModalDropdown(
+        'poolProdDropdown', 'poolProdDropdownList',
+        'editPoolProduktorSelectedValue', 'poolProdDropdownText',
+        poolProduktorler, item.produktorAdi || ''
+      );
+
+      // Kesen dropdown doldur
+      populateModalDropdown(
+        'poolKesenDropdown', 'poolKesenDropdownList',
+        'editPoolKesenSelectedValue', 'poolKesenDropdownText',
+        poolProduktorler, item.policeKesenPersonel || ''
+      );
+
+      onPoolProduktorChange(item.produktorAdi || '');
+      document.getElementById('editPoolProduktorModal').classList.add('active');
+    }
+
+    function closeEditPoolProduktorModal() {
+      document.getElementById('editPoolProduktorModal').classList.remove('active');
+      document.querySelectorAll('.modal-dropdown.open').forEach(d => d.classList.remove('open'));
+    }
+
+    async function savePoolProduktor() {
+      const policyId = parseInt(document.getElementById('editPoolProduktorPolicyId').value);
+      const producer = document.getElementById('editPoolProduktorSelectedValue').value;
+      const kesenPersonel = document.getElementById('editPoolKesenSelectedValue').value;
+
+      if (!producer || !kesenPersonel) {
+        showToast('Lütfen Prodüktör ve Poliçeyi Kesen seçin', 'warning');
+        return;
+      }
+
+      const selectedUser = poolProduktorler.find(p => p.name === producer);
+      const sube = selectedUser?.subeId
+        ? poolSubeler.find(s => s.id === selectedUser.subeId)
+        : null;
+      const branchName = sube?.name || '';
+
+      try {
+        const result = await apiPut('policies/pool/batch-update', {
+          updates: [{
+            policyId: policyId,
+            changes: { producer, branch: branchName, policeKesenPersonel: kesenPersonel }
+          }]
+        });
+
+        if (result.success) {
+          showToast('Başarıyla güncellendi', 'success');
+          closeEditPoolProduktorModal();
+          await loadPoolData();
+        } else {
+          showToast('Güncelleme başarısız', 'error');
+        }
+      } catch (error) {
+        console.error('Güncelleme hatası:', error);
+        showToast('Güncelleme sırasında hata oluştu', 'error');
+      }
+    }
+
+    // ═══════════════════════════════════════
+    // MÜŞTERİ ATAMA MODAL
+    // ═══════════════════════════════════════
+
+    let customerSearchTimer = null;
+
+    function openCustomerAssignModal(id) {
+      const item = poolState.data?.items?.find(p => p.id === id);
+      if (!item) { showToast('Poliçe bulunamadı', 'error'); return; }
+
+      document.getElementById('customerAssignPolicyId').value = id;
+      document.getElementById('customerAssignPoliceNo').value = item.policeNo || '';
+      document.getElementById('customerAssignCurrent').value = item.sigortaliAdi || 'Atanmamış';
+
+      const searchInput = document.getElementById('customerSearchInput');
+      searchInput.value = '';
+      document.getElementById('customerSearchResults').innerHTML =
+        '<div class="modal-dropdown-empty">Aramak için en az 2 karakter yazın</div>';
+
+      searchInput.oninput = () => {
+        clearTimeout(customerSearchTimer);
+        const val = searchInput.value.trim();
+        if (val.length < 2) {
+          document.getElementById('customerSearchResults').innerHTML =
+            '<div class="modal-dropdown-empty">Aramak için en az 2 karakter yazın</div>';
+          return;
+        }
+        customerSearchTimer = setTimeout(() => searchCustomersForAssign(val), 350);
+      };
+
+      document.getElementById('customerAssignModal').classList.add('active');
+      setTimeout(() => searchInput.focus(), 200);
+    }
+
+    function closeCustomerAssignModal() {
+      document.getElementById('customerAssignModal').classList.remove('active');
+    }
+
+    async function searchCustomersForAssign(term) {
+      const container = document.getElementById('customerSearchResults');
+      container.innerHTML = '<div class="modal-dropdown-empty">Aranıyor...</div>';
+
+      try {
+        const user = APP_CONFIG.AUTH.getUser();
+        const firmaId = user?.firmaId;
+        const params = { name: term, limit: 15 };
+        if (firmaId) params.ekleyenFirmaId = firmaId;
+
+        const results = await apiGet('customers/search', params);
+        if (!results || results.length === 0) {
+          container.innerHTML = '<div class="modal-dropdown-empty">Müşteri bulunamadı</div>';
+          return;
+        }
+
+        container.innerHTML = results.map((c, i) => {
+          const fullName = `${c.adi || ''} ${c.soyadi || ''}`.trim() || `Müşteri #${c.id}`;
+          const initials = fullName.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+          const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+          const idBadge = c.tcKimlikNo ? `TC: ${escHtml(c.tcKimlikNo)}` : (c.vergiNo ? `VKN: ${escHtml(c.vergiNo)}` : '');
+          return `
+            <div class="modal-dropdown-item" onclick="assignCustomerToPoolPolicy(${c.id}, this.querySelector('.modal-dropdown-item-name').textContent)">
+              <span class="modal-dropdown-item-avatar" style="background: ${color};">${initials}</span>
+              <span class="modal-dropdown-item-name">${escHtml(fullName)}</span>
+              <span class="modal-dropdown-item-detail">${idBadge}</span>
+            </div>`;
+        }).join('');
+      } catch (error) {
+        console.error('Müşteri arama hatası:', error);
+        container.innerHTML = '<div class="modal-dropdown-empty">Arama hatası</div>';
+      }
+    }
+
+    async function assignCustomerToPoolPolicy(musteriId, musteriAdi) {
+      const policyId = parseInt(document.getElementById('customerAssignPolicyId').value);
+      if (!policyId) return;
+
+      try {
+        const result = await apiPut('policies/pool/batch-update', {
+          updates: [{
+            policyId: policyId,
+            changes: { customer: musteriId }
+          }]
+        });
+
+        if (result.success) {
+          showToast(`Müşteri atandı: ${musteriAdi}`, 'success');
+          closeCustomerAssignModal();
+          await loadPoolData();
+        } else {
+          showToast('Müşteri atama başarısız', 'error');
+        }
+      } catch (error) {
+        console.error('Müşteri atama hatası:', error);
+        showToast('Müşteri atama sırasında hata oluştu', 'error');
+      }
+    }
+
     // Poliçe detayı göster
     function showPoolPolicyDetail(id) {
-      // Modal veya side panel gösterebiliriz
-      showToast('Detay sayfası yakında...', 'info');
+      const item = poolState.data?.items?.find(p => p.id === id);
+      if (!item) return;
+
+      const fmtDate = (d) => d ? new Date(d).toLocaleDateString('tr-TR') : '-';
+      const fmtPrim = (v) => (v || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2});
+
+      // Modal subtitle
+      document.getElementById('policyModalSubtitle').textContent = `#${item.policeNo}`;
+
+      // Kaydet butonu
+      const approveBtn = document.getElementById('policyModalApproveBtn');
+      approveBtn.style.display = '';
+      approveBtn.onclick = () => {
+        closePolicyDetailModal();
+        approvePoolPolicy(id);
+      };
+
+      // Logo
+      const logoPath = getInsuranceCompanyLogo(item.sigortaSirketiId);
+      const initials = getInsuranceCompanyInitials(item.sigortaSirketi);
+
+      // Durum badge
+      const statusClass = item.eslesmeDurumu === 'ESLESTI' ? 'badge-success' :
+                          item.eslesmeDurumu === 'FARK_VAR' ? 'badge-warning' : 'badge-danger';
+      const statusText = item.eslesmeDurumu === 'ESLESTI' ? 'Eşleşti' :
+                         item.eslesmeDurumu === 'FARK_VAR' ? 'Fark Var' : 'Aktarımda';
+
+      const primFarki = item.primFarki || 0;
+
+      const modalBody = document.getElementById('policyDetailModalBody');
+      modalBody.innerHTML = `
+        <div class="policy-detail-content">
+          <div class="policy-detail-header">
+            <div class="policy-company-logo">
+              ${logoPath
+                ? `<img src="${logoPath}" alt="${escHtml(item.sigortaSirketi)}" onerror="this.parentElement.innerHTML='${initials}'">`
+                : initials}
+            </div>
+            <div class="policy-header-info">
+              <div class="policy-header-title">${escHtml(item.sigortaSirketi) || 'Sigorta Şirketi'}</div>
+              <div class="policy-header-type">
+                <span class="policy-type-badge ${getTypeClass(item.brans)}">${item.brans || '-'}</span>
+                <span class="badge ${statusClass}">${statusText}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="policy-detail-grid">
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Poliçe No</div>
+              <div class="policy-detail-value mono">${item.policeNo || '-'}</div>
+            </div>
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Plaka</div>
+              <div class="policy-detail-value mono">${item.plaka || '-'}</div>
+            </div>
+            ${item.zeyilNo > 0 ? `
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Zeyil No</div>
+              <div class="policy-detail-value mono">${item.zeyilNo}</div>
+            </div>
+            ` : ''}
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Poliçe Tipi</div>
+              <div class="policy-detail-value">${item.policeTipi || '-'}</div>
+            </div>
+            <div class="policy-detail-item full-width">
+              <div class="policy-detail-label">Sigortalı Adı</div>
+              <div class="policy-detail-value">${escHtml(item.sigortaliAdi) || '-'}</div>
+            </div>
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Prodüktör</div>
+              <div class="policy-detail-value">${escHtml(item.produktorAdi) || '-'}</div>
+            </div>
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Şube</div>
+              <div class="policy-detail-value">${escHtml(item.produktorSubeAdi) || '-'}</div>
+            </div>
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Poliçeyi Kesen</div>
+              <div class="policy-detail-value">${escHtml(item.policeKesenPersonel) || '-'}</div>
+            </div>
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Tanzim Tarihi</div>
+              <div class="policy-detail-value">${fmtDate(item.tanzimTarihi)}</div>
+            </div>
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Başlangıç Tarihi</div>
+              <div class="policy-detail-value">${fmtDate(item.baslangicTarihi)}</div>
+            </div>
+            <div class="policy-detail-item">
+              <div class="policy-detail-label">Bitiş Tarihi</div>
+              <div class="policy-detail-value">${fmtDate(item.bitisTarihi)}</div>
+            </div>
+          </div>
+
+          <div class="policy-prim-summary">
+            <div class="policy-prim-card">
+              <div class="policy-prim-label">Havuz Prim</div>
+              <div class="policy-prim-value">${fmtPrim(item.brutPrim)} TL</div>
+            </div>
+            <div class="policy-prim-card secondary">
+              <div class="policy-prim-label">Yakalanan Prim</div>
+              <div class="policy-prim-value">${item.yakalananPrim != null ? `${fmtPrim(item.yakalananPrim)} TL` : '-'}</div>
+            </div>
+            ${primFarki !== 0 ? `
+            <div class="policy-prim-card warning">
+              <div class="policy-prim-label">Prim Farkı</div>
+              <div class="policy-prim-value">${primFarki > 0 ? '+' : ''}${fmtPrim(primFarki)} TL</div>
+            </div>
+            ` : ''}
+            <div class="policy-prim-card secondary">
+              <div class="policy-prim-label">Komisyon</div>
+              <div class="policy-prim-value">${fmtPrim(item.komisyon)} TL</div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Modal aç
+      document.getElementById('policyDetailModal').classList.add('active');
+    }
+
+    function closePolicyDetailModal() {
+      document.getElementById('policyDetailModal').classList.remove('active');
     }
 
     // Tab sayılarını yükle
@@ -2129,9 +2870,9 @@
         const matchedData = await apiGet('policies/pool', { status: 'matched', pageSize: 1 });
         document.getElementById('matchedTabCount').textContent = matchedData?.matchedCount || 0;
 
-        // Eşleşmeyenler sayısı (Yakalanan ama havuzda olmayan)
-        const unmatchedCapturedData = await apiGet('policies/captured/not-in-pool', { pageSize: 1 });
-        document.getElementById('unmatchedCapturedTabCount').textContent = unmatchedCapturedData?.totalCount || 0;
+        // Eşleşmeyenler sayısı (Havuzda olup yakalananlarla eşleşmeyen)
+        const unmatchedPoolData = await apiGet('policies/pool', { status: 'unmatched', pageSize: 1 });
+        document.getElementById('unmatchedCapturedTabCount').textContent = unmatchedPoolData?.onlyPoolCount || unmatchedPoolData?.unmatchedCount || 0;
 
         // Müşterisi Bulunmayanlar sayısı (MusteriId=NULL onaylı poliçeler)
         const noCustomerData = await apiGet('policies/unmatched', { page: 1, pageSize: 1 });
@@ -2153,7 +2894,7 @@
           ]);
         } else if (currentMainTab === 'unmatched-captured') {
           await Promise.all([
-            loadUnmatchedCaptured(true),
+            loadPoolData(true),
             loadTabCounts()
           ]);
         } else {
