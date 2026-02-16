@@ -1203,7 +1203,7 @@
     // ═══════════════════════════════════════════════════════════════
     // MODE SWITCH FUNCTION
     // ═══════════════════════════════════════════════════════════════
-    function switchMode(mode) {
+    async function switchMode(mode) {
       if (currentMode === mode) return;
 
       currentMode = mode;
@@ -1225,14 +1225,19 @@
         modeIndicator.textContent = 'Yakalanan Poliçeler';
       }
 
-      // Reload all tables with new mode
-      loadAllTables();
+      // Show loading and reload all tables
+      showLoading(true);
+      try {
+        await loadAllTables();
+      } finally {
+        showLoading(false);
+      }
     }
 
     // ═══════════════════════════════════════════════════════════════
     // FILTER FUNCTIONS
     // ═══════════════════════════════════════════════════════════════
-    function applyFilters() {
+    async function applyFilters() {
       // Date is already set by pill clicks (currentFilters.startDate/endDate)
       // Get other filter values
       currentFilters.bransIds = getMultiSelectValues('bransMultiSelect');
@@ -1242,10 +1247,15 @@
 
       console.log('Applying filters:', currentFilters);
       updateFilterChips();
-      loadAllTables();
+      showLoading(true);
+      try {
+        await loadAllTables();
+      } finally {
+        showLoading(false);
+      }
     }
 
-    function clearFilters() {
+    async function clearFilters() {
       // Clear multi-selects
       clearMultiSelect('bransMultiSelect');
       clearMultiSelect('kullaniciMultiSelect');
@@ -1271,7 +1281,12 @@
       // Clear filter chips
       updateFilterChips();
 
-      loadAllTables();
+      showLoading(true);
+      try {
+        await loadAllTables();
+      } finally {
+        showLoading(false);
+      }
     }
 
 
@@ -1424,8 +1439,9 @@
       // Load filter options
       loadFilterOptions();
 
-      // Load all tables
-      loadAllTables();
+      // Load all tables with loading state
+      showLoading(true);
+      loadAllTables().finally(() => showLoading(false));
 
       // Setup sort handlers
       setupSortHandlers();
