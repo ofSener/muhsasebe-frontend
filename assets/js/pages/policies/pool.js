@@ -1902,57 +1902,122 @@
           <button class="btn btn-sm btn-secondary" onclick="clearNoCustomerSelection()">Seçimi Temizle</button>
         </div>
 
-        <!-- Arama -->
-        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: center;">
-          <input type="text" class="form-control" id="noCustomerSearch" placeholder="Poliçe no, sigortalı adı veya plaka ara..."
-            value="${noCustomerState.filters.search || ''}"
-            style="max-width: 350px; font-size: 0.85rem;"
-            onkeydown="if(event.key==='Enter') applyNoCustomerSearch()">
-          <button class="btn btn-sm btn-secondary" onclick="applyNoCustomerSearch()">Ara</button>
-          ${noCustomerState.filters.search ? '<button class="btn btn-sm btn-ghost" onclick="clearNoCustomerSearch()">Temizle</button>' : ''}
+        <!-- Filtreler -->
+        <div class="pool-filters mb-4">
+          <div class="pool-filter-row">
+            <div class="pool-search">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35"/>
+              </svg>
+              <input type="text"
+                     id="noCustomerSearch"
+                     placeholder="Poliçe no, sigortalı adı veya plaka ara..."
+                     value="${noCustomerState.filters.search || ''}"
+                     onkeydown="if(event.key==='Enter') applyNoCustomerSearch()"
+                     oninput="debounceNoCustomerSearch(this.value)">
+              ${noCustomerState.filters.search ? `
+                <button class="pool-search-clear" onclick="clearNoCustomerSearch()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </button>
+              ` : ''}
+            </div>
+
+            <select class="pool-filter-select" id="noCustomerSirketFilter" onchange="handleNoCustomerSirketFilter(this.value)">
+              <option value="">Tüm Şirketler</option>
+              ${(poolState.lookups.sigortaSirketleri || []).map(s => {
+                const sId = s.id || '';
+                const sName = s.ad || s.sirketAdi || 'Şirket';
+                const sel = noCustomerState.filters.sigortaSirketiId == sId ? 'selected' : '';
+                return '<option value="' + sId + '" ' + sel + '>' + sName + '</option>';
+              }).join('')}
+            </select>
+
+            <div class="pool-filter-actions">
+              <button class="btn btn-outline btn-sm" onclick="clearNoCustomerFilters()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+                Temizle
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Tablo -->
         <div class="card">
           <div class="card-body" style="padding: 0;">
             <div class="table-container" style="overflow-x: auto;">
-              <table class="data-table" style="min-width: 1200px;">
+              <table class="data-table" style="min-width: 1400px;">
                 <thead>
                   <tr>
                     <th style="width: 40px;"><input type="checkbox" id="noCustomerSelectAll" onchange="toggleNoCustomerSelectAll(this.checked)"></th>
+                    <th style="width: 50px;"></th>
                     <th style="min-width: 130px;">Poliçe No</th>
+                    <th style="min-width: 90px;">Tanzim</th>
                     <th style="min-width: 150px;">Sigortalı Adı</th>
                     <th style="min-width: 120px;">TC / VKN</th>
-                    <th style="min-width: 90px;">Plaka</th>
+                    <th style="min-width: 100px;">Branş</th>
                     <th class="text-right" style="min-width: 100px;">Brüt Prim</th>
                     <th style="min-width: 90px;">Başlangıç</th>
                     <th style="min-width: 90px;">Bitiş</th>
-                    <th style="min-width: 120px;">Sigorta Şirketi</th>
+                    <th style="min-width: 160px;">Prodüktör</th>
                     <th style="min-width: 90px;">İşlem</th>
                   </tr>
                 </thead>
                 <tbody>
                   ${items.length === 0 ? `
                     <tr>
-                      <td colspan="10" class="text-center text-muted" style="padding: 3rem;">
+                      <td colspan="12" class="text-center text-muted" style="padding: 3rem;">
                         Müşterisi bulunmayan poliçe bulunamadı
                       </td>
                     </tr>
-                  ` : items.map(p => `
+                  ` : items.map(p => {
+                    const logoPath = getInsuranceCompanyLogo(p.sigortaSirketiId);
+                    const companyInitials = getInsuranceCompanyInitials(p.sigortaSirketiAdi);
+                    const prodInitials = getProducerInitials(p.produktorAdi);
+                    return `
                     <tr>
                       <td><input type="checkbox" class="nc-row-cb" data-id="${p.id}" ${noCustomerState.selectedIds.has(p.id) ? 'checked' : ''} onchange="toggleNoCustomerSelect(${p.id}, this.checked)"></td>
-                      <td><span class="font-mono" style="font-weight: 600;">${escHtml(p.policeNumarasi)}</span></td>
+                      <td>
+                        <div class="company-logo" data-tooltip="${escHtml(p.sigortaSirketiAdi) || '-'}">
+                          ${logoPath
+                            ? `<img src="${logoPath}" alt="${escHtml(p.sigortaSirketiAdi)}" onerror="this.parentElement.innerHTML='${companyInitials}'">`
+                            : companyInitials}
+                        </div>
+                      </td>
+                      <td>
+                        <span class="font-mono" style="font-weight: 600;">${escHtml(p.policeNumarasi)}</span>
+                        ${p.plaka ? `<div class="text-muted" style="font-size:0.75rem;">${escHtml(p.plaka)}</div>` : ''}
+                      </td>
+                      <td><span class="text-sm">${p.tanzimTarihi ? new Date(p.tanzimTarihi).toLocaleDateString('tr-TR') : '-'}</span></td>
                       <td>${escHtml(p.sigortaliAdi || '-')}</td>
                       <td>
                         ${p.tcKimlikNo ? `<span class="badge badge-success" style="font-size:0.72rem;">TC: ${escHtml(p.tcKimlikNo)}</span>` : ''}
                         ${p.vergiNo ? `<span class="badge badge-info" style="font-size:0.72rem;">VKN: ${escHtml(p.vergiNo)}</span>` : ''}
                         ${!p.tcKimlikNo && !p.vergiNo ? '<span class="text-muted">-</span>' : ''}
                       </td>
-                      <td>${escHtml(p.plaka || '-')}</td>
+                      <td><span class="policy-type-badge ${getTypeClass(p.policeTuruAdi)}">${escHtml(p.policeTuruAdi) || '-'}</span></td>
                       <td class="text-right"><span class="font-mono">${(p.brutPrim || 0).toLocaleString('tr-TR', {minimumFractionDigits: 2})} TL</span></td>
                       <td><span class="text-sm">${p.baslangicTarihi ? new Date(p.baslangicTarihi).toLocaleDateString('tr-TR') : '-'}</span></td>
                       <td><span class="text-sm">${p.bitisTarihi ? new Date(p.bitisTarihi).toLocaleDateString('tr-TR') : '-'}</span></td>
-                      <td>${escHtml(p.sigortaSirketiAdi || '-')}</td>
+                      <td style="overflow:visible; position:relative;">
+                        <div class="producer-cell">
+                          <div class="producer-avatar emerald">${prodInitials}</div>
+                          <div class="producer-info">
+                            <span class="producer-name">${escHtml(p.produktorAdi) || '-'}</span>
+                            ${p.produktorSubeAdi ? `<span class="producer-branch">${escHtml(p.produktorSubeAdi)}</span>` : ''}
+                          </div>
+                          <div class="kesen-uye-hover">
+                            <div class="kesen-uye-hover-label">Poliçeyi Kesen</div>
+                            <div class="kesen-uye-hover-body">
+                              <span>${escHtml(p.policeKesenAdi) || '-'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
                       <td>
                         <button class="btn btn-sm btn-primary" onclick="openTcAssignModal(${p.id})" title="Müşteri Eşleştir">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1963,8 +2028,8 @@
                           </svg>
                         </button>
                       </td>
-                    </tr>
-                  `).join('')}
+                    </tr>`;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
@@ -1972,23 +2037,55 @@
         </div>
 
         <!-- Sayfalama -->
-        ${totalPages > 1 ? `
-          <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1rem;">
-            <button class="btn btn-sm btn-ghost" ${noCustomerState.pagination.currentPage <= 1 ? 'disabled' : ''} onclick="goToNoCustomerPage(${noCustomerState.pagination.currentPage - 1})">Önceki</button>
-            <span class="text-sm text-muted">Sayfa ${noCustomerState.pagination.currentPage} / ${totalPages} (${data.totalCount} kayıt)</span>
-            <button class="btn btn-sm btn-ghost" ${noCustomerState.pagination.currentPage >= totalPages ? 'disabled' : ''} onclick="goToNoCustomerPage(${noCustomerState.pagination.currentPage + 1})">Sonraki</button>
-          </div>
-        ` : ''}
+        ${totalPages > 1 ? renderNoCustomerPagination(noCustomerState.pagination.currentPage, totalPages, data.totalCount) : ''}
       `;
     }
 
     // Sayfalama
+    function renderNoCustomerPagination(currentPage, totalPages, totalCount) {
+      let pages = [];
+      for (let i = 1; i <= totalPages; i++) {
+        if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+          pages.push(i);
+        } else if (pages[pages.length - 1] !== '...') {
+          pages.push('...');
+        }
+      }
+
+      return '<div class="pool-pagination mt-4">' +
+        '<div class="pagination-info">Sayfa ' + currentPage + ' / ' + totalPages + ' (' + totalCount + ' kayıt)</div>' +
+        '<div class="pagination-controls">' +
+          '<div class="pagination-buttons">' +
+            '<button class="pagination-btn" ' + (currentPage === 1 ? 'disabled' : '') + ' onclick="goToNoCustomerPage(' + (currentPage - 1) + ')">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15,18 9,12 15,6"/></svg>' +
+            '</button>' +
+            pages.map(function(p) {
+              if (p === '...') return '<span class="pagination-ellipsis">...</span>';
+              return '<button class="pagination-btn ' + (p === currentPage ? 'active' : '') + '" onclick="goToNoCustomerPage(' + p + ')">' + p + '</button>';
+            }).join('') +
+            '<button class="pagination-btn" ' + (currentPage === totalPages ? 'disabled' : '') + ' onclick="goToNoCustomerPage(' + (currentPage + 1) + ')">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,18 15,12 9,6"/></svg>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
     function goToNoCustomerPage(page) {
       noCustomerState.pagination.currentPage = page;
       loadNoCustomerPolicies();
     }
 
-    // Arama
+    // Arama & Filtreler
+    let noCustomerSearchTimer = null;
+    function debounceNoCustomerSearch(value) {
+      clearTimeout(noCustomerSearchTimer);
+      noCustomerSearchTimer = setTimeout(() => {
+        noCustomerState.filters.search = value.trim();
+        loadNoCustomerPolicies(true);
+      }, 400);
+    }
+
     function applyNoCustomerSearch() {
       const search = document.getElementById('noCustomerSearch')?.value?.trim() || '';
       noCustomerState.filters.search = search;
@@ -1997,6 +2094,17 @@
 
     function clearNoCustomerSearch() {
       noCustomerState.filters.search = '';
+      loadNoCustomerPolicies(true);
+    }
+
+    function handleNoCustomerSirketFilter(value) {
+      noCustomerState.filters.sigortaSirketiId = value || null;
+      loadNoCustomerPolicies(true);
+    }
+
+    function clearNoCustomerFilters() {
+      noCustomerState.filters.search = '';
+      noCustomerState.filters.sigortaSirketiId = null;
       loadNoCustomerPolicies(true);
     }
 
