@@ -606,6 +606,69 @@
       color: #34d399;
     }
 
+    /* ═══════════════════════════════════════════════════════════════
+       PAGINATION
+       ═══════════════════════════════════════════════════════════════ */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .pagination:empty {
+      display: none;
+    }
+
+    .pagination-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 34px;
+      padding: 0 8px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .pagination-btn:hover:not(.active):not(:disabled) {
+      background: var(--bg-overlay);
+      color: var(--text-primary);
+      border-color: var(--text-dim);
+    }
+
+    .pagination-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      font-weight: 700;
+    }
+
+    .pagination-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    .pagination-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .pagination-info {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin: 0 8px;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .data-table th:nth-child(3),
@@ -861,6 +924,7 @@
                 </tfoot>
               </table>
             </div>
+            <div class="pagination" id="policelerPagination"></div>
           </div>
         </div>
         </div>

@@ -12,6 +12,11 @@
   let selectedPeriod = null;
   let hakedisData = null;
 
+  // Pagination state
+  const PAGE_SIZE = 10;
+  let currentPage = 1;
+  let allPoliceler = [];
+
   // Calendar state
   let calYear, calMonth, calSelectedDate = null;
 
@@ -448,14 +453,22 @@
   }
 
   function renderPoliceler(policeler) {
+    allPoliceler = policeler || [];
+    currentPage = 1;
+    renderPolicelerPage();
+  }
+
+  function renderPolicelerPage() {
     const tbody = document.getElementById('policelerBody');
     const countEl = document.getElementById('policelerCount');
     const tfoot = document.getElementById('policelerFoot');
+    const paginationEl = document.getElementById('policelerPagination');
     if (!tbody) return;
 
-    if (countEl) countEl.textContent = `${policeler.length} poliçe`;
+    const totalCount = allPoliceler.length;
+    if (countEl) countEl.textContent = `${totalCount} poliçe`;
 
-    if (!policeler || policeler.length === 0) {
+    if (totalCount === 0) {
       tbody.innerHTML = `
         <tr>
           <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
@@ -464,13 +477,18 @@
         </tr>
       `;
       if (tfoot) tfoot.style.display = 'none';
+      if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
 
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = allPoliceler.slice(start, start + PAGE_SIZE);
     const avatarColors = ['cyan', 'emerald', 'amber', 'violet', 'rose'];
 
-    tbody.innerHTML = policeler.map((p, i) => {
-      const avatarColor = avatarColors[i % avatarColors.length];
+    tbody.innerHTML = pageItems.map((p, i) => {
+      const avatarColor = avatarColors[(start + i) % avatarColors.length];
       const initials = getInitials(p.sigortaliAdi);
 
       return `
@@ -491,16 +509,77 @@
       `;
     }).join('');
 
+    // Footer totals (all items, not just page)
     if (tfoot) {
-      const topPrim = policeler.reduce((s, p) => s + (p.brutPrim || 0), 0);
-      const topKomisyon = policeler.reduce((s, p) => s + (p.komisyon || 0), 0);
-      const topHakedis = policeler.reduce((s, p) => s + (p.hakedis || 0), 0);
+      const topPrim = allPoliceler.reduce((s, p) => s + (p.brutPrim || 0), 0);
+      const topKomisyon = allPoliceler.reduce((s, p) => s + (p.komisyon || 0), 0);
+      const topHakedis = allPoliceler.reduce((s, p) => s + (p.hakedis || 0), 0);
 
       document.getElementById('footToplamPrim').textContent = formatCurrency(topPrim);
       document.getElementById('footToplamKomisyon').textContent = formatCurrency(topKomisyon);
       document.getElementById('footToplamHakedis').textContent = formatCurrency(topHakedis);
       tfoot.style.display = '';
     }
+
+    // Pagination
+    if (paginationEl) {
+      if (totalPages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+      }
+      renderPagination(paginationEl, totalPages);
+    }
+  }
+
+  function renderPagination(container, totalPages) {
+    const prevSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>';
+    const nextSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9,6 15,12 9,18"/></svg>';
+
+    let html = `<button class="pagination-btn" data-page="prev" ${currentPage === 1 ? 'disabled' : ''}>${prevSvg}</button>`;
+
+    // Page numbers with ellipsis
+    const pages = getPaginationRange(currentPage, totalPages);
+    pages.forEach(p => {
+      if (p === '...') {
+        html += `<span class="pagination-info">...</span>`;
+      } else {
+        html += `<button class="pagination-btn${p === currentPage ? ' active' : ''}" data-page="${p}">${p}</button>`;
+      }
+    });
+
+    html += `<button class="pagination-btn" data-page="next" ${currentPage === totalPages ? 'disabled' : ''}>${nextSvg}</button>`;
+
+    container.innerHTML = html;
+  }
+
+  function getPaginationRange(current, total) {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+    const pages = [];
+    pages.push(1);
+
+    if (current > 3) pages.push('...');
+
+    const rangeStart = Math.max(2, current - 1);
+    const rangeEnd = Math.min(total - 1, current + 1);
+    for (let i = rangeStart; i <= rangeEnd; i++) pages.push(i);
+
+    if (current < total - 2) pages.push('...');
+
+    pages.push(total);
+    return pages;
+  }
+
+  function onPaginationClick(page) {
+    const totalPages = Math.ceil(allPoliceler.length / PAGE_SIZE);
+    if (page === 'prev') {
+      if (currentPage > 1) currentPage--;
+    } else if (page === 'next') {
+      if (currentPage < totalPages) currentPage++;
+    } else {
+      currentPage = parseInt(page);
+    }
+    renderPolicelerPage();
   }
 
   async function loadOdemeler() {
@@ -547,6 +626,8 @@
     updateSummaryCards({ toplamKomisyon: 0, toplamHakedis: 0, odenen: 0, kalan: 0 });
     renderKomisyonDagilimi([]);
     renderOdemeler([]);
+    allPoliceler = [];
+    currentPage = 1;
     renderPoliceler([]);
   }
 
@@ -715,6 +796,16 @@
         if (calWrapper) calWrapper.classList.remove('open');
       }
     });
+
+    // Pagination clicks
+    const paginationEl = document.getElementById('policelerPagination');
+    if (paginationEl) {
+      paginationEl.addEventListener('click', function(e) {
+        const btn = e.target.closest('.pagination-btn');
+        if (!btn || btn.disabled) return;
+        onPaginationClick(btn.dataset.page);
+      });
+    }
 
     // Görüntüle button
     const btnGoruntule = document.getElementById('btnGoruntule');
