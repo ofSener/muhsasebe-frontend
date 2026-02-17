@@ -194,6 +194,7 @@
       updateSummaryCards(response);
       renderKomisyonDagilimi(response.komisyonDagilimi || []);
       renderPoliceler(response.policeler || []);
+      await loadOdemeler();
     } catch (error) {
       console.error('Hakediş verileri yüklenemedi:', error);
       showToast('Veriler yüklenirken hata oluştu', 'error');
@@ -318,11 +319,58 @@
   }
 
   /**
+   * Yapılan ödemeleri yükle
+   */
+  async function loadOdemeler() {
+    if (!selectedEmployeeId) return;
+
+    try {
+      const odemeler = await apiGet('hakedis/odemeler', { uyeId: selectedEmployeeId });
+      renderOdemeler(odemeler || []);
+    } catch (error) {
+      console.error('Ödemeler yüklenemedi:', error);
+      renderOdemeler([]);
+    }
+  }
+
+  /**
+   * Ödemeler tablosunu render et
+   */
+  function renderOdemeler(odemeler) {
+    const tbody = document.getElementById('odemelerBody');
+    const countEl = document.getElementById('odemelerCount');
+    if (!tbody) return;
+
+    if (countEl) countEl.textContent = odemeler.length > 0 ? `${odemeler.length} ödeme` : '';
+
+    if (!odemeler || odemeler.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="text-center text-muted" style="padding: 2rem;">
+            Ödeme kaydı bulunamadı
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = odemeler.map(item => `
+      <tr>
+        <td class="font-semibold" style="color: var(--text-primary);">${escapeHtml(item.donem)}</td>
+        <td class="font-mono font-semibold" style="color: var(--success);">${formatCurrency(item.tutar)}</td>
+        <td class="text-muted">${item.aciklama ? escapeHtml(item.aciklama) : '-'}</td>
+        <td class="font-mono">${formatDate(item.eklenmeTarihi)}</td>
+      </tr>
+    `).join('');
+  }
+
+  /**
    * Boş durum göster
    */
   function showEmptyState() {
     updateSummaryCards({ toplamKomisyon: 0, toplamHakedis: 0, odenen: 0, kalan: 0 });
     renderKomisyonDagilimi([]);
+    renderOdemeler([]);
     renderPoliceler([]);
   }
 
