@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kota Yönetimi - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       GRADIENT STAT CARDS
+       ═══════════════════════════════════════════════════════════════ */
+    .stats-grid .stat-card {
+      position: relative;
+      border-radius: 16px;
+      padding: 1.5rem;
+      overflow: hidden;
+      border: none;
+    }
+
+    .stats-grid .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .stats-grid .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .stats-grid .stat-card .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .stats-grid .stat-card .stat-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .stats-grid .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .stats-grid .stat-card .stat-label {
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    .stat-card.stat-cyan {
+      background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
+    }
+
+    .stat-card.stat-emerald {
+      background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);
+    }
+
+    .stat-card.stat-violet {
+      background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       QUOTA CARDS GRID
+       ═══════════════════════════════════════════════════════════════ */
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .group-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .group-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: var(--primary);
+    }
+
+    .group-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .group-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--primary-glow);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .group-card-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .group-card-icon.emerald {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .group-card-icon.amber {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+
+    .group-card-icon.danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+    }
+
+    .group-card-actions {
+      display: flex;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .group-card:hover .group-card-actions {
+      opacity: 1;
+    }
+
+    .group-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .group-card-desc {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .group-card-stats {
+      display: flex;
+      gap: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-subtle);
+      align-items: center;
+    }
+
+    .group-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .group-stat-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+
+    .group-stat-label {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* Aktif/Pasif Badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: 100px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: auto;
+    }
+
+    .status-badge.aktif {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+    }
+
+    .status-badge.pasif {
+      background: rgba(148, 163, 184, 0.1);
+      color: var(--text-muted);
+    }
+
+    .status-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    /* Add New Card */
+    .group-card-add {
+      border: 2px dashed var(--border-default);
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      color: var(--text-muted);
+    }
+
+    .group-card-add:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .group-card-add svg {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 0.5rem;
+    }
+
+    .group-card-add span {
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MODAL STYLES
+       ═══════════════════════════════════════════════════════════════ */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1rem;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+      animation: modalIn 0.2s ease-out;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--info), var(--success));
+    }
+
+    .modal-sm { max-width: 400px; }
+    .modal-md { max-width: 600px; }
+    .modal-lg { max-width: 900px; }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .modal-close svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      flex-shrink: 0;
+    }
+
+    /* Confirm modal */
+    #confirmModal .modal::before {
+      background: linear-gradient(90deg, var(--danger), #f87171, var(--danger));
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       CUSTOM DROPDOWN STYLES
+       ═══════════════════════════════════════════════════════════════ */
+    .custom-select-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .custom-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .custom-select-trigger:hover {
+      border-color: var(--primary);
+      background: var(--bg-overlay);
+    }
+
+    .custom-select-wrapper.open .custom-select-trigger {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .custom-select-trigger svg {
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .custom-select-wrapper.open .custom-select-trigger svg {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+
+    .custom-select-trigger span {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .custom-select-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      max-height: 280px;
+      overflow-y: auto;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+    }
+
+    .custom-select-wrapper.open .custom-select-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .custom-select-option {
+      padding: 0.625rem 1rem;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .custom-select-option:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      border-left-color: var(--primary);
+    }
+
+    .custom-select-option.selected {
+      background: var(--primary-glow);
+      color: var(--primary);
+      font-weight: 600;
+      border-left-color: var(--primary);
+    }
+
+    .custom-select-search {
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      background: var(--bg-surface);
+    }
+
+    .custom-select-search input {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.8125rem;
+    }
+
+    .custom-select-search input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .custom-select-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .custom-select-wrapper select {
+      display: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       FORM STYLES
+       ═══════════════════════════════════════════════════════════════ */
+    .modal .form-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background-color: var(--bg-elevated);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 1rem;
+      padding: 0.625rem 2rem 0.625rem 0.75rem;
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .modal .form-select:hover {
+      border-color: var(--primary);
+    }
+
+    .modal .form-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .modal .form-select option {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    .modal .form-input {
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      color: var(--text-primary);
+      padding: 0.625rem 0.75rem;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .modal .form-input:hover {
+      border-color: var(--primary);
+    }
+
+    .modal .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .modal .form-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .modal .form-label {
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal .form-hint {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-row-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      .form-row-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Limit input group */
+    .limit-input-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .limit-input-group input {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .limit-input-group .input-suffix {
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 0.875rem;
+      white-space: nowrap;
+    }
+
+    /* Dynamic fields visibility */
+    .dynamic-field {
+      display: none;
+    }
+
+    .dynamic-field.visible {
+      display: block;
+    }
+
+    /* Aktif toggle */
+    .toggle-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--border-default);
+      border-radius: 24px;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--success);
+    }
+
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .toggle-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       LOADING STATES
+       ═══════════════════════════════════════════════════════════════ */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-overlay) 50%, var(--bg-elevated) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-card {
+      height: 180px;
+    }
+
+    .btn-loading {
+      position: relative;
+      color: transparent !important;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      top: 50%;
+      left: 50%;
+      margin-top: -8px;
+      margin-left: -8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .groups-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal {
+        margin: 0.5rem;
+        max-height: calc(100vh - 1rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-mesh"></div>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Yönetim</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Kota Yönetimi</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar"></div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Yükleniyor...</div>
+              <div class="navbar-user-role"></div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+          <!-- Page Header -->
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Kota Yönetimi</h1>
+              <p class="page-subtitle">Şube bazlı kota limitlerini ve kurallarını yönetin.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" onclick="openKotaModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Yeni Kota Ekle
+              </button>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.5rem;">
+            <div class="stat-card stat-cyan">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="statTotalKota">-</div>
+                <div class="stat-label">Toplam Kota</div>
+              </div>
+            </div>
+            <div class="stat-card stat-emerald">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="statAktifKota">-</div>
+                <div class="stat-label">Aktif Kota</div>
+              </div>
+            </div>
+            <div class="stat-card stat-violet">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="statPasifKota">-</div>
+                <div class="stat-label">Pasif Kota</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quota Cards Grid -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Kota Kuralları</h3>
+              <div class="card-actions">
+                <span class="text-muted" id="kotalarCount">Yükleniyor...</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="groups-grid" id="kotalarGrid">
+                <!-- Kotalar will be loaded here -->
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+                <div class="skeleton skeleton-card"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Info Alert -->
+          <div class="alert alert-info" style="margin-top: 1.5rem;">
+            <div class="alert-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+            </div>
+            <div class="alert-content">
+              <div class="alert-title">Kota Türleri</div>
+              <div class="alert-text">
+                <strong>Maks. Brüt Prim:</strong> Belirli bir brüt prim limitine göre kota.<br>
+                <strong>Maks. Poliçe Adedi:</strong> Poliçe sayısı bazlı kota.<br>
+                <strong>Brüt Prim veya Poliçe Adedi:</strong> Her iki limitten birine ulaşıldığında kota dolar.<br>
+                <strong>Trafik Prim Oranı:</strong> Trafik brüt prim toplamının diğer ürünlerin brüt toplamına oranı.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       KOTA CREATE/EDIT MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="kotaModal">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 class="modal-title" id="kotaModalTitle">Yeni Kota Ekle</h3>
+        <button class="modal-close" onclick="closeKotaModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="kotaForm">
+          <!-- Şube & Sigorta Şirketi -->
+          <div class="form-row" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Şube</label>
+              <div id="kotaSubeContainer" data-value=""></div>
+              <span class="form-hint">Kotanın uygulanacağı şube</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sigorta Şirketi</label>
+              <div id="kotaSirketContainer" data-value=""></div>
+              <span class="form-hint">Boş bırakırsanız tüm şirketler için geçerli olur</span>
+            </div>
+          </div>
+
+          <!-- Branş & Kota Türü -->
+          <div class="form-row" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Branş</label>
+              <div id="kotaBransContainer" data-value=""></div>
+              <span class="form-hint">Boş bırakırsanız tüm branşlar için geçerli olur</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kota Türü *</label>
+              <select class="form-select" id="kotaMaksimumTuru" onchange="handleMaksimumTuruChange()">
+                <option value="0">Maksimum Brüt Prime Göre</option>
+                <option value="1">Maksimum Poliçe Adetine Göre</option>
+                <option value="2">Maks. Brüt Prim veya Poliçe Adetine Göre</option>
+                <option value="3">Trafik Brüt Prim / Diğer Ürünlerin Oranı</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dynamic Limit Fields -->
+          <div class="form-row" style="margin-bottom: 1rem;">
+            <div class="form-group dynamic-field visible" id="fieldMaksBrutPrim">
+              <label class="form-label">Maksimum Brüt Prim *</label>
+              <div class="limit-input-group">
+                <input type="number" class="form-input" id="kotaMaksBrutPrim" min="0" placeholder="0">
+                <span class="input-suffix">TL</span>
+              </div>
+              <span class="form-hint">Brüt prim limiti</span>
+            </div>
+            <div class="form-group dynamic-field" id="fieldMaksPoliceAdeti">
+              <label class="form-label">Maksimum Poliçe Adedi *</label>
+              <div class="limit-input-group">
+                <input type="number" class="form-input" id="kotaMaksPoliceAdeti" min="0" placeholder="0">
+                <span class="input-suffix">Adet</span>
+              </div>
+              <span class="form-hint">Poliçe adedi limiti</span>
+            </div>
+            <div class="form-group dynamic-field" id="fieldTrafikOrani">
+              <label class="form-label">Trafik Prim Oranı *</label>
+              <div class="limit-input-group">
+                <input type="number" class="form-input" id="kotaTrafikOrani" min="0" max="100" placeholder="0">
+                <span class="input-suffix">%</span>
+              </div>
+              <span class="form-hint">Trafik brüt prim / diğer ürünler oranı</span>
+            </div>
+          </div>
+
+          <!-- Tarih Alanları -->
+          <div class="form-row" style="margin-bottom: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Başlangıç Tarihi</label>
+              <input type="date" class="form-input" id="kotaBaslangicTarihi">
+              <span class="form-hint">Kotanın geçerli olacağı başlangıç tarihi</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bitiş Tarihi</label>
+              <input type="date" class="form-input" id="kotaBitisTarihi">
+              <span class="form-hint">Kotanın geçerliliğinin sona ereceği tarih</span>
+            </div>
+          </div>
+
+          <!-- Aktif Toggle -->
+          <div class="form-group">
+            <label class="form-label">Durum</label>
+            <div class="toggle-wrapper">
+              <label class="toggle-switch">
+                <input type="checkbox" id="kotaAktif" checked>
+                <span class="toggle-slider"></span>
+              </label>
+              <span class="toggle-label" id="kotaAktifLabel">Aktif</span>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeKotaModal()">İptal</button>
+        <button class="btn btn-primary" id="kotaSubmitBtn" onclick="saveKota()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONFIRM DELETE MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop" id="confirmModal">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3 class="modal-title" id="confirmTitle">Onay</h3>
+        <button class="modal-close" onclick="closeConfirmModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Bu kotayı silmek istediğinizden emin misiniz?</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeConfirmModal()">İptal</button>
+        <button class="btn btn-danger" id="confirmBtn" onclick="confirmAction()">Sil</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/config.js"></script>
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/pages/employees/quota.js"></script>
+  <script src="../../components/base.js"></script>
+  <script src="../../components/toast.js"></script>
+  <script src="../../components/modal.js"></script>
+  <script src="../../components/sidebar.js"></script>
+</body>
+</html>

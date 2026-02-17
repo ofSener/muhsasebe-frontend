@@ -107,6 +107,7 @@
             <a href="${pagesPath}employees/list.html" class="nav-link" data-page="list.html" data-folder="employees"><span class="nav-text">Calisan Listesi</span></a>
             <span id="sidebarEmployeeDetail"></span>
             <a href="${pagesPath}employees/tracking.html" class="nav-link" data-page="tracking.html"><span class="nav-text">Takip/Hakedis</span></a>
+            <a href="${pagesPath}employees/quota-controls.html" class="nav-link" data-page="quota-controls.html"><span class="nav-text">Kota Kontrolleri</span></a>
           </div>
         </div>
       </div>
@@ -161,6 +162,7 @@
             <a href="${pagesPath}settings/permissions.html" class="nav-link" data-page="permissions.html"><span class="nav-text">Yetki Yonetimi</span></a>
             <a href="${pagesPath}settings/agency-codes.html" class="nav-link" data-page="agency-codes.html"><span class="nav-text">Acente Kodlari</span></a>
             <a href="${pagesPath}employees/commission.html" class="nav-link" data-page="commission.html"><span class="nav-text">Komisyon Ayarlari</span></a>
+            <a href="${pagesPath}employees/quota.html" class="nav-link" data-page="quota.html"><span class="nav-text">Kota Yonetimi</span></a>
             <a href="${pagesPath}settings/drive-integration.html" class="nav-link" data-page="drive-integration.html"><span class="nav-text">Drive Entegrasyonu</span></a>
             <a href="${pagesPath}settings/report-settings.html" class="nav-link" data-page="report-settings.html"><span class="nav-text">Rapor Ayarlari</span></a>
           </div>

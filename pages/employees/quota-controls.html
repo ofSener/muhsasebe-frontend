@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kota Kontrolleri - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       GRADIENT STAT CARDS
+       ═══════════════════════════════════════════════════════════════ */
+    .stats-grid .stat-card {
+      position: relative;
+      border-radius: 16px;
+      padding: 1.5rem;
+      overflow: hidden;
+      border: none;
+    }
+
+    .stats-grid .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .stats-grid .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .stats-grid .stat-card .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .stats-grid .stat-card .stat-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .stats-grid .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+
+    .stats-grid .stat-card .stat-label {
+      font-size: 0.8125rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 500;
+    }
+
+    .stat-card.stat-danger {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+    }
+
+    .stat-card.stat-amber {
+      background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+    }
+
+    .stat-card.stat-cyan {
+      background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
+    }
+
+    .page-wrapper,
+    .page-content {
+      flex: initial !important;
+    }
+
+    .table-container {
+      overflow-x: visible;
+      overflow-y: visible;
+    }
+    @media (max-width: 1200px) {
+      .table-container {
+        overflow-x: auto;
+      }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       DATA TABLE
+       ═══════════════════════════════════════════════════════════════ */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    .data-table th {
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border-subtle);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .data-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+
+    .data-table tbody tr:hover {
+      background: var(--bg-elevated);
+    }
+
+    /* Employee cell */
+    .employee-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .employee-cell .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .employee-cell .name {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    /* Badge */
+    .badge-asim {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.625rem;
+      border-radius: 100px;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      background: var(--danger-glow);
+      color: var(--danger);
+    }
+
+    .badge-tur {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      background: var(--bg-overlay);
+      color: var(--text-secondary);
+    }
+
+    .text-value {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .text-limit {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .text-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 1.5rem;
+      color: var(--text-dim);
+    }
+
+    .empty-state-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-overlay) 50%, var(--bg-elevated) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-loading 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes skeleton-loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-row td {
+      padding: 1rem;
+    }
+
+    .skeleton-line {
+      height: 14px;
+      border-radius: 4px;
+    }
+
+    .skeleton-line.w-40 { width: 40%; }
+    .skeleton-line.w-60 { width: 60%; }
+    .skeleton-line.w-80 { width: 80%; }
+
+    /* Avatar colors */
+    .avatar-1 { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .avatar-2 { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+    .avatar-3 { background: linear-gradient(135deg, #10b981, #059669); }
+    .avatar-4 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .avatar-5 { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .avatar-6 { background: linear-gradient(135deg, #ec4899, #db2777); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .data-table th:nth-child(3),
+      .data-table td:nth-child(3),
+      .data-table th:nth-child(4),
+      .data-table td:nth-child(4),
+      .data-table th:nth-child(8),
+      .data-table td:nth-child(8) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="gradient-mesh"></div>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">Çalışanlarım</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Kota Kontrolleri</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <button class="navbar-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 01-3.46 0"/>
+            </svg>
+          </button>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar"></div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Yükleniyor...</div>
+              <div class="navbar-user-role"></div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Page Wrapper -->
+      <div class="page-wrapper">
+        <div class="page-content">
+          <!-- Page Header -->
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Kota Kontrolleri</h1>
+              <p class="page-subtitle">Kota limitlerini aşan çalışanları görüntüleyin.</p>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1.5rem;">
+            <div class="stat-card stat-danger">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="statToplamAsim">-</div>
+                <div class="stat-label">Toplam Aşım</div>
+              </div>
+            </div>
+            <div class="stat-card stat-amber">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 010 7.75"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="statAsanUye">-</div>
+                <div class="stat-label">Aşan Üye Sayısı</div>
+              </div>
+            </div>
+            <div class="stat-card stat-cyan">
+              <div class="stat-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="statAsilanKota">-</div>
+                <div class="stat-label">Aşılan Kota Sayısı</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table Card -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Kota Aşımları</h3>
+              <div class="card-actions">
+                <span class="text-muted" id="asimlarCount">Yükleniyor...</span>
+              </div>
+            </div>
+            <div class="card-body" style="padding: 0;">
+              <div class="table-container">
+                <table class="data-table" id="asimlarTable">
+                  <thead>
+                    <tr>
+                      <th>Üye</th>
+                      <th>Şube</th>
+                      <th>Sigorta Şirketi</th>
+                      <th>Branş</th>
+                      <th>Kota Türü</th>
+                      <th>Limit</th>
+                      <th>Gerçekleşen</th>
+                      <th>Aşım</th>
+                      <th>Tarih Aralığı</th>
+                    </tr>
+                  </thead>
+                  <tbody id="asimlarBody">
+                    <!-- Skeleton loading -->
+                    <tr class="skeleton-row"><td colspan="9"><div class="skeleton skeleton-line w-80" style="height:16px;margin:0.5rem 0;"></div></td></tr>
+                    <tr class="skeleton-row"><td colspan="9"><div class="skeleton skeleton-line w-60" style="height:16px;margin:0.5rem 0;"></div></td></tr>
+                    <tr class="skeleton-row"><td colspan="9"><div class="skeleton skeleton-line w-80" style="height:16px;margin:0.5rem 0;"></div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../../assets/js/config.js"></script>
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../assets/js/pages/employees/quota-controls.js"></script>
+  <script src="../../components/base.js"></script>
+  <script src="../../components/toast.js"></script>
+  <script src="../../components/sidebar.js"></script>
+</body>
+</html>

@@ -92,6 +92,10 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
                     <span>-</span>
                   </span>
+                  <span class="emp-meta-item" id="empKomisyonGrup" style="display:none;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    <span>-</span>
+                  </span>
                   <span class="emp-meta-item" id="empKayitTarihi">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     <span>-</span>
@@ -189,6 +193,34 @@
               Tarih
             </button>
             <div class="filter-drawer-backdrop" id="filterDrawerBackdrop"></div>
+          </div>
+
+          <!-- Kota Limitleri -->
+          <div class="card" id="kotaLimitleriCard" style="margin-bottom:1.5rem;display:none;">
+            <div class="card-header">
+              <div class="card-header-left">
+                <h3 class="card-title">Kota Limitleri</h3>
+                <span class="badge badge-info" id="kotaCount">0 kota</span>
+              </div>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="table-container">
+                <table class="data-table" id="kotaTable">
+                  <thead>
+                    <tr>
+                      <th>Kota Türü</th>
+                      <th>Şube / Şirket / Branş</th>
+                      <th>Tarih Aralığı</th>
+                      <th style="min-width:200px;">Doluluk</th>
+                      <th>Gerçekleşen</th>
+                      <th>Limit</th>
+                    </tr>
+                  </thead>
+                  <tbody id="kotaTableBody">
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
           <!-- Charts Row -->
@@ -1127,6 +1159,77 @@
       flex: 1 1 calc(50% - 6px);
     }
 
+    /* ── Kota Progress Bar ── */
+    .kota-progress-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .kota-progress-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--bg-elevated);
+      border-radius: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .kota-progress-fill {
+      height: 100%;
+      border-radius: 100px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 2px;
+    }
+
+    .kota-progress-fill.green {
+      background: linear-gradient(90deg, #059669, #10b981);
+    }
+
+    .kota-progress-fill.amber {
+      background: linear-gradient(90deg, #d97706, #f59e0b);
+    }
+
+    .kota-progress-fill.red {
+      background: linear-gradient(90deg, #dc2626, #ef4444);
+    }
+
+    .kota-progress-pct {
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: var(--font-mono, monospace);
+      min-width: 45px;
+      text-align: right;
+    }
+
+    .kota-progress-pct.green { color: #10b981; }
+    .kota-progress-pct.amber { color: #f59e0b; }
+    .kota-progress-pct.red { color: #ef4444; }
+
+    .kota-tur-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--bg-overlay);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .kota-filter-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .kota-date-text {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 1024px) {
       .emp-header-section {
@@ -1534,6 +1637,7 @@
         renderCharts(data);
         renderTable(data.policeler);
         populateFilters(data);
+        loadKotaDurum();
       } catch (err) {
         console.error('Veri yüklenirken hata:', err);
       }
@@ -1558,6 +1662,16 @@
       }
 
       document.querySelector('#empSube span').textContent = k.subeAdi || '-';
+
+      // Komisyon grubu
+      const komisyonGrupEl = document.getElementById('empKomisyonGrup');
+      if (k.komisyonGruplari) {
+        komisyonGrupEl.querySelector('span').textContent = k.komisyonGruplari;
+        komisyonGrupEl.style.display = '';
+      } else {
+        komisyonGrupEl.style.display = 'none';
+      }
+
       document.querySelector('#empKayitTarihi span').textContent = k.kayitTarihi ? formatDate(k.kayitTarihi) : '-';
 
       // Sidebar dinamik link için localStorage'a kaydet
@@ -1797,6 +1911,156 @@
       document.getElementById('totalNetPrim').textContent = formatMoney(totNet);
       document.getElementById('totalKomisyon').textContent = formatMoney(totKom);
       tfoot.style.display = '';
+    }
+
+    // ═══════════════════════════════════════════════
+    // KOTA DURUM
+    // ═══════════════════════════════════════════════
+    async function loadKotaDurum() {
+      if (!employeeId) return;
+      try {
+        const durumlar = await apiGet(`kota-kontrolleri/uye/${employeeId}`);
+        renderKotaTable(durumlar || []);
+      } catch (err) {
+        console.error('Kota durumu yüklenirken hata:', err);
+      }
+    }
+
+    function renderKotaTable(durumlar) {
+      const card = document.getElementById('kotaLimitleriCard');
+      const tbody = document.getElementById('kotaTableBody');
+      const countBadge = document.getElementById('kotaCount');
+
+      if (!durumlar || durumlar.length === 0) {
+        card.style.display = 'none';
+        return;
+      }
+
+      card.style.display = '';
+      countBadge.textContent = durumlar.length + ' kota';
+
+      tbody.innerHTML = durumlar.map(d => {
+        const turuLabel = getKotaTuruLabel(d.maksimumTuru);
+        const filterParts = [];
+        if (d.subeAdi) filterParts.push(d.subeAdi);
+        if (d.sigortaSirketAdi) filterParts.push(d.sigortaSirketAdi);
+        if (d.bransAdi) filterParts.push(d.bransAdi);
+        const filterText = filterParts.length > 0 ? filterParts.join(' / ') : 'Tümü';
+
+        const dateText = getKotaDateText(d.baslangicTarihi, d.bitisTarihi);
+        const progressRows = getProgressRows(d);
+
+        return progressRows.map((row, i) => `
+          <tr>
+            ${i === 0 ? `<td rowspan="${progressRows.length}"><span class="kota-tur-badge">${turuLabel}</span></td>` : ''}
+            ${i === 0 ? `<td rowspan="${progressRows.length}"><span class="kota-filter-text">${filterText}</span></td>` : ''}
+            ${i === 0 ? `<td rowspan="${progressRows.length}"><span class="kota-date-text">${dateText}</span></td>` : ''}
+            <td>
+              <div class="kota-progress-wrapper">
+                <div class="kota-progress-bar">
+                  <div class="kota-progress-fill ${row.colorClass}" style="width:${Math.min(row.pct, 100)}%"></div>
+                </div>
+                <span class="kota-progress-pct ${row.colorClass}">${row.pctText}</span>
+              </div>
+            </td>
+            <td class="font-mono" style="font-size:0.8rem;font-weight:600;">${row.gerceklesen}</td>
+            <td class="font-mono" style="font-size:0.8rem;color:var(--text-muted);">${row.limit}</td>
+          </tr>
+        `).join('');
+      }).join('');
+    }
+
+    function getKotaTuruLabel(turu) {
+      switch (turu) {
+        case 0: return 'Brüt Prim';
+        case 1: return 'Poliçe Adedi';
+        case 2: return 'Prim / Adet';
+        case 3: return 'Trafik Oranı';
+        default: return 'Bilinmiyor';
+      }
+    }
+
+    function getKotaDateText(start, end) {
+      const s = start ? new Date(start).toLocaleDateString('tr-TR') : null;
+      const e = end ? new Date(end).toLocaleDateString('tr-TR') : null;
+      if (s && e) return `${s} — ${e}`;
+      if (s) return `${s} —`;
+      if (e) return `— ${e}`;
+      return '-';
+    }
+
+    function getProgressColorClass(pct) {
+      if (pct >= 100) return 'red';
+      if (pct >= 75) return 'amber';
+      return 'green';
+    }
+
+    function getProgressRows(d) {
+      const rows = [];
+      switch (d.maksimumTuru) {
+        case 0:
+          if (d.maksBrutPrim) {
+            const pct = d.brutPrimYuzdesi || 0;
+            rows.push({
+              pct,
+              pctText: `%${pct.toFixed(0)}`,
+              colorClass: getProgressColorClass(pct),
+              gerceklesen: formatMoney(d.gerceklesenBrutPrim),
+              limit: formatMoney(d.maksBrutPrim)
+            });
+          }
+          break;
+        case 1:
+          if (d.maksPoliceAdeti) {
+            const pct = d.policeAdetiYuzdesi || 0;
+            rows.push({
+              pct,
+              pctText: `%${pct.toFixed(0)}`,
+              colorClass: getProgressColorClass(pct),
+              gerceklesen: `${d.gerceklesenPoliceAdeti} Adet`,
+              limit: `${d.maksPoliceAdeti} Adet`
+            });
+          }
+          break;
+        case 2:
+          if (d.maksBrutPrim) {
+            const pct = d.brutPrimYuzdesi || 0;
+            rows.push({
+              pct,
+              pctText: `%${pct.toFixed(0)}`,
+              colorClass: getProgressColorClass(pct),
+              gerceklesen: formatMoney(d.gerceklesenBrutPrim),
+              limit: formatMoney(d.maksBrutPrim)
+            });
+          }
+          if (d.maksPoliceAdeti) {
+            const pct = d.policeAdetiYuzdesi || 0;
+            rows.push({
+              pct,
+              pctText: `%${pct.toFixed(0)}`,
+              colorClass: getProgressColorClass(pct),
+              gerceklesen: `${d.gerceklesenPoliceAdeti} Adet`,
+              limit: `${d.maksPoliceAdeti} Adet`
+            });
+          }
+          break;
+        case 3:
+          if (d.trafikPrimOrani) {
+            const pct = d.trafikOraniYuzdesi || 0;
+            rows.push({
+              pct,
+              pctText: `%${pct.toFixed(0)}`,
+              colorClass: getProgressColorClass(pct),
+              gerceklesen: `%${(d.gerceklesenTrafikOrani || 0).toFixed(1)}`,
+              limit: `%${d.trafikPrimOrani}`
+            });
+          }
+          break;
+      }
+      if (rows.length === 0) {
+        rows.push({ pct: 0, pctText: '%0', colorClass: 'green', gerceklesen: '-', limit: '-' });
+      }
+      return rows;
     }
 
     // ═══════════════════════════════════════════════
