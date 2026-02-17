@@ -5,15 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Müşteri Detay - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
-  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="../../assets/js/config.js"></script>
 </head>
 <body>
   <div class="gradient-mesh"></div>
   <div class="app-container">
-    <!-- Sidebar -->
     <aside class="sidebar" id="sidebar"></aside>
 
-    <!-- Main Content -->
     <main class="main-content">
       <nav class="navbar">
         <div class="navbar-left">
@@ -21,6 +20,11 @@
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
+          </button>
+          <button class="back-btn" onclick="history.back()" title="Geri">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
           </button>
           <div class="navbar-breadcrumb">
             <span class="breadcrumb-item">Müşterilerimiz</span>
@@ -34,7 +38,6 @@
               <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
               <path d="M13.73 21a2 2 0 01-3.46 0"/>
             </svg>
-            <span class="badge">3</span>
           </button>
           <div class="navbar-divider"></div>
           <div class="navbar-user">
@@ -47,361 +50,326 @@
         </div>
       </nav>
 
-      <!-- Page Wrapper -->
       <div class="page-wrapper">
         <div class="page-content">
-        <!-- Back Button & Actions -->
-        <div class="page-header">
-          <div style="display: flex; align-items: center; gap: 1rem;">
-            <a href="list.html" class="btn btn-ghost btn-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5"/><polyline points="12,19 5,12 12,5"/>
-              </svg>
-            </a>
-            <div>
-              <h1 class="page-title">Yükleniyor...</h1>
-              <p class="page-subtitle">Müşteri bilgileri yükleniyor...</p>
+
+          <!-- Customer Profile Grid -->
+          <div class="grid-layout customer-detail-grid">
+            <!-- Main Info Card -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Kişisel Bilgiler</h3>
+                <span class="badge badge-secondary" id="sahipTuruBadge">-</span>
+              </div>
+              <div class="card-body">
+                <div class="customer-profile-header">
+                  <div class="avatar avatar-xl avatar-cyan" id="customerAvatar">--</div>
+                  <div class="customer-profile-info">
+                    <h2 class="customer-name" id="customerName">Yükleniyor...</h2>
+                    <div class="customer-badges" id="customerBadges"></div>
+                    <p class="customer-meta" id="customerMeta">
+                      Toplam Prim: <strong class="text-emerald">--</strong>
+                    </p>
+                  </div>
+                </div>
+
+                <div class="info-grid">
+                  <div class="info-item">
+                    <label class="info-label">TC Kimlik No</label>
+                    <span class="info-value font-mono" id="infoTc">--</span>
+                  </div>
+                  <div class="info-item">
+                    <label class="info-label">Vergi No</label>
+                    <span class="info-value font-mono" id="infoVergi">--</span>
+                  </div>
+                  <div class="info-item">
+                    <label class="info-label">Doğum Tarihi</label>
+                    <span class="info-value" id="infoDogum">--</span>
+                  </div>
+                  <div class="info-item">
+                    <label class="info-label">Telefon</label>
+                    <span class="info-value" id="infoTelefon">--</span>
+                  </div>
+                  <div class="info-item">
+                    <label class="info-label">E-posta</label>
+                    <span class="info-value" id="infoEmail">--</span>
+                  </div>
+                  <div class="info-item">
+                    <label class="info-label">Meslek</label>
+                    <span class="info-value" id="infoMeslek">--</span>
+                  </div>
+                  <div class="info-item" style="grid-column: span 2;">
+                    <label class="info-label">Adres</label>
+                    <span class="info-value" id="infoAdres">--</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Stats Column -->
+            <div class="quick-stats-column">
+              <div class="stat-mini stat-emerald">
+                <div class="stat-mini-content">
+                  <p class="stat-mini-label">Aktif Poliçeler</p>
+                  <h3 class="stat-mini-value" id="statAktif">--</h3>
+                </div>
+                <div class="stat-mini-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <path d="M9 15l2 2 4-4"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="stat-mini stat-cyan">
+                <div class="stat-mini-content">
+                  <p class="stat-mini-label">Toplam Prim</p>
+                  <h3 class="stat-mini-value font-mono" id="statPrim">--</h3>
+                </div>
+                <div class="stat-mini-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="stat-mini stat-amber renewal-stat" id="renewalStat">
+                <div class="stat-mini-content">
+                  <p class="stat-mini-label">Yaklaşan Yenileme</p>
+                  <h3 class="stat-mini-value" id="statYenileme">--</h3>
+                </div>
+                <div class="stat-mini-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
+                  </svg>
+                </div>
+                <!-- Yenileme kırılım tooltip -->
+                <div class="renewal-breakdown" id="renewalBreakdown">
+                  <div class="renewal-row"><span class="renewal-label">7 gün içinde</span><span class="renewal-count urgent" id="renew7">0</span></div>
+                  <div class="renewal-row"><span class="renewal-label">15 gün içinde</span><span class="renewal-count warning" id="renew15">0</span></div>
+                  <div class="renewal-row"><span class="renewal-label">30 gün içinde</span><span class="renewal-count normal" id="renew30">0</span></div>
+                  <div class="renewal-row"><span class="renewal-label">60 gün içinde</span><span class="renewal-count muted" id="renew60">0</span></div>
+                </div>
+              </div>
+
+              <div class="stat-mini stat-violet">
+                <div class="stat-mini-content">
+                  <p class="stat-mini-label">Toplam Poliçe</p>
+                  <h3 class="stat-mini-value" id="statToplam">--</h3>
+                </div>
+                <div class="stat-mini-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="stat-mini stat-rose" style="cursor:pointer;" id="statHavuzCard" title="Havuz poliçelerine git">
+                <div class="stat-mini-content">
+                  <p class="stat-mini-label">Havuz Poliçe</p>
+                  <h3 class="stat-mini-value" id="statHavuz">--</h3>
+                </div>
+                <div class="stat-mini-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="page-actions">
-            <button class="btn btn-secondary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-              Düzenle
-            </button>
-            <button class="btn btn-primary">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                <polyline points="14,2 14,8 20,8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
-              </svg>
-              Yeni Poliçe
-            </button>
-          </div>
-        </div>
 
-        <!-- Customer Profile Grid -->
-        <div class="grid-layout customer-detail-grid">
-          <!-- Main Info Card -->
-          <div class="card">
+          <!-- Branch Distribution Chart -->
+          <div class="card chart-card-small" id="chartCard" style="display:none;">
             <div class="card-header">
-              <h3 class="card-title">Kişisel Bilgiler</h3>
+              <h3 class="card-title">Branş Dağılımı</h3>
             </div>
             <div class="card-body">
-              <div class="customer-profile-header">
-                <div class="avatar avatar-xl avatar-cyan">--</div>
-                <div class="customer-profile-info">
-                  <h2 class="customer-name">Yükleniyor...</h2>
-                  <div class="customer-badges">
-                    <span class="badge badge-secondary">Yükleniyor...</span>
-                  </div>
-                  <p class="customer-meta">
-                    Toplam Prim: <strong class="text-emerald">--</strong> • Son İşlem: --
-                  </p>
-                </div>
-              </div>
-
-              <div class="info-grid">
-                <div class="info-item">
-                  <label class="info-label">TC Kimlik No</label>
-                  <span class="info-value font-mono" data-field="tcKimlikNo">--</span>
-                </div>
-                <div class="info-item">
-                  <label class="info-label">Doğum Tarihi</label>
-                  <span class="info-value" data-field="dogumTarihi">--</span>
-                </div>
-                <div class="info-item">
-                  <label class="info-label">Telefon</label>
-                  <span class="info-value" data-field="telefon">--</span>
-                </div>
-                <div class="info-item">
-                  <label class="info-label">E-posta</label>
-                  <span class="info-value" data-field="email">--</span>
-                </div>
-                <div class="info-item" style="grid-column: span 2;">
-                  <label class="info-label">Adres</label>
-                  <span class="info-value" data-field="adres">--</span>
-                </div>
-              </div>
+              <div id="chartBrans" style="min-height:240px;"></div>
             </div>
           </div>
 
-          <!-- Quick Stats -->
-          <div class="quick-stats-column">
-            <div class="stat-mini stat-emerald">
-              <div class="stat-mini-content">
-                <p class="stat-mini-label">Aktif Poliçeler</p>
-                <h3 class="stat-mini-value">--</h3>
-              </div>
-              <div class="stat-mini-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-                  <path d="M9 15l2 2 4-4"/>
-                </svg>
-              </div>
-            </div>
-
-            <div class="stat-mini stat-cyan">
-              <div class="stat-mini-content">
-                <p class="stat-mini-label">Toplam Prim</p>
-                <h3 class="stat-mini-value font-mono">--</h3>
-              </div>
-              <div class="stat-mini-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                </svg>
-              </div>
-            </div>
-
-            <div class="stat-mini stat-amber">
-              <div class="stat-mini-content">
-                <p class="stat-mini-label">Yaklaşan Yenileme</p>
-                <h3 class="stat-mini-value">--</h3>
-              </div>
-              <div class="stat-mini-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
-                </svg>
-              </div>
-            </div>
-
-            <div class="stat-mini stat-violet">
-              <div class="stat-mini-content">
-                <p class="stat-mini-label">Müşteri Skoru</p>
-                <h3 class="stat-mini-value">--</h3>
-              </div>
-              <div class="stat-mini-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Policy History -->
-        <div class="card" style="margin-bottom: 1.5rem;">
-          <div class="card-header">
-            <h3 class="card-title">Poliçe Geçmişi</h3>
-            <div class="card-actions">
-              <select class="form-select" style="min-width: 150px;">
-                <option>Tüm Poliçeler</option>
-                <option>Aktif</option>
-                <option>Süresi Dolmuş</option>
-                <option>İptal Edilmiş</option>
-              </select>
-            </div>
-          </div>
-          <div class="card-body" style="padding: 0;">
-            <div class="table-container">
-              <table class="data-table mobile-cards">
-                <thead>
-                  <tr>
-                    <th>Poliçe No</th>
-                    <th>Tip</th>
-                    <th>Başlangıç</th>
-                    <th>Bitiş</th>
-                    <th>Prim</th>
-                    <th>Durum</th>
-                    <th>İşlemler</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><span class="font-mono font-semibold">#POL-2024-0892</span></td>
-                    <td><span class="policy-type-badge kasko">Kasko</span></td>
-                    <td>15.01.2024</td>
-                    <td>15.01.2025</td>
-                    <td><span class="font-mono font-semibold">12.450 TL</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="btn btn-icon btn-ghost" title="Görüntüle">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        </button>
-                        <button class="btn btn-icon btn-ghost" title="Yazdır">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><span class="font-mono font-semibold">#POL-2024-0756</span></td>
-                    <td><span class="policy-type-badge trafik">Trafik</span></td>
-                    <td>10.01.2024</td>
-                    <td>10.01.2025</td>
-                    <td><span class="font-mono font-semibold">3.280 TL</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><span class="font-mono font-semibold">#POL-2024-0612</span></td>
-                    <td><span class="policy-type-badge dask">DASK</span></td>
-                    <td>01.03.2024</td>
-                    <td>01.03.2025</td>
-                    <td><span class="font-mono font-semibold">1.850 TL</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><span class="font-mono font-semibold">#POL-2024-0445</span></td>
-                    <td><span class="policy-type-badge saglik">Sağlık</span></td>
-                    <td>01.06.2024</td>
-                    <td>01.06.2025</td>
-                    <td><span class="font-mono font-semibold">18.500 TL</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><span class="font-mono font-semibold">#POL-2024-0298</span></td>
-                    <td><span class="policy-type-badge konut">Konut</span></td>
-                    <td>15.04.2024</td>
-                    <td>15.04.2025</td>
-                    <td><span class="font-mono font-semibold">4.200 TL</span></td>
-                    <td><span class="badge badge-success">Aktif</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6,9 6,2 18,2 18,9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><span class="font-mono font-semibold">#POL-2023-1245</span></td>
-                    <td><span class="policy-type-badge isyeri">İşyeri</span></td>
-                    <td>01.09.2023</td>
-                    <td>01.09.2024</td>
-                    <td><span class="font-mono font-semibold">5.400 TL</span></td>
-                    <td><span class="badge badge-warning">Yenileme Bekliyor</span></td>
-                    <td>
-                      <div class="table-actions">
-                        <button class="btn btn-icon btn-ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-                        <button class="btn btn-icon btn-ghost text-cyan" title="Yenile"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg></button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        <!-- Activity & Notes -->
-        <div class="grid-layout grid-cols-2-responsive">
-          <!-- Activity Timeline -->
-          <div class="card">
+          <!-- Policy History -->
+          <div class="card" style="margin-bottom: 1.5rem;">
             <div class="card-header">
-              <h3 class="card-title">Aktivite Geçmişi</h3>
+              <h3 class="card-title" id="policeTableTitle">Poliçe Geçmişi</h3>
+              <div class="card-actions" style="display:flex;align-items:center;gap:0.75rem;">
+                <label class="toggle-switch" title="Havuz Poliçelerini Göster">
+                  <input type="checkbox" id="havuzToggle">
+                  <span class="toggle-slider"></span>
+                </label>
+                <span id="havuzToggleLabel" style="font-size:0.8125rem;color:var(--text-muted);cursor:pointer;" onclick="document.getElementById('havuzToggle').click()">Havuz</span>
+                <span class="badge badge-info" id="policeCount">0 poliçe</span>
+              </div>
             </div>
-            <div class="card-body">
-              <div class="activity-timeline">
-                <div class="timeline-item">
-                  <div class="timeline-marker emerald"></div>
-                  <div class="timeline-content">
-                    <p class="timeline-title">Sağlık poliçesi yenilendi</p>
-                    <p class="timeline-text">Yıllık sağlık sigortası poliçesi yenilendi.</p>
-                    <span class="timeline-date">2 gün önce</span>
+            <div class="card-body" style="padding: 0;">
+              <div class="table-container">
+                <table class="data-table mobile-cards" id="policeTable">
+                  <thead>
+                    <tr>
+                      <th>Poliçe No</th>
+                      <th>Branş</th>
+                      <th>Şirket</th>
+                      <th>Başlangıç</th>
+                      <th>Bitiş</th>
+                      <th>Prim</th>
+                      <th>Durum</th>
+                      <th>Prodüktör</th>
+                    </tr>
+                  </thead>
+                  <tbody id="policeTableBody">
+                    <tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Yükleniyor...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity & Notes -->
+          <div class="grid-layout grid-cols-2-responsive">
+            <!-- Activity Timeline -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Aktivite Geçmişi</h3>
+              </div>
+              <div class="card-body">
+                <div class="activity-timeline">
+                  <div class="timeline-item">
+                    <div class="timeline-marker emerald"></div>
+                    <div class="timeline-content">
+                      <p class="timeline-title">Sağlık poliçesi yenilendi</p>
+                      <p class="timeline-text">Yıllık sağlık sigortası poliçesi yenilendi.</p>
+                      <span class="timeline-date">2 gün önce</span>
+                    </div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-marker cyan"></div>
+                    <div class="timeline-content">
+                      <p class="timeline-title">Ödeme alındı</p>
+                      <p class="timeline-text">18.500 TL tutarında ödeme tahsil edildi.</p>
+                      <span class="timeline-date">2 gün önce</span>
+                    </div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-marker amber"></div>
+                    <div class="timeline-content">
+                      <p class="timeline-title">Yenileme hatırlatması gönderildi</p>
+                      <p class="timeline-text">İşyeri sigortası için SMS gönderildi.</p>
+                      <span class="timeline-date">5 gün önce</span>
+                    </div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-marker violet"></div>
+                    <div class="timeline-content">
+                      <p class="timeline-title">Telefon görüşmesi</p>
+                      <p class="timeline-text">Kasko hasarı hakkında bilgi verildi.</p>
+                      <span class="timeline-date">1 hafta önce</span>
+                    </div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-marker cyan"></div>
+                    <div class="timeline-content">
+                      <p class="timeline-title">Konut poliçesi oluşturuldu</p>
+                      <p class="timeline-text">Yeni konut sigortası poliçesi düzenlendi.</p>
+                      <span class="timeline-date">2 hafta önce</span>
+                    </div>
                   </div>
                 </div>
-                <div class="timeline-item">
-                  <div class="timeline-marker cyan"></div>
-                  <div class="timeline-content">
-                    <p class="timeline-title">Ödeme alındı</p>
-                    <p class="timeline-text">18.500 TL tutarında ödeme tahsil edildi.</p>
-                    <span class="timeline-date">2 gün önce</span>
-                  </div>
-                </div>
-                <div class="timeline-item">
-                  <div class="timeline-marker amber"></div>
-                  <div class="timeline-content">
-                    <p class="timeline-title">Yenileme hatırlatması gönderildi</p>
-                    <p class="timeline-text">İşyeri sigortası için SMS gönderildi.</p>
-                    <span class="timeline-date">5 gün önce</span>
-                  </div>
-                </div>
-                <div class="timeline-item">
-                  <div class="timeline-marker violet"></div>
-                  <div class="timeline-content">
-                    <p class="timeline-title">Telefon görüşmesi</p>
-                    <p class="timeline-text">Kasko hasarı hakkında bilgi verildi.</p>
-                    <span class="timeline-date">1 hafta önce</span>
-                  </div>
-                </div>
-                <div class="timeline-item">
-                  <div class="timeline-marker cyan"></div>
-                  <div class="timeline-content">
-                    <p class="timeline-title">Konut poliçesi oluşturuldu</p>
-                    <p class="timeline-text">Yeni konut sigortası poliçesi düzenlendi.</p>
-                    <span class="timeline-date">2 hafta önce</span>
-                  </div>
+              </div>
+            </div>
+
+            <!-- Notes Section -->
+            <div class="card" id="notesCard">
+              <div class="card-header">
+                <h3 class="card-title">Notlar</h3>
+                <button class="btn btn-sm btn-secondary" onclick="openNoteModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Not Ekle
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="notes-list" id="notesList">
+                  <p class="empty-state" id="notesEmpty" style="display:none;">Henüz not eklenmemiş.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Notes Section -->
-          <div class="card">
-            <div class="card-header">
-              <h3 class="card-title">Notlar</h3>
-              <button class="btn btn-sm btn-secondary">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Not Ekle
-              </button>
-            </div>
-            <div class="card-body">
-              <div class="notes-list">
-                <div class="note-item">
-                  <div class="note-header">
-                    <span class="note-title">VIP Müşteri</span>
-                    <span class="note-date">15.03.2024</span>
-                  </div>
-                  <p class="note-text">Müşteri her yıl düzenli poliçe yenilemesi yapıyor. Özel indirim uygulanabilir.</p>
-                </div>
-                <div class="note-item">
-                  <div class="note-header">
-                    <span class="note-title">İletişim Tercihi</span>
-                    <span class="note-date">10.01.2024</span>
-                  </div>
-                  <p class="note-text">WhatsApp üzerinden iletişim tercih ediyor. Mesai saatleri içinde aranabilir.</p>
-                </div>
-                <div class="note-item important">
-                  <div class="note-header">
-                    <span class="note-title">Önemli</span>
-                    <span class="note-date">05.09.2024</span>
-                  </div>
-                  <p class="note-text">İşyeri sigortası yenileme için görüşme yapılacak. Fiyat hassasiyeti var.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
         </div>
       </div>
     </main>
   </div>
 
-  <script src="../../assets/js/config.js"></script>
+  <!-- Not Ekle Modal -->
+  <div class="modal-overlay" id="noteModal">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Not Ekle</h3>
+        <button class="modal-close" onclick="closeNoteModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Not İçeriği</label>
+          <textarea class="form-input" id="noteIcerik" rows="4" placeholder="Notunuzu yazın..." style="resize:vertical;"></textarea>
+        </div>
+        <div class="form-group" style="margin-top:1rem;">
+          <label class="form-check">
+            <input type="checkbox" id="noteOnemli">
+            <span class="form-check-label">Önemli olarak işaretle</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeNoteModal()">İptal</button>
+        <button class="btn btn-primary" id="noteSaveBtn" onclick="saveNote()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/>
+          </svg>
+          Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script src="../../assets/js/app.js"></script>
-  <script src="../../assets/js/customer-detail.js"></script>
+  <script src="../../components/base.js"></script>
+  <script src="../../components/toast.js"></script>
+  <script src="../../components/modal.js"></script>
+  <script src="../../components/sidebar.js"></script>
 
   <style>
-    /* Customer Profile Styles */
+    /* ── Back Button ── */
+    .back-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+      margin-right: 0.5rem;
+    }
+    .back-btn:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* ── Customer Profile ── */
+    .customer-detail-grid {
+      grid-template-columns: 1fr 300px;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
     .customer-profile-header {
       display: flex;
       gap: 2rem;
@@ -435,7 +403,7 @@
     }
     .text-emerald { color: #10b981; }
 
-    /* Info Grid */
+    /* ── Info Grid ── */
     .info-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -455,7 +423,7 @@
       color: var(--text-primary);
     }
 
-    /* Quick Stats Column */
+    /* ── Quick Stats Column ── */
     .quick-stats-column {
       display: flex;
       flex-direction: column;
@@ -467,6 +435,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
     }
     .stat-mini.stat-emerald {
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
@@ -479,6 +448,9 @@
     .stat-mini.stat-amber {
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%);
       border-left: 4px solid #f59e0b;
+    }
+    .stat-mini.stat-rose {
+      border-left: 3px solid #f43f5e;
     }
     .stat-mini.stat-violet {
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%);
@@ -497,6 +469,7 @@
     .stat-mini.stat-cyan .stat-mini-value { color: #00d4ff; }
     .stat-mini.stat-amber .stat-mini-value { color: #f59e0b; }
     .stat-mini.stat-violet .stat-mini-value { color: #6366f1; }
+    .stat-mini.stat-rose .stat-mini-value { color: #f43f5e; }
     .stat-mini-icon {
       width: 48px;
       height: 48px;
@@ -513,8 +486,60 @@
     .stat-mini.stat-cyan .stat-mini-icon { background: rgba(0, 212, 255, 0.2); color: #00d4ff; }
     .stat-mini.stat-amber .stat-mini-icon { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
     .stat-mini.stat-violet .stat-mini-icon { background: rgba(99, 102, 241, 0.2); color: #6366f1; }
+    .stat-mini.stat-rose .stat-mini-icon { background: rgba(244, 63, 94, 0.2); color: #f43f5e; }
 
-    /* Policy Type Badges */
+    /* ── Renewal Breakdown ── */
+    .renewal-stat {
+      cursor: pointer;
+    }
+    .renewal-breakdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      z-index: 20;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .renewal-stat.active .renewal-breakdown {
+      display: block;
+    }
+    .renewal-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.375rem 0;
+    }
+    .renewal-row + .renewal-row {
+      border-top: 1px solid var(--border-subtle, var(--border-color));
+    }
+    .renewal-label {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+    .renewal-count {
+      font-size: 0.875rem;
+      font-weight: 700;
+      min-width: 28px;
+      text-align: center;
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.375rem;
+    }
+    .renewal-count.urgent { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    .renewal-count.warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+    .renewal-count.normal { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
+    .renewal-count.muted { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+
+    /* ── Chart Card ── */
+    .chart-card-small {
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── Policy Type Badges ── */
     .policy-type-badge {
       display: inline-flex;
       align-items: center;
@@ -524,14 +549,101 @@
       font-size: 0.75rem;
       font-weight: 600;
     }
-    .policy-type-badge.kasko { background: rgba(0, 212, 255, 0.15); color: #00d4ff; }
-    .policy-type-badge.trafik { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-    .policy-type-badge.dask { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-    .policy-type-badge.saglik { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
-    .policy-type-badge.konut { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
-    .policy-type-badge.isyeri { background: rgba(6, 182, 212, 0.15); color: #06b6d4; }
 
-    /* Activity Timeline */
+    /* ── Policy Status ── */
+    .status-aktif { background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 0.25rem 0.625rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+    .status-yenileme { background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 0.25rem 0.625rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+    .status-yenilenmis { background: rgba(99, 102, 241, 0.15); color: #6366f1; padding: 0.25rem 0.625rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+    .status-suresi-dolmus { background: rgba(107, 114, 128, 0.15); color: #6b7280; padding: 0.25rem 0.625rem; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+
+    /* ── Notes ── */
+    .notes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .note-item {
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 0.5rem;
+      position: relative;
+    }
+    .note-item.important {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid #f59e0b;
+    }
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .note-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .note-author {
+      font-weight: 600;
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+    }
+    .note-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .note-item.important .note-author { color: #f59e0b; }
+    .note-text {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.5;
+    }
+    .note-delete {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 0.375rem;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .note-delete:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2rem 0;
+      font-size: 0.875rem;
+    }
+
+    /* ── Form Check ── */
+    .form-check {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .form-check input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* ── Activity Timeline ── */
+    .grid-cols-2-responsive {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
     .activity-timeline {
       position: relative;
       padding-left: 1.5rem;
@@ -578,48 +690,514 @@
       color: var(--text-muted);
     }
 
-    /* Notes */
-    .notes-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    .note-item {
-      padding: 1rem;
-      background: var(--bg-secondary);
-      border-radius: 0.5rem;
-    }
-    .note-item.important {
-      background: rgba(245, 158, 11, 0.1);
-      border-left: 3px solid #f59e0b;
-    }
-    .note-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
-    }
-    .note-title {
-      font-weight: 600;
-      font-size: 0.875rem;
-    }
-    .note-item.important .note-title { color: #f59e0b; }
-    .note-date {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    .note-text {
-      font-size: 0.875rem;
-      color: var(--text-secondary);
-      margin: 0;
-    }
-
-    /* Helper */
+    /* ── Helpers ── */
     .text-cyan { color: #00d4ff; }
     .grid-layout { display: grid; }
+
+    /* ── Responsive ── */
+    @media (max-width: 1024px) {
+      .customer-detail-grid {
+        grid-template-columns: 1fr;
+      }
+      .quick-stats-column {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .customer-profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      .info-grid .info-item[style*="span 2"] {
+        grid-column: span 1;
+      }
+      .quick-stats-column {
+        grid-template-columns: 1fr;
+      }
+      .grid-cols-2-responsive {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+      cursor: pointer;
+    }
+    .toggle-switch input { display: none; }
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: var(--border-subtle, #3a3f4b);
+      border-radius: 20px;
+      transition: background 0.25s ease;
+    }
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.25s ease;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--accent-primary, #6366f1);
+    }
+    .toggle-switch input:checked + .toggle-slider::before {
+      transform: translateX(16px);
+    }
   </style>
-  <script src="../../components/base.js"></script>
-  <script src="../../components/toast.js"></script>
-  <script src="../../components/modal.js"></script>
-  <script src="../../components/sidebar.js"></script>
+
+  <script>
+    // ═══════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════
+    let customerId = null;
+    let currentData = null;
+    let chartBrans = null;
+
+    // ═══════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', function() {
+      const params = new URLSearchParams(window.location.search);
+      customerId = parseInt(params.get('id'));
+
+      if (!customerId) {
+        document.getElementById('customerName').textContent = 'Müşteri bulunamadı';
+        return;
+      }
+
+      loadData();
+
+      // Renewal breakdown toggle
+      const renewalStat = document.getElementById('renewalStat');
+      renewalStat.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('active');
+      });
+      document.addEventListener('click', function() {
+        renewalStat.classList.remove('active');
+      });
+
+      // Havuz kart tıklama → toggle'ı aç ve tabloya scroll
+      const havuzCard = document.getElementById('statHavuzCard');
+      if (havuzCard) {
+        havuzCard.addEventListener('click', function() {
+          const toggle = document.getElementById('havuzToggle');
+          if (toggle && !toggle.checked) {
+            toggle.checked = true;
+            toggle.dispatchEvent(new Event('change'));
+          }
+          document.getElementById('policeTable').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    });
+
+    // ═══════════════════════════════════════════════
+    // DATA LOADING
+    // ═══════════════════════════════════════════════
+    async function loadData() {
+      try {
+        const [data, havuzData] = await Promise.all([
+          apiGet(`customers/${customerId}/details`),
+          apiGet(`customers/${customerId}/pool-policies`).catch(() => [])
+        ]);
+        if (!data) {
+          document.getElementById('customerName').textContent = 'Müşteri bulunamadı';
+          return;
+        }
+        currentData = data;
+        havuzCache = havuzData || [];
+        updateUI(data);
+        document.getElementById('statHavuz').textContent = havuzCache.length;
+      } catch (err) {
+        console.error('Müşteri detay yüklenemedi:', err);
+        document.getElementById('customerName').textContent = 'Hata oluştu';
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // UI UPDATES
+    // ═══════════════════════════════════════════════
+    function updateUI(data) {
+      updateCustomerInfo(data.musteri);
+      updateStats(data.stats);
+      updatePoliceler(data.policeler);
+      updateBransChart(data.bransDagilim);
+      updateNotlar(data.notlar);
+    }
+
+    function updateCustomerInfo(m) {
+      // Avatar
+      const initials = ((m.adi || '')[0] || '') + ((m.soyadi || '')[0] || '');
+      document.getElementById('customerAvatar').textContent = initials.toUpperCase() || '--';
+
+      // Name
+      const fullName = `${m.adi || ''} ${m.soyadi || ''}`.trim();
+      document.getElementById('customerName').textContent = fullName || 'İsimsiz';
+      document.title = `${fullName} - Müşteri Detay`;
+
+      // Sahip Türü badge: VergiNo varsa ve TC yoksa → Kurumsal, aksi halde Bireysel
+      const sahipBadge = document.getElementById('sahipTuruBadge');
+      const isKurumsal = !!m.vergiNo && !m.tcKimlikNo;
+      if (isKurumsal) {
+        sahipBadge.textContent = 'Kurumsal';
+        sahipBadge.className = 'badge badge-secondary';
+      } else {
+        sahipBadge.textContent = 'Bireysel';
+        sahipBadge.className = 'badge badge-info';
+      }
+
+      // Info fields
+      document.getElementById('infoTc').textContent = m.tcKimlikNo || '--';
+      document.getElementById('infoVergi').textContent = m.vergiNo || '--';
+      document.getElementById('infoDogum').textContent = m.dogumTarihi ? formatDate(m.dogumTarihi) : '--';
+      document.getElementById('infoTelefon').textContent = m.gsm || m.gsm2 || m.telefon || '--';
+      document.getElementById('infoEmail').textContent = m.email || '--';
+      document.getElementById('infoMeslek').textContent = m.meslek || '--';
+
+      // Adres: Tam adres varsa onu göster, yoksa il/ilçe
+      if (m.adres) {
+        const ilIlce = [m.yasadigiIlce, m.yasadigiIl].filter(Boolean).join(', ');
+        document.getElementById('infoAdres').textContent = ilIlce ? `${m.adres} (${ilIlce})` : m.adres;
+      } else {
+        const adresParts = [m.yasadigiIlce, m.yasadigiIl].filter(Boolean);
+        document.getElementById('infoAdres').textContent = adresParts.length > 0 ? adresParts.join(', ') : '--';
+      }
+    }
+
+    function updateStats(s) {
+      document.getElementById('statAktif').textContent = s.aktifPoliceSayisi;
+      document.getElementById('statPrim').textContent = formatMoney(s.toplamPrim);
+      document.getElementById('statYenileme').textContent = s.yaklasanYenilemeSayisi;
+      document.getElementById('statToplam').textContent = s.toplamPoliceSayisi;
+
+      // Meta
+      document.getElementById('customerMeta').innerHTML = `Toplam Prim: <strong class="text-emerald">${formatMoney(s.toplamPrim)}</strong>`;
+
+      // Yenileme kırılım
+      document.getElementById('renew7').textContent = s.yenileme7Gun;
+      document.getElementById('renew15').textContent = s.yenileme15Gun;
+      document.getElementById('renew30').textContent = s.yenileme30Gun;
+      document.getElementById('renew60').textContent = s.yenileme60Gun;
+    }
+
+    function updatePoliceler(policeler) {
+      const tbody = document.getElementById('policeTableBody');
+      const countEl = document.getElementById('policeCount');
+      countEl.textContent = `${policeler.length} poliçe`;
+
+      if (policeler.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Poliçe bulunamadı.</td></tr>';
+        return;
+      }
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      tbody.innerHTML = policeler.map(p => {
+        const bitis = new Date(p.bitisTarihi);
+        bitis.setHours(0,0,0,0);
+        let durumHtml = '';
+        if (bitis >= today) {
+          durumHtml = '<span class="status-aktif">Aktif</span>';
+        } else if (p.yenilemeDurumu === 1) {
+          durumHtml = '<span class="status-yenilenmis">Yenilenmiş</span>';
+        } else {
+          durumHtml = '<span class="status-yenileme">Yenileme Bekliyor</span>';
+        }
+
+        return `<tr>
+          <td data-label="Poliçe No"><span class="font-mono font-semibold">${escapeHtml(p.policeNo)}</span></td>
+          <td data-label="Branş">${escapeHtml(p.bransAdi)}</td>
+          <td data-label="Şirket">${escapeHtml(p.sirketAdi)}</td>
+          <td data-label="Başlangıç">${formatDate(p.baslangicTarihi)}</td>
+          <td data-label="Bitiş">${formatDate(p.bitisTarihi)}</td>
+          <td data-label="Prim"><span class="font-mono font-semibold">${formatMoney(p.brutPrim)}</span></td>
+          <td data-label="Durum">${durumHtml}</td>
+          <td data-label="Prodüktör">${escapeHtml(p.produktorAdi || '-')}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    // ═══════════════════════════════════════════════
+    // HAVUZ POLİÇELERİ TOGGLE
+    // ═══════════════════════════════════════════════
+    const havuzToggle = document.getElementById('havuzToggle');
+    let havuzCache = null;
+
+    if (havuzToggle) {
+      havuzToggle.addEventListener('change', async function() {
+        const titleEl = document.getElementById('policeTableTitle');
+        const thead = document.querySelector('#policeTable thead tr');
+
+        if (this.checked) {
+          // Havuz moduna geç
+          titleEl.textContent = 'Havuz Poliçeleri';
+
+          // Thead'i havuz sütunlarıyla değiştir
+          thead.innerHTML = `
+            <th>Poliçe No</th>
+            <th>Branş</th>
+            <th>Şirket</th>
+            <th>Başlangıç</th>
+            <th>Bitiş</th>
+            <th>Prim</th>
+            <th>Poliçe Tipi</th>
+            <th>Plaka</th>
+          `;
+
+          if (havuzCache) {
+            renderHavuzPoliceler(havuzCache);
+          } else {
+            const tbody = document.getElementById('policeTableBody');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Yükleniyor...</td></tr>';
+            try {
+              havuzCache = await apiGet(`customers/${customerId}/pool-policies`);
+              renderHavuzPoliceler(havuzCache);
+            } catch (err) {
+              console.error('Havuz poliçeleri yüklenemedi:', err);
+              tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Havuz poliçeleri yüklenemedi.</td></tr>';
+            }
+          }
+        } else {
+          // Normal moda dön
+          titleEl.textContent = 'Poliçe Geçmişi';
+
+          thead.innerHTML = `
+            <th>Poliçe No</th>
+            <th>Branş</th>
+            <th>Şirket</th>
+            <th>Başlangıç</th>
+            <th>Bitiş</th>
+            <th>Prim</th>
+            <th>Durum</th>
+            <th>Prodüktör</th>
+          `;
+
+          if (currentData && currentData.policeler) {
+            updatePoliceler(currentData.policeler);
+          }
+        }
+      });
+    }
+
+    function renderHavuzPoliceler(policeler) {
+      const tbody = document.getElementById('policeTableBody');
+      const countEl = document.getElementById('policeCount');
+      countEl.textContent = `${policeler.length} poliçe`;
+
+      if (policeler.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">Havuz poliçesi bulunamadı.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = policeler.map(p => `<tr>
+        <td data-label="Poliçe No"><span class="font-mono font-semibold">${escapeHtml(p.policeNo)}</span></td>
+        <td data-label="Branş">${escapeHtml(p.bransAdi)}</td>
+        <td data-label="Şirket">${escapeHtml(p.sirketAdi)}</td>
+        <td data-label="Başlangıç">${formatDate(p.baslangicTarihi)}</td>
+        <td data-label="Bitiş">${formatDate(p.bitisTarihi)}</td>
+        <td data-label="Prim"><span class="font-mono font-semibold">${formatMoney(p.brutPrim)}</span></td>
+        <td data-label="Poliçe Tipi">${escapeHtml(p.policeTipi || '-')}</td>
+        <td data-label="Plaka">${escapeHtml(p.plaka || '-')}</td>
+      </tr>`).join('');
+    }
+
+    function updateBransChart(dagilim) {
+      const chartCard = document.getElementById('chartCard');
+      if (!dagilim || dagilim.length === 0) {
+        chartCard.style.display = 'none';
+        return;
+      }
+      chartCard.style.display = '';
+
+      const labels = dagilim.map(d => d.bransAdi);
+      const series = dagilim.map(d => d.policeSayisi);
+      const colors = ['#6366f1', '#00d4ff', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6', '#f97316'];
+
+      if (chartBrans) chartBrans.destroy();
+
+      chartBrans = new ApexCharts(document.getElementById('chartBrans'), {
+        chart: {
+          type: 'donut',
+          height: 240,
+          fontFamily: 'Plus Jakarta Sans, sans-serif',
+          background: 'transparent'
+        },
+        series: series,
+        labels: labels,
+        colors: colors.slice(0, series.length),
+        legend: {
+          position: 'bottom',
+          fontSize: '12px',
+          labels: { colors: 'var(--text-secondary)' },
+          markers: { size: 6, offsetX: -4 }
+        },
+        dataLabels: {
+          enabled: true,
+          formatter: function(val, opts) {
+            return opts.w.config.series[opts.seriesIndex];
+          },
+          style: { fontSize: '13px', fontWeight: 700 },
+          dropShadow: { enabled: false }
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '55%',
+              labels: {
+                show: true,
+                name: { fontSize: '13px', color: 'var(--text-secondary)' },
+                value: { fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' },
+                total: {
+                  show: true,
+                  label: 'Toplam',
+                  color: 'var(--text-muted)',
+                  formatter: function(w) { return w.globals.seriesTotals.reduce((a, b) => a + b, 0); }
+                }
+              }
+            }
+          }
+        },
+        stroke: { width: 2, colors: ['var(--bg-card)'] },
+        tooltip: {
+          theme: 'dark',
+          y: { formatter: function(v) { return v + ' poliçe'; } }
+        }
+      });
+      chartBrans.render();
+    }
+
+    function updateNotlar(notlar) {
+      const list = document.getElementById('notesList');
+      const emptyEl = document.getElementById('notesEmpty');
+
+      if (!notlar || notlar.length === 0) {
+        list.innerHTML = '';
+        list.appendChild(emptyEl);
+        emptyEl.style.display = '';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      list.innerHTML = notlar.map(n => `
+        <div class="note-item${n.onemliMi ? ' important' : ''}">
+          <div class="note-header">
+            <div class="note-meta">
+              <span class="note-author">${n.onemliMi ? '&#9733; ' : ''}${escapeHtml(n.ekleyenAdi || 'Sistem')}</span>
+              <span class="note-date">${formatDate(n.eklemeTarihi)}</span>
+            </div>
+            <button class="note-delete" onclick="deleteNote(${n.id})" title="Notu sil">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+              </svg>
+            </button>
+          </div>
+          <p class="note-text">${escapeHtml(n.icerik)}</p>
+        </div>
+      `).join('');
+    }
+
+    // ═══════════════════════════════════════════════
+    // NOTES CRUD
+    // ═══════════════════════════════════════════════
+    function openNoteModal() {
+      document.getElementById('noteIcerik').value = '';
+      document.getElementById('noteOnemli').checked = false;
+      document.getElementById('noteModal').classList.add('active');
+      setTimeout(() => document.getElementById('noteIcerik').focus(), 100);
+    }
+
+    function closeNoteModal() {
+      document.getElementById('noteModal').classList.remove('active');
+    }
+
+    async function saveNote() {
+      const icerik = document.getElementById('noteIcerik').value.trim();
+      if (!icerik) {
+        if (typeof showToast === 'function') showToast('Not içeriği boş olamaz.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('noteSaveBtn');
+      btn.disabled = true;
+
+      try {
+        const result = await apiPost(`customers/${customerId}/notes`, {
+          icerik: icerik,
+          onemliMi: document.getElementById('noteOnemli').checked
+        });
+        if (result && result.success) {
+          closeNoteModal();
+          if (typeof showToast === 'function') showToast('Not eklendi.', 'success');
+          await loadData();
+        } else {
+          if (typeof showToast === 'function') showToast(result?.errorMessage || 'Not eklenemedi.', 'error');
+        }
+      } catch (err) {
+        console.error('Not eklenemedi:', err);
+        if (typeof showToast === 'function') showToast('Not eklenirken hata oluştu.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteNote(noteId) {
+      if (typeof showConfirm === 'function') {
+        const confirmed = await showConfirm('Bu notu silmek istediğinize emin misiniz?');
+        if (!confirmed) return;
+      } else {
+        if (!confirm('Bu notu silmek istediğinize emin misiniz?')) return;
+      }
+
+      try {
+        const result = await apiDelete(`customers/${customerId}/notes/${noteId}`);
+        if (result && result.success) {
+          if (typeof showToast === 'function') showToast('Not silindi.', 'success');
+          await loadData();
+        } else {
+          if (typeof showToast === 'function') showToast(result?.errorMessage || 'Not silinemedi.', 'error');
+        }
+      } catch (err) {
+        console.error('Not silinemedi:', err);
+        if (typeof showToast === 'function') showToast('Not silinirken hata oluştu.', 'error');
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // HELPERS
+    // ═══════════════════════════════════════════════
+    function formatMoney(val) {
+      if (val == null) return '0 TL';
+      return Number(val).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }) + ' TL';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '--';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return '--';
+      return d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+  </script>
 </body>
 </html>

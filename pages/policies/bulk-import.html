@@ -367,6 +367,16 @@
                   <div class="result-stat-value" id="resultFailed">0</div>
                   <div class="result-stat-label">Hatalı</div>
                 </div>
+                <div class="result-stat info">
+                  <div class="result-stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                    </svg>
+                  </div>
+                  <div class="result-stat-value" id="resultUpdated">0</div>
+                  <div class="result-stat-label">Güncellenen</div>
+                </div>
                 <div class="result-stat warning">
                   <div class="result-stat-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -519,6 +529,13 @@
               <polyline points="20,6 9,17 4,12"/>
             </svg>
             <span id="progressSuccess">0</span> Başarılı
+          </span>
+          <span class="progress-detail-item updated">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <span id="progressUpdated">0</span> Güncellenen
           </span>
           <span class="progress-detail-item duplicate">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1330,6 +1347,11 @@
       color: var(--warning);
     }
 
+    .result-stat.info .result-stat-icon {
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+    }
+
     .result-stat-value {
       font-size: 2rem;
       font-weight: 700;
@@ -1876,6 +1898,11 @@
       margin-top: 0.5rem;
     }
 
+    .progress-details {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
     .progress-detail-item {
       display: flex;
       align-items: center;
@@ -1890,6 +1917,14 @@
 
     .progress-detail-item.success svg {
       stroke: #4ade80;
+    }
+
+    .progress-detail-item.updated {
+      color: #38bdf8;
+    }
+
+    .progress-detail-item.updated svg {
+      stroke: #38bdf8;
     }
 
     .progress-detail-item.duplicate {
@@ -3991,7 +4026,7 @@
 
     // Confirm import with batch processing
     const BATCH_SIZE = 50;
-    let importStats = { success: 0, duplicate: 0, failed: 0, errors: [] };
+    let importStats = { success: 0, duplicate: 0, updated: 0, failed: 0, errors: [] };
 
     async function confirmImport() {
       if (!currentSessionId) {
@@ -4006,7 +4041,7 @@
       }
 
       // Reset stats
-      importStats = { success: 0, duplicate: 0, failed: 0, errors: [] };
+      importStats = { success: 0, duplicate: 0, updated: 0, failed: 0, errors: [] };
 
       // Hide confirm button, show progress modal
       confirmBtn.disabled = true;
@@ -4029,6 +4064,7 @@
 
           // Update cumulative stats
           importStats.success += response.successCount;
+          importStats.updated += (response.updatedCount || 0);
           importStats.duplicate += response.duplicateCount;
           importStats.failed += response.failedCount;
           if (response.errors && response.errors.length > 0) {
@@ -4053,6 +4089,7 @@
         showResult({
           totalProcessed: totalValidRows,
           successCount: importStats.success,
+          updatedCount: importStats.updated,
           failedCount: importStats.failed,
           duplicateCount: importStats.duplicate,
           errors: importStats.errors
@@ -4074,6 +4111,7 @@
       document.getElementById('progressTotal').textContent = total.toLocaleString('tr-TR');
       document.getElementById('progressBar').style.width = '0%';
       document.getElementById('progressSuccess').textContent = '0';
+      document.getElementById('progressUpdated').textContent = '0';
       document.getElementById('progressDuplicate').textContent = '0';
       document.getElementById('progressFailed').textContent = '0';
       document.getElementById('progressMessage').textContent = 'Lütfen bekleyin...';
@@ -4085,6 +4123,7 @@
       document.getElementById('progressCurrent').textContent = current.toLocaleString('tr-TR');
       document.getElementById('progressBar').style.width = percentage + '%';
       document.getElementById('progressSuccess').textContent = stats.success.toLocaleString('tr-TR');
+      document.getElementById('progressUpdated').textContent = (stats.updated || 0).toLocaleString('tr-TR');
       document.getElementById('progressDuplicate').textContent = stats.duplicate.toLocaleString('tr-TR');
       document.getElementById('progressFailed').textContent = stats.failed.toLocaleString('tr-TR');
       document.getElementById('progressMessage').textContent = `%${percentage} tamamlandı`;
@@ -4109,6 +4148,7 @@
       // Update stats
       document.getElementById('resultTotal').textContent = data.totalProcessed;
       document.getElementById('resultSuccess').textContent = data.successCount;
+      document.getElementById('resultUpdated').textContent = (data.updatedCount || 0);
       document.getElementById('resultFailed').textContent = data.failedCount;
       document.getElementById('resultDuplicate').textContent = data.duplicateCount;
 
@@ -4141,7 +4181,8 @@
         errorsDiv.style.display = 'block';
       }
 
-      showToast(`${data.successCount} poliçe başarıyla eklendi`, 'success');
+      const updatedMsg = (data.updatedCount || 0) > 0 ? `, ${data.updatedCount} güncellendi` : '';
+      showToast(`${data.successCount} poliçe başarıyla eklendi${updatedMsg}`, 'success');
 
       // Populate import report
       populateImportReport();
