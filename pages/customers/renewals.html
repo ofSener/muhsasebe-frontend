@@ -74,6 +74,18 @@
             </div>
           </div>
 
+          <!-- ─── Telefon Numarası ─── -->
+          <div class="rn-phone-bar" id="phoneBar">
+            <div class="rn-phone-bar-inner">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+              </svg>
+              <label class="rn-phone-label">Tekliflerin geleceği telefon:</label>
+              <input type="tel" id="quotePhoneNumber" class="rn-phone-input" placeholder="5XX XXX XX XX" maxlength="11">
+              <span class="rn-phone-status" id="phoneStatus"></span>
+            </div>
+          </div>
+
           <!-- ─── Toolbar: Stats + Filters ─── -->
           <div class="rn-toolbar" id="renewalToolbar">
             <div class="rn-toolbar-row">
@@ -242,16 +254,19 @@
                     <label class="modal-label">Ağ Tipi</label>
                     <select id="testTssAgTipi" class="modal-select">
                       <option value="">Seçiniz</option>
-                      <option value="1">Geniş Ağ</option>
-                      <option value="2">Ekonomik Ağ</option>
+                      <option value="0">Eko Paket</option>
+                      <option value="1">Geniş Paket</option>
+                      <option value="2">Eko+Geniş</option>
                     </select>
                   </div>
                   <div class="modal-field">
                     <label class="modal-label">Plan Tipi</label>
                     <select id="testTssPlanTipi" class="modal-select">
                       <option value="">Seçiniz</option>
-                      <option value="1">Bireysel</option>
-                      <option value="2">Aile</option>
+                      <option value="0">5 Adet Ayakta</option>
+                      <option value="1">10 Adet Ayakta</option>
+                      <option value="2">Karma</option>
+                      <option value="3">Maksimum Adet</option>
                     </select>
                   </div>
                   <div class="modal-field" style="display:flex;align-items:center;gap:0.5rem;padding-top:1.5rem;">
@@ -441,8 +456,8 @@
           <div class="modal-field full"><label class="modal-label">Doğum Tarihi <span style="color:var(--danger);">*</span></label><input type="date" id="tssDogumTarihi" class="modal-input" required></div>
           <div class="modal-field half"><label class="modal-label">Boy (cm)</label><input type="number" id="tssBoy" class="modal-input" placeholder="175"></div>
           <div class="modal-field half"><label class="modal-label">Kilo (kg)</label><input type="number" id="tssKilo" class="modal-input" placeholder="80"></div>
-          <div class="modal-field half"><label class="modal-label">Ağ Tipi</label><select id="tssAgTipi" class="modal-select"><option value="">Seçiniz</option><option value="1">Geniş Ağ</option><option value="2">Ekonomik Ağ</option></select></div>
-          <div class="modal-field half"><label class="modal-label">Plan Tipi</label><select id="tssPlanTipi" class="modal-select"><option value="">Seçiniz</option><option value="1">Bireysel</option><option value="2">Aile</option></select></div>
+          <div class="modal-field half"><label class="modal-label">Ağ Tipi</label><select id="tssAgTipi" class="modal-select"><option value="">Seçiniz</option><option value="0">Eko Paket</option><option value="1">Geniş Paket</option><option value="2">Eko+Geniş</option></select></div>
+          <div class="modal-field half"><label class="modal-label">Plan Tipi</label><select id="tssPlanTipi" class="modal-select"><option value="">Seçiniz</option><option value="0">5 Adet Ayakta</option><option value="1">10 Adet Ayakta</option><option value="2">Karma</option><option value="3">Maksimum Adet</option></select></div>
           <div class="modal-field full"><label class="modal-label" style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;"><input type="checkbox" id="tssDogumTeminati" style="width:16px;height:16px;accent-color:var(--primary);"> Doğum Teminatı</label></div>
         </div>
       </div>
@@ -527,6 +542,46 @@
     }
 
     /* ─── Toolbar ─── */
+    .rn-phone-bar {
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 0.6rem 1rem;
+      margin-bottom: 0.75rem;
+    }
+    .rn-phone-bar-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .rn-phone-bar-inner svg { color: var(--primary); flex-shrink: 0; }
+    .rn-phone-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .rn-phone-input {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.35rem 0.6rem;
+      width: 140px;
+      letter-spacing: 0.5px;
+    }
+    .rn-phone-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0,212,255,0.15);
+    }
+    .rn-phone-status {
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
     .rn-toolbar {
       background: var(--bg-surface);
       border: 1.5px solid var(--border-default);

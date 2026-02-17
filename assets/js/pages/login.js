@@ -172,6 +172,7 @@
             id: response.user.id,
             name: response.user.name,
             email: response.user.email,
+            gsmNo: response.user.gsmNo,
             firmaId: response.user.firmaId,
             subeId: response.user.subeId,
             subeAdi: response.user.subeAdi,

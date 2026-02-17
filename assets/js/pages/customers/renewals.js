@@ -17,6 +17,7 @@ let currentQuotePolicyId = null;
 let currentQuoteType = null;
 
 // Quote type mapping (policeTuruAdi → API quoteType)
+// Exact matches tried first, then keyword fallback via resolveQuoteType()
 const QUOTE_TYPE_MAP = {
   'Trafik': 'traffic',
   'Kasko': 'casco',
@@ -28,8 +29,40 @@ const QUOTE_TYPE_MAP = {
   'Konut': 'house',
   'Saglik': 'tss',
   'Sağlık': 'tss',
-  'TSS': 'tss'
+  'TSS': 'tss',
+  'Tamamlayıcı Sağlık': 'tss',
+  'Tamamlayici Saglik': 'tss',
+  'Tamamlayıcı Sağlık Sigortası': 'tss',
+  'Zorunlu Trafik': 'traffic',
+  'Oto Trafik': 'traffic',
+  'Zorunlu Trafik Sigortası': 'traffic',
+  'Oto Kasko': 'casco',
+  'Zorunlu Deprem': 'dask',
+  'Konut Sigortası': 'house'
 };
+
+// Keyword-based fallback: if exact match fails, check if type name contains keywords
+const QUOTE_TYPE_KEYWORDS = [
+  { keywords: ['tss', 'tamamlayıcı', 'tamamlayici'], type: 'tss' },
+  { keywords: ['sağlık', 'saglik', 'saglık', 'sağlik'], type: 'tss' },
+  { keywords: ['trafik'], type: 'traffic' },
+  { keywords: ['kasko'], type: 'casco' },
+  { keywords: ['dask', 'deprem'], type: 'dask' },
+  { keywords: ['konut', 'mesken'], type: 'house' },
+  { keywords: ['imm', 'işyeri', 'isyeri', 'ışyeri'], type: 'imm' }
+];
+
+function resolveQuoteType(policeTuru) {
+  if (!policeTuru) return null;
+  // 1) Exact match
+  if (QUOTE_TYPE_MAP[policeTuru]) return QUOTE_TYPE_MAP[policeTuru];
+  // 2) Keyword search (case-insensitive)
+  const lower = policeTuru.toLocaleLowerCase('tr-TR');
+  for (const rule of QUOTE_TYPE_KEYWORDS) {
+    if (rule.keywords.some(kw => lower.includes(kw))) return rule.type;
+  }
+  return null;
+}
 
 // Quote types that require extra info forms
 const NEEDS_EXTRA_FORM = {
@@ -62,6 +95,22 @@ const TYPE_COLORS = {
 };
 const DEFAULT_TYPE_COLOR = { bg: 'rgba(59,130,246,0.12)', fg: '#3b82f6' };
 
+function resolveTypeColor(policeTuru) {
+  if (!policeTuru) return DEFAULT_TYPE_COLOR;
+  if (TYPE_COLORS[policeTuru]) return TYPE_COLORS[policeTuru];
+  // Keyword fallback using resolved quote type
+  const qt = resolveQuoteType(policeTuru);
+  const qtToColor = {
+    'tss': TYPE_COLORS['Sağlık'],
+    'traffic': TYPE_COLORS['Trafik'],
+    'casco': TYPE_COLORS['Kasko'],
+    'dask': TYPE_COLORS['DASK'],
+    'house': TYPE_COLORS['Konut'],
+    'imm': TYPE_COLORS['İMM']
+  };
+  return (qt && qtToColor[qt]) || DEFAULT_TYPE_COLOR;
+}
+
 // ============================================================
 //  INITIALIZATION
 // ============================================================
@@ -74,9 +123,71 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (testPanel) testPanel.style.display = 'block';
   }
 
+  // Initialize global phone input from logged-in user's GSM
+  initPhoneInput();
+
   await loadData();
   setupEventListeners();
 });
+
+// ============================================================
+//  GLOBAL PHONE INPUT
+// ============================================================
+
+function initPhoneInput() {
+  const phoneInput = document.getElementById('quotePhoneNumber');
+  const phoneStatus = document.getElementById('phoneStatus');
+  if (!phoneInput) return;
+
+  try {
+    const userData = JSON.parse(localStorage.getItem('current_user') || '{}');
+    if (userData.gsmNo) {
+      let gsm = String(userData.gsmNo).replace(/\D/g, '');
+      // Remove country code (90) if present
+      if (gsm.startsWith('90') && gsm.length > 10) gsm = gsm.substring(2);
+      // Remove leading zero if present
+      if (gsm.startsWith('0') && gsm.length > 10) gsm = gsm.substring(1);
+
+      phoneInput.value = gsm;
+      if (gsm.startsWith('5') && gsm.length === 10) {
+        phoneStatus.textContent = '\u2713';
+        phoneStatus.style.color = 'var(--success, #10b981)';
+      } else {
+        phoneStatus.textContent = 'Format kontrol edin';
+        phoneStatus.style.color = 'var(--warning, #f59e0b)';
+      }
+    } else {
+      phoneStatus.textContent = 'GSM bulunamadi';
+      phoneStatus.style.color = 'var(--warning, #f59e0b)';
+    }
+  } catch (e) {
+    console.error('Phone init error:', e);
+  }
+
+  // Live validation on input
+  phoneInput.addEventListener('input', function() {
+    const val = this.value.replace(/\D/g, '');
+    this.value = val;
+    if (val.startsWith('5') && val.length === 10) {
+      phoneStatus.textContent = '\u2713';
+      phoneStatus.style.color = 'var(--success, #10b981)';
+    } else if (val.length > 0) {
+      phoneStatus.textContent = '5 ile baslamali, 10 hane';
+      phoneStatus.style.color = 'var(--warning, #f59e0b)';
+    } else {
+      phoneStatus.textContent = '';
+    }
+  });
+}
+
+/** Returns the validated phone number from the global input, or null if invalid */
+function getGlobalPhone() {
+  const phoneInput = document.getElementById('quotePhoneNumber');
+  if (!phoneInput) return null;
+  const val = phoneInput.value.replace(/\D/g, '');
+  if (val.startsWith('5') && val.length === 10) return val;
+  return null;
+}
 
 // ============================================================
 //  DATA LOADING
@@ -318,7 +429,7 @@ function renderTable() {
 function createPolicyRow(policy) {
   const days = getDaysRemaining(policy.bitisTarihi);
   const urgency = days <= 7 ? 'critical' : days <= 15 ? 'warning' : 'normal';
-  const colors = TYPE_COLORS[policy.policeTuru] || DEFAULT_TYPE_COLOR;
+  const colors = resolveTypeColor(policy.policeTuru);
   const phone = formatPhone(policy.cepTelefonu);
 
   return `
@@ -605,7 +716,7 @@ function setupEventListeners() {
 //  QUOTE CREATION FLOW
 // ============================================================
 
-function createQuote(policyId) {
+async function createQuote(policyId) {
   const policy = allPolicies.find(p => p.id === policyId);
   if (!policy) {
     showToast('Police bulunamadi', 'error');
@@ -618,13 +729,44 @@ function createQuote(policyId) {
     return;
   }
 
-  const quoteType = QUOTE_TYPE_MAP[policy.policeTuru];
+  const quoteType = resolveQuoteType(policy.policeTuru);
   if (!quoteType) {
     showToast(`"${policy.policeTuru}" turu icin teklif destegi henuz mevcut degil`, 'warning');
     return;
   }
 
+  // Müşteri kartı kontrolü — yoksa oluştur, varsa bağla
+  if (!policy.musteriId) {
+    try {
+      const nameParts = splitName(policy.sigortaliAdi);
+      const result = await apiPost('customers/ensure', {
+        tcKimlikNo: policy.tcKimlikNo || null,
+        vergiNo: policy.vergiNo || null,
+        adi: nameParts.adi,
+        soyadi: nameParts.soyadi,
+        gsm: policy.cepTelefonu ? String(policy.cepTelefonu) : null,
+        policeId: policy.id
+      });
+
+      if (result && result.success) {
+        policy.musteriId = result.customerId;
+        const label = result.isNew ? 'Musteri karti olusturuldu' : 'Mevcut musteri karti baglandi';
+        showToast(`${label}: ${result.customerName || ''}`, 'success');
+      }
+    } catch (err) {
+      console.error('Ensure customer error:', err);
+      // Müşteri kartı oluşturulamazsa teklif akışını engelleme
+    }
+  }
+
   proceedWithQuote(policy, quoteType);
+}
+
+function splitName(fullName) {
+  if (!fullName) return { adi: null, soyadi: null };
+  const parts = fullName.trim().split(/\s+/);
+  if (parts.length <= 1) return { adi: parts[0] || null, soyadi: null };
+  return { adi: parts.slice(0, -1).join(' '), soyadi: parts[parts.length - 1] };
 }
 
 function proceedWithQuote(policy, quoteType) {
@@ -725,7 +867,29 @@ async function saveAndQuote() {
     closeTcAssignModal();
 
     if (policy) {
-      const quoteType = QUOTE_TYPE_MAP[policy.policeTuru];
+      // Müşteri kartı kontrolü — TC yeni kaydedildi, kart oluştur/bağla
+      if (!policy.musteriId) {
+        try {
+          const nameParts = splitName(policy.sigortaliAdi);
+          const ensureResult = await apiPost('customers/ensure', {
+            tcKimlikNo: policy.tcKimlikNo || null,
+            vergiNo: policy.vergiNo || null,
+            adi: nameParts.adi,
+            soyadi: nameParts.soyadi,
+            gsm: policy.cepTelefonu ? String(policy.cepTelefonu) : null,
+            policeId: policy.id
+          });
+          if (ensureResult && ensureResult.success) {
+            policy.musteriId = ensureResult.customerId;
+            const label = ensureResult.isNew ? 'Musteri karti olusturuldu' : 'Mevcut musteri karti baglandi';
+            showToast(`${label}: ${ensureResult.customerName || ''}`, 'success');
+          }
+        } catch (err) {
+          console.error('Ensure customer error:', err);
+        }
+      }
+
+      const quoteType = resolveQuoteType(policy.policeTuru);
       if (quoteType) proceedWithQuote(policy, quoteType);
     }
 
@@ -746,15 +910,30 @@ async function submitQuote(policyId, quoteType, extraData) {
   const policy = allPolicies.find(p => p.id === policyId);
   if (!policy) return;
 
+  // Validate global phone
+  const phone = getGlobalPhone();
+  if (!phone) {
+    showToast('Gecerli bir telefon numarasi giriniz (5 ile baslayan 10 hane)', 'warning');
+    const phoneInput = document.getElementById('quotePhoneNumber');
+    if (phoneInput) phoneInput.focus();
+    return;
+  }
+
   // Open expand row for this policy
   openExpandRow(policyId);
 
   try {
-    const requestBody = { quoteType, ...extraData };
+    const requestBody = { quoteType, cepTelefonu: phone, ...extraData };
     const response = await apiPost(`policies/${policyId}/create-quote`, requestBody);
 
     if (!response || !response.isSuccessful) {
       showExpandError(policyId, response?.message || 'Teklif gonderilemedi');
+      return;
+    }
+
+    // webQueryId null/undefined/0 → sorgu kuyruğa alındı ama henüz ID atanmadı
+    if (!response.webQueryId) {
+      showExpandError(policyId, response.message || 'Sorgu kuyruga alindi ancak henuz ID atanamadi. Telefon numarasi girildiginden emin olun.');
       return;
     }
 
@@ -938,6 +1117,7 @@ function closeTssForm() {
 
 function submitTssQuote() {
   const dogumTarihi = document.getElementById('tssDogumTarihi').value;
+
   if (!dogumTarihi) {
     showToast('Dogum tarihi zorunludur', 'warning');
     return;
@@ -1015,13 +1195,23 @@ function updateBulkQuoteStats() {
 }
 
 async function executeBulkAutoQuote() {
+  // Validate global phone before bulk operation
+  const phone = getGlobalPhone();
+  if (!phone) {
+    showToast('Toplu teklif icin gecerli bir telefon numarasi giriniz', 'warning');
+    closeBulkAutoQuoteModal();
+    const phoneInput = document.getElementById('quotePhoneNumber');
+    if (phoneInput) phoneInput.focus();
+    return;
+  }
+
   const days = parseInt(document.getElementById('bulkDaysFilter').value);
   const selectedBranches = Array.from(document.querySelectorAll('#bulkBranchesCheckboxes input:checked')).map(cb => cb.value);
 
   const vehicleTypes = ['traffic', 'casco', 'imm'];
   const eligible = allPolicies.filter(policy => {
     const d = getDaysRemaining(policy.bitisTarihi);
-    const quoteType = QUOTE_TYPE_MAP[policy.policeTuru];
+    const quoteType = resolveQuoteType(policy.policeTuru);
     return d <= days
       && selectedBranches.includes(policy.policeTuru)
       && quoteType
@@ -1049,10 +1239,24 @@ async function executeBulkAutoQuote() {
 
   for (let i = 0; i < eligible.length; i++) {
     const policy = eligible[i];
-    const quoteType = QUOTE_TYPE_MAP[policy.policeTuru];
+    const quoteType = resolveQuoteType(policy.policeTuru);
+
+    // Müşteri kartı yoksa otomatik oluştur
+    if (!policy.musteriId) {
+      try {
+        const np = splitName(policy.sigortaliAdi);
+        const er = await apiPost('customers/ensure', {
+          tcKimlikNo: policy.tcKimlikNo || null, vergiNo: policy.vergiNo || null,
+          adi: np.adi, soyadi: np.soyadi,
+          gsm: policy.cepTelefonu ? String(policy.cepTelefonu) : null,
+          policeId: policy.id
+        });
+        if (er && er.success) policy.musteriId = er.customerId;
+      } catch (_) { /* devam et */ }
+    }
 
     try {
-      const response = await apiPost(`policies/${policy.id}/create-quote`, { quoteType });
+      const response = await apiPost(`policies/${policy.id}/create-quote`, { quoteType, cepTelefonu: phone });
       if (response && response.isSuccessful) {
         successCount++;
       } else {
@@ -1168,7 +1372,7 @@ function clearTestLog() {
 async function submitTestQuote() {
   const quoteType = document.getElementById('testQuoteType').value;
   const tcKimlikNo = document.getElementById('testTcKimlikNo').value.trim();
-  const telefon = document.getElementById('testTelefon').value.trim();
+  const telefon = document.getElementById('testTelefon').value.trim() || getGlobalPhone() || '';
 
   if (!tcKimlikNo) {
     showToast('TC Kimlik No giriniz', 'warning');
@@ -1266,11 +1470,17 @@ async function submitTestQuote() {
       return;
     }
 
+    // webQueryId null/undefined/0 kontrolü
+    if (!response.webQueryId) {
+      const msg = response.message || 'Sorgu kuyruga alindi ancak webQueryId atanamadi';
+      testLog(`UYARI: ${msg}`, 'error');
+      showToast(msg, 'warning');
+      return;
+    }
+
     testLog(`Sorgu baslatildi! webQueryId=${response.webQueryId}`, 'success');
     showToast('Teklif sorgusu baslatildi', 'success');
 
-    // For test panel — use a pseudo policyId to show results in a test expand row
-    const testPolicyId = `test-${Date.now()}`;
     const productCode = PRODUCT_CODE_MAP[quoteType] ?? 0;
     testLog(`Polling baslatildi: webQueryId=${response.webQueryId}, productCode=${productCode}`, 'info');
 
