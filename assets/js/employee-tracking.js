@@ -231,6 +231,10 @@
     }
 
     renderCalendar();
+
+    // Close calendar after selection
+    const calWrapper = document.getElementById('calendarWrapper');
+    if (calWrapper) calWrapper.classList.remove('open');
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -599,11 +603,19 @@
       });
     }
 
-    // Close dropdown on outside click
+    // Close dropdown and calendar on outside click
     document.addEventListener('click', function(e) {
       const dropdown = document.getElementById('periodDropdown');
+      const calWrapper = document.getElementById('calendarWrapper');
+
       if (dropdown && !dropdown.contains(e.target)) {
         closePeriodDropdown();
+      }
+
+      if (calWrapper && calWrapper.classList.contains('open') &&
+          !calWrapper.contains(e.target) &&
+          !(dropdown && dropdown.contains(e.target))) {
+        calWrapper.classList.remove('open');
       }
     });
 
