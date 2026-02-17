@@ -88,10 +88,11 @@
     const options = buildPeriodOptions();
 
     // Custom dropdown panel
+    const checkSvg = '<svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>';
     panel.innerHTML = options.map((opt, i) => {
       let html = '';
       if (i === 1) html += '<div class="custom-dropdown-divider"></div>';
-      html += `<div class="custom-dropdown-option${i === 1 ? ' selected' : ''}" data-value="${opt.value}">${escapeHtml(opt.label)}</div>`;
+      html += `<div class="custom-dropdown-option${i === 1 ? ' selected' : ''}" data-value="${opt.value}">${checkSvg}<span>${escapeHtml(opt.label)}</span></div>`;
       return html;
     }).join('');
 
