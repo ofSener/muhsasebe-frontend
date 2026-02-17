@@ -27,11 +27,23 @@
 
           const value = e.target.dataset.value || '';
           const text = e.target.textContent.trim();
+          const dropdownId = floatingMenu.dataset.dropdownId;
 
-          // Hangi dropdown'a ait olduğunu bul (floating menu'daki dataset'ten veya açık dropdown'dan)
-          const dropdownId = floatingMenu.dataset.dropdownId || document.querySelector('.custom-dropdown.open')?.id;
-
-          if (dropdownId) {
+          // Permission dropdown mu yoksa filtre dropdown mu?
+          const sourceDropdown = dropdownId && document.getElementById(dropdownId);
+          if (!sourceDropdown) {
+            // ID yok — employee-id ile permission dropdown bul
+            const empId = floatingMenu.dataset.employeeId;
+            if (empId) {
+              const permDropdown = document.querySelector(`.permission-dropdown[data-employee-id="${empId}"]`);
+              if (permDropdown) {
+                // Orijinal dropdown'daki ilgili item'ı bul ve selectPermission çağır
+                const origItem = permDropdown.querySelector(`.dropdown-item[data-value="${value}"]`);
+                if (origItem) selectPermission(origItem, value, text);
+                else selectPermission(permDropdown.querySelector('.dropdown-item'), value, text);
+              }
+            }
+          } else {
             selectDropdownItem(dropdownId, value, text);
           }
         }
@@ -92,7 +104,11 @@
       const rect = toggle.getBoundingClientRect();
 
       // Dropdown ID'sini floating menu'ya ekle (hangi dropdown'a ait olduğunu bilmek için)
-      floatingMenu.dataset.dropdownId = dropdown.id;
+      floatingMenu.dataset.dropdownId = dropdown.id || '';
+      // Permission dropdown ise employee ID'yi de ekle
+      if (dropdown.dataset.employeeId) {
+        floatingMenu.dataset.employeeId = dropdown.dataset.employeeId;
+      }
 
       // Pozisyonlama
       floatingMenu.style.top = (rect.bottom + 4) + 'px';
@@ -137,24 +153,12 @@
       const wasOpen = dropdown.classList.contains('open');
 
       // Diğer tüm dropdown'ları kapat
-      document.querySelectorAll('.custom-dropdown.open').forEach(d => {
-        d.classList.remove('open');
-        d.classList.remove('open-up');
-      });
+      closeAllDropdowns();
 
       // Bu dropdown'ı aç/kapat
       if (!wasOpen) {
-        // Dropdown'un ekrandaki pozisyonunu kontrol et
-        const rect = btn.getBoundingClientRect();
-        const menuHeight = 200; // Yaklaşık menu yüksekliği
-        const spaceBelow = window.innerHeight - rect.bottom;
-
-        // Altında yeterli alan yoksa yukarı aç
-        if (spaceBelow < menuHeight) {
-          dropdown.classList.add('open-up');
-        }
-
         dropdown.classList.add('open');
+        positionDropdownMenu(dropdown);
       }
     }
 
