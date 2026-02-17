@@ -264,11 +264,16 @@
     if (!panel) return;
 
     const checkSvg = '<svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>';
+    const searchSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
 
-    panel.innerHTML = employees.map((emp, i) => {
+    const searchHtml = `<div class="custom-dropdown-search">${searchSvg}<input type="text" id="employeeSearchInput" placeholder="Çalışan ara..." autocomplete="off"></div>`;
+    const optionsHtml = employees.map((emp, i) => {
       const name = [emp.adi, emp.soyadi].filter(Boolean).join(' ') || emp.email || `Kullanıcı #${emp.id}`;
-      return `<div class="custom-dropdown-option${i === 0 ? ' selected' : ''}" data-value="${emp.id}">${checkSvg}<span>${escapeHtml(name)}</span></div>`;
+      return `<div class="custom-dropdown-option${i === 0 ? ' selected' : ''}" data-value="${emp.id}" data-search="${escapeHtml(name.toLowerCase())}">${checkSvg}<span>${escapeHtml(name)}</span></div>`;
     }).join('');
+    const noResults = '<div class="custom-dropdown-no-results" id="employeeNoResults">Sonuç bulunamadı</div>';
+
+    panel.innerHTML = searchHtml + optionsHtml + noResults;
 
     if (employees.length > 0) {
       const firstName = [employees[0].adi, employees[0].soyadi].filter(Boolean).join(' ') || employees[0].email || `Kullanıcı #${employees[0].id}`;
@@ -277,6 +282,25 @@
     } else {
       if (triggerText) triggerText.textContent = 'Çalışan bulunamadı';
     }
+  }
+
+  function filterEmployeeOptions(query) {
+    const panel = document.getElementById('employeePanel');
+    const noResults = document.getElementById('employeeNoResults');
+    if (!panel) return;
+
+    const q = query.toLowerCase().trim();
+    const options = panel.querySelectorAll('.custom-dropdown-option');
+    let visibleCount = 0;
+
+    options.forEach(opt => {
+      const searchText = opt.dataset.search || '';
+      const match = !q || searchText.includes(q);
+      opt.classList.toggle('dd-hidden', !match);
+      if (match) visibleCount++;
+    });
+
+    if (noResults) noResults.classList.toggle('visible', visibleCount === 0);
   }
 
   function toggleEmployeeDropdown() {
@@ -289,6 +313,13 @@
     if (!isOpen) {
       trigger.classList.add('open');
       panel.classList.add('open');
+      // Focus search & reset filter
+      const searchInput = document.getElementById('employeeSearchInput');
+      if (searchInput) {
+        searchInput.value = '';
+        filterEmployeeOptions('');
+        setTimeout(() => searchInput.focus(), 50);
+      }
     }
   }
 
@@ -608,6 +639,12 @@
         const option = e.target.closest('.custom-dropdown-option');
         if (!option) return;
         selectEmployeeOption(option.dataset.value, option.querySelector('span').textContent);
+      });
+      // Search input inside panel
+      employeePanel.addEventListener('input', function(e) {
+        if (e.target.id === 'employeeSearchInput') {
+          filterEmployeeOptions(e.target.value);
+        }
       });
     }
 
