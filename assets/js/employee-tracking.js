@@ -108,15 +108,21 @@
     }
   }
 
+  function closeAllDropdowns() {
+    closePeriodDropdown();
+    closeEmployeeDropdown();
+    const calWrapper = document.getElementById('calendarWrapper');
+    if (calWrapper) calWrapper.classList.remove('open');
+  }
+
   function togglePeriodDropdown() {
     const trigger = document.getElementById('periodTrigger');
     const panel = document.getElementById('periodPanel');
     if (!trigger || !panel) return;
 
     const isOpen = panel.classList.contains('open');
-    if (isOpen) {
-      closePeriodDropdown();
-    } else {
+    closeAllDropdowns();
+    if (!isOpen) {
       trigger.classList.add('open');
       panel.classList.add('open');
     }
@@ -253,23 +259,60 @@
   }
 
   function populateEmployeeDropdown() {
-    const select = document.getElementById('employeeSelect');
-    if (!select) return;
+    const panel = document.getElementById('employeePanel');
+    const triggerText = document.getElementById('employeeTriggerText');
+    if (!panel) return;
 
-    select.innerHTML = '<option value="">Çalışan Seçin</option>';
+    const checkSvg = '<svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>';
 
-    employees.forEach(emp => {
-      const option = document.createElement('option');
-      option.value = emp.id;
-      const name = [emp.adi, emp.soyadi].filter(Boolean).join(' ');
-      option.textContent = name || emp.email || `Kullanıcı #${emp.id}`;
-      select.appendChild(option);
-    });
+    panel.innerHTML = employees.map((emp, i) => {
+      const name = [emp.adi, emp.soyadi].filter(Boolean).join(' ') || emp.email || `Kullanıcı #${emp.id}`;
+      return `<div class="custom-dropdown-option${i === 0 ? ' selected' : ''}" data-value="${emp.id}">${checkSvg}<span>${escapeHtml(name)}</span></div>`;
+    }).join('');
 
     if (employees.length > 0) {
-      select.value = employees[0].id;
+      const firstName = [employees[0].adi, employees[0].soyadi].filter(Boolean).join(' ') || employees[0].email || `Kullanıcı #${employees[0].id}`;
+      if (triggerText) triggerText.textContent = firstName;
       selectedEmployeeId = employees[0].id;
+    } else {
+      if (triggerText) triggerText.textContent = 'Çalışan bulunamadı';
     }
+  }
+
+  function toggleEmployeeDropdown() {
+    const trigger = document.getElementById('employeeTrigger');
+    const panel = document.getElementById('employeePanel');
+    if (!trigger || !panel) return;
+
+    const isOpen = panel.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) {
+      trigger.classList.add('open');
+      panel.classList.add('open');
+    }
+  }
+
+  function closeEmployeeDropdown() {
+    const trigger = document.getElementById('employeeTrigger');
+    const panel = document.getElementById('employeePanel');
+    if (trigger) trigger.classList.remove('open');
+    if (panel) panel.classList.remove('open');
+  }
+
+  function selectEmployeeOption(value, label) {
+    const triggerText = document.getElementById('employeeTriggerText');
+    const panel = document.getElementById('employeePanel');
+
+    if (triggerText) triggerText.textContent = label;
+    selectedEmployeeId = value;
+
+    if (panel) {
+      panel.querySelectorAll('.custom-dropdown-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.value === value);
+      });
+    }
+
+    closeEmployeeDropdown();
   }
 
   function getSelectedEmployeeName() {
@@ -549,11 +592,22 @@
   // ═══════════════════════════════════════════════════════════════
 
   function setupEventListeners() {
-    // Employee select
-    const employeeSelect = document.getElementById('employeeSelect');
-    if (employeeSelect) {
-      employeeSelect.addEventListener('change', function(e) {
-        selectedEmployeeId = e.target.value;
+    // Employee custom dropdown
+    const employeeTrigger = document.getElementById('employeeTrigger');
+    if (employeeTrigger) {
+      employeeTrigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleEmployeeDropdown();
+      });
+    }
+
+    const employeePanel = document.getElementById('employeePanel');
+    if (employeePanel) {
+      employeePanel.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const option = e.target.closest('.custom-dropdown-option');
+        if (!option) return;
+        selectEmployeeOption(option.dataset.value, option.querySelector('span').textContent);
       });
     }
 
@@ -570,9 +624,10 @@
     const periodPanel = document.getElementById('periodPanel');
     if (periodPanel) {
       periodPanel.addEventListener('click', function(e) {
+        e.stopPropagation();
         const option = e.target.closest('.custom-dropdown-option');
         if (!option) return;
-        selectPeriodOption(option.dataset.value, option.textContent);
+        selectPeriodOption(option.dataset.value, option.querySelector('span').textContent);
       });
     }
 
@@ -580,14 +635,16 @@
     const calPrev = document.getElementById('calPrev');
     const calNext = document.getElementById('calNext');
     if (calPrev) {
-      calPrev.addEventListener('click', function() {
+      calPrev.addEventListener('click', function(e) {
+        e.stopPropagation();
         calMonth--;
         if (calMonth < 0) { calMonth = 11; calYear--; }
         renderCalendar();
       });
     }
     if (calNext) {
-      calNext.addEventListener('click', function() {
+      calNext.addEventListener('click', function(e) {
+        e.stopPropagation();
         calMonth++;
         if (calMonth > 11) { calMonth = 0; calYear++; }
         renderCalendar();
@@ -598,25 +655,27 @@
     const calGrid = document.getElementById('calGrid');
     if (calGrid) {
       calGrid.addEventListener('click', function(e) {
+        e.stopPropagation();
         const dayBtn = e.target.closest('.calendar-day');
         if (!dayBtn || dayBtn.classList.contains('other-month')) return;
         onCalendarDayClick(dayBtn.dataset.date);
       });
     }
 
-    // Close dropdown and calendar on outside click
+    // Close all dropdowns and calendar on outside click
     document.addEventListener('click', function(e) {
-      const dropdown = document.getElementById('periodDropdown');
+      const empDropdown = document.getElementById('employeeDropdown');
+      const periodDropdown = document.getElementById('periodDropdown');
       const calWrapper = document.getElementById('calendarWrapper');
 
-      if (dropdown && !dropdown.contains(e.target)) {
-        closePeriodDropdown();
-      }
+      const clickedInsideEmp = empDropdown && empDropdown.contains(e.target);
+      const clickedInsidePeriod = periodDropdown && periodDropdown.contains(e.target);
+      const clickedInsideCal = calWrapper && calWrapper.contains(e.target);
 
-      if (calWrapper && calWrapper.classList.contains('open') &&
-          !calWrapper.contains(e.target) &&
-          !(dropdown && dropdown.contains(e.target))) {
-        calWrapper.classList.remove('open');
+      if (!clickedInsideEmp) closeEmployeeDropdown();
+      if (!clickedInsidePeriod) closePeriodDropdown();
+      if (!clickedInsideCal && !clickedInsidePeriod) {
+        if (calWrapper) calWrapper.classList.remove('open');
       }
     });
 
