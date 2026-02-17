@@ -56,6 +56,52 @@
       gun: { column: 'tutar', direction: 'desc' }
     };
 
+    // Previous period comparison data (for real trend percentages)
+    let prevBransMap = {};
+    let prevSirketMap = {};
+    let prevKullaniciMap = {};
+    let prevSubeMap = {};
+    let aylikTrendData = [];
+    let gunlukTrendData = []; // Daily trend data for sparklines and expanded charts
+
+    // Calculate percentage change between current and previous values
+    function calcChange(current, previous) {
+      if (!previous || previous === 0) return current > 0 ? 100 : 0;
+      return ((current - previous) / previous * 100);
+    }
+
+    // Build a lookup map from API response for previous period comparison
+    function buildPrevMap(items, idKey, valueKey) {
+      const map = {};
+      (items || []).forEach(item => { map[item[idKey]] = item[valueKey] || 0; });
+      return map;
+    }
+
+    // Get real trend percentage from previous period comparison map
+    function getRealTrendPct(entityId, prevMap, currentValue) {
+      const prevValue = prevMap[entityId] || 0;
+      return calcChange(currentValue, prevValue);
+    }
+
+    // Divide gunluk-trend data into 7 equal segments, average each segment as a bar height
+    function getSparklineBarsFromTrend() {
+      if (!gunlukTrendData || gunlukTrendData.length === 0) return [50];
+      const sorted = [...gunlukTrendData].sort((a, b) => new Date(a.tarih) - new Date(b.tarih));
+      const total = sorted.length;
+      const segmentSize = total / 7;
+      const bars = [];
+      for (let i = 0; i < 7; i++) {
+        const start = Math.floor(i * segmentSize);
+        const end = Math.floor((i + 1) * segmentSize);
+        if (start >= total) break;
+        const segment = sorted.slice(start, Math.max(end, start + 1));
+        const avg = segment.reduce((sum, d) => sum + (d.brutPrim || 0), 0) / segment.length;
+        bars.push(avg);
+      }
+      const maxVal = Math.max(...bars, 1);
+      return bars.map(v => Math.max(10, Math.round((v / maxVal) * 100)));
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // HELPER FUNCTIONS
     // ═══════════════════════════════════════════════════════════════
@@ -232,7 +278,7 @@
     // ═══════════════════════════════════════════════════════════════
     // KPI STATS FUNCTIONS
     // ═══════════════════════════════════════════════════════════════
-    function updateKPIStats(bransRes, sirketRes, performersRes) {
+    function updateKPIStats(bransRes, sirketRes, performersRes, prevToplamPrim) {
       // Calculate totals
       const toplamPrim = (bransRes.dagilim || []).reduce((sum, item) => sum + (item.toplamBrutPrim || 0), 0);
       const toplamPolice = (bransRes.dagilim || []).reduce((sum, item) => sum + (item.policeSayisi || 0), 0);
@@ -240,11 +286,41 @@
       // Update Toplam Prim
       document.getElementById('statToplamPrim').textContent = formatCurrency(toplamPrim);
 
+      // Prim Change - real comparison with previous period
+      const primChange = calcChange(toplamPrim, prevToplamPrim);
+      const primChangeEl = document.getElementById('statPrimChange');
+      const primUp = primChange >= 0;
+      primChangeEl.className = `stat-change ${primUp ? 'positive' : 'negative'}`;
+      primChangeEl.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="${primUp ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'}"/>
+        </svg>
+        ${primUp ? '+' : ''}${primChange.toFixed(1)}% önceki döneme göre
+      `;
+
       // Update Poliçe Sayısı
       document.getElementById('statPoliceSayisi').textContent = formatNumber(toplamPolice);
 
-      // Update Bu Ay Üretim (same as toplam for now, can be refined with API)
-      document.getElementById('statBuAyUretim').textContent = formatCurrency(toplamPrim);
+      // Bu Ay Üretim - use aylik-trend data for real month-over-month
+      if (aylikTrendData && aylikTrendData.length > 0) {
+        const currentMonth = aylikTrendData[aylikTrendData.length - 1];
+        const prevMonth = aylikTrendData.length > 1 ? aylikTrendData[aylikTrendData.length - 2] : null;
+
+        document.getElementById('statBuAyUretim').textContent = formatCurrency(currentMonth.brutPrim || 0);
+
+        const uretimChange = prevMonth ? calcChange(currentMonth.brutPrim || 0, prevMonth.brutPrim || 0) : 0;
+        const uretimChangeEl = document.getElementById('statUretimChange');
+        const uretimUp = uretimChange >= 0;
+        uretimChangeEl.className = `stat-change ${uretimUp ? 'positive' : 'negative'}`;
+        uretimChangeEl.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="${uretimUp ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'}"/>
+          </svg>
+          ${uretimUp ? '+' : ''}${uretimChange.toFixed(1)}% geçen aya göre
+        `;
+      } else {
+        document.getElementById('statBuAyUretim').textContent = formatCurrency(toplamPrim);
+      }
 
       // Update Top Performer
       const performers = performersRes.performers || [];
@@ -563,24 +639,22 @@
     // RENDER HELPER FUNCTIONS
     // ═══════════════════════════════════════════════════════════════
 
-    // Generate random trend data (in real app, this would come from API)
-    function generateTrendData(seed) {
-      const bars = [];
-      let val = 40 + (seed % 30);
-      for (let i = 0; i < 7; i++) {
-        val = Math.max(20, Math.min(100, val + (Math.random() - 0.4) * 25));
-        bars.push(Math.round(val));
-      }
-      return bars;
+    // Render comparison bars (previous vs current period)
+    function renderComparisonBars(currentValue, previousValue) {
+      const maxVal = Math.max(currentValue, previousValue, 1);
+      const prevPct = Math.max(8, Math.round((previousValue / maxVal) * 100));
+      const currPct = Math.max(8, Math.round((currentValue / maxVal) * 100));
+      const isUp = currentValue >= previousValue;
+
+      return `
+        <div class="spark-bars ${isUp ? 'up' : 'down'}" title="Önceki: ${formatCurrency(previousValue)}&#10;Şimdi: ${formatCurrency(currentValue)}">
+          <span class="bar" style="height: ${prevPct}%; background: var(--text-muted); opacity: 0.3; width: 8px;"></span>
+          <span class="bar" style="height: ${currPct}%; width: 8px;"></span>
+        </div>
+      `;
     }
 
-    // Generate trend percentage
-    function getTrendPercentage(seed) {
-      const base = ((seed * 7) % 30) - 10;
-      return base;
-    }
-
-    // Render sparkline bars HTML
+    // Render sparkline bars HTML (kept for potential future use)
     function renderSparkBars(bars, isUp) {
       return `
         <div class="spark-bars ${isUp ? 'up' : 'down'}">
@@ -618,18 +692,18 @@
       }
     }
 
-    // Create expanded area chart
+    // Create expanded area chart using real daily trend data
     function createExpandedChart(containerId) {
       const container = document.getElementById(containerId);
       if (!container || typeof ApexCharts === 'undefined') return;
-
-      const data = [];
-      let base = 50000 + Math.random() * 30000;
-      for (let i = 0; i < 14; i++) {
-        base = base + (Math.random() - 0.4) * 8000;
-        data.push(Math.max(20000, Math.round(base)));
+      if (!gunlukTrendData || gunlukTrendData.length === 0) {
+        container.innerHTML = '<span style="color:var(--text-muted);font-size:0.7rem;">Veri yok</span>';
+        return;
       }
-      const isUp = data[data.length - 1] > data[0];
+
+      const sorted = [...gunlukTrendData].sort((a, b) => new Date(a.tarih) - new Date(b.tarih));
+      const data = sorted.map(d => d.brutPrim || 0);
+      const isUp = data.length > 1 && data[data.length - 1] >= data[0];
 
       const options = {
         chart: {
@@ -665,15 +739,15 @@
       }
 
       const maxTutar = Math.max(...data.map(item => item.toplamBrutPrim || 0));
+      const sparkBars = getSparklineBarsFromTrend();
 
       tbody.innerHTML = data.map((item, i) => {
         const tutar = item.toplamBrutPrim || 0;
         const adet = item.policeSayisi || 0;
         const avgPrim = adet > 0 ? Math.round(tutar / adet) : 0;
-        const trendPct = getTrendPercentage(i + tutar);
+        const prevValue = prevBransMap[item.bransId] || 0;
+        const trendPct = getRealTrendPct(item.bransId, prevBransMap, tutar);
         const isUp = trendPct >= 0;
-        const bars = generateTrendData(i + tutar);
-        const hedefOran = Math.min(100, Math.round((tutar / (maxTutar * 1.2)) * 100));
 
         return `
           <tr class="data-row" onclick="toggleRow(this)">
@@ -688,7 +762,7 @@
             </td>
             <td>
               <div class="trend-cell">
-                ${renderSparkBars(bars, isUp)}
+                ${renderSparkBars(sparkBars, isUp)}
                 ${renderTrendBadge(trendPct)}
               </div>
             </td>
@@ -706,13 +780,12 @@
                   </div>
                   <div class="expanded-stat">
                     <div class="expanded-stat-label">Değişim</div>
-                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${Number(trendPct).toFixed(1)}%</div>
-                    <div class="expanded-stat-sub">Geçen aya göre</div>
+                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${trendPct.toFixed(1)}%</div>
+                    <div class="expanded-stat-sub">Önceki döneme göre</div>
                   </div>
                   <div class="expanded-stat">
-                    <div class="expanded-stat-label">Hedef</div>
-                    <div class="expanded-stat-value">${formatCurrency(Math.round(maxTutar * 1.2))}</div>
-                    <div class="expanded-stat-sub">${hedefOran}% tamamlandı</div>
+                    <div class="expanded-stat-label">Önceki Dönem</div>
+                    <div class="expanded-stat-value">${formatCurrency(prevValue)}</div>
                   </div>
                 </div>
               </div>
@@ -732,16 +805,17 @@
       }
 
       const totalTutar = data.reduce((sum, item) => sum + (item.toplamBrutPrim || 0), 0);
+      const sparkBars = getSparklineBarsFromTrend();
 
       tbody.innerHTML = data.map((item, i) => {
         const tutar = item.toplamBrutPrim || 0;
         const adet = item.policeSayisi || 0;
         const avgPrim = adet > 0 ? Math.round(tutar / adet) : 0;
-        const komisyon = Math.round(tutar * 0.1);
+        const komisyon = item.toplamKomisyon || 0;
         const pazarPayi = totalTutar > 0 ? ((tutar / totalTutar) * 100).toFixed(1) : 0;
-        const trendPct = getTrendPercentage(i + tutar);
+        const prevValue = prevSirketMap[item.sirketId] || 0;
+        const trendPct = getRealTrendPct(item.sirketId, prevSirketMap, tutar);
         const isUp = trendPct >= 0;
-        const bars = generateTrendData(i + tutar);
 
         return `
           <tr class="data-row" onclick="toggleRow(this)">
@@ -756,7 +830,7 @@
             </td>
             <td>
               <div class="trend-cell">
-                ${renderSparkBars(bars, isUp)}
+                ${renderSparkBars(sparkBars, isUp)}
                 ${renderTrendBadge(trendPct)}
               </div>
             </td>
@@ -775,7 +849,6 @@
                   <div class="expanded-stat">
                     <div class="expanded-stat-label">Komisyon</div>
                     <div class="expanded-stat-value success">${formatCurrency(komisyon)}</div>
-                    <div class="expanded-stat-sub">%10 oran</div>
                   </div>
                   <div class="expanded-stat">
                     <div class="expanded-stat-label">Pazar Payı</div>
@@ -799,15 +872,16 @@
       }
 
       const totalTutar = data.reduce((sum, item) => sum + (item.tutar || 0), 0);
+      const sparkBars = getSparklineBarsFromTrend();
 
       tbody.innerHTML = data.map((item, i) => {
         const tutar = item.tutar || 0;
         const adet = item.adet || 0;
         const avgPrim = adet > 0 ? Math.round(tutar / adet) : 0;
         const pazarPayi = totalTutar > 0 ? ((tutar / totalTutar) * 100).toFixed(1) : 0;
-        const trendPct = getTrendPercentage(i + tutar);
+        const prevValue = prevSubeMap[item.subeAdi] || 0;
+        const trendPct = calcChange(tutar, prevValue);
         const isUp = trendPct >= 0;
-        const bars = generateTrendData(i + tutar);
 
         return `
           <tr class="data-row" onclick="toggleRow(this)">
@@ -822,7 +896,7 @@
             </td>
             <td>
               <div class="trend-cell">
-                ${renderSparkBars(bars, isUp)}
+                ${renderSparkBars(sparkBars, isUp)}
                 ${renderTrendBadge(trendPct)}
               </div>
             </td>
@@ -840,8 +914,8 @@
                   </div>
                   <div class="expanded-stat">
                     <div class="expanded-stat-label">Değişim</div>
-                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${Number(trendPct).toFixed(1)}%</div>
-                    <div class="expanded-stat-sub">Geçen aya göre</div>
+                    <div class="expanded-stat-value ${isUp ? 'success' : 'danger'}">${isUp ? '+' : ''}${trendPct.toFixed(1)}%</div>
+                    <div class="expanded-stat-sub">Önceki döneme göre</div>
                   </div>
                   <div class="expanded-stat">
                     <div class="expanded-stat-label">Pazar Payı</div>
@@ -865,15 +939,15 @@
       }
 
       const maxTutar = Math.max(...data.map(item => item.toplamBrutPrim || 0));
+      const sparkBars = getSparklineBarsFromTrend();
 
       tbody.innerHTML = data.map((item, i) => {
         const tutar = item.toplamBrutPrim || 0;
         const adet = item.policeSayisi || 0;
         const avgPrim = adet > 0 ? Math.round(tutar / adet) : 0;
-        const hedefOran = Math.min(100, Math.round((tutar / (maxTutar * 1.1)) * 100));
-        const trendPct = getTrendPercentage(i + tutar);
+        const prevValue = prevKullaniciMap[item.uyeId] || 0;
+        const trendPct = getRealTrendPct(item.uyeId, prevKullaniciMap, tutar);
         const isUp = trendPct >= 0;
-        const bars = generateTrendData(i + tutar);
 
         return `
           <tr class="data-row" onclick="toggleRow(this)">
@@ -888,7 +962,7 @@
             </td>
             <td>
               <div class="trend-cell">
-                ${renderSparkBars(bars, isUp)}
+                ${renderSparkBars(sparkBars, isUp)}
                 ${renderTrendBadge(trendPct)}
               </div>
             </td>
@@ -909,14 +983,13 @@
                     <div class="expanded-stat-value">${formatCurrency(avgPrim)}</div>
                   </div>
                   <div class="expanded-stat">
-                    <div class="expanded-stat-label">Hedef</div>
-                    <div class="expanded-stat-value">${formatCurrency(Math.round(maxTutar * 1.1))}</div>
-                    <div class="expanded-stat-sub">${hedefOran}% tamamlandı</div>
+                    <div class="expanded-stat-label">Önceki Dönem</div>
+                    <div class="expanded-stat-value">${formatCurrency(prevValue)}</div>
                   </div>
                   <div class="expanded-stat">
                     <div class="expanded-stat-label">Sıralama</div>
                     <div class="expanded-stat-value ${i < 3 ? 'success' : ''}">#${i + 1}</div>
-                    <div class="expanded-stat-sub">Bu ay</div>
+                    <div class="expanded-stat-sub">Bu dönem</div>
                   </div>
                 </div>
               </div>
@@ -1152,6 +1225,20 @@
       if (currentFilters.subeIds?.length > 0) params.subeIds = currentFilters.subeIds.join(',');
       if (currentFilters.sirketIds?.length > 0) params.sirketIds = currentFilters.sirketIds.join(',');
 
+      // Calculate previous period (same duration, shifted back) for trend comparison
+      const effectiveStart = currentFilters.startDate || toLocalDateString(new Date(new Date().getFullYear(), 0, 1));
+      const effectiveEnd = currentFilters.endDate || toLocalDateString(new Date());
+      const sd = new Date(effectiveStart);
+      const ed = new Date(effectiveEnd);
+      const durationMs = ed.getTime() - sd.getTime();
+      const prevEnd = new Date(sd.getTime() - 86400000); // day before current start
+      const prevStart = new Date(prevEnd.getTime() - durationMs);
+      const prevParams = {
+        ...params,
+        startDate: toLocalDateString(prevStart),
+        endDate: toLocalDateString(prevEnd)
+      };
+
       // Show loading states
       showTableLoading('bransTableBody');
       showTableLoading('sirketTableBody');
@@ -1162,14 +1249,40 @@
         const modeLabel = currentMode === 0 ? 'Onaylı' : 'Yakalama';
         console.log(`Loading dashboard data (${modeLabel} mode) with params:`, params);
 
-        const [bransRes, sirketRes, performersRes, aktivitelerRes] = await Promise.all([
+        // Load current period + previous period + aylik-trend in parallel
+        const [bransRes, sirketRes, performersRes, aktivitelerRes, aylikTrendRes, gunlukTrendRes,
+               prevBransRes, prevSirketRes, prevPerformersRes] = await Promise.all([
+          // Current period
           apiGet('dashboard/brans-dagilim', params).catch(e => { console.error('Brans error:', e); return { dagilim: [] }; }),
           apiGet('dashboard/sirket-dagilim', params).catch(e => { console.error('Sirket error:', e); return { dagilim: [] }; }),
           apiGet('dashboard/top-performers', { ...params, limit: 50 }).catch(e => { console.error('Performers error:', e); return { performers: [] }; }),
-          apiGet('dashboard/son-aktiviteler', { ...params, limit: 100 }).catch(e => { console.error('Aktiviteler error:', e); return { aktiviteler: [] }; })
+          apiGet('dashboard/son-aktiviteler', { ...params, limit: 100 }).catch(e => { console.error('Aktiviteler error:', e); return { aktiviteler: [] }; }),
+          apiGet('dashboard/aylik-trend', { firmaId, mode: currentMode, months: 2 }).catch(e => { console.error('Aylik trend error:', e); return { trend: [] }; }),
+          apiGet('dashboard/gunluk-trend', params).catch(e => { console.error('Gunluk trend error:', e); return { trend: [] }; }),
+          // Previous period (for trend comparison)
+          apiGet('dashboard/brans-dagilim', prevParams).catch(e => { console.error('Prev brans error:', e); return { dagilim: [] }; }),
+          apiGet('dashboard/sirket-dagilim', prevParams).catch(e => { console.error('Prev sirket error:', e); return { dagilim: [] }; }),
+          apiGet('dashboard/top-performers', { ...prevParams, limit: 50 }).catch(e => { console.error('Prev performers error:', e); return { performers: [] }; })
         ]);
 
         console.log('API Responses:', { bransRes, sirketRes, performersRes, aktivitelerRes });
+
+        // Build previous period comparison maps
+        prevBransMap = buildPrevMap(prevBransRes.dagilim || [], 'bransId', 'toplamBrutPrim');
+        prevSirketMap = buildPrevMap(prevSirketRes.dagilim || [], 'sirketId', 'toplamBrutPrim');
+        prevKullaniciMap = buildPrevMap(prevPerformersRes.performers || [], 'uyeId', 'toplamBrutPrim');
+
+        // Build prev sube map (grouped by name)
+        const prevSubeData = groupBySubeFromPerformers(prevPerformersRes.performers || []);
+        prevSubeMap = {};
+        prevSubeData.forEach(s => { prevSubeMap[s.subeAdi] = s.tutar || 0; });
+
+        // Store trend data
+        aylikTrendData = aylikTrendRes.trend || [];
+        gunlukTrendData = gunlukTrendRes.trend || [];
+
+        // Calculate previous period total for KPI comparison
+        const prevToplamPrim = (prevBransRes.dagilim || []).reduce((sum, item) => sum + (item.toplamBrutPrim || 0), 0);
 
         // Cache data for sorting
         bransData = bransRes.dagilim || [];
@@ -1178,15 +1291,15 @@
         subeData = groupBySubeFromPerformers(performersRes.performers || []);
         gunData = groupByDayFromAktiviteler(aktivitelerRes.aktiviteler || []);
 
-        // Render tables
+        // Render tables (with real trend data from prev maps)
         renderBransTable(bransData);
         renderSirketTable(sirketData);
         renderKullaniciTable(kullaniciData);
         renderSubeTable(subeData);
         renderGunChart(gunData);
 
-        // Update KPI stats
-        updateKPIStats(bransRes, sirketRes, performersRes);
+        // Update KPI stats with real comparison
+        updateKPIStats(bransRes, sirketRes, performersRes, prevToplamPrim);
 
         // Render charts
         renderBransDonutChart(bransData);
