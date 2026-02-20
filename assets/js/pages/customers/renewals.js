@@ -1241,7 +1241,7 @@ function startWizardPolling() {
 }
 async function pollWizQuoteResult(webQueryId, productCode, policyId) {
   try { const r = await apiGet('policies/quote-results', { webQueryId, product: productCode }); if (!r || !r.isSuccessful) return;
-    wizTrackingResults[webQueryId] = { status: r.status || 'polling', quotes: r.quotes || [], policyId, errorMessage: r.errorMessage || null };
+    wizTrackingResults[webQueryId] = { status: r.status || 'polling', quotes: r.quotes || [], policyId, errorMessage: r.errorMessage || null, quoteFilePath: r.quoteFilePath || null };
     if (r.status === 'completed' || r.status === 'error') { if (wizTrackingPolls[webQueryId]) { clearInterval(wizTrackingPolls[webQueryId].intervalId); delete wizTrackingPolls[webQueryId]; } }
     updateWizTrackCards(); checkWizPollingDone();
   } catch (error) { console.error('Wizard polling error:', error); }
@@ -1257,7 +1257,12 @@ function updateWizTrackCards() {
     else if (isT) sH = '<span class="rn-track-card-status" style="background:var(--warning-bg);color:var(--warning);">Zaman asimi</span>';
     else sH = '<span class="rn-track-card-status" style="background:var(--info-bg);color:var(--info);">Sorgulaniyor...</span>';
     let bp = ''; if (tr && tr.quotes && tr.quotes.length > 0) { const vq = tr.quotes.filter(q => q.grossPremium > 0); if (vq.length > 0) { const best = vq.reduce((m, q) => q.grossPremium < m.grossPremium ? q : m); bp = `<div style="font-size:0.75rem;color:var(--success);font-weight:600;margin-top:0.25rem;">En uygun: ${formatCurrency(best.grossPremium)} (${escapeHtml(best.insuranceCompanyName || '?')})</div>`; } }
-    html += `<div class="rn-track-card"><div class="rn-track-card-header"><span class="rn-track-card-name">${escapeHtml(sr.policy.sigortaliAdi || 'Isimsiz')}</span>${sH}</div><span class="rn-type-pill" style="background:${colors.bg};color:${colors.fg};font-size:0.625rem;">${escapeHtml(sr.policy.policeTuru)}</span>${bp}</div>`;
+    // Tamamlanan sorgular için dosya linki
+    let docLink = '';
+    if (isC && tr.quoteFilePath) {
+      docLink = `<div style="margin-top:0.375rem;display:flex;gap:0.375rem;"><a href="${escapeHtml(tr.quoteFilePath)}" target="_blank" class="rn-btn rn-btn--outline" style="padding:2px 8px;font-size:0.625rem;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>Karsilastirma</a><button class="rn-btn rn-btn--outline" style="padding:2px 8px;font-size:0.625rem;" onclick="copyDocumentLink('${escapeHtml(tr.quoteFilePath)}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div>`;
+    }
+    html += `<div class="rn-track-card"><div class="rn-track-card-header"><span class="rn-track-card-name">${escapeHtml(sr.policy.sigortaliAdi || 'Isimsiz')}</span>${sH}</div><span class="rn-type-pill" style="background:${colors.bg};color:${colors.fg};font-size:0.625rem;">${escapeHtml(sr.policy.policeTuru)}</span>${bp}${docLink}</div>`;
   });
   container.innerHTML = html; const ce = document.getElementById('wizTrackCompleted'); if (ce) ce.textContent = completedCount;
 }
