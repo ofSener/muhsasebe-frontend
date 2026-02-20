@@ -219,6 +219,66 @@
       return null;
     }
 
+    // Detect company from XML file content by analyzing root element structure
+    // Mirrors backend DetectXmlParserFromContent logic
+    async function detectCompanyFromXmlContent(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const text = e.target.result;
+            console.log('[XML Detection] File:', file.name, 'Read bytes:', text.length);
+            console.log('[XML Detection] First 200 chars:', text.substring(0, 200));
+            console.log('[XML Detection] Contains <Acente>:', text.includes('<Acente>'));
+            console.log('[XML Detection] Contains <PoliceLer>:', text.includes('<PoliceLer>'));
+            console.log('[XML Detection] Contains <AcenteKodu>:', text.includes('<AcenteKodu>'));
+
+            // Türkiye Sigorta: <Acente> root with <PoliceLer> (capital L) and <AcenteKodu>
+            if (text.includes('<Acente>') && text.includes('<PoliceLer>') && text.includes('<AcenteKodu>')) {
+              const id = 116;
+              const option = sigortaSirketiSelect.querySelector(`option[value="${id}"]`);
+              console.log('[XML Detection] MATCH: Türkiye Sigorta (ID: 116), dropdown option:', option ? option.textContent : 'NOT IN DROPDOWN');
+              resolve({ id, name: option ? option.textContent : 'TÜRKİYE SİGORTA' });
+              return;
+            }
+
+            // Quick Sigorta: <PoliceTransferDto> root or <Policeler> (lowercase l) + <AcenteBilgiler>
+            if (text.includes('<PoliceTransferDto>') ||
+                (text.includes('<Policeler>') && text.includes('<AcenteBilgiler>'))) {
+              const id = 110;
+              const option = sigortaSirketiSelect.querySelector(`option[value="${id}"]`);
+              console.log('[XML Detection] MATCH: Quick Sigorta (ID: 110)');
+              resolve({ id, name: option ? option.textContent : 'QUICK SİGORTA' });
+              return;
+            }
+
+            // Unico Sigorta: <Policy> + <ProductNo> or <GrossPremium>
+            if (text.includes('<Policy>') &&
+                (text.includes('<ProductNo>') || text.includes('<GrossPremium>'))) {
+              const id = 17;
+              const option = sigortaSirketiSelect.querySelector(`option[value="${id}"]`);
+              console.log('[XML Detection] MATCH: Unico Sigorta (ID: 17)');
+              resolve({ id, name: option ? option.textContent : 'UNİCO SİGORTA' });
+              return;
+            }
+
+            console.log('[XML Detection] NO MATCH - XML format not recognized');
+            resolve(null);
+          } catch (err) {
+            console.warn('[XML Detection] ERROR:', err);
+            resolve(null);
+          }
+        };
+        reader.onerror = (err) => {
+          console.warn('[XML Detection] FileReader error:', err);
+          resolve(null);
+        };
+        // Read first 8KB - root elements are always near the top
+        const slice = file.slice(0, 8192);
+        reader.readAsText(slice, 'UTF-8');
+      });
+    }
+
     // Update detection UI based on result
     function updateDetectionUI(detected) {
       const resultDiv = document.getElementById('detectionResult');
@@ -315,7 +375,7 @@
       });
 
       // Sigorta şirketi dropdown change - re-check upload enabled state
-      sigortaSirketiSelect.addEventListener('change', () => {
+      sigortaSirketiSelect.addEventListener('change', async () => {
         const selectedValue = sigortaSirketiSelect.value;
         const mismatchDiv = document.getElementById('detectionMismatch');
         const mismatchText = document.getElementById('detectionMismatchText');
@@ -342,9 +402,13 @@
             }
           }
         } else if (fileInput.files && fileInput.files.length > 0) {
-          // Cleared back to auto-detect, re-run detection
+          // Cleared back to auto-detect, re-run full detection (filename + XML content)
           mismatchDiv.style.display = 'none';
-          const detected = detectCompanyFromFileName(fileInput.files[0].name);
+          const file = fileInput.files[0];
+          let detected = detectCompanyFromFileName(file.name);
+          if (!detected && file.name.toLowerCase().endsWith('.xml')) {
+            detected = await detectCompanyFromXmlContent(file);
+          }
           updateDetectionUI(detected);
         }
         checkUploadEnabled();
@@ -398,20 +462,32 @@
 
       // 1. First try filename-based detection (fast)
       let fileNameDetected = detectCompanyFromFileName(file.name);
+      console.log('[showSelectedFile] Step 1 - Filename detection:', fileNameDetected);
 
-      // 2. If filename detection fails, try header-based detection via backend
+      // 2. If filename detection fails, try content-based detection
       if (!fileNameDetected) {
         try {
-          // For XML files, skip SheetJS parsing and call API directly with empty headers
           const isXmlFile = file.name.toLowerCase().endsWith('.xml');
-          const headers = isXmlFile ? [] : await readExcelHeaders(file);
+          console.log('[showSelectedFile] Step 2 - isXmlFile:', isXmlFile);
 
-          // Call API for detection (backend can detect XML from filename/content)
-          fileNameDetected = await detectFormatFromAPI(file.name, headers);
+          // For XML files, try client-side content detection first (root element analysis)
+          if (isXmlFile) {
+            fileNameDetected = await detectCompanyFromXmlContent(file);
+            console.log('[showSelectedFile] Step 2a - XML content detection:', fileNameDetected);
+          }
+
+          // If still not detected, try header-based detection via backend API
+          if (!fileNameDetected) {
+            const headers = isXmlFile ? [] : await readExcelHeaders(file);
+            fileNameDetected = await detectFormatFromAPI(file.name, headers);
+            console.log('[showSelectedFile] Step 2b - API detection:', fileNameDetected);
+          }
         } catch (err) {
-          console.warn('Header-based detection failed:', err);
+          console.warn('[showSelectedFile] Detection error:', err);
         }
       }
+
+      console.log('[showSelectedFile] Final detection result:', fileNameDetected);
 
       // Store detected values regardless of manual selection
       if (fileNameDetected) {
@@ -596,7 +672,8 @@
         formData.append('file', file);
 
         // API call - sigortaSirketiId query parameter olarak gönderilmeli
-        const sigortaSirketiId = sigortaSirketiSelect.value;
+        // Dropdown'da değer yoksa, otomatik algılanan şirket ID'sini kullan
+        const sigortaSirketiId = sigortaSirketiSelect.value || detectedCompanyId;
         let url = APP_CONFIG.API.getUrl('excel-import/upload');
         if (sigortaSirketiId) {
           url += `?sigortaSirketiId=${sigortaSirketiId}`;

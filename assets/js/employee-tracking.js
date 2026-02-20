@@ -1,6 +1,6 @@
 /**
  * Employee Tracking / Hakediş - API Integration
- * Çalışan hakediş takip sayfası için dinamik veri yükleme
+ * Çalışan hakediş takip sayfası
  */
 
 (function() {
@@ -10,9 +10,19 @@
   let employees = [];
   let selectedEmployeeId = null;
   let selectedPeriod = null;
-  let earningsData = null;
-  let policiesData = [];
-  let chart = null;
+  let hakedisData = null;
+
+  // Pagination state
+  const PAGE_SIZE = 10;
+  let currentPage = 1;
+  let allPoliceler = [];
+
+  // Calendar state
+  let calYear, calMonth, calSelectedDate = null;
+
+  const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+                       'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+  const dayHeaders = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
 
   /**
    * Para formatı
@@ -40,420 +50,821 @@
   }
 
   /**
-   * Aktif çalışanları yükle
+   * XSS koruması
    */
-  async function loadEmployees() {
-    try {
-      const response = await apiGet('kullanicilar/aktif');
-      employees = Array.isArray(response) ? response : (response.users || response.data || []);
-      populateEmployeeDropdown();
-    } catch (error) {
-      console.error('Çalışanlar yüklenemedi:', error);
-      // Hata durumunda alternatif endpoint dene
-      try {
-        const response = await apiGet('kullanicilar');
-        employees = Array.isArray(response) ? response : (response.users || response.data || []);
-        employees = employees.filter(e => e.aktif !== false && e.status !== 'inactive');
-        populateEmployeeDropdown();
-      } catch (e) {
-        console.error('Alternatif endpoint de başarısız:', e);
-      }
-    }
+  function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
   }
 
-  /**
-   * Çalışan dropdown'ını doldur
-   */
-  function populateEmployeeDropdown() {
-    const select = document.getElementById('employeeSelect');
-    if (!select) return;
+  // ═══════════════════════════════════════════════════════════════
+  // CUSTOM PERIOD DROPDOWN
+  // ═══════════════════════════════════════════════════════════════
 
-    select.innerHTML = '<option value="">Çalışan Seçin</option>';
-
-    employees.forEach(emp => {
-      const option = document.createElement('option');
-      option.value = emp.id || emp.kullaniciId;
-      option.textContent = emp.adSoyad || emp.name || emp.ad + ' ' + emp.soyad;
-      select.appendChild(option);
-    });
-
-    // İlk çalışanı seç
-    if (employees.length > 0) {
-      select.value = employees[0].id || employees[0].kullaniciId;
-      selectedEmployeeId = select.value;
-    }
-  }
-
-  /**
-   * Dönem dropdown'ını doldur
-   */
-  function populatePeriodDropdown() {
-    const select = document.getElementById('periodSelect');
-    if (!select) return;
-
+  function buildPeriodOptions() {
     const now = new Date();
-    const periods = [];
+    const options = [];
+
+    // "Tarihten itibaren" seçeneği
+    options.push({ value: 'from-date', label: 'Tarihten itibaren...', special: true });
 
     // Son 12 ay
     for (let i = 0; i < 12; i++) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const year = date.getFullYear();
       const month = date.getMonth() + 1;
-      const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-                          'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-
-      periods.push({
+      options.push({
         value: `${year}-${String(month).padStart(2, '0')}`,
         label: `${monthNames[month - 1]} ${year}`
       });
     }
 
-    select.innerHTML = periods.map(p =>
-      `<option value="${p.value}">${p.label}</option>`
-    ).join('');
+    return options;
+  }
 
-    // İlk dönemi seç
-    if (periods.length > 0) {
-      selectedPeriod = periods[0].value;
+  function populatePeriodDropdown() {
+    const panel = document.getElementById('periodPanel');
+    const triggerText = document.getElementById('periodTriggerText');
+    const odemeDonem = document.getElementById('odemeDonem');
+    if (!panel) return;
+
+    const options = buildPeriodOptions();
+
+    // Custom dropdown panel
+    const checkSvg = '<svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>';
+    panel.innerHTML = options.map((opt, i) => {
+      let html = '';
+      if (i === 1) html += '<div class="custom-dropdown-divider"></div>';
+      html += `<div class="custom-dropdown-option${i === 1 ? ' selected' : ''}" data-value="${opt.value}">${checkSvg}<span>${escapeHtml(opt.label)}</span></div>`;
+      return html;
+    }).join('');
+
+    // Default: first month
+    const defaultOpt = options[1];
+    if (triggerText) triggerText.textContent = defaultOpt.label;
+    selectedPeriod = defaultOpt.value;
+
+    // Ödeme modal dönem dropdown
+    if (odemeDonem) {
+      odemeDonem.innerHTML = '<option value="">Dönem seçin</option>' +
+        options.filter(o => !o.special).map(p => `<option value="${p.value}">${escapeHtml(p.label)}</option>`).join('');
     }
   }
 
-  /**
-   * Çalışan hakediş verilerini yükle
-   */
-  async function loadEarningsData() {
-    if (!selectedEmployeeId || !selectedPeriod) {
-      console.warn('Çalışan veya dönem seçilmedi');
-      return;
+  function closeAllDropdowns() {
+    closePeriodDropdown();
+    closeEmployeeDropdown();
+    const calWrapper = document.getElementById('calendarWrapper');
+    if (calWrapper) calWrapper.classList.remove('open');
+  }
+
+  function togglePeriodDropdown() {
+    const trigger = document.getElementById('periodTrigger');
+    const panel = document.getElementById('periodPanel');
+    if (!trigger || !panel) return;
+
+    const isOpen = panel.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) {
+      trigger.classList.add('open');
+      panel.classList.add('open');
+    }
+  }
+
+  function closePeriodDropdown() {
+    const trigger = document.getElementById('periodTrigger');
+    const panel = document.getElementById('periodPanel');
+    if (trigger) trigger.classList.remove('open');
+    if (panel) panel.classList.remove('open');
+  }
+
+  function selectPeriodOption(value, label) {
+    const triggerText = document.getElementById('periodTriggerText');
+    const panel = document.getElementById('periodPanel');
+    const calWrapper = document.getElementById('calendarWrapper');
+
+    // Update trigger text
+    if (triggerText) triggerText.textContent = label;
+
+    // Update selected state
+    if (panel) {
+      panel.querySelectorAll('.custom-dropdown-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.value === value);
+      });
     }
 
+    closePeriodDropdown();
+
+    if (value === 'from-date') {
+      // Show calendar
+      if (calWrapper) calWrapper.classList.add('open');
+      const now = new Date();
+      calYear = now.getFullYear();
+      calMonth = now.getMonth();
+      calSelectedDate = now;
+      selectedPeriod = `from:${formatDateISO(now)}`;
+      renderCalendar();
+    } else {
+      // Hide calendar, set period
+      if (calWrapper) calWrapper.classList.remove('open');
+      selectedPeriod = value;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // CUSTOM CALENDAR
+  // ═══════════════════════════════════════════════════════════════
+
+  function formatDateISO(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function renderCalendar() {
+    const grid = document.getElementById('calGrid');
+    const title = document.getElementById('calTitle');
+    if (!grid || !title) return;
+
+    title.textContent = `${monthNames[calMonth]} ${calYear}`;
+
+    const today = new Date();
+    const todayStr = formatDateISO(today);
+    const selectedStr = calSelectedDate ? formatDateISO(calSelectedDate) : '';
+
+    // First day of month (Monday = 0)
+    const firstDay = new Date(calYear, calMonth, 1);
+    let startDow = firstDay.getDay() - 1;
+    if (startDow < 0) startDow = 6; // Sunday → 6
+
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(calYear, calMonth, 0).getDate();
+
+    let html = dayHeaders.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+
+    // Previous month trailing days
+    for (let i = startDow - 1; i >= 0; i--) {
+      const day = daysInPrevMonth - i;
+      html += `<button class="calendar-day other-month" data-date="${calYear}-${String(calMonth).padStart(2,'0')}-${String(day).padStart(2,'0')}" tabindex="-1">${day}</button>`;
+    }
+
+    // Current month days
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      let cls = 'calendar-day';
+      if (dateStr === todayStr) cls += ' today';
+      if (dateStr === selectedStr) cls += ' selected';
+      html += `<button class="${cls}" data-date="${dateStr}">${d}</button>`;
+    }
+
+    // Next month leading days
+    const totalCells = startDow + daysInMonth;
+    const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    for (let d = 1; d <= remaining; d++) {
+      html += `<button class="calendar-day other-month" tabindex="-1">${d}</button>`;
+    }
+
+    grid.innerHTML = html;
+  }
+
+  function onCalendarDayClick(dateStr) {
+    if (!dateStr) return;
+    calSelectedDate = new Date(dateStr + 'T00:00:00');
+    selectedPeriod = `from:${dateStr}`;
+
+    // Update trigger text
+    const triggerText = document.getElementById('periodTriggerText');
+    if (triggerText) {
+      const d = calSelectedDate;
+      triggerText.textContent = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()} itibaren`;
+    }
+
+    renderCalendar();
+
+    // Close calendar after selection
+    const calWrapper = document.getElementById('calendarWrapper');
+    if (calWrapper) calWrapper.classList.remove('open');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // DATA LOADING
+  // ═══════════════════════════════════════════════════════════════
+
+  async function loadEmployees() {
     try {
-      // Hakediş özet bilgilerini al
-      const params = new URLSearchParams({
-        kullaniciId: selectedEmployeeId,
-        donem: selectedPeriod
-      });
-
-      const response = await apiGet(`earnings/my?${params}`);
-      earningsData = response;
-      updateEarningsSummary(response);
-
-      // Poliçe detaylarını al
-      await loadPoliciesData();
-
+      const response = await apiGet('kullanicilar/aktif');
+      employees = Array.isArray(response) ? response : (response.data || []);
+      populateEmployeeDropdown();
     } catch (error) {
-      console.error('Hakediş verileri yüklenemedi:', error);
-      // Alternatif endpoint dene
-      try {
-        const response = await apiGet(`hakedis/${selectedEmployeeId}?donem=${selectedPeriod}`);
-        earningsData = response;
-        updateEarningsSummary(response);
-      } catch (e) {
-        console.error('Alternatif endpoint de başarısız:', e);
-        showEmptyState();
+      console.error('Çalışanlar yüklenemedi:', error);
+    }
+  }
+
+  function populateEmployeeDropdown() {
+    const panel = document.getElementById('employeePanel');
+    const triggerText = document.getElementById('employeeTriggerText');
+    if (!panel) return;
+
+    const checkSvg = '<svg class="dd-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20,6 9,17 4,12"/></svg>';
+    const searchSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>';
+
+    const searchHtml = `<div class="custom-dropdown-search">${searchSvg}<input type="text" id="employeeSearchInput" placeholder="Çalışan ara..." autocomplete="off"></div>`;
+    const optionsHtml = employees.map((emp, i) => {
+      const name = [emp.adi, emp.soyadi].filter(Boolean).join(' ') || emp.email || `Kullanıcı #${emp.id}`;
+      return `<div class="custom-dropdown-option${i === 0 ? ' selected' : ''}" data-value="${emp.id}" data-search="${escapeHtml(name.toLowerCase())}">${checkSvg}<span>${escapeHtml(name)}</span></div>`;
+    }).join('');
+    const noResults = '<div class="custom-dropdown-no-results" id="employeeNoResults">Sonuç bulunamadı</div>';
+
+    panel.innerHTML = searchHtml + optionsHtml + noResults;
+
+    if (employees.length > 0) {
+      const firstName = [employees[0].adi, employees[0].soyadi].filter(Boolean).join(' ') || employees[0].email || `Kullanıcı #${employees[0].id}`;
+      if (triggerText) triggerText.textContent = firstName;
+      selectedEmployeeId = employees[0].id;
+    } else {
+      if (triggerText) triggerText.textContent = 'Çalışan bulunamadı';
+    }
+  }
+
+  function filterEmployeeOptions(query) {
+    const panel = document.getElementById('employeePanel');
+    const noResults = document.getElementById('employeeNoResults');
+    if (!panel) return;
+
+    const q = query.toLowerCase().trim();
+    const options = panel.querySelectorAll('.custom-dropdown-option');
+    let visibleCount = 0;
+
+    options.forEach(opt => {
+      const searchText = opt.dataset.search || '';
+      const match = !q || searchText.includes(q);
+      opt.classList.toggle('dd-hidden', !match);
+      if (match) visibleCount++;
+    });
+
+    if (noResults) noResults.classList.toggle('visible', visibleCount === 0);
+  }
+
+  function toggleEmployeeDropdown() {
+    const trigger = document.getElementById('employeeTrigger');
+    const panel = document.getElementById('employeePanel');
+    if (!trigger || !panel) return;
+
+    const isOpen = panel.classList.contains('open');
+    closeAllDropdowns();
+    if (!isOpen) {
+      trigger.classList.add('open');
+      panel.classList.add('open');
+      // Focus search & reset filter
+      const searchInput = document.getElementById('employeeSearchInput');
+      if (searchInput) {
+        searchInput.value = '';
+        filterEmployeeOptions('');
+        setTimeout(() => searchInput.focus(), 50);
       }
     }
   }
 
-  /**
-   * Poliçe detaylarını yükle
-   */
-  async function loadPoliciesData() {
-    try {
-      const [year, month] = selectedPeriod.split('-');
-      const startDate = `${year}-${month}-01`;
-      const endDate = new Date(year, month, 0).toISOString().split('T')[0]; // Ayın son günü
+  function closeEmployeeDropdown() {
+    const trigger = document.getElementById('employeeTrigger');
+    const panel = document.getElementById('employeePanel');
+    if (trigger) trigger.classList.remove('open');
+    if (panel) panel.classList.remove('open');
+  }
 
-      const params = new URLSearchParams({
-        kullaniciId: selectedEmployeeId,
-        startDate: startDate,
-        endDate: endDate
+  function selectEmployeeOption(value, label) {
+    const triggerText = document.getElementById('employeeTriggerText');
+    const panel = document.getElementById('employeePanel');
+
+    if (triggerText) triggerText.textContent = label;
+    selectedEmployeeId = value;
+
+    if (panel) {
+      panel.querySelectorAll('.custom-dropdown-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.value === value);
+      });
+    }
+
+    closeEmployeeDropdown();
+  }
+
+  function getSelectedEmployeeName() {
+    if (!selectedEmployeeId) return '';
+    const emp = employees.find(e => e.id == selectedEmployeeId);
+    if (!emp) return '';
+    return [emp.adi, emp.soyadi].filter(Boolean).join(' ');
+  }
+
+  function getSelectedPeriodLabel() {
+    if (!selectedPeriod) return '';
+    if (selectedPeriod.startsWith('from:')) {
+      const dateStr = selectedPeriod.replace('from:', '');
+      const date = new Date(dateStr);
+      return `${date.toLocaleDateString('tr-TR')} tarihinden itibaren`;
+    }
+    const [year, month] = selectedPeriod.split('-');
+    return `${monthNames[parseInt(month) - 1]} ${year}`;
+  }
+
+  async function loadHakedisData() {
+    if (!selectedEmployeeId || !selectedPeriod) {
+      showToast('Çalışan ve dönem seçin', 'warning');
+      return;
+    }
+
+    try {
+      const response = await apiGet('hakedis', {
+        uyeId: selectedEmployeeId,
+        donem: selectedPeriod
       });
 
-      const response = await apiGet(`policies?${params}`);
-      policiesData = Array.isArray(response) ? response : (response.policies || response.data || []);
-      updatePoliciesTable();
-      updateCommissionChart();
-
+      hakedisData = response;
+      updateSummaryCards(response);
+      renderKomisyonDagilimi(response.komisyonDagilimi || []);
+      renderPoliceler(response.policeler || []);
+      await loadOdemeler();
     } catch (error) {
-      console.error('Poliçe detayları yüklenemedi:', error);
+      console.error('Hakediş verileri yüklenemedi:', error);
+      showToast('Veriler yüklenirken hata oluştu', 'error');
+      showEmptyState();
     }
   }
 
-  /**
-   * Hakediş özeti kartlarını güncelle
-   */
-  function updateEarningsSummary(data) {
+  // ═══════════════════════════════════════════════════════════════
+  // RENDER FUNCTIONS
+  // ═══════════════════════════════════════════════════════════════
+
+  function updateSummaryCards(data) {
     if (!data) return;
 
-    const employee = employees.find(e => (e.id || e.kullaniciId) == selectedEmployeeId);
-    const employeeName = employee ? (employee.adSoyad || employee.name) : 'Seçili Çalışan';
+    const employeeName = getSelectedEmployeeName();
+    const periodLabel = getSelectedPeriodLabel();
 
-    // Kart başlığı
-    const cardTitle = document.querySelector('.card-header .card-title');
-    if (cardTitle && cardTitle.textContent.includes('Hakediş Özeti')) {
-      cardTitle.textContent = `Hakediş Özeti - ${employeeName}`;
-    }
+    const titleEl = document.getElementById('ozetTitle');
+    if (titleEl) titleEl.textContent = `Hakediş Özeti - ${employeeName || 'Seçili Çalışan'}`;
 
-    // Dönem badge
-    const periodBadge = document.querySelector('.card-header .badge-info');
-    if (periodBadge) {
-      const [year, month] = selectedPeriod.split('-');
-      const monthNames = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-                          'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-      periodBadge.textContent = `${monthNames[parseInt(month) - 1]} ${year}`;
-    }
+    const periodEl = document.getElementById('ozetPeriod');
+    if (periodEl) periodEl.textContent = periodLabel;
 
-    // Stat kartları
-    updateStatValue('.stat-cyan .stat-value', formatCurrency(data.toplamPrim || data.totalPremium || 0));
-    updateStatValue('.stat-emerald .stat-value', formatCurrency(data.toplamKomisyon || data.totalCommission || 0));
-    updateStatValue('.stat-violet .stat-value', formatCurrency(data.odenen || data.paid || 0));
-    updateStatValue('.stat-amber .stat-value', formatCurrency(data.kalan || data.remaining || 0));
+    const statToplamKomisyon = document.getElementById('statToplamKomisyon');
+    const statToplamHakedis = document.getElementById('statToplamHakedis');
+    const statOdenen = document.getElementById('statOdenen');
+    const statKalan = document.getElementById('statKalan');
+
+    if (statToplamKomisyon) statToplamKomisyon.textContent = formatCurrency(data.toplamKomisyon);
+    if (statToplamHakedis) statToplamHakedis.textContent = formatCurrency(data.toplamHakedis);
+    if (statOdenen) statOdenen.textContent = formatCurrency(data.odenen);
+    if (statKalan) statKalan.textContent = formatCurrency(data.kalan);
   }
 
-  /**
-   * Stat değerini güncelle
-   */
-  function updateStatValue(selector, value) {
-    const el = document.querySelector(selector);
-    if (el) el.textContent = value;
-  }
-
-  /**
-   * Poliçe tablosunu güncelle
-   */
-  function updatePoliciesTable() {
-    const tbody = document.querySelector('.data-table tbody');
+  function renderKomisyonDagilimi(dagilim) {
+    const tbody = document.getElementById('dagilimBody');
     if (!tbody) return;
 
-    if (policiesData.length === 0) {
+    if (!dagilim || dagilim.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="text-center text-muted" style="padding: 2rem;">
+          <td colspan="5" class="text-center text-muted" style="padding: 2rem;">
+            Komisyon dağılımı bulunamadı
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = dagilim.map(item => {
+      const isPaid = item.toplamHakedis > 0 && item.odenen >= item.toplamHakedis;
+      const rowClass = isPaid ? ' class="row-paid"' : '';
+      const odenenColor = isPaid ? 'color: #34d399;' : 'color: var(--text-secondary);';
+
+      return `
+      <tr${rowClass}>
+        <td class="font-semibold" style="color: var(--text-primary);">${escapeHtml(item.label)}</td>
+        <td class="font-mono">${item.policeAdeti}</td>
+        <td class="font-mono font-semibold" style="color: var(--success);">${formatCurrency(item.toplamKomisyon)}</td>
+        <td class="font-mono font-semibold" style="color: var(--warning);">${formatCurrency(item.toplamHakedis)}</td>
+        <td class="font-mono font-semibold" style="${odenenColor}">${formatCurrency(item.odenen)}${isPaid ? ' <span class="badge-paid">Tamamlandı</span>' : ''}</td>
+      </tr>
+      `;
+    }).join('');
+  }
+
+  function renderPoliceler(policeler) {
+    allPoliceler = policeler || [];
+    currentPage = 1;
+    renderPolicelerPage();
+  }
+
+  function renderPolicelerPage() {
+    const tbody = document.getElementById('policelerBody');
+    const countEl = document.getElementById('policelerCount');
+    const tfoot = document.getElementById('policelerFoot');
+    const paginationEl = document.getElementById('policelerPagination');
+    if (!tbody) return;
+
+    const totalCount = allPoliceler.length;
+    if (countEl) countEl.textContent = `${totalCount} poliçe`;
+
+    if (totalCount === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center text-muted" style="padding: 2rem;">
             Bu dönemde poliçe bulunamadı
           </td>
         </tr>
       `;
+      if (tfoot) tfoot.style.display = 'none';
+      if (paginationEl) paginationEl.innerHTML = '';
       return;
     }
 
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+    if (currentPage > totalPages) currentPage = totalPages;
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = allPoliceler.slice(start, start + PAGE_SIZE);
     const avatarColors = ['cyan', 'emerald', 'amber', 'violet', 'rose'];
 
-    tbody.innerHTML = policiesData.map((policy, index) => {
-      const policeNo = policy.policeNo || policy.policeNumarasi || '-';
-      const musteriAdi = policy.musteriAdi || policy.customerName || '-';
-      const initials = getInitials(musteriAdi);
-      const brans = policy.bransAdi || policy.brans || policy.tip || '-';
-      const prim = policy.brutPrim || policy.prim || policy.premium || 0;
-      const oran = policy.komisyonOrani || policy.commissionRate || 10;
-      const komisyon = policy.komisyon || (prim * oran / 100) || 0;
-      const durum = policy.odemeDurumu || policy.paymentStatus || 'Bekliyor';
-      const tarih = formatDate(policy.policeTarihi || policy.eklenmeTarihi || policy.date);
-      const avatarColor = avatarColors[index % avatarColors.length];
-
-      const durumBadge = getDurumBadge(durum);
+    tbody.innerHTML = pageItems.map((p, i) => {
+      const avatarColor = avatarColors[(start + i) % avatarColors.length];
+      const initials = getInitials(p.sigortaliAdi);
 
       return `
         <tr>
-          <td><input type="checkbox" style="accent-color: var(--primary);"></td>
-          <td class="font-mono font-semibold">${policeNo}</td>
+          <td class="font-mono font-semibold">${escapeHtml(p.policeNumarasi)}</td>
           <td>
             <div class="flex items-center gap-2">
               <div class="avatar avatar-xs avatar-${avatarColor}">${initials}</div>
-              <span>${musteriAdi}</span>
+              <span>${escapeHtml(p.sigortaliAdi || '-')}</span>
             </div>
           </td>
-          <td><span class="badge badge-info">${brans}</span></td>
-          <td class="font-mono font-semibold">${formatCurrency(prim)}</td>
-          <td class="font-mono">%${oran}</td>
-          <td class="font-mono text-success font-semibold">${formatCurrency(komisyon)}</td>
-          <td>${durumBadge}</td>
-          <td class="text-muted">${tarih}</td>
+          <td><span class="badge badge-info">${escapeHtml(p.bransAdi || '-')}</span></td>
+          <td class="font-mono font-semibold">${formatCurrency(p.brutPrim)}</td>
+          <td class="font-mono">${formatCurrency(p.komisyon)}</td>
+          <td class="font-mono text-success font-semibold">${formatCurrency(p.hakedis)}</td>
+          <td class="text-muted">${formatDate(p.tanzimTarihi)}</td>
         </tr>
       `;
     }).join('');
 
-    // Toplam satırını güncelle
-    updateTableFooter();
-  }
+    // Footer totals (all items, not just page)
+    if (tfoot) {
+      const topPrim = allPoliceler.reduce((s, p) => s + (p.brutPrim || 0), 0);
+      const topKomisyon = allPoliceler.reduce((s, p) => s + (p.komisyon || 0), 0);
+      const topHakedis = allPoliceler.reduce((s, p) => s + (p.hakedis || 0), 0);
 
-  /**
-   * Durum badge'i oluştur
-   */
-  function getDurumBadge(durum) {
-    const statusMap = {
-      'Ödendi': { class: 'badge-success', text: 'Ödendi' },
-      'Paid': { class: 'badge-success', text: 'Ödendi' },
-      'Bekliyor': { class: 'badge-warning', text: 'Bekliyor' },
-      'Pending': { class: 'badge-warning', text: 'Bekliyor' },
-      'İptal': { class: 'badge-danger', text: 'İptal' },
-      'Cancelled': { class: 'badge-danger', text: 'İptal' }
-    };
-    const badge = statusMap[durum] || { class: 'badge-secondary', text: durum || 'Bilinmiyor' };
-    return `<span class="badge ${badge.class}">${badge.text}</span>`;
-  }
+      document.getElementById('footToplamPrim').textContent = formatCurrency(topPrim);
+      document.getElementById('footToplamKomisyon').textContent = formatCurrency(topKomisyon);
+      document.getElementById('footToplamHakedis').textContent = formatCurrency(topHakedis);
+      tfoot.style.display = '';
+    }
 
-  /**
-   * Tablo footer'ını güncelle
-   */
-  function updateTableFooter() {
-    const tfoot = document.querySelector('.data-table tfoot');
-    if (!tfoot) return;
-
-    const totalPrim = policiesData.reduce((sum, p) => sum + (p.brutPrim || p.prim || 0), 0);
-    const totalKomisyon = policiesData.reduce((sum, p) => {
-      const prim = p.brutPrim || p.prim || 0;
-      const oran = p.komisyonOrani || 10;
-      return sum + (p.komisyon || (prim * oran / 100));
-    }, 0);
-
-    tfoot.innerHTML = `
-      <tr style="background: var(--bg-elevated);">
-        <td colspan="4" class="font-semibold">Toplam (${policiesData.length} poliçe gösteriliyor)</td>
-        <td class="font-mono font-semibold">${formatCurrency(totalPrim)}</td>
-        <td></td>
-        <td class="font-mono text-success font-semibold">${formatCurrency(totalKomisyon)}</td>
-        <td colspan="2"></td>
-      </tr>
-    `;
-
-    // Pagination bilgisini güncelle
-    const paginationInfo = document.querySelector('.card-footer .text-muted');
-    if (paginationInfo) {
-      paginationInfo.textContent = `${policiesData.length} / ${policiesData.length} poliçe gösteriliyor`;
+    // Pagination
+    if (paginationEl) {
+      if (totalPages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+      }
+      renderPagination(paginationEl, totalPages);
     }
   }
 
-  /**
-   * Komisyon dağılımı chart'ını güncelle
-   */
-  function updateCommissionChart() {
-    const chartEl = document.getElementById('commission-chart');
-    if (!chartEl) return;
+  function renderPagination(container, totalPages) {
+    const prevSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15,18 9,12 15,6"/></svg>';
+    const nextSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9,6 15,12 9,18"/></svg>';
 
-    // Branş bazında grupla
-    const bransMap = {};
-    policiesData.forEach(p => {
-      const brans = p.bransAdi || p.brans || 'Diğer';
-      const prim = p.brutPrim || p.prim || 0;
-      const oran = p.komisyonOrani || 10;
-      const komisyon = p.komisyon || (prim * oran / 100);
+    let html = `<button class="pagination-btn" data-page="prev" ${currentPage === 1 ? 'disabled' : ''}>${prevSvg}</button>`;
 
-      if (!bransMap[brans]) {
-        bransMap[brans] = { prim: 0, komisyon: 0 };
+    // Page numbers with ellipsis
+    const pages = getPaginationRange(currentPage, totalPages);
+    pages.forEach(p => {
+      if (p === '...') {
+        html += `<span class="pagination-info">...</span>`;
+      } else {
+        html += `<button class="pagination-btn${p === currentPage ? ' active' : ''}" data-page="${p}">${p}</button>`;
       }
-      bransMap[brans].prim += prim;
-      bransMap[brans].komisyon += komisyon;
     });
 
-    const labels = Object.keys(bransMap);
-    const primValues = labels.map(l => bransMap[l].prim);
-    const komisyonValues = labels.map(l => bransMap[l].komisyon);
+    html += `<button class="pagination-btn" data-page="next" ${currentPage === totalPages ? 'disabled' : ''}>${nextSvg}</button>`;
 
-    // Chart güncelle veya oluştur
-    if (chart) {
-      chart.updateOptions({
-        xaxis: { categories: labels }
-      });
-      chart.updateSeries([
-        { name: 'Prim', data: primValues },
-        { name: 'Komisyon', data: komisyonValues }
-      ]);
-    } else if (typeof createBarChart === 'function') {
-      chart = createBarChart('commission-chart', {
-        labels: labels,
-        datasets: [
-          { name: 'Prim', values: primValues },
-          { name: 'Komisyon', values: komisyonValues }
-        ]
-      }, {
-        colors: [chartColors?.primary || '#00d4ff', chartColors?.success || '#10b981'],
-        height: 280
-      });
+    container.innerHTML = html;
+  }
+
+  function getPaginationRange(current, total) {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+    const pages = [];
+    pages.push(1);
+
+    if (current > 3) pages.push('...');
+
+    const rangeStart = Math.max(2, current - 1);
+    const rangeEnd = Math.min(total - 1, current + 1);
+    for (let i = rangeStart; i <= rangeEnd; i++) pages.push(i);
+
+    if (current < total - 2) pages.push('...');
+
+    pages.push(total);
+    return pages;
+  }
+
+  function onPaginationClick(page) {
+    const totalPages = Math.ceil(allPoliceler.length / PAGE_SIZE);
+    if (page === 'prev') {
+      if (currentPage > 1) currentPage--;
+    } else if (page === 'next') {
+      if (currentPage < totalPages) currentPage++;
+    } else {
+      currentPage = parseInt(page);
+    }
+    renderPolicelerPage();
+  }
+
+  async function loadOdemeler() {
+    if (!selectedEmployeeId) return;
+
+    try {
+      const odemeler = await apiGet('hakedis/odemeler', { uyeId: selectedEmployeeId });
+      renderOdemeler(odemeler || []);
+    } catch (error) {
+      console.error('Ödemeler yüklenemedi:', error);
+      renderOdemeler([]);
     }
   }
 
-  /**
-   * Boş durum göster
-   */
-  function showEmptyState() {
-    updateStatValue('.stat-cyan .stat-value', '0 TL');
-    updateStatValue('.stat-emerald .stat-value', '0 TL');
-    updateStatValue('.stat-violet .stat-value', '0 TL');
-    updateStatValue('.stat-amber .stat-value', '0 TL');
+  function renderOdemeler(odemeler) {
+    const tbody = document.getElementById('odemelerBody');
+    const countEl = document.getElementById('odemelerCount');
+    if (!tbody) return;
 
-    const tbody = document.querySelector('.data-table tbody');
-    if (tbody) {
+    if (countEl) countEl.textContent = odemeler.length > 0 ? `${odemeler.length} ödeme` : '';
+
+    if (!odemeler || odemeler.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="text-center text-muted" style="padding: 2rem;">
-            Veri bulunamadı
+          <td colspan="4" class="text-center text-muted" style="padding: 2rem;">
+            Ödeme kaydı bulunamadı
           </td>
         </tr>
       `;
+      return;
+    }
+
+    tbody.innerHTML = odemeler.map(item => `
+      <tr>
+        <td class="font-semibold" style="color: var(--text-primary);">${escapeHtml(item.donem)}</td>
+        <td class="font-mono font-semibold" style="color: var(--success);">${formatCurrency(item.tutar)}</td>
+        <td class="text-muted">${item.aciklama ? escapeHtml(item.aciklama) : '-'}</td>
+        <td class="font-mono">${formatDate(item.eklenmeTarihi)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function showEmptyState() {
+    updateSummaryCards({ toplamKomisyon: 0, toplamHakedis: 0, odenen: 0, kalan: 0 });
+    renderKomisyonDagilimi([]);
+    renderOdemeler([]);
+    allPoliceler = [];
+    currentPage = 1;
+    renderPoliceler([]);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // PAYMENT MODAL
+  // ═══════════════════════════════════════════════════════════════
+
+  function openOdemeModal() {
+    const modal = document.getElementById('odemeModal');
+    if (!modal) return;
+
+    const calisanInput = document.getElementById('odemeCalisan');
+    if (calisanInput) {
+      calisanInput.value = getSelectedEmployeeName() || 'Çalışan seçilmedi';
+    }
+
+    const donemSelect = document.getElementById('odemeDonem');
+    if (donemSelect && selectedPeriod && !selectedPeriod.startsWith('from:')) {
+      donemSelect.value = selectedPeriod;
+    }
+
+    const tutarInput = document.getElementById('odemeTutar');
+    const aciklamaInput = document.getElementById('odemeAciklama');
+    if (tutarInput) tutarInput.value = '';
+    if (aciklamaInput) aciklamaInput.value = '';
+
+    modal.classList.add('active');
+  }
+
+  function closeOdemeModal() {
+    const modal = document.getElementById('odemeModal');
+    if (modal) modal.classList.remove('active');
+  }
+
+  async function submitOdeme() {
+    const donem = document.getElementById('odemeDonem')?.value;
+    const tutar = parseFloat(document.getElementById('odemeTutar')?.value);
+    const aciklama = document.getElementById('odemeAciklama')?.value?.trim();
+
+    if (!selectedEmployeeId) {
+      showToast('Lütfen bir çalışan seçin', 'warning');
+      return;
+    }
+
+    if (!donem) {
+      showToast('Lütfen dönem seçin', 'warning');
+      return;
+    }
+
+    if (!tutar || tutar <= 0) {
+      showToast('Lütfen geçerli bir tutar girin', 'warning');
+      return;
+    }
+
+    try {
+      await apiPost('hakedis/odeme', {
+        uyeId: parseInt(selectedEmployeeId),
+        donem: donem,
+        tutar: tutar,
+        aciklama: aciklama || null
+      });
+
+      showToast('Ödeme başarıyla kaydedildi', 'success');
+      closeOdemeModal();
+      await loadHakedisData();
+    } catch (error) {
+      console.error('Ödeme kaydedilemedi:', error);
+      showToast('Ödeme kaydedilirken hata oluştu', 'error');
     }
   }
 
-  /**
-   * Event listener'ları kur
-   */
+  // ═══════════════════════════════════════════════════════════════
+  // EVENT LISTENERS
+  // ═══════════════════════════════════════════════════════════════
+
   function setupEventListeners() {
-    // Çalışan seçimi
-    const employeeSelect = document.getElementById('employeeSelect');
-    if (employeeSelect) {
-      employeeSelect.addEventListener('change', function(e) {
-        selectedEmployeeId = e.target.value;
+    // Employee custom dropdown
+    const employeeTrigger = document.getElementById('employeeTrigger');
+    if (employeeTrigger) {
+      employeeTrigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleEmployeeDropdown();
       });
     }
 
-    // Dönem seçimi
-    const periodSelect = document.getElementById('periodSelect');
-    if (periodSelect) {
-      periodSelect.addEventListener('change', function(e) {
-        selectedPeriod = e.target.value;
+    const employeePanel = document.getElementById('employeePanel');
+    if (employeePanel) {
+      employeePanel.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const option = e.target.closest('.custom-dropdown-option');
+        if (!option) return;
+        selectEmployeeOption(option.dataset.value, option.querySelector('span').textContent);
+      });
+      // Search input inside panel
+      employeePanel.addEventListener('input', function(e) {
+        if (e.target.id === 'employeeSearchInput') {
+          filterEmployeeOptions(e.target.value);
+        }
       });
     }
 
-    // Görüntüle butonu
-    const viewButton = document.querySelector('.card-body .btn-primary');
-    if (viewButton) {
-      viewButton.addEventListener('click', function(e) {
+    // Custom period dropdown trigger
+    const periodTrigger = document.getElementById('periodTrigger');
+    if (periodTrigger) {
+      periodTrigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        togglePeriodDropdown();
+      });
+    }
+
+    // Period dropdown option clicks
+    const periodPanel = document.getElementById('periodPanel');
+    if (periodPanel) {
+      periodPanel.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const option = e.target.closest('.custom-dropdown-option');
+        if (!option) return;
+        selectPeriodOption(option.dataset.value, option.querySelector('span').textContent);
+      });
+    }
+
+    // Calendar navigation
+    const calPrev = document.getElementById('calPrev');
+    const calNext = document.getElementById('calNext');
+    if (calPrev) {
+      calPrev.addEventListener('click', function(e) {
+        e.stopPropagation();
+        calMonth--;
+        if (calMonth < 0) { calMonth = 11; calYear--; }
+        renderCalendar();
+      });
+    }
+    if (calNext) {
+      calNext.addEventListener('click', function(e) {
+        e.stopPropagation();
+        calMonth++;
+        if (calMonth > 11) { calMonth = 0; calYear++; }
+        renderCalendar();
+      });
+    }
+
+    // Calendar day clicks
+    const calGrid = document.getElementById('calGrid');
+    if (calGrid) {
+      calGrid.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const dayBtn = e.target.closest('.calendar-day');
+        if (!dayBtn || dayBtn.classList.contains('other-month')) return;
+        onCalendarDayClick(dayBtn.dataset.date);
+      });
+    }
+
+    // Close all dropdowns and calendar on outside click
+    document.addEventListener('click', function(e) {
+      const empDropdown = document.getElementById('employeeDropdown');
+      const periodDropdown = document.getElementById('periodDropdown');
+      const calWrapper = document.getElementById('calendarWrapper');
+
+      const clickedInsideEmp = empDropdown && empDropdown.contains(e.target);
+      const clickedInsidePeriod = periodDropdown && periodDropdown.contains(e.target);
+      const clickedInsideCal = calWrapper && calWrapper.contains(e.target);
+
+      if (!clickedInsideEmp) closeEmployeeDropdown();
+      if (!clickedInsidePeriod) closePeriodDropdown();
+      if (!clickedInsideCal && !clickedInsidePeriod) {
+        if (calWrapper) calWrapper.classList.remove('open');
+      }
+    });
+
+    // Pagination clicks
+    const paginationEl = document.getElementById('policelerPagination');
+    if (paginationEl) {
+      paginationEl.addEventListener('click', function(e) {
+        const btn = e.target.closest('.pagination-btn');
+        if (!btn || btn.disabled) return;
+        onPaginationClick(btn.dataset.page);
+      });
+    }
+
+    // Görüntüle button
+    const btnGoruntule = document.getElementById('btnGoruntule');
+    if (btnGoruntule) {
+      btnGoruntule.addEventListener('click', function(e) {
         e.preventDefault();
-        loadEarningsData();
+        loadHakedisData();
+      });
+    }
+
+    // Ödeme button
+    const btnOdemeGir = document.getElementById('btnOdemeGir');
+    if (btnOdemeGir) {
+      btnOdemeGir.addEventListener('click', function(e) {
+        e.preventDefault();
+        openOdemeModal();
+      });
+    }
+
+    // Modal controls
+    const modalClose = document.getElementById('odemeModalClose');
+    const modalCancel = document.getElementById('odemeModalCancel');
+    if (modalClose) modalClose.addEventListener('click', closeOdemeModal);
+    if (modalCancel) modalCancel.addEventListener('click', closeOdemeModal);
+
+    const modalSave = document.getElementById('odemeModalSave');
+    if (modalSave) modalSave.addEventListener('click', submitOdeme);
+
+    const modalBackdrop = document.getElementById('odemeModal');
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener('click', function(e) {
+        if (e.target === modalBackdrop) closeOdemeModal();
       });
     }
   }
 
-  /**
-   * Sayfa yüklendiğinde başlat
-   */
+  // ═══════════════════════════════════════════════════════════════
+  // INIT
+  // ═══════════════════════════════════════════════════════════════
+
   async function init() {
-    // Dönem dropdown'ını doldur
     populatePeriodDropdown();
-
-    // Event listener'ları kur
     setupEventListeners();
-
-    // Çalışanları yükle
     await loadEmployees();
 
-    // İlk çalışan seçiliyse verileri yükle
     if (selectedEmployeeId) {
-      loadEarningsData();
+      loadHakedisData();
     }
   }
 
-  // DOMContentLoaded'da başlat
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     setTimeout(init, 100);
   }
 
-  // Global'e expose et
   window.EmployeeTracking = {
-    reload: loadEarningsData,
-    getData: () => ({ earnings: earningsData, policies: policiesData })
+    reload: loadHakedisData,
+    getData: () => hakedisData
   };
 
 })();

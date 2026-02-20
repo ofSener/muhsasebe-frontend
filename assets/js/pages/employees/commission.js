@@ -874,9 +874,9 @@
         const data = {
           sigortaSirketiId: companyId ? parseInt(companyId) : 9999,  // 9999 = varsayılan
           bransId: branchId ? parseInt(branchId) : 9999,             // 9999 = varsayılan
-          kosulAlani: fieldMap[conditionField] || 'NetPrim',
-          operator: conditionOperator || '>',
-          esikDeger: conditionValue ? parseFloat(conditionValue) : 0,
+          kosulAlani: conditionField ? (fieldMap[conditionField] || null) : null,
+          operator: conditionField ? (conditionOperator || '>') : null,
+          esikDeger: conditionField ? (conditionValue ? parseFloat(conditionValue) : 0) : 0,
           komisyonOrani: Math.round(rate)
         };
 
