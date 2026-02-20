@@ -8,6 +8,15 @@
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <!-- SheetJS for reading Excel headers -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+  <style>
+    .open-transfer-info {
+      display: none; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
+      background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(139,92,246,.08));
+      border: 1px solid rgba(99,102,241,.2); font-size: 13px; color: var(--text-secondary, #64748b);
+    }
+    .open-transfer-info.active { display: flex; align-items: center; gap: 8px; }
+    .open-transfer-info svg { flex-shrink: 0; color: #6366f1; }
+  </style>
 </head>
 <body>
   <div class="gradient-mesh"></div>
@@ -88,10 +97,23 @@
                 <div class="wizard-step-desc">Verileri kontrol edin</div>
               </div>
             </div>
-            <div class="wizard-connector"></div>
-            <div class="wizard-step" id="wizardStep3">
+            <div class="wizard-connector" id="wizardConnector23"></div>
+            <div class="wizard-step" id="wizardStep3" style="display: none;">
               <div class="wizard-step-number">
                 <span class="step-num">3</span>
+                <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20,6 9,17 4,12"/>
+                </svg>
+              </div>
+              <div class="wizard-step-content">
+                <div class="wizard-step-title">Kullanıcı Eşleştirme</div>
+                <div class="wizard-step-desc">Acente eşleştirin</div>
+              </div>
+            </div>
+            <div class="wizard-connector" id="wizardConnector34" style="display: none;"></div>
+            <div class="wizard-step" id="wizardStep4">
+              <div class="wizard-step-number">
+                <span class="step-num">4</span>
                 <svg class="step-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                   <polyline points="20,6 9,17 4,12"/>
                 </svg>
@@ -116,8 +138,16 @@
               </h3>
             </div>
             <div class="card-body">
+              <!-- Open Transfer Bilgi (Open format tespit edildiğinde gösterilir) -->
+              <div class="open-transfer-info" id="openTransferInfo">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span>Open Sigorta aktarım modunda dosya, Open formatında parse edilir. Eşleşen kullanıcılar doğrudan <strong>Poliçelerim</strong>'e, eşleşmeyenler <strong>Poliçe Havuzu</strong>'na düşer.</span>
+              </div>
+
               <!-- Sigorta Şirketi Seçimi -->
-              <div class="form-group">
+              <div class="form-group" id="sirketSelectGroup">
                 <label class="form-label">Sigorta Şirketi</label>
                 <select class="form-select" id="sigortaSirketiSelect">
                   <option value="">Otomatik Tespit (Dosya adından)</option>
@@ -201,7 +231,7 @@
                     <line x1="12" y1="16" x2="12" y2="12"/>
                     <line x1="12" y1="8" x2="12.01" y2="8"/>
                   </svg>
-                  <span>Desteklenen Formatlar (11 Sigorta Şirketi)</span>
+                  <span>Desteklenen Formatlar (12 Sigorta Şirketi)</span>
                 </div>
                 <div class="formats-grid" id="supportedFormatsGrid">
                   <!-- Logos will be loaded dynamically -->
@@ -322,7 +352,102 @@
             </div>
           </div>
 
-          <!-- Step 3: Result Card -->
+          <!-- Step 3: User Matching Card (Open Transfer only) -->
+          <div class="card" id="userMatchingCard" style="display: none;">
+            <div class="card-header">
+              <h3 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                  <path d="M20 8v6M23 11h-6"/>
+                </svg>
+                Kullanıcı Eşleştirme
+              </h3>
+              <div class="card-actions">
+                <span class="status-pill success" id="matchedCountBadge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  Eşleşen: 0
+                </span>
+                <span class="status-pill danger" id="unmatchedCountBadge">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                  </svg>
+                  Eşleşmeyen: 0
+                </span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="info-banner" style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding: 12px 16px; border-radius: 8px; background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(139,92,246,.08)); border: 1px solid rgba(99,102,241,.2); font-size: 13px; color: var(--text-secondary, #64748b);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                <span>Excel'deki <strong>Dış Acente Adı</strong> kolonunu sistemdeki kullanıcılarla eşleştirin. Tüm satırlar eşleştirilmeden aktarım yapılamaz.</span>
+              </div>
+              <div class="auto-create-section" id="autoCreateSection" style="display:none;">
+                <label>
+                  <input type="checkbox" id="autoCreateCheckbox">
+                  <strong>Otomatik Kullanıcı Oluştur</strong>
+                </label>
+                <div id="autoCreateOptions" style="display:none;">
+                  <div class="ac-dropdown" id="autoCreateScopeDropdown">
+                    <button type="button" class="ac-dropdown-trigger" onclick="toggleAcDropdown('autoCreateScopeDropdown')">
+                      <span>Kapsam Seçin</span>
+                      <svg class="ac-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="ac-dropdown-panel">
+                      <div class="ac-dropdown-list">
+                        <div class="ac-dropdown-item selected" data-value="none" onclick="selectAcDropdownItem('autoCreateScopeDropdown','none','Kapsam Seçin')">Kapsam Seçin</div>
+                        <div class="ac-dropdown-item" data-value="none-only" onclick="selectAcDropdownItem('autoCreateScopeDropdown','none-only','Eşleşmeyenler için')">Eşleşmeyenler için</div>
+                        <div class="ac-dropdown-item" data-value="partial-and-none" onclick="selectAcDropdownItem('autoCreateScopeDropdown','partial-and-none','Yarı Eşleşen ve Eşleşmeyenler için')">Yarı Eşleşen ve Eşleşmeyenler için</div>
+                      </div>
+                    </div>
+                    <input type="hidden" id="autoCreateScope" value="none">
+                  </div>
+                  <span class="form-hint" style="margin-top:4px; display:block;">Seçilen kapsama göre yeni kullanıcılar otomatik oluşturulacak.</span>
+                </div>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 30%;">Dış Acente Adı</th>
+                      <th style="width: 80px; text-align: center;">Satır</th>
+                      <th style="width: 140px; text-align: center;">Durum</th>
+                      <th>Kullanıcı Seçimi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="userMatchTableBody">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="footer-info">
+                <span class="text-muted" id="matchStatsInfo">0 / 0 acente eşleştirildi</span>
+              </div>
+              <div class="footer-actions">
+                <button class="btn btn-secondary" id="matchCancelBtn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                  İptal
+                </button>
+                <button class="btn btn-primary" id="matchConfirmBtn" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  <span id="matchConfirmBtnText">Onayla ve Aktar</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Result Card -->
           <div class="card" id="resultCard" style="display: none;">
             <div class="card-header">
               <h3 class="card-title">
@@ -388,6 +513,14 @@
                   <div class="result-stat-value" id="resultDuplicate">0</div>
                   <div class="result-stat-label">Tekrar (Mükerrer)</div>
                 </div>
+              </div>
+
+              <!-- Open Transfer Result Info -->
+              <div class="info-banner" id="openTransferResultInfo" style="display: none; background: linear-gradient(135deg, rgba(99,102,241,.08), rgba(16,185,129,.08)); border: 1px solid rgba(99,102,241,.2);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2">
+                  <path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>
+                </svg>
+                <span id="openTransferResultText"></span>
               </div>
 
               <!-- New Customers Info -->
@@ -608,6 +741,113 @@
       </div>
       <div class="modal-body" id="importDetailContent">
         <!-- Content will be rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Auto-Create User Modal -->
+  <div class="modal-overlay" id="autoCreateModal">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Otomatik Kullanıcı Oluşturma Ayarları</h3>
+        <button class="modal-close" id="autoCreateModalClose">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Sube oluşturma bölümü (yoksa gösterilir) -->
+        <div id="subeCreateSection" style="display:none; margin-bottom:1.25rem;">
+          <div class="ac-modal-section-title">"Muhasebe" Şubesi Oluştur</div>
+          <div class="ac-modal-form-group">
+            <label>Yetkili Adı Soyadı *</label>
+            <input type="text" class="ac-modal-input" id="subeYetkili" placeholder="Adı Soyadı" required>
+          </div>
+          <div style="display:flex; gap:0.75rem;">
+            <div class="ac-modal-form-group" style="flex:1;">
+              <label>İl *</label>
+              <div class="ac-dropdown" id="subeIlDropdown">
+                <button type="button" class="ac-dropdown-trigger" onclick="toggleAcDropdown('subeIlDropdown')">
+                  <span>-- İl Seçin --</span>
+                  <svg class="ac-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="ac-dropdown-panel">
+                  <div class="ac-dropdown-search">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="İl ara..." oninput="filterAcDropdown('subeIlDropdown')">
+                  </div>
+                  <div class="ac-dropdown-list"></div>
+                </div>
+                <input type="hidden" id="subeIlSelect" value="">
+              </div>
+            </div>
+            <div class="ac-modal-form-group" style="flex:1;">
+              <label>İlçe *</label>
+              <div class="ac-dropdown" id="subeIlceDropdown">
+                <button type="button" class="ac-dropdown-trigger disabled" onclick="toggleAcDropdown('subeIlceDropdown')">
+                  <span>-- Önce İl Seçin --</span>
+                  <svg class="ac-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="ac-dropdown-panel">
+                  <div class="ac-dropdown-search">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" placeholder="İlçe ara..." oninput="filterAcDropdown('subeIlceDropdown')">
+                  </div>
+                  <div class="ac-dropdown-list"></div>
+                </div>
+                <input type="hidden" id="subeIlceSelect" value="">
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; gap:0.75rem;">
+            <div class="ac-modal-form-group" style="flex:1;">
+              <label>Telefon</label>
+              <input type="text" class="ac-modal-input" id="subeTelefon" placeholder="0545 5454545" maxlength="12">
+            </div>
+            <div class="ac-modal-form-group" style="flex:1;">
+              <label>GSM No</label>
+              <input type="text" class="ac-modal-input" id="subeGsm" placeholder="0545 5454545" maxlength="12">
+            </div>
+          </div>
+        </div>
+        <!-- Yetki seçimleri (her zaman gösterilir) -->
+        <div id="yetkiSelectSection">
+          <div class="ac-modal-section-title">Yetki Ayarları</div>
+          <div class="ac-modal-form-group">
+            <label>Sigorta Yetkisi *</label>
+            <div class="ac-dropdown" id="sigortaYetkiDropdown">
+              <button type="button" class="ac-dropdown-trigger" onclick="toggleAcDropdown('sigortaYetkiDropdown')">
+                <span>-- Sigorta Yetkisi Seçin --</span>
+                <svg class="ac-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="ac-dropdown-panel">
+                <div class="ac-dropdown-list"></div>
+              </div>
+              <input type="hidden" id="sigortaYetkiSelect" value="">
+            </div>
+          </div>
+          <div class="ac-modal-form-group">
+            <label>Muhasebe Yetkisi *</label>
+            <div class="ac-dropdown" id="muhasebeYetkiDropdown">
+              <button type="button" class="ac-dropdown-trigger" onclick="toggleAcDropdown('muhasebeYetkiDropdown')">
+                <span>-- Muhasebe Yetkisi Seçin --</span>
+                <svg class="ac-dropdown-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="ac-dropdown-panel">
+                <div class="ac-dropdown-list"></div>
+              </div>
+              <input type="hidden" id="muhasebeYetkiSelect" value="">
+            </div>
+          </div>
+        </div>
+        <div id="autoCreateSummary" style="margin-top:0.75rem; padding:10px 14px; border-radius:8px; background:rgba(99,102,241,.06); border:1px solid rgba(99,102,241,.15); font-size:0.8125rem; color:var(--text-secondary);">
+        </div>
+      </div>
+      <div class="ac-modal-footer">
+        <button class="btn btn-secondary" id="autoCreateCancelBtn">İptal</button>
+        <button class="btn btn-primary" id="autoCreateConfirmBtn">Onayla ve Devam Et</button>
       </div>
     </div>
   </div>
@@ -1438,9 +1678,9 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(10, 15, 30, 0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1457,13 +1697,12 @@
     }
 
     .modal {
-      background: linear-gradient(145deg, rgba(30, 35, 55, 0.95) 0%, rgba(20, 25, 45, 0.98) 100%);
-      border: 1px solid rgba(99, 102, 241, 0.15);
+      background: var(--bg-surface, #ffffff);
+      border: 1px solid var(--border-default, rgba(148,163,184,.3));
       border-radius: 20px;
       box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.05),
-        0 25px 50px -12px rgba(0, 0, 0, 0.5),
-        0 0 100px rgba(99, 102, 241, 0.1);
+        0 25px 50px -12px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(148,163,184,.1);
       max-height: 85vh;
       overflow: hidden;
       display: flex;
@@ -1483,14 +1722,14 @@
       align-items: center;
       justify-content: space-between;
       padding: 1.25rem 1.5rem;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);
-      border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.06) 0%, rgba(139, 92, 246, 0.03) 100%);
+      border-bottom: 1px solid var(--border-default, rgba(148,163,184,.3));
     }
 
     .modal-title {
       font-size: 1.125rem;
       font-weight: 600;
-      color: #fff;
+      color: var(--text-primary, #0f172a);
       margin: 0;
       display: flex;
       align-items: center;
@@ -1509,9 +1748,9 @@
       width: 36px;
       height: 36px;
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.6);
+      background: var(--bg-elevated, #f1f5f9);
+      border: 1px solid var(--border-default, rgba(148,163,184,.3));
+      color: var(--text-muted, #64748b);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -1520,7 +1759,7 @@
     }
 
     .modal-close:hover {
-      background: rgba(239, 68, 68, 0.15);
+      background: rgba(239, 68, 68, 0.1);
       border-color: rgba(239, 68, 68, 0.3);
       color: #ef4444;
       transform: rotate(90deg);
@@ -1537,23 +1776,23 @@
     }
 
     .modal-body::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(148, 163, 184, 0.1);
       border-radius: 3px;
     }
 
     .modal-body::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.3);
+      background: rgba(148, 163, 184, 0.3);
       border-radius: 3px;
     }
 
     .modal-body::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.5);
+      background: rgba(148, 163, 184, 0.5);
     }
 
     /* Detail Section */
     .detail-section {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--bg-elevated, #f1f5f9);
+      border: 1px solid var(--border-subtle, rgba(148,163,184,.2));
       border-radius: 12px;
       padding: 1.25rem;
       margin-bottom: 1rem;
@@ -1599,24 +1838,24 @@
     .detail-label {
       font-size: 0.6875rem;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-muted, #64748b);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .detail-value {
       font-size: 0.9375rem;
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--text-primary, #0f172a);
       font-weight: 500;
     }
 
     .detail-value.mono {
       font-family: var(--font-mono);
-      color: #a5b4fc;
+      color: var(--primary, #6366f1);
     }
 
     .detail-value.empty {
-      color: rgba(255, 255, 255, 0.25);
+      color: var(--text-dim, #94a3b8);
       font-style: italic;
       font-weight: 400;
     }
@@ -1632,26 +1871,26 @@
     }
 
     .modal .badge-success {
-      background: rgba(34, 197, 94, 0.15);
-      color: #4ade80;
-      border: 1px solid rgba(34, 197, 94, 0.25);
+      background: var(--success-bg, rgba(16,185,129,.08));
+      color: var(--success-dim, #059669);
+      border: 1px solid rgba(16, 185, 129, 0.25);
     }
 
     .modal .badge-warning {
-      background: rgba(245, 158, 11, 0.15);
-      color: #fbbf24;
+      background: var(--warning-bg, rgba(245,158,11,.08));
+      color: var(--warning-dim, #d97706);
       border: 1px solid rgba(245, 158, 11, 0.25);
     }
 
     .modal .badge-danger {
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
+      background: var(--danger-bg, rgba(239,68,68,.08));
+      color: var(--danger-dim, #dc2626);
       border: 1px solid rgba(239, 68, 68, 0.25);
     }
 
     /* Validation Errors in Modal */
     .detail-errors {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+      background: var(--danger-bg, rgba(239, 68, 68, 0.06));
       border: 1px solid rgba(239, 68, 68, 0.2);
       border-radius: 12px;
       padding: 1rem 1.25rem;
@@ -1661,7 +1900,7 @@
     .detail-errors-title {
       font-size: 0.75rem;
       font-weight: 600;
-      color: #f87171;
+      color: var(--danger, #ef4444);
       margin-bottom: 0.75rem;
       display: flex;
       align-items: center;
@@ -1683,7 +1922,7 @@
 
     .detail-errors-list li {
       font-size: 0.8125rem;
-      color: rgba(248, 113, 113, 0.9);
+      color: var(--danger, #ef4444);
       padding: 0.375rem 0;
       padding-left: 1rem;
       position: relative;
@@ -1693,7 +1932,7 @@
       content: '•';
       position: absolute;
       left: 0;
-      color: #f87171;
+      color: var(--danger, #ef4444);
     }
 
     /* Detail Header Card */
@@ -1701,8 +1940,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
-      border: 1px solid rgba(99, 102, 241, 0.2);
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.06) 0%, rgba(139, 92, 246, 0.04) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.15);
       border-radius: 14px;
       padding: 1.25rem;
       margin-bottom: 1rem;
@@ -1735,14 +1974,14 @@
     .detail-header-no {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-primary, #0f172a);
       font-family: var(--font-mono);
       letter-spacing: 0.025em;
     }
 
     .detail-header-brans {
       font-size: 0.8125rem;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-muted, #64748b);
     }
 
     .detail-header-badges {
@@ -1759,8 +1998,8 @@
     }
 
     .prim-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: var(--bg-elevated, #f1f5f9);
+      border: 1px solid var(--border-subtle, rgba(148,163,184,.2));
       border-radius: 12px;
       padding: 1rem;
       text-align: center;
@@ -1768,7 +2007,7 @@
     }
 
     .prim-card:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--bg-overlay, #e2e8f0);
       transform: translateY(-2px);
     }
 
@@ -1776,7 +2015,7 @@
       display: block;
       font-size: 0.6875rem;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-muted, #64748b);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 0.5rem;
@@ -1790,15 +2029,15 @@
     }
 
     .prim-brut .prim-value {
-      color: #a5b4fc;
+      color: var(--primary, #6366f1);
     }
 
     .prim-net .prim-value {
-      color: #4ade80;
+      color: var(--success-dim, #059669);
     }
 
     .prim-komisyon .prim-value {
-      color: #fbbf24;
+      color: var(--warning-dim, #d97706);
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -1842,7 +2081,7 @@
     .progress-title {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #ffffff;
+      color: var(--text-primary, #0f172a);
       margin: 0;
     }
 
@@ -1856,24 +2095,24 @@
     .progress-current {
       font-size: 2rem;
       font-weight: 700;
-      color: #818cf8;
+      color: var(--primary, #6366f1);
     }
 
     .progress-separator {
       font-size: 1.5rem;
-      color: rgba(255, 255, 255, 0.5);
+      color: var(--text-dim, #94a3b8);
     }
 
     .progress-total {
       font-size: 1.5rem;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary, #475569);
     }
 
     .progress-bar-container {
       width: 100%;
       height: 8px;
-      background: rgba(255, 255, 255, 0.15);
+      background: var(--bg-overlay, #e2e8f0);
       border-radius: 4px;
       overflow: hidden;
     }
@@ -1888,7 +2127,7 @@
 
     .progress-message {
       font-size: 0.875rem;
-      color: rgba(255, 255, 255, 0.6);
+      color: var(--text-muted, #64748b);
       margin: 0;
     }
 
@@ -1912,35 +2151,35 @@
     }
 
     .progress-detail-item.success {
-      color: #4ade80;
+      color: var(--success-dim, #059669);
     }
 
     .progress-detail-item.success svg {
-      stroke: #4ade80;
+      stroke: var(--success-dim, #059669);
     }
 
     .progress-detail-item.updated {
-      color: #38bdf8;
+      color: var(--info-dim, #2563eb);
     }
 
     .progress-detail-item.updated svg {
-      stroke: #38bdf8;
+      stroke: var(--info-dim, #2563eb);
     }
 
     .progress-detail-item.duplicate {
-      color: #fbbf24;
+      color: var(--warning-dim, #d97706);
     }
 
     .progress-detail-item.duplicate svg {
-      stroke: #fbbf24;
+      stroke: var(--warning-dim, #d97706);
     }
 
     .progress-detail-item.failed {
-      color: #f87171;
+      color: var(--danger, #ef4444);
     }
 
     .progress-detail-item.failed svg {
-      stroke: #f87171;
+      stroke: var(--danger, #ef4444);
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -1952,14 +2191,14 @@
       top: 50%;
       transform: translateY(-50%);
       width: 260px;
-      background: #1a1b23;
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--bg-surface, #ffffff);
+      border: 1px solid var(--border-default, rgba(148,163,184,.3));
       border-right: none;
       border-radius: 16px 0 0 16px;
       padding: 1.5rem;
       z-index: 500;
       transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.1);
     }
 
     .floating-action-box.active {
@@ -1982,14 +2221,14 @@
     .fab-count span {
       font-size: 2.5rem;
       font-weight: 800;
-      color: #fff;
+      color: var(--text-primary, #0f172a);
       line-height: 1;
       letter-spacing: -0.02em;
     }
 
     .fab-count small {
       font-size: 0.8rem;
-      color: #6b7280;
+      color: var(--text-muted, #64748b);
       font-weight: 500;
     }
 
@@ -2003,7 +2242,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #6b7280;
+      color: var(--text-muted, #64748b);
       transition: all 0.15s ease;
     }
 
@@ -2015,9 +2254,9 @@
     .fab-stats {
       margin-bottom: 1.25rem;
       padding: 1rem;
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(99, 102, 241, 0.06);
       border-radius: 12px;
-      border: 1px solid rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.12);
     }
 
     .fab-stat {
@@ -2028,14 +2267,14 @@
       display: block;
       font-size: 1.5rem;
       font-weight: 700;
-      color: #a5b4fc;
+      color: var(--primary, #6366f1);
       letter-spacing: -0.01em;
     }
 
     .fab-stat-label {
       display: block;
       font-size: 0.7rem;
-      color: #6b7280;
+      color: var(--text-muted, #64748b);
       margin-top: 0.25rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -2055,8 +2294,8 @@
       align-items: center;
       padding: 0.75rem 0.5rem;
       border-radius: 10px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--bg-elevated, #f1f5f9);
+      border: 1px solid var(--border-subtle, rgba(148,163,184,.2));
     }
 
     .fab-status-item svg {
@@ -2066,13 +2305,13 @@
     .fab-status-item span {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #fff;
+      color: var(--text-primary, #0f172a);
       line-height: 1;
     }
 
     .fab-status-item small {
       font-size: 0.65rem;
-      color: #6b7280;
+      color: var(--text-muted, #64748b);
       margin-top: 0.25rem;
     }
 
@@ -2144,12 +2383,12 @@
     }
 
     .fab-btn-secondary {
-      background: #374151;
-      color: #e5e7eb;
+      background: var(--bg-overlay, #e2e8f0);
+      color: var(--text-secondary, #475569);
     }
 
     .fab-btn-secondary:hover {
-      background: #4b5563;
+      background: var(--border-default, rgba(148,163,184,.3));
     }
 
     /* ═══════════════════════════════════════════════════════════════
@@ -2173,8 +2412,8 @@
     }
 
     .detail-summary-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--bg-elevated, #f1f5f9);
+      border: 1px solid var(--border-subtle, rgba(148,163,184,.2));
       border-radius: 12px;
       padding: 1rem;
       text-align: center;
@@ -2183,13 +2422,13 @@
     .detail-summary-card .value {
       font-size: 2rem;
       font-weight: 800;
-      color: #fff;
+      color: var(--text-primary, #0f172a);
       line-height: 1;
     }
 
     .detail-summary-card .label {
       font-size: 0.75rem;
-      color: #9ca3af;
+      color: var(--text-muted, #64748b);
       margin-top: 0.5rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -2211,7 +2450,7 @@
       gap: 1.5rem;
       align-items: center;
       padding: 1rem;
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-elevated, #f1f5f9);
       border-radius: 12px;
     }
 
@@ -2239,12 +2478,12 @@
     .legend-text {
       flex: 1;
       font-size: 0.8rem;
-      color: #e2e8f0;
+      color: var(--text-primary, #0f172a);
     }
 
     .legend-value {
       font-size: 0.8rem;
-      color: #94a3b8;
+      color: var(--text-muted, #64748b);
       font-family: 'SF Mono', 'Fira Code', monospace;
     }
 
@@ -2259,13 +2498,13 @@
     .modal-branch-table th {
       text-align: left;
       padding: 0.75rem 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      color: #94a3b8;
+      background: var(--bg-elevated, #f1f5f9);
+      color: var(--text-muted, #64748b);
       font-weight: 600;
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border-default, rgba(148,163,184,.3));
     }
 
     .modal-branch-table th:not(:first-child) {
@@ -2278,8 +2517,8 @@
 
     .modal-branch-table td {
       padding: 0.75rem 1rem;
-      color: #e2e8f0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary, #0f172a);
+      border-bottom: 1px solid var(--border-subtle, rgba(148,163,184,.2));
     }
 
     .modal-branch-table td:not(:first-child) {
@@ -2289,30 +2528,30 @@
     .modal-branch-table td:last-child {
       text-align: right;
       font-family: 'SF Mono', 'Fira Code', monospace;
-      color: #a5b4fc;
+      color: var(--primary, #6366f1);
     }
 
     .modal-branch-table tr:hover {
-      background: rgba(255, 255, 255, 0.03);
+      background: var(--bg-elevated, #f1f5f9);
     }
 
     .branch-badge-sm {
       display: inline-block;
       padding: 0.25rem 0.5rem;
-      background: rgba(99, 102, 241, 0.15);
-      color: #c7d2fe;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--primary, #6366f1);
       border-radius: 4px;
       font-size: 0.75rem;
       font-weight: 600;
     }
 
     .count-yeni {
-      color: #34d399;
+      color: var(--success-dim, #059669);
       font-weight: 600;
     }
 
     .count-zeyil {
-      color: #fbbf24;
+      color: var(--warning-dim, #d97706);
       font-weight: 600;
     }
 
@@ -2326,10 +2565,10 @@
       gap: 0.5rem;
       font-size: 0.85rem;
       font-weight: 600;
-      color: #e5e7eb;
+      color: var(--text-primary, #0f172a);
       margin-bottom: 1rem;
       padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border-default, rgba(148,163,184,.3));
     }
 
     .detail-section-title svg {
@@ -2345,15 +2584,15 @@
     }
 
     .prim-detail-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: var(--bg-elevated, #f1f5f9);
+      border: 1px solid var(--border-subtle, rgba(148,163,184,.2));
       border-radius: 10px;
       padding: 0.875rem;
     }
 
     .prim-detail-card .prim-type {
       font-size: 0.7rem;
-      color: #6b7280;
+      color: var(--text-muted, #64748b);
       text-transform: uppercase;
       letter-spacing: 0.05em;
       margin-bottom: 0.25rem;
@@ -2368,11 +2607,11 @@
     }
 
     .prim-detail-row:not(:last-child) {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid var(--border-subtle, rgba(148,163,184,.2));
     }
 
     .prim-detail-row .label {
-      color: #9ca3af;
+      color: var(--text-muted, #64748b);
     }
 
     .prim-detail-row .value {
@@ -2380,9 +2619,9 @@
       font-family: 'SF Mono', 'Fira Code', monospace;
     }
 
-    .prim-detail-row .value.positive { color: #10b981; }
-    .prim-detail-row .value.negative { color: #ef4444; }
-    .prim-detail-row .value.total { color: #a5b4fc; font-weight: 700; }
+    .prim-detail-row .value.positive { color: var(--success-dim, #059669); }
+    .prim-detail-row .value.negative { color: var(--danger, #ef4444); }
+    .prim-detail-row .value.total { color: var(--primary, #6366f1); font-weight: 700; }
 
     .branch-table {
       width: 100%;
@@ -2393,9 +2632,9 @@
     .branch-table th {
       text-align: left;
       padding: 0.75rem 0.5rem;
-      color: #9ca3af;
+      color: var(--text-muted, #64748b);
       font-weight: 600;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border-default, rgba(148,163,184,.3));
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -2407,8 +2646,8 @@
 
     .branch-table td {
       padding: 0.625rem 0.5rem;
-      color: #e5e7eb;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary, #0f172a);
+      border-bottom: 1px solid var(--border-subtle, rgba(148,163,184,.2));
     }
 
     .branch-table td:not(:first-child) {
@@ -2428,8 +2667,8 @@
 
     .branch-table .branch-badge {
       padding: 0.25rem 0.5rem;
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--primary, #6366f1);
       border-radius: 4px;
       font-size: 0.7rem;
       font-weight: 600;
@@ -2444,9 +2683,9 @@
     .date-table th {
       text-align: left;
       padding: 0.75rem 0.5rem;
-      color: #9ca3af;
+      color: var(--text-muted, #64748b);
       font-weight: 600;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid var(--border-default, rgba(148,163,184,.3));
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.05em;
@@ -2458,8 +2697,8 @@
 
     .date-table td {
       padding: 0.625rem 0.5rem;
-      color: #e5e7eb;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary, #0f172a);
+      border-bottom: 1px solid var(--border-subtle, rgba(148,163,184,.2));
     }
 
     .date-table td:not(:first-child) {
@@ -3188,6 +3427,263 @@
         justify-content: flex-end;
       }
     }
+
+    /* ═══════════════════════════════════════════════════════════════
+       USER MATCHING STYLES
+       ═══════════════════════════════════════════════════════════════ */
+    .match-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .match-badge.full {
+      background: var(--success-glow, rgba(16,185,129,.15));
+      color: var(--success, #10b981);
+    }
+    .match-badge.partial {
+      background: rgba(251,191,36,.15);
+      color: #f59e0b;
+    }
+    .match-badge.none {
+      background: var(--danger-glow, rgba(239,68,68,.15));
+      color: var(--danger, #ef4444);
+    }
+    .match-select {
+      width: 100%;
+      padding: 6px 10px;
+      background: var(--bg-surface);
+      border: 2px solid var(--border-default);
+      border-radius: var(--radius-md);
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .match-select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .match-select.matched {
+      border-color: var(--success, #10b981);
+    }
+    .match-select.unmatched {
+      border-color: var(--danger, #ef4444);
+    }
+    .match-select.auto-create {
+      border-color: rgba(245,158,11,.5);
+      background: rgba(245,158,11,.05);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .auto-create-section {
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: rgba(245,158,11,.06);
+      border: 1px solid rgba(245,158,11,.2);
+    }
+    .auto-create-section label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      margin-bottom: 0;
+      font-size: 0.875rem;
+      color: var(--text-primary);
+    }
+    .auto-create-section input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #f59e0b;
+    }
+    #autoCreateOptions {
+      margin-top: 8px;
+      padding-left: 24px;
+    }
+    #autoCreateOptions .form-select {
+      max-width: 320px;
+    }
+    /* Auto-create modal form */
+    .ac-modal-form-group {
+      margin-bottom: 1rem;
+    }
+    .ac-modal-form-group label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      color: var(--text-secondary, #475569);
+      margin-bottom: 0.375rem;
+    }
+    .ac-modal-input {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      background: var(--bg-surface, #ffffff);
+      border: 1px solid var(--border-default, rgba(148,163,184,.3));
+      border-radius: var(--radius-md, 8px);
+      font-family: var(--font-sans);
+      font-size: 0.8125rem;
+      color: var(--text-primary, #0f172a);
+      transition: all 0.2s ease;
+    }
+    .ac-modal-input:focus {
+      outline: none;
+      border-color: var(--primary, #6366f1);
+      box-shadow: 0 0 0 3px var(--primary-glow, rgba(99,102,241,.12));
+    }
+    .ac-modal-section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary, #0f172a);
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-subtle, rgba(148,163,184,.2));
+    }
+    .ac-modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-default, rgba(148,163,184,.3));
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+    }
+
+    /* Custom Dropdown (ac- prefix) */
+    .ac-dropdown {
+      position: relative;
+    }
+    .ac-dropdown-trigger {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.625rem 0.75rem;
+      background: var(--bg-surface, #ffffff);
+      border: 1px solid var(--border-default, rgba(148,163,184,.3));
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-primary, #0f172a);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+      font-family: inherit;
+    }
+    .ac-dropdown-trigger:hover {
+      border-color: var(--primary, #6366f1);
+      background: var(--bg-elevated, #f1f5f9);
+    }
+    .ac-dropdown-trigger span {
+      flex: 1;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ac-dropdown-trigger .ac-dropdown-arrow {
+      color: var(--text-muted, #64748b);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    .ac-dropdown.open .ac-dropdown-arrow {
+      transform: rotate(180deg);
+    }
+    .ac-dropdown-trigger.disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .ac-dropdown-panel {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      width: 100%;
+      min-width: 220px;
+      background: var(--bg-surface, #ffffff);
+      border: 1px solid var(--border-default, rgba(148,163,184,.3));
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg, 0 10px 15px rgba(0,0,0,.1));
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+    }
+    .ac-dropdown.open .ac-dropdown-panel {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .ac-dropdown-search {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border-default, rgba(148,163,184,.3));
+      background: var(--bg-elevated, #f1f5f9);
+      border-radius: 12px 12px 0 0;
+    }
+    .ac-dropdown-search svg {
+      color: var(--text-muted, #64748b);
+      flex-shrink: 0;
+    }
+    .ac-dropdown-search input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 0.8rem;
+      color: var(--text-primary, #0f172a);
+      outline: none;
+      font-family: inherit;
+    }
+    .ac-dropdown-search input::placeholder {
+      color: var(--text-muted, #64748b);
+    }
+    .ac-dropdown-list {
+      max-height: 220px;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+    .ac-dropdown-list::-webkit-scrollbar {
+      width: 6px;
+    }
+    .ac-dropdown-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .ac-dropdown-list::-webkit-scrollbar-thumb {
+      background: rgba(148,163,184,.3);
+      border-radius: 3px;
+    }
+    .ac-dropdown-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(148,163,184,.5);
+    }
+    .ac-dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 0.625rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-secondary, #475569);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .ac-dropdown-item:hover {
+      background: var(--bg-elevated, #f1f5f9);
+      color: var(--text-primary, #0f172a);
+    }
+    .ac-dropdown-item.selected {
+      background: rgba(99,102,241,.1);
+      color: var(--primary, #6366f1);
+    }
+    .ac-dropdown-empty {
+      padding: 0.75rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted, #64748b);
+    }
   </style>
 
   <script>
@@ -3199,6 +3695,11 @@
     let availableFormats = []; // Şirket formatları ve pattern'leri
     let detectedCompanyId = null; // Otomatik tespit edilen şirket ID
     let detectedCompanyName = null; // Otomatik tespit edilen şirket adı
+    // Open Sigorta aktarım modu - dropdown/detection'dan türetilir (sentinel ID: -1)
+    function getIsOpenTransfer() {
+      const selectedVal = sigortaSirketiSelect.value;
+      return selectedVal === '-1' || (selectedVal === '' && detectedCompanyId === -1);
+    }
 
     // Elements
     const fileInput = document.getElementById('fileInput');
@@ -3217,10 +3718,131 @@
     const confirmBtn = document.getElementById('confirmBtn');
     const newImportBtn = document.getElementById('newImportBtn');
 
+    // User matching state (Open Transfer)
+    let userMatchData = null;
+    let kullaniciOptions = [];
+    let confirmedMatches = {}; // AcenteAdi → KullaniciId
+    let autoCreateConfigData = null; // Auto-create config (set after modal confirm)
+
+    // ═══════════════════════════════════════════════════════════════
+    // Custom Dropdown (ac-dropdown) reusable functions
+    // ═══════════════════════════════════════════════════════════════
+    const acDropdownCallbacks = {};
+
+    function toggleAcDropdown(id) {
+      const dropdown = document.getElementById(id);
+      if (!dropdown || dropdown.querySelector('.ac-dropdown-trigger').classList.contains('disabled')) return;
+      const wasOpen = dropdown.classList.contains('open');
+      // Close all open dropdowns first
+      document.querySelectorAll('.ac-dropdown.open').forEach(d => d.classList.remove('open'));
+      if (!wasOpen) {
+        dropdown.classList.add('open');
+        const searchInput = dropdown.querySelector('.ac-dropdown-search input');
+        if (searchInput) { searchInput.value = ''; filterAcDropdown(id); setTimeout(() => searchInput.focus(), 50); }
+      }
+    }
+
+    function filterAcDropdown(id) {
+      const dropdown = document.getElementById(id);
+      const searchInput = dropdown.querySelector('.ac-dropdown-search input');
+      if (!searchInput) return;
+      const query = searchInput.value.toLocaleLowerCase('tr-TR');
+      const items = dropdown.querySelectorAll('.ac-dropdown-item');
+      let visibleCount = 0;
+      items.forEach(item => {
+        const text = item.textContent.toLocaleLowerCase('tr-TR');
+        const visible = text.includes(query);
+        item.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+      });
+      // Show/hide empty message
+      let emptyMsg = dropdown.querySelector('.ac-dropdown-empty');
+      if (visibleCount === 0) {
+        if (!emptyMsg) {
+          emptyMsg = document.createElement('div');
+          emptyMsg.className = 'ac-dropdown-empty';
+          emptyMsg.textContent = 'Sonuç bulunamadı';
+          dropdown.querySelector('.ac-dropdown-list').appendChild(emptyMsg);
+        }
+        emptyMsg.style.display = '';
+      } else if (emptyMsg) {
+        emptyMsg.style.display = 'none';
+      }
+    }
+
+    function selectAcDropdownItem(id, val, text) {
+      const dropdown = document.getElementById(id);
+      const trigger = dropdown.querySelector('.ac-dropdown-trigger span');
+      const hidden = dropdown.querySelector('input[type="hidden"]');
+      trigger.textContent = text;
+      hidden.value = val;
+      hidden.dataset.text = text;
+      dropdown.querySelectorAll('.ac-dropdown-item').forEach(item => {
+        item.classList.toggle('selected', item.dataset.value == val);
+      });
+      dropdown.classList.remove('open');
+      if (acDropdownCallbacks[id]) acDropdownCallbacks[id](val, text);
+    }
+
+    function populateAcDropdown(id, items, placeholder) {
+      const dropdown = document.getElementById(id);
+      const list = dropdown.querySelector('.ac-dropdown-list');
+      const trigger = dropdown.querySelector('.ac-dropdown-trigger span');
+      const hidden = dropdown.querySelector('input[type="hidden"]');
+      trigger.textContent = placeholder || 'Seçin';
+      hidden.value = '';
+      hidden.dataset.text = '';
+      list.innerHTML = '';
+      items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'ac-dropdown-item';
+        div.dataset.value = item.value;
+        div.textContent = item.text;
+        div.onclick = () => selectAcDropdownItem(id, item.value, item.text);
+        list.appendChild(div);
+      });
+      const searchInput = dropdown.querySelector('.ac-dropdown-search input');
+      if (searchInput) searchInput.value = '';
+    }
+
+    function resetAcDropdown(id, placeholder) {
+      const dropdown = document.getElementById(id);
+      const trigger = dropdown.querySelector('.ac-dropdown-trigger span');
+      const hidden = dropdown.querySelector('input[type="hidden"]');
+      trigger.textContent = placeholder || 'Seçin';
+      hidden.value = '';
+      hidden.dataset.text = '';
+      dropdown.querySelectorAll('.ac-dropdown-item').forEach(item => item.classList.remove('selected'));
+      dropdown.classList.remove('open');
+      const searchInput = dropdown.querySelector('.ac-dropdown-search input');
+      if (searchInput) searchInput.value = '';
+    }
+
+    function setAcDropdownDisabled(id, disabled) {
+      const dropdown = document.getElementById(id);
+      const trigger = dropdown.querySelector('.ac-dropdown-trigger');
+      if (disabled) {
+        trigger.classList.add('disabled');
+        dropdown.classList.remove('open');
+      } else {
+        trigger.classList.remove('disabled');
+      }
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.ac-dropdown')) {
+        document.querySelectorAll('.ac-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+
     // Wizard steps
     const wizardStep1 = document.getElementById('wizardStep1');
     const wizardStep2 = document.getElementById('wizardStep2');
     const wizardStep3 = document.getElementById('wizardStep3');
+    const wizardStep4 = document.getElementById('wizardStep4');
+    const wizardConnector23 = document.getElementById('wizardConnector23');
+    const wizardConnector34 = document.getElementById('wizardConnector34');
 
     // Initialize
     document.addEventListener('DOMContentLoaded', async function() {
@@ -3255,8 +3877,10 @@
           formatsGrid.innerHTML = '';
 
           formatsResponse.formats.forEach(format => {
-            // Standardize company name
-            const displayName = standardizeCompanyName(format.sigortaSirketiAdi);
+            // Standardize company name (Open aktarım için özel isim)
+            const displayName = format.sigortaSirketiId === -1
+              ? 'OPEN (AKTARIM)'
+              : standardizeCompanyName(format.sigortaSirketiAdi);
 
             // Add to dropdown
             const option = document.createElement('option');
@@ -3378,6 +4002,11 @@
 
       const normalizedFileName = normalizeTurkish(fileName);
 
+      // Open Sigorta: "YYYY tüm.xlsx" veya "open" içeren dosyalar
+      if (/\d{4}\s*tum/i.test(normalizedFileName) || normalizedFileName.includes('open sigorta')) {
+        return { id: -1, name: 'OPEN (AKTARIM)' };
+      }
+
       // First try patterns from backend
       if (availableFormats.length > 0) {
         for (const format of availableFormats) {
@@ -3410,6 +4039,62 @@
       }
 
       return null;
+    }
+
+    // Detect company from XML file content by analyzing root element structure
+    async function detectCompanyFromXmlContent(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const text = e.target.result;
+            console.log('[XML Detection] File:', file.name, 'Read bytes:', text.length);
+            console.log('[XML Detection] First 200 chars:', text.substring(0, 200));
+
+            // Türkiye Sigorta: <Acente> root with <PoliceLer> (capital L) and <AcenteKodu>
+            if (text.includes('<Acente>') && text.includes('<PoliceLer>') && text.includes('<AcenteKodu>')) {
+              const id = 116;
+              const option = sigortaSirketiSelect.querySelector(`option[value="${id}"]`);
+              console.log('[XML Detection] MATCH: Türkiye Sigorta (ID: 116)');
+              resolve({ id, name: option ? option.textContent : 'TÜRKİYE SİGORTA' });
+              return;
+            }
+
+            // Quick Sigorta: <PoliceTransferDto> root or <Policeler> (lowercase l) + <AcenteBilgiler>
+            if (text.includes('<PoliceTransferDto>') ||
+                (text.includes('<Policeler>') && text.includes('<AcenteBilgiler>'))) {
+              const id = 110;
+              const option = sigortaSirketiSelect.querySelector(`option[value="${id}"]`);
+              console.log('[XML Detection] MATCH: Quick Sigorta (ID: 110)');
+              resolve({ id, name: option ? option.textContent : 'QUICK SİGORTA' });
+              return;
+            }
+
+            // Unico Sigorta: <Policy> + <ProductNo> or <GrossPremium>
+            if (text.includes('<Policy>') &&
+                (text.includes('<ProductNo>') || text.includes('<GrossPremium>'))) {
+              const id = 17;
+              const option = sigortaSirketiSelect.querySelector(`option[value="${id}"]`);
+              console.log('[XML Detection] MATCH: Unico Sigorta (ID: 17)');
+              resolve({ id, name: option ? option.textContent : 'UNİCO SİGORTA' });
+              return;
+            }
+
+            console.log('[XML Detection] NO MATCH');
+            resolve(null);
+          } catch (err) {
+            console.warn('[XML Detection] ERROR:', err);
+            resolve(null);
+          }
+        };
+        reader.onerror = (err) => {
+          console.warn('[XML Detection] FileReader error:', err);
+          resolve(null);
+        };
+        // Read first 8KB - root elements are always near the top
+        const slice = file.slice(0, 8192);
+        reader.readAsText(slice, 'UTF-8');
+      });
     }
 
     // Update detection UI based on result
@@ -3449,6 +4134,19 @@
         warningDiv.style.display = 'flex';
         resultDiv.style.display = 'block';
         uploadBtn.disabled = true;
+      }
+
+      // Show/hide Open Transfer info banner based on current state
+      updateOpenTransferInfo();
+    }
+
+    // Show/hide Open Transfer info banner
+    function updateOpenTransferInfo() {
+      const infoDiv = document.getElementById('openTransferInfo');
+      if (getIsOpenTransfer()) {
+        infoDiv.classList.add('active');
+      } else {
+        infoDiv.classList.remove('active');
       }
     }
 
@@ -3508,7 +4206,7 @@
       });
 
       // Sigorta şirketi dropdown change - re-check upload enabled state
-      sigortaSirketiSelect.addEventListener('change', () => {
+      sigortaSirketiSelect.addEventListener('change', async () => {
         const selectedValue = sigortaSirketiSelect.value;
         const mismatchDiv = document.getElementById('detectionMismatch');
         const mismatchText = document.getElementById('detectionMismatchText');
@@ -3535,12 +4233,17 @@
             }
           }
         } else if (fileInput.files && fileInput.files.length > 0) {
-          // Cleared back to auto-detect, re-run detection
+          // Cleared back to auto-detect, re-run full detection (filename + XML content)
           mismatchDiv.style.display = 'none';
-          const detected = detectCompanyFromFileName(fileInput.files[0].name);
+          const file = fileInput.files[0];
+          let detected = detectCompanyFromFileName(file.name);
+          if (!detected && file.name.toLowerCase().endsWith('.xml')) {
+            detected = await detectCompanyFromXmlContent(file);
+          }
           updateDetectionUI(detected);
         }
         checkUploadEnabled();
+        updateOpenTransferInfo();
       });
 
       // Upload button
@@ -3549,8 +4252,14 @@
       // Cancel button
       cancelBtn.addEventListener('click', resetToUpload);
 
-      // Confirm button
-      confirmBtn.addEventListener('click', confirmImport);
+      // Confirm button - Open Transfer ise kullanıcı eşleştirme adımına geç
+      confirmBtn.addEventListener('click', () => {
+        if (getIsOpenTransfer()) {
+          showUserMatching();
+        } else {
+          confirmImport();
+        }
+      });
 
       // New import button
       newImportBtn.addEventListener('click', resetToUpload);
@@ -3563,8 +4272,8 @@
       });
 
       document.getElementById('nextPageBtn').addEventListener('click', () => {
-        if (currentPreviewData && currentPreviewData.rows) {
-          const totalPages = Math.ceil(currentPreviewData.rows.length / pageSize);
+        if (currentPreviewData) {
+          const totalPages = Math.ceil(currentPreviewData.totalRows / pageSize);
           if (currentPage < totalPages) {
             goToPage(currentPage + 1);
           }
@@ -3591,20 +4300,42 @@
 
       // 1. First try filename-based detection (fast)
       let fileNameDetected = detectCompanyFromFileName(file.name);
+      console.log('[showSelectedFile] Step 1 - Filename detection:', fileNameDetected);
 
-      // 2. If filename detection fails, try header-based detection via backend
+      // 2. If filename detection fails, try content-based detection
       if (!fileNameDetected) {
         try {
-          // For XML files, skip SheetJS parsing and call API directly with empty headers
           const isXmlFile = file.name.toLowerCase().endsWith('.xml');
-          const headers = isXmlFile ? [] : await readExcelHeaders(file);
+          console.log('[showSelectedFile] Step 2 - isXmlFile:', isXmlFile);
 
-          // Call API for detection (backend can detect XML from filename/content)
-          fileNameDetected = await detectFormatFromAPI(file.name, headers);
+          // For XML files, try client-side content detection first (root element analysis)
+          if (isXmlFile) {
+            fileNameDetected = await detectCompanyFromXmlContent(file);
+            console.log('[showSelectedFile] Step 2a - XML content detection:', fileNameDetected);
+          }
+
+          // If still not detected, try header-based detection
+          if (!fileNameDetected && !isXmlFile) {
+            const headers = await readExcelHeaders(file);
+
+            // Client-side Open detection (API round-trip'i atla)
+            fileNameDetected = detectOpenFromHeaders(headers);
+            console.log('[showSelectedFile] Step 2b - Client Open detection:', fileNameDetected);
+
+            // Still not detected → fallback to backend API
+            if (!fileNameDetected) {
+              fileNameDetected = await detectFormatFromAPI(file.name, headers);
+              console.log('[showSelectedFile] Step 2c - API detection:', fileNameDetected);
+            }
+          } else if (!fileNameDetected && isXmlFile) {
+            fileNameDetected = await detectFormatFromAPI(file.name, []);
+            console.log('[showSelectedFile] Step 2b - API detection (XML):', fileNameDetected);
+          }
         } catch (err) {
-          console.warn('Header-based detection failed:', err);
+          console.warn('[showSelectedFile] Detection error:', err);
         }
       }
+      console.log('[showSelectedFile] Final result:', fileNameDetected);
 
       // Store detected values regardless of manual selection
       if (fileNameDetected) {
@@ -3653,7 +4384,7 @@
         reader.onload = function(e) {
           try {
             const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array', sheetRows: 10 });
+            const workbook = XLSX.read(data, { type: 'array', sheetRows: 10, dense: true, cellFormula: false, cellHTML: false, cellNF: false, cellDates: false });
 
             // Get first sheet
             const sheetName = workbook.SheetNames[0];
@@ -3669,7 +4400,7 @@
 
             // Find the header row (first row with meaningful data)
             // Check first 10 rows for header keywords
-            const headerKeywords = ['POLICE', 'POLİÇE', 'PRIM', 'PRİM', 'BRÜT', 'NET'];
+            const headerKeywords = ['POLICE', 'POLİÇE', 'PRIM', 'PRİM', 'BRÜT', 'NET', 'KAYIT NO', 'ÜRETİM', 'URETIM'];
             let headerRow = null;
 
             for (let i = 0; i < Math.min(10, json.length); i++) {
@@ -3700,13 +4431,36 @@
 
             resolve(headers);
           } catch (err) {
-            console.error('SheetJS parse error:', err);
-            reject(err);
+            console.warn('SheetJS slice parse failed (truncated xlsx):', err);
+            resolve([]);
           }
         };
         reader.onerror = reject;
-        reader.readAsArrayBuffer(file);
+        // Sadece ilk 64KB'ı oku (header tespiti için yeterli, büyük dosyalarda hız kazandırır)
+        const slice = file.slice(0, 64 * 1024);
+        reader.readAsArrayBuffer(slice);
       });
+    }
+
+    // Client-side Open format detection from Excel headers (API round-trip olmadan)
+    function detectOpenFromHeaders(headers) {
+      if (!headers || headers.length === 0) return null;
+
+      const normalized = headers.map(h => normalizeTurkish(h));
+      const openSignatures = ['uretim turu', 'policeyi kesen', 'kayit turu', 'dis acente adi', 'policeyikesen'];
+      let matchCount = 0;
+
+      for (const sig of openSignatures) {
+        if (normalized.some(h => h.includes(sig))) {
+          matchCount++;
+        }
+      }
+
+      if (matchCount >= 3) {
+        console.log('[detectOpenFromHeaders] Open format detected, match count:', matchCount);
+        return { id: -1, name: 'OPEN (AKTARIM)' };
+      }
+      return null;
     }
 
     // Call backend API to detect format from headers
@@ -3735,7 +4489,7 @@
           console.log('Format detected via API:', result.detectionMethod, result.sigortaSirketiAdi);
           return {
             id: result.sigortaSirketiId,
-            name: result.sigortaSirketiAdi
+            name: result.sigortaSirketiId === -1 ? 'OPEN (AKTARIM)' : result.sigortaSirketiAdi
           };
         }
 
@@ -3788,11 +4542,17 @@
         const formData = new FormData();
         formData.append('file', file);
 
-        // API call - sigortaSirketiId query parameter olarak gönderilmeli
-        const sigortaSirketiId = sigortaSirketiSelect.value;
-        let url = APP_CONFIG.API.getUrl('excel-import/upload');
-        if (sigortaSirketiId) {
-          url += `?sigortaSirketiId=${sigortaSirketiId}`;
+        // API endpoint seçimi - Open Transfer modunda farklı endpoint
+        const isOpenTransfer = getIsOpenTransfer();
+        let url;
+        if (isOpenTransfer) {
+          url = APP_CONFIG.API.getUrl('open-transfer/upload');
+        } else {
+          const sigortaSirketiId = sigortaSirketiSelect.value || detectedCompanyId;
+          url = APP_CONFIG.API.getUrl('excel-import/upload');
+          if (sigortaSirketiId) {
+            url += `?sigortaSirketiId=${sigortaSirketiId}`;
+          }
         }
         const token = APP_CONFIG.AUTH.getToken();
 
@@ -3825,7 +4585,7 @@
     }
 
     // Show preview
-    function showPreview(data) {
+    async function showPreview(data) {
       loadingCard.style.display = 'none';
       previewCard.style.display = 'block';
 
@@ -3833,6 +4593,19 @@
       wizardStep1.classList.remove('active');
       wizardStep1.classList.add('completed');
       wizardStep2.classList.add('active');
+
+      // Show step 3 (User Matching) in wizard for Open Transfer
+      if (getIsOpenTransfer()) {
+        wizardStep3.style.display = 'flex';
+        wizardConnector34.style.display = 'block';
+        // Step 4 shows number 4
+        wizardStep4.querySelector('.step-num').textContent = '4';
+      } else {
+        wizardStep3.style.display = 'none';
+        wizardConnector34.style.display = 'none';
+        // Non-Open Transfer: step 4 shows number 3
+        wizardStep4.querySelector('.step-num').textContent = '3';
+      }
 
       // Update detected company in dropdown
       if (data.sigortaSirketiId) {
@@ -3856,15 +4629,43 @@
         Hatalı: ${data.invalidRows}
       `;
       document.getElementById('totalRowsInfo').textContent = `Toplam ${data.totalRows} satır okundu`;
-      document.getElementById('confirmBtnText').textContent = `${data.validRows} Geçerli Kaydı İçeri Aktar`;
+      document.getElementById('confirmBtnText').textContent = getIsOpenTransfer()
+        ? `${data.validRows} Kaydı Aktar (Open Sigorta)`
+        : `${data.validRows} Geçerli Kaydı İçeri Aktar`;
 
-      // Reset to first page and render
+      // Reset to first page and fetch rows from server
       currentPage = 1;
-      renderPage();
-      renderPagination();
+      await fetchPreviewPage(1);
 
       // Show floating action box
       showFloatingBox(data);
+    }
+
+    // Fetch preview rows from server (server-side pagination)
+    async function fetchPreviewPage(page) {
+      if (!currentSessionId || !currentPreviewData) return;
+
+      const skip = (page - 1) * pageSize;
+      const endpoint = getIsOpenTransfer() ? 'open-transfer/preview-rows' : 'excel-import/preview-rows';
+      const url = APP_CONFIG.API.getUrl(`${endpoint}?sessionId=${encodeURIComponent(currentSessionId)}&skip=${skip}&take=${pageSize}`);
+      const token = APP_CONFIG.AUTH.getToken();
+
+      try {
+        const response = await fetch(url, {
+          headers: { ...(token && { 'Authorization': `Bearer ${token}` }) }
+        });
+
+        if (!response.ok) throw new Error('Preview rows fetch failed');
+
+        const pageData = await response.json();
+        currentPreviewData.rows = pageData.rows;
+        currentPage = page;
+        renderPage();
+        renderPagination();
+      } catch (err) {
+        console.error('Preview rows fetch error:', err);
+        showToast('Satırlar yüklenirken hata oluştu', 'error');
+      }
     }
 
     // Render current page of rows
@@ -3872,15 +4673,11 @@
       if (!currentPreviewData || !currentPreviewData.rows) return;
 
       const rows = currentPreviewData.rows;
-      const totalPages = Math.ceil(rows.length / pageSize);
-      const startIndex = (currentPage - 1) * pageSize;
-      const endIndex = Math.min(startIndex + pageSize, rows.length);
-      const pageRows = rows.slice(startIndex, endIndex);
 
       const tbody = document.getElementById('previewTableBody');
       tbody.innerHTML = '';
 
-      pageRows.forEach(row => {
+      rows.forEach((row, idx) => {
         const tr = document.createElement('tr');
         if (!row.isValid) {
           tr.classList.add('row-error');
@@ -3899,12 +4696,9 @@
         // TC/VKN - prefer TCKN, fallback to VKN
         const tcVknDisplay = row.tckn || row.vkn || '-';
 
-        // Store row index for detail view
-        const rowIndex = rows.indexOf(row);
-
         tr.innerHTML = `
           <td>
-            <button class="btn-icon" onclick="showRowDetail(${rowIndex})" title="Detay Görüntüle">
+            <button class="btn-icon" onclick="showRowDetail(${idx})" title="Detay Görüntüle">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -3942,9 +4736,9 @@
 
     // Render pagination controls
     function renderPagination() {
-      if (!currentPreviewData || !currentPreviewData.rows) return;
+      if (!currentPreviewData) return;
 
-      const totalRows = currentPreviewData.rows.length;
+      const totalRows = currentPreviewData.totalRows;
       const totalPages = Math.ceil(totalRows / pageSize);
 
       // Update pagination info
@@ -4013,19 +4807,17 @@
     }
 
     // Go to specific page
-    function goToPage(page) {
-      if (!currentPreviewData || !currentPreviewData.rows) return;
+    async function goToPage(page) {
+      if (!currentPreviewData) return;
 
-      const totalPages = Math.ceil(currentPreviewData.rows.length / pageSize);
+      const totalPages = Math.ceil(currentPreviewData.totalRows / pageSize);
       if (page < 1 || page > totalPages) return;
 
-      currentPage = page;
-      renderPage();
-      renderPagination();
+      await fetchPreviewPage(page);
     }
 
     // Confirm import with batch processing
-    const BATCH_SIZE = 50;
+    const BATCH_SIZE = 500;
     let importStats = { success: 0, duplicate: 0, updated: 0, failed: 0, errors: [] };
 
     async function confirmImport() {
@@ -4043,8 +4835,10 @@
       // Reset stats
       importStats = { success: 0, duplicate: 0, updated: 0, failed: 0, errors: [] };
 
-      // Hide confirm button, show progress modal
+      // Disable confirm buttons and show progress modal
       confirmBtn.disabled = true;
+      const matchConfirmBtn = document.getElementById('matchConfirmBtn');
+      if (matchConfirmBtn) matchConfirmBtn.disabled = true;
       showProgressModal(totalValidRows);
 
       try {
@@ -4052,11 +4846,32 @@
         let hasMore = true;
 
         while (hasMore) {
-          const response = await apiPost('excel-import/confirm-batch', {
-            sessionId: currentSessionId,
-            skip: skip,
-            take: BATCH_SIZE
+          const confirmEndpoint = getIsOpenTransfer() ? 'open-transfer/confirm-batch' : 'excel-import/confirm-batch';
+          const url = APP_CONFIG.API.getUrl(confirmEndpoint);
+          const token = APP_CONFIG.AUTH.getToken();
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 dakika timeout (batch insert)
+          const rawResp = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token && { 'Authorization': `Bearer ${token}` })
+            },
+            body: JSON.stringify({
+              sessionId: currentSessionId,
+              skip: skip,
+              take: BATCH_SIZE,
+              ...(getIsOpenTransfer() && Object.keys(confirmedMatches).length > 0 && { userMatches: confirmedMatches }),
+              ...(getIsOpenTransfer() && autoCreateConfigData && { autoCreateConfig: autoCreateConfigData })
+            }),
+            signal: controller.signal
           });
+          clearTimeout(timeoutId);
+          if (!rawResp.ok) {
+            const errData = await rawResp.json().catch(() => ({}));
+            throw new Error(errData.errorMessage || errData.error || `HTTP ${rawResp.status}`);
+          }
+          const response = await rawResp.json();
 
           if (!response.success) {
             throw new Error(response.errorMessage || 'Aktarım başarısız');
@@ -4067,6 +4882,8 @@
           importStats.updated += (response.updatedCount || 0);
           importStats.duplicate += response.duplicateCount;
           importStats.failed += response.failedCount;
+          importStats.directPolicy = (importStats.directPolicy || 0) + (response.directPolicyCount || 0);
+          importStats.poolPolicy = (importStats.poolPolicy || 0) + (response.poolPolicyCount || 0);
           if (response.errors && response.errors.length > 0) {
             importStats.errors.push(...response.errors);
           }
@@ -4092,7 +4909,9 @@
           updatedCount: importStats.updated,
           failedCount: importStats.failed,
           duplicateCount: importStats.duplicate,
-          errors: importStats.errors
+          errors: importStats.errors,
+          directPolicyCount: importStats.directPolicy || 0,
+          poolPolicyCount: importStats.poolPolicy || 0
         });
 
       } catch (error) {
@@ -4102,6 +4921,501 @@
         confirmBtn.disabled = false;
         confirmBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">${currentPreviewData?.validRows || 0} Geçerli Kaydı İçeri Aktar</span>`;
       }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // USER MATCHING FUNCTIONS (Open Transfer)
+    // ═══════════════════════════════════════════════════════════════
+
+    async function showUserMatching() {
+      if (!currentSessionId) return;
+
+      // Show loading state on confirm button
+      confirmBtn.disabled = true;
+      confirmBtn.innerHTML = '<span class="windows-spinner" style="width:16px;height:16px;border-width:2px;margin:0;"></span> Eşleştirme hesaplanıyor...';
+
+      try {
+        // Fetch user matches and kullanici list in parallel
+        const [matchesResp, kullanicilarResp] = await Promise.all([
+          apiGet(`open-transfer/user-matches?sessionId=${encodeURIComponent(currentSessionId)}`),
+          apiGet(`open-transfer/kullanicilar?sessionId=${encodeURIComponent(currentSessionId)}`)
+        ]);
+
+        userMatchData = matchesResp;
+        kullaniciOptions = kullanicilarResp || [];
+        confirmedMatches = {};
+
+        // Pre-populate confirmed matches from auto-matched entries
+        if (userMatchData && userMatchData.matches) {
+          userMatchData.matches.forEach(m => {
+            if (m.matchedKullaniciId && m.matchType !== 'none') {
+              confirmedMatches[m.acenteAdi] = m.matchedKullaniciId;
+            }
+          });
+        }
+
+        // Show wizard step 3
+        wizardStep3.style.display = 'flex';
+        wizardConnector34.style.display = 'block';
+
+        // Update wizard
+        previewCard.style.display = 'none';
+        document.getElementById('userMatchingCard').style.display = 'block';
+        wizardStep2.classList.remove('active');
+        wizardStep2.classList.add('completed');
+        wizardStep3.classList.add('active');
+
+        // Hide floating box
+        hideFloatingBox();
+
+        // Show auto-create section if there are unmatched entries
+        const hasUnmatched = userMatchData.matches.some(m => m.matchType === 'none' || m.matchType === 'partial');
+        const autoCreateSection = document.getElementById('autoCreateSection');
+        autoCreateSection.style.display = hasUnmatched ? 'block' : 'none';
+
+        // Reset auto-create state
+        autoCreateConfigData = null;
+        document.getElementById('autoCreateCheckbox').checked = false;
+        document.getElementById('autoCreateOptions').style.display = 'none';
+        resetAcDropdown('autoCreateScopeDropdown', 'Kapsam Seçin');
+        document.getElementById('autoCreateScope').value = 'none';
+
+        // Setup auto-create checkbox handler
+        document.getElementById('autoCreateCheckbox').onchange = function() {
+          document.getElementById('autoCreateOptions').style.display = this.checked ? 'block' : 'none';
+          if (!this.checked) {
+            resetAcDropdown('autoCreateScopeDropdown', 'Kapsam Seçin');
+            document.getElementById('autoCreateScope').value = 'none';
+            autoCreateConfigData = null;
+          }
+          applyAutoCreateScope();
+        };
+
+        // Setup auto-create scope change handler
+        acDropdownCallbacks['autoCreateScopeDropdown'] = function() {
+          applyAutoCreateScope();
+        };
+
+        // Render table
+        renderUserMatchingTable();
+        updateMatchStats();
+
+        // Setup match confirm/cancel buttons
+        document.getElementById('matchCancelBtn').onclick = resetToUpload;
+        document.getElementById('matchConfirmBtn').onclick = handleMatchConfirm;
+
+      } catch (err) {
+        console.error('User matching error:', err);
+        showToast('Kullanıcı eşleştirme verileri yüklenirken hata oluştu', 'error');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">${currentPreviewData?.validRows || 0} Kaydı Aktar</span>`;
+      }
+    }
+
+    function renderUserMatchingTable() {
+      const tbody = document.getElementById('userMatchTableBody');
+      tbody.innerHTML = '';
+
+      if (!userMatchData || !userMatchData.matches) return;
+
+      const scope = getAutoCreateScope();
+
+      userMatchData.matches.forEach((match, idx) => {
+        const tr = document.createElement('tr');
+
+        // Check if this entry is in auto-create scope
+        const isInAutoScope = isMatchInAutoCreateScope(match, scope);
+
+        // Badge
+        let badgeHtml = '';
+        if (match.matchType === 'full') {
+          badgeHtml = '<span class="match-badge full">Tam Eşleşme</span>';
+        } else if (match.matchType === 'partial') {
+          if (scope === 'partial-and-none') {
+            // Checkbox: checked = eşleşti (auto-create dışı), unchecked = auto-create kapsamında
+            const isConfirmed = !!confirmedMatches[match.acenteAdi];
+            const checked = isConfirmed ? 'checked' : '';
+            const badgeClass = isConfirmed ? 'full' : 'partial';
+            const badgeText = isConfirmed ? 'Eşleşti' : 'Kısmi Eşleşme';
+            badgeHtml = `
+              <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;margin:0;">
+                <input type="checkbox" ${checked} onchange="onPartialCheckboxChange(this, '${match.acenteAdi.replace(/'/g, "\\'")}')" style="cursor:pointer;accent-color:#10b981;">
+                <span class="match-badge ${badgeClass}">${badgeText}</span>
+              </label>`;
+          } else if (scope === 'none-only' && !confirmedMatches[match.acenteAdi]) {
+            // Partial temizlenmiş → Eşleşmedi olarak göster
+            badgeHtml = '<span class="match-badge none">Eşleşmedi</span>';
+          } else {
+            badgeHtml = '<span class="match-badge partial">Kısmi Eşleşme</span>';
+          }
+        } else {
+          badgeHtml = '<span class="match-badge none">Eşleşmedi</span>';
+        }
+
+        // Build dropdown options
+        let optionsHtml = isInAutoScope && !confirmedMatches[match.acenteAdi]
+          ? '<option value="">(Otomatik oluşturulacak)</option>'
+          : '<option value="">-- Kullanıcı Seçin --</option>';
+        kullaniciOptions.forEach(k => {
+          const selected = confirmedMatches[match.acenteAdi] === k.id ? 'selected' : '';
+          optionsHtml += `<option value="${k.id}" ${selected}>${k.adSoyad}</option>`;
+        });
+
+        let selectClass = 'match-select';
+        if (confirmedMatches[match.acenteAdi]) {
+          selectClass += ' matched';
+        } else if (isInAutoScope) {
+          selectClass += ' auto-create';
+        } else {
+          selectClass += ' unmatched';
+        }
+
+        tr.innerHTML = `
+          <td><strong>${match.acenteAdi}</strong></td>
+          <td style="text-align: center;">${match.rowCount}</td>
+          <td style="text-align: center;">${badgeHtml}</td>
+          <td>
+            <select class="${selectClass}" data-acente="${match.acenteAdi}" onchange="onMatchSelectChange(this)">
+              ${optionsHtml}
+            </select>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    window.onMatchSelectChange = function(selectEl) {
+      const acenteAdi = selectEl.dataset.acente;
+      const kullaniciId = parseInt(selectEl.value);
+      const match = userMatchData?.matches?.find(m => m.acenteAdi === acenteAdi);
+      const scope = getAutoCreateScope();
+      const badgeEl = selectEl.closest('tr').querySelector('.match-badge');
+
+      if (kullaniciId) {
+        confirmedMatches[acenteAdi] = kullaniciId;
+        selectEl.className = 'match-select matched';
+        // Partial match'e kullanıcı seçilince badge'i geri yükle
+        if (match?.matchType === 'partial' && badgeEl && scope === 'none-only') {
+          badgeEl.className = 'match-badge partial';
+          badgeEl.textContent = 'Kısmi Eşleşme';
+        }
+      } else {
+        delete confirmedMatches[acenteAdi];
+        const isInAutoScope = match ? isMatchInAutoCreateScope(match, scope) : false;
+        selectEl.className = isInAutoScope ? 'match-select auto-create' : 'match-select unmatched';
+        if (isInAutoScope) {
+          selectEl.options[0].textContent = '(Otomatik oluşturulacak)';
+        }
+        // none-only'de partial temizlenince badge → "Eşleşmedi"
+        if (match?.matchType === 'partial' && badgeEl && scope === 'none-only') {
+          badgeEl.className = 'match-badge none';
+          badgeEl.textContent = 'Eşleşmedi';
+        }
+      }
+
+      updateMatchStats();
+    };
+
+    function updateMatchStats() {
+      if (!userMatchData) return;
+
+      const total = userMatchData.matches.length;
+      const matched = Object.keys(confirmedMatches).length;
+      const scope = getAutoCreateScope();
+
+      // Count auto-create covered entries (in scope AND not manually matched)
+      let autoCreateCount = 0;
+      if (scope !== 'none') {
+        userMatchData.matches.forEach(m => {
+          if (!confirmedMatches[m.acenteAdi] && isMatchInAutoCreateScope(m, scope)) {
+            autoCreateCount++;
+          }
+        });
+      }
+
+      const covered = matched + autoCreateCount;
+      const unmatched = total - covered;
+
+      document.getElementById('matchedCountBadge').innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20,6 9,17 4,12"/>
+        </svg>
+        Eşleşen: ${matched}${autoCreateCount > 0 ? ` (+${autoCreateCount} oto)` : ''}
+      `;
+      document.getElementById('unmatchedCountBadge').innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+        Eşleşmeyen: ${unmatched}
+      `;
+      document.getElementById('matchStatsInfo').textContent = `${covered} / ${total} acente eşleştirildi${autoCreateCount > 0 ? ` (${autoCreateCount} otomatik)` : ''}`;
+
+      const confirmBtn = document.getElementById('matchConfirmBtn');
+      if (covered === total && total > 0) {
+        confirmBtn.disabled = false;
+        confirmBtn.querySelector('span').textContent = `${currentPreviewData?.validRows || 0} Kaydı Onayla ve Aktar`;
+      } else {
+        confirmBtn.disabled = true;
+        confirmBtn.querySelector('span').textContent = `Onayla ve Aktar (${unmatched} eksik)`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // AUTO-CREATE USER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════
+
+    function getAutoCreateScope() {
+      const cb = document.getElementById('autoCreateCheckbox');
+      if (!cb || !cb.checked) return 'none';
+      return document.getElementById('autoCreateScope')?.value || 'none';
+    }
+
+    function isMatchInAutoCreateScope(match, scope) {
+      if (scope === 'none-only') return match.matchType === 'none' || (match.matchType === 'partial' && !confirmedMatches[match.acenteAdi]);
+      if (scope === 'partial-and-none') return match.matchType === 'none' || match.matchType === 'partial';
+      return false;
+    }
+
+    window.onPartialCheckboxChange = function(checkbox, acenteAdi) {
+      const match = userMatchData?.matches?.find(m => m.acenteAdi === acenteAdi);
+      if (!match) return;
+
+      const badgeSpan = checkbox.parentElement.querySelector('.match-badge');
+      const row = checkbox.closest('tr');
+      const selectEl = row.querySelector('select');
+
+      if (checkbox.checked) {
+        // Eşleşti: orijinal kullanıcıyı onayla
+        confirmedMatches[acenteAdi] = match.matchedKullaniciId;
+        if (badgeSpan) { badgeSpan.className = 'match-badge full'; badgeSpan.textContent = 'Eşleşti'; }
+        selectEl.value = match.matchedKullaniciId;
+        selectEl.className = 'match-select matched';
+      } else {
+        // Auto-create'e geri al
+        delete confirmedMatches[acenteAdi];
+        if (badgeSpan) { badgeSpan.className = 'match-badge partial'; badgeSpan.textContent = 'Kısmi Eşleşme'; }
+        selectEl.value = '';
+        selectEl.className = 'match-select auto-create';
+        selectEl.options[0].textContent = '(Otomatik oluşturulacak)';
+      }
+
+      updateMatchStats();
+    };
+
+    function applyAutoCreateScope() {
+      const scope = getAutoCreateScope();
+      if (userMatchData?.matches) {
+        if (scope === 'partial-and-none') {
+          // Partial match'leri auto-create'e taşı (confirmedMatches'ten sil)
+          userMatchData.matches.forEach(m => {
+            if (m.matchType === 'partial') delete confirmedMatches[m.acenteAdi];
+          });
+        } else {
+          // none-only veya none: partial match'lerin orijinal eşleşmesini geri yükle
+          userMatchData.matches.forEach(m => {
+            if (m.matchType === 'partial' && m.matchedKullaniciId && !confirmedMatches[m.acenteAdi]) {
+              confirmedMatches[m.acenteAdi] = m.matchedKullaniciId;
+            }
+          });
+        }
+      }
+      renderUserMatchingTable();
+      updateMatchStats();
+    }
+
+    async function handleMatchConfirm() {
+      const scope = getAutoCreateScope();
+
+      if (scope !== 'none') {
+        // Auto-create mode: show modal first
+        await showAutoCreateModal();
+      } else {
+        // Normal mode: proceed directly
+        confirmImport();
+      }
+    }
+
+    async function showAutoCreateModal() {
+      const modal = document.getElementById('autoCreateModal');
+      const scope = getAutoCreateScope();
+
+      try {
+        // Fetch prerequisites
+        const preCheck = await apiGet(`open-transfer/auto-create-check?sessionId=${encodeURIComponent(currentSessionId)}`);
+
+        // Count how many users will be auto-created
+        let autoCount = 0;
+        if (userMatchData?.matches) {
+          userMatchData.matches.forEach(m => {
+            if (!confirmedMatches[m.acenteAdi] && isMatchInAutoCreateScope(m, scope)) {
+              autoCount++;
+            }
+          });
+        }
+
+        // Show/hide sube creation section
+        const subeSection = document.getElementById('subeCreateSection');
+        if (preCheck.muhasebeSubeExists) {
+          subeSection.style.display = 'none';
+        } else {
+          subeSection.style.display = 'block';
+          document.getElementById('subeYetkili').value = '';
+          document.getElementById('subeTelefon').value = '';
+          document.getElementById('subeGsm').value = '';
+
+          // Telefon input mask: "0545 5454545" formatı
+          function formatPhone(input) {
+            let val = input.value.replace(/\D/g, '');
+            if (val.length > 4) {
+              val = val.slice(0, 4) + ' ' + val.slice(4);
+            }
+            if (val.length > 12) val = val.slice(0, 12);
+            input.value = val;
+          }
+          document.getElementById('subeTelefon').oninput = function() { formatPhone(this); };
+          document.getElementById('subeGsm').oninput = function() { formatPhone(this); };
+
+          // İl dropdown'ını doldur
+          modal._illerData = preCheck.iller || [];
+          const ilItems = (preCheck.iller || []).map(il => ({ value: il.id, text: il.ad }));
+          populateAcDropdown('subeIlDropdown', ilItems, '-- İl Seçin --');
+          resetAcDropdown('subeIlceDropdown', '-- Önce İl Seçin --');
+          setAcDropdownDisabled('subeIlceDropdown', true);
+
+          // İl değişince ilçeleri güncelle
+          acDropdownCallbacks['subeIlDropdown'] = function(val) {
+            const ilId = parseInt(val);
+            if (!ilId) {
+              resetAcDropdown('subeIlceDropdown', '-- Önce İl Seçin --');
+              setAcDropdownDisabled('subeIlceDropdown', true);
+              return;
+            }
+            const selectedIl = modal._illerData.find(i => i.id === ilId);
+            const ilceItems = (selectedIl && selectedIl.ilceler || []).map(ic => ({ value: ic.id, text: ic.ad }));
+            populateAcDropdown('subeIlceDropdown', ilceItems, '-- İlçe Seçin --');
+            setAcDropdownDisabled('subeIlceDropdown', false);
+          };
+        }
+
+        // Populate sigorta yetki dropdown
+        const sigortaItems = (preCheck.sigortaYetkiler || []).map(y => ({ value: y.id, text: y.yetkiAdi }));
+        populateAcDropdown('sigortaYetkiDropdown', sigortaItems, '-- Sigorta Yetkisi Seçin --');
+
+        // Populate muhasebe yetki dropdown
+        const muhasebeItems = (preCheck.muhasebeYetkiler || []).map(y => ({ value: y.id, text: y.yetkiAdi }));
+        populateAcDropdown('muhasebeYetkiDropdown', muhasebeItems, '-- Muhasebe Yetkisi Seçin --');
+
+        // Update summary
+        const domainText = preCheck.webDomain ? `${preCheck.webDomain}.com.tr` : 'firma.com.tr';
+        document.getElementById('autoCreateSummary').innerHTML = `
+          <strong>${autoCount}</strong> yeni kullanıcı oluşturulacak.<br>
+          Email formatı: <code>adsoyad.web@${domainText}</code>
+        `;
+
+        // Store preCheck data for later use
+        modal.dataset.muhasebeSubeId = preCheck.muhasebeSubeId || '';
+        modal.dataset.muhasebeSubeExists = preCheck.muhasebeSubeExists;
+
+        // Setup modal buttons
+        document.getElementById('autoCreateModalClose').onclick = () => { modal.classList.remove('active'); };
+        document.getElementById('autoCreateCancelBtn').onclick = () => { modal.classList.remove('active'); };
+        document.getElementById('autoCreateConfirmBtn').onclick = () => onAutoCreateConfirm(preCheck);
+
+        // Show modal
+        modal.classList.add('active');
+
+      } catch (err) {
+        console.error('Auto-create check error:', err);
+        showToast('Otomatik oluşturma kontrol hatası: ' + (err.message || 'Bilinmeyen hata'), 'error');
+      }
+    }
+
+    async function onAutoCreateConfirm(preCheck) {
+      const modal = document.getElementById('autoCreateModal');
+      const scope = getAutoCreateScope();
+      const sigortaYetkiId = parseInt(document.getElementById('sigortaYetkiSelect').value);
+      const muhasebeYetkiId = parseInt(document.getElementById('muhasebeYetkiSelect').value);
+
+      // Validate
+      if (!sigortaYetkiId) {
+        showToast('Lütfen sigorta yetkisi seçin', 'warning');
+        return;
+      }
+      if (!muhasebeYetkiId) {
+        showToast('Lütfen muhasebe yetkisi seçin', 'warning');
+        return;
+      }
+
+      let subeId = preCheck.muhasebeSubeId;
+
+      // Create sube if needed
+      if (!preCheck.muhasebeSubeExists) {
+        const yetkili = document.getElementById('subeYetkili').value.trim();
+        if (!yetkili) {
+          showToast('Lütfen yetkili adı soyadı girin', 'warning');
+          return;
+        }
+
+        const ilHidden = document.getElementById('subeIlSelect');
+        const ilceHidden = document.getElementById('subeIlceSelect');
+        if (!ilHidden.value) {
+          showToast('Lütfen il seçin', 'warning');
+          return;
+        }
+        if (!ilceHidden.value) {
+          showToast('Lütfen ilçe seçin', 'warning');
+          return;
+        }
+
+        // "ADANA - ÇUKUROVA" formatında IlIlce oluştur
+        const ilAd = ilHidden.dataset.text || '';
+        const ilceAd = ilceHidden.dataset.text || '';
+        const ilIlceStr = `${ilAd} - ${ilceAd}`.toLocaleUpperCase('tr-TR');
+
+        const confirmBtn = document.getElementById('autoCreateConfirmBtn');
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = 'Şube oluşturuluyor...';
+
+        try {
+          const subeResult = await apiPost('open-transfer/create-sube', {
+            sessionId: currentSessionId,
+            yetkiliAdiSoyadi: yetkili,
+            telefon: document.getElementById('subeTelefon').value.trim() || null,
+            gsmNo: document.getElementById('subeGsm').value.trim() || null,
+            ilIlce: ilIlceStr
+          });
+
+          if (!subeResult.success) {
+            showToast('Şube oluşturma hatası: ' + (subeResult.errorMessage || 'Bilinmeyen hata'), 'error');
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = 'Onayla ve Devam Et';
+            return;
+          }
+
+          subeId = subeResult.subeId;
+        } catch (err) {
+          showToast('Şube oluşturma hatası: ' + (err.message || 'Bilinmeyen hata'), 'error');
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Onayla ve Devam Et';
+          return;
+        }
+      }
+
+      // Set auto-create config
+      autoCreateConfigData = {
+        enabled: true,
+        scope: scope,
+        subeId: subeId,
+        yetkiId: sigortaYetkiId,
+        muhasebeYetkiId: muhasebeYetkiId
+      };
+
+      // Close modal and proceed with import
+      modal.classList.remove('active');
+      confirmImport();
     }
 
     // Progress Modal Functions
@@ -4137,13 +5451,23 @@
     // Show result
     function showResult(data) {
       previewCard.style.display = 'none';
+      document.getElementById('userMatchingCard').style.display = 'none';
       resultCard.style.display = 'block';
 
       // Update wizard steps
-      wizardStep2.classList.remove('active');
-      wizardStep2.classList.add('completed');
-      wizardStep3.classList.add('active');
-      wizardStep3.classList.add('completed');
+      if (getIsOpenTransfer()) {
+        wizardStep2.classList.remove('active');
+        wizardStep2.classList.add('completed');
+        wizardStep3.classList.remove('active');
+        wizardStep3.classList.add('completed');
+        wizardStep4.classList.add('active');
+        wizardStep4.classList.add('completed');
+      } else {
+        wizardStep2.classList.remove('active');
+        wizardStep2.classList.add('completed');
+        wizardStep4.classList.add('active');
+        wizardStep4.classList.add('completed');
+      }
 
       // Update stats
       document.getElementById('resultTotal').textContent = data.totalProcessed;
@@ -4154,6 +5478,15 @@
 
       // Hide floating box after import
       hideFloatingBox();
+
+      // Open Transfer result info
+      if (getIsOpenTransfer() && (data.directPolicyCount > 0 || data.poolPolicyCount > 0)) {
+        const otInfo = document.getElementById('openTransferResultInfo');
+        document.getElementById('openTransferResultText').innerHTML =
+          `<strong>${data.directPolicyCount.toLocaleString('tr-TR')}</strong> poliçe doğrudan Poliçelerim'e aktarıldı, ` +
+          `<strong>${data.poolPolicyCount.toLocaleString('tr-TR')}</strong> poliçe Poliçe Havuzu'na düştü.`;
+        otInfo.style.display = 'flex';
+      }
 
       // New customers info
       if (data.newCustomersCreated > 0) {
@@ -4522,9 +5855,15 @@
       currentPreviewData = null;
       currentPage = 1;
 
+      // Reset user matching state
+      userMatchData = null;
+      kullaniciOptions = [];
+      confirmedMatches = {};
+
       uploadCard.style.display = 'block';
       loadingCard.style.display = 'none';
       previewCard.style.display = 'none';
+      document.getElementById('userMatchingCard').style.display = 'none';
       resultCard.style.display = 'none';
 
       // Hide floating action box
@@ -4535,6 +5874,9 @@
       wizardStep1.classList.remove('completed');
       wizardStep2.classList.remove('active', 'completed');
       wizardStep3.classList.remove('active', 'completed');
+      wizardStep3.style.display = 'none';
+      wizardConnector34.style.display = 'none';
+      wizardStep4.classList.remove('active', 'completed');
 
       // Reset form
       clearSelectedFile();
@@ -4542,9 +5884,10 @@
       confirmBtn.disabled = false;
       confirmBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20,6 9,17 4,12"/></svg> <span id="confirmBtnText">0 Geçerli Kaydı İçeri Aktar</span>';
 
-      // Reset errors section
+      // Reset errors and Open transfer info
       document.getElementById('resultErrors').style.display = 'none';
       document.getElementById('newCustomersInfo').style.display = 'none';
+      document.getElementById('openTransferResultInfo').style.display = 'none';
 
       // Reset import report section
       document.getElementById('importReportSection').style.display = 'none';
@@ -4786,15 +6129,8 @@
       const floatingBox = document.getElementById('floatingActionBox');
       const validCount = data.validRows || 0;
 
-      // Calculate total premium from valid rows
-      let totalPremium = 0;
-      if (data.rows) {
-        data.rows.forEach(row => {
-          if (row.isValid && row.brutPrim) {
-            totalPremium += row.brutPrim;
-          }
-        });
-      }
+      // Use pre-calculated stats from backend
+      const totalPremium = data.stats?.brutPrim?.total ?? 0;
 
       // Update floating box content
       document.getElementById('fabValidCount').textContent = validCount;
@@ -4827,92 +6163,19 @@
     // ═══════════════════════════════════════════════════════════════
 
     function calculateDetailStats() {
-      if (!currentPreviewData || !currentPreviewData.rows) return null;
+      if (!currentPreviewData || !currentPreviewData.stats) return null;
 
-      const rows = currentPreviewData.rows.filter(r => r.isValid);
-
-      let stats = {
-        zeyilCount: 0,
-        policeCount: 0,
-        yeniIsCount: 0,
-        brutPrim: { positive: 0, negative: 0, total: 0 },
-        netPrim: { positive: 0, negative: 0, total: 0 },
-        komisyon: { positive: 0, negative: 0, total: 0 },
-        byBranch: {},
-        byDate: {}
+      const s = currentPreviewData.stats;
+      return {
+        policeCount: s.policeCount,
+        zeyilCount: s.zeyilCount,
+        yeniIsCount: s.yeniIsCount,
+        brutPrim: s.brutPrim,
+        netPrim: s.netPrim,
+        komisyon: s.komisyon,
+        byBranch: s.byBranch,
+        byDate: s.byDate
       };
-
-      rows.forEach(row => {
-        const zeyilNo = parseInt(row.zeyilNo) || 0;
-        const isIptal = row.policeTipi === 'İPTAL' || row.policeTipi === 'IPTAL';
-
-        // Count by type
-        // Zeyil: zeyilNo > 0 OR İptal kaydı
-        // Yeni İş: zeyilNo == 0 AND Tahakkuk (yeni poliçeler)
-        // Poliçe: Toplam (Zeyil + Yeni İş)
-        if (zeyilNo > 0 || isIptal) {
-          stats.zeyilCount++;
-        } else {
-          stats.yeniIsCount++;
-        }
-        stats.policeCount++; // Toplam poliçe sayısı
-
-        // Prim calculations
-        const brut = row.brutPrim || 0;
-        const net = row.netPrim || 0;
-        const kom = row.komisyon || 0;
-
-        stats.brutPrim.total += brut;
-        stats.netPrim.total += net;
-        stats.komisyon.total += kom;
-
-        if (brut >= 0) stats.brutPrim.positive += brut;
-        else stats.brutPrim.negative += brut;
-
-        if (net >= 0) stats.netPrim.positive += net;
-        else stats.netPrim.negative += net;
-
-        if (kom >= 0) stats.komisyon.positive += kom;
-        else stats.komisyon.negative += kom;
-
-        // By branch - with yeni iş / zeyil breakdown
-        const branch = row.brans || 'Belirtilmemiş';
-        if (!stats.byBranch[branch]) {
-          stats.byBranch[branch] = {
-            count: 0, brutPrim: 0, netPrim: 0,
-            yeniIs: { count: 0, brutPrim: 0 },
-            zeyil: { count: 0, brutPrim: 0 }
-          };
-        }
-        stats.byBranch[branch].count++;
-        stats.byBranch[branch].brutPrim += brut;
-        stats.byBranch[branch].netPrim += net;
-
-        // Track yeni iş vs zeyil per branch (İptal da Zeyil sayılır)
-        if (zeyilNo > 0 || isIptal) {
-          stats.byBranch[branch].zeyil.count++;
-          stats.byBranch[branch].zeyil.brutPrim += brut;
-        } else {
-          stats.byBranch[branch].yeniIs.count++;
-          stats.byBranch[branch].yeniIs.brutPrim += brut;
-        }
-
-        // By date (month)
-        const dateStr = row.baslangicTarihi || row.tanzimTarihi;
-        if (dateStr) {
-          const date = new Date(dateStr);
-          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-          const monthLabel = date.toLocaleDateString('tr-TR', { year: 'numeric', month: 'short' });
-
-          if (!stats.byDate[monthKey]) {
-            stats.byDate[monthKey] = { label: monthLabel, count: 0, brutPrim: 0 };
-          }
-          stats.byDate[monthKey].count++;
-          stats.byDate[monthKey].brutPrim += brut;
-        }
-      });
-
-      return stats;
     }
 
     function showDetailModal() {
