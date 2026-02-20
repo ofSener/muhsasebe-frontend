@@ -11,7 +11,7 @@ let activeUrgencyFilter = null;
 let activePollings = {};
 let currentQuotePolicyId = null;
 let currentQuoteType = null;
-let quoteEventSource = null;
+let quoteHubConnection = null;
 let realtimeQuotes = {};
 let activeWebQueryIds = {};
 let selectedIds = new Set();
@@ -101,9 +101,9 @@ document.addEventListener('DOMContentLoaded', async function() {
   await loadData();
   setupEventListeners();
   loadQuoteHistory();
-  connectQuoteStream();
+  connectQuoteHub();
 });
-window.addEventListener('beforeunload', () => { disconnectQuoteStream(); });
+window.addEventListener('beforeunload', () => { disconnectQuoteHub(); });
 
 // ============================================================
 //  3. PHONE INPUT
@@ -959,28 +959,94 @@ async function fetchAndUpdateDetailOffers(policyId, webQueryId, productCode) {
 }
 
 // ============================================================
-//  17. SSE REAL-TIME
+//  17. SIGNALR REAL-TIME
 // ============================================================
-function connectQuoteStream() {
-  if (quoteEventSource) { quoteEventSource.close(); quoteEventSource = null; }
-  const token = APP_CONFIG.AUTH.getToken(); if (!token) { updateConnectionIndicator('disconnected'); return; }
-  const url = `${APP_CONFIG.API.getUrl('policies/quote-stream')}?access_token=${encodeURIComponent(token)}`;
-  quoteEventSource = new EventSource(url);
-  quoteEventSource.addEventListener('connected', (e) => { try { const d = JSON.parse(e.data); console.log('SSE: connected userId:', d.userId); updateConnectionIndicator('connected'); const aq = Object.keys(activeWebQueryIds); if (aq.length > 0) aq.forEach(wq => { const pid = activeWebQueryIds[wq]; const p = allPolicies.find(x => x.id === pid); fetchAndUpdateDetailOffers(pid, parseInt(wq), p ? (p.sonSorguProductCode ?? 0) : 0); }); } catch (err) { updateConnectionIndicator('connected'); } });
-  quoteEventSource.addEventListener('quote-result', (e) => { try { handleRealtimeQuoteResult(JSON.parse(e.data)); } catch (err) {} });
-  quoteEventSource.addEventListener('quote-completed', (e) => { try { handleQuoteCompleted(JSON.parse(e.data)); } catch (err) {} });
-  quoteEventSource.addEventListener('quote-error', (e) => { try { handleQuoteError(JSON.parse(e.data)); } catch (err) {} });
-  quoteEventSource.addEventListener('heartbeat', () => { updateConnectionIndicator('connected'); });
-  quoteEventSource.onerror = () => {
-    if (quoteEventSource && quoteEventSource.readyState === EventSource.CLOSED) {
-      updateConnectionIndicator('reconnecting');
-      setTimeout(async () => { try { const ok = await APP_CONFIG.AUTH.refreshToken(); if (ok) connectQuoteStream(); else updateConnectionIndicator('disconnected'); } catch (err) { updateConnectionIndicator('disconnected'); } }, 3000);
-    } else updateConnectionIndicator('reconnecting');
-  };
+let hubReconnectAttempts = 0;
+const MAX_HUB_RECONNECT = 10;
+
+async function connectQuoteHub() {
+  if (quoteHubConnection) {
+    try { await quoteHubConnection.stop(); } catch (_) {}
+    quoteHubConnection = null;
+  }
+
+  const token = APP_CONFIG.AUTH.getToken();
+  if (!token) { updateConnectionIndicator('disconnected'); return; }
+
+  const baseUrl = (APP_CONFIG.API.BASE_URL || '').replace(/\/api\/?$/, '');
+  const hubUrl = baseUrl + '/hubs/quotes';
+
+  quoteHubConnection = new signalR.HubConnectionBuilder()
+    .withUrl(hubUrl, { accessTokenFactory: () => APP_CONFIG.AUTH.getToken() })
+    .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+    .configureLogging(signalR.LogLevel.Warning)
+    .build();
+
+  quoteHubConnection.on('ReceiveQuoteResult', (data) => {
+    try { handleRealtimeQuoteResult(data); } catch (err) { console.error('QuoteResult handler error:', err); }
+  });
+  quoteHubConnection.on('QuoteCompleted', (data) => {
+    try { handleQuoteCompleted(data); } catch (err) { console.error('QuoteCompleted handler error:', err); }
+  });
+  quoteHubConnection.on('QuoteError', (data) => {
+    try { handleQuoteError(data); } catch (err) { console.error('QuoteError handler error:', err); }
+  });
+  quoteHubConnection.on('Connected', (data) => {
+    console.log('SignalR: connected userId:', data.userId);
+    updateConnectionIndicator('connected');
+    const aq = Object.keys(activeWebQueryIds);
+    if (aq.length > 0) aq.forEach(wq => {
+      const pid = activeWebQueryIds[wq];
+      const p = allPolicies.find(x => x.id === pid);
+      fetchAndUpdateDetailOffers(pid, parseInt(wq), p ? (p.sonSorguProductCode ?? 0) : 0);
+    });
+  });
+
+  quoteHubConnection.onreconnecting(() => { updateConnectionIndicator('reconnecting'); });
+  quoteHubConnection.onreconnected(() => { updateConnectionIndicator('connected'); });
+  quoteHubConnection.onclose(async (error) => {
+    updateConnectionIndicator('disconnected');
+    if (error) console.warn('SignalR closed with error:', error);
+    // Reconnect on both error and graceful close (e.g. server restart)
+    if (hubReconnectAttempts < MAX_HUB_RECONNECT) {
+      hubReconnectAttempts++;
+      const delay = Math.min(5000 * Math.pow(2, hubReconnectAttempts - 1), 60000);
+      console.log(`SignalR onclose: retry ${hubReconnectAttempts}/${MAX_HUB_RECONNECT} in ${delay}ms`);
+      setTimeout(async () => {
+        try {
+          await APP_CONFIG.AUTH.refreshToken();
+          await connectQuoteHub();
+        } catch (_) {}
+      }, delay);
+    } else {
+      console.warn('SignalR: max reconnect attempts reached, giving up');
+    }
+  });
+
+  try {
+    await quoteHubConnection.start();
+    console.log('SignalR connected to', hubUrl);
+    updateConnectionIndicator('connected');
+    hubReconnectAttempts = 0; // Reset on successful connection
+  } catch (err) {
+    console.error('SignalR connection failed:', err);
+    updateConnectionIndicator('disconnected');
+    if (hubReconnectAttempts < MAX_HUB_RECONNECT) {
+      hubReconnectAttempts++;
+      const delay = Math.min(5000 * Math.pow(2, hubReconnectAttempts - 1), 60000);
+      setTimeout(() => connectQuoteHub(), delay);
+    }
+  }
 }
-function disconnectQuoteStream() { if (quoteEventSource) { quoteEventSource.close(); quoteEventSource = null; } updateConnectionIndicator('disconnected'); }
+function disconnectQuoteHub() {
+  if (quoteHubConnection) {
+    quoteHubConnection.stop().catch(() => {});
+    quoteHubConnection = null;
+  }
+  updateConnectionIndicator('disconnected');
+}
 function updateConnectionIndicator(status) {
-  const dot = document.getElementById('sseConnectionDot'), text = document.getElementById('sseConnectionText'); if (!dot) return;
+  const dot = document.getElementById('hubConnectionDot'), text = document.getElementById('hubConnectionText'); if (!dot) return;
   dot.classList.remove('connected', 'reconnecting');
   if (status === 'connected') { dot.classList.add('connected'); if (text) text.textContent = 'Canli'; }
   else if (status === 'reconnecting') { dot.classList.add('reconnecting'); if (text) text.textContent = 'Yeniden baglaniliyor'; }
