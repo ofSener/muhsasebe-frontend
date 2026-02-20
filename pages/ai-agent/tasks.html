@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Gorev Takvimi - IHSAN AI</title>
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="gradient-mesh"></div>
+  <div class="app-container">
+    <aside class="sidebar" id="sidebar"></aside>
+
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="navbar-left">
+          <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+          <div class="navbar-breadcrumb">
+            <span class="breadcrumb-item">AI Agent</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-item active">Gorev Takvimi</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <div class="navbar-actions">
+            <button class="navbar-action-btn" id="notificationBtn" aria-label="Bildirimler">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+              </svg>
+              <span class="notification-badge" id="notificationBadge" style="display:none;">0</span>
+            </button>
+          </div>
+          <div class="navbar-divider"></div>
+          <div class="navbar-user">
+            <div class="navbar-avatar"></div>
+            <div class="navbar-user-info">
+              <div class="navbar-user-name">Yukleniyor...</div>
+              <div class="navbar-user-role"></div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="page-wrapper">
+        <div class="page-content">
+
+          <!-- Page Header with AI Agent Status -->
+          <div class="at-page-header">
+            <div class="at-page-header-left">
+              <h1 class="at-page-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                AI Agent Gorev Takvimi
+              </h1>
+              <p class="at-page-subtitle">Otonom AI agent gorevlerinizi izleyin ve yonetin</p>
+            </div>
+            <div class="at-page-header-right">
+              <div class="at-agent-status" id="agentStatus">
+                <span class="at-agent-pulse"></span>
+                <span class="at-agent-label">Agent Aktif</span>
+              </div>
+              <button class="at-approve-all-btn" id="approveAllBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Tumu Onayla (<span id="pendingCount">0</span>)
+              </button>
+            </div>
+          </div>
+
+          <!-- Split Layout -->
+          <div class="at-page">
+            <!-- Left Panel -->
+            <div class="at-left-panel" id="leftPanel">
+
+              <!-- Agent Summary -->
+              <div class="at-panel-section at-agent-summary">
+                <div class="at-panel-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  Agent Ozeti
+                </div>
+                <div class="at-quick-stats">
+                  <div class="at-stat-box at-stat-box--pending">
+                    <div class="at-stat-value" id="statPending">0</div>
+                    <div class="at-stat-label">Onay Bekliyor</div>
+                  </div>
+                  <div class="at-stat-box at-stat-box--today">
+                    <div class="at-stat-value" id="statToday">0</div>
+                    <div class="at-stat-label">Bugun</div>
+                  </div>
+                  <div class="at-stat-box at-stat-box--running">
+                    <div class="at-stat-value" id="statRunning">0</div>
+                    <div class="at-stat-label">Calisiyor</div>
+                  </div>
+                  <div class="at-stat-box at-stat-box--success">
+                    <div class="at-stat-value" id="statSuccess">%0</div>
+                    <div class="at-stat-label">Basari Orani</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mini Calendar -->
+              <div class="at-mini-cal" id="miniCalendar"></div>
+
+              <!-- Automation Rules -->
+              <div class="at-panel-section">
+                <div class="at-panel-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                  Otomasyon Kurallari
+                </div>
+                <div class="at-rules-list" id="rulesList"></div>
+              </div>
+
+              <!-- Task Type Filters -->
+              <div class="at-panel-section">
+                <div class="at-panel-title">Gorev Turu Filtresi</div>
+                <div class="at-category-list" id="categoryFilters">
+                  <label class="at-category-item">
+                    <input type="checkbox" checked data-type="0">
+                    <span class="at-category-dot at-category-dot--birthday"></span>
+                    <span>Dogum Gunu</span>
+                    <span class="at-category-count" data-type-count="0">0</span>
+                  </label>
+                  <label class="at-category-item">
+                    <input type="checkbox" checked data-type="1">
+                    <span class="at-category-dot at-category-dot--occasion"></span>
+                    <span>Ozel Gun</span>
+                    <span class="at-category-count" data-type-count="1">0</span>
+                  </label>
+                  <label class="at-category-item">
+                    <input type="checkbox" checked data-type="2">
+                    <span class="at-category-dot at-category-dot--survey"></span>
+                    <span>Anket</span>
+                    <span class="at-category-count" data-type-count="2">0</span>
+                  </label>
+                  <label class="at-category-item">
+                    <input type="checkbox" checked data-type="3">
+                    <span class="at-category-dot at-category-dot--crosssell"></span>
+                    <span>Capraz Satis</span>
+                    <span class="at-category-count" data-type-count="3">0</span>
+                  </label>
+                  <label class="at-category-item">
+                    <input type="checkbox" checked data-type="4">
+                    <span class="at-category-dot at-category-dot--familytss"></span>
+                    <span>Aile TSS</span>
+                    <span class="at-category-count" data-type-count="4">0</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Recent AI Activity -->
+              <div class="at-panel-section">
+                <div class="at-panel-title">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Son Aktiviteler
+                </div>
+                <div class="at-activity-list" id="activityList"></div>
+              </div>
+
+            </div>
+
+            <!-- Calendar Area -->
+            <div class="at-right-area" id="calendarArea"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile FAB (show left panel) -->
+  <button class="at-fab" id="fabBtn" title="Panel Goster">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+  </button>
+
+  <!-- Scripts -->
+  <script src="../../assets/js/config.js"></script>
+  <script src="../../assets/js/app.js"></script>
+  <script src="../../components/base.js"></script>
+  <script src="../../components/toast.js"></script>
+  <script src="../../components/modal.js"></script>
+  <script src="../../components/calendar.js"></script>
+  <script src="../../assets/js/pages/ai-agent/mock-data.js"></script>
+  <script src="../../components/sidebar.js"></script>
+  <script src="../../assets/js/pages/ai-agent/tasks.js"></script>
+</body>
+</html>
