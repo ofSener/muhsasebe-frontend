@@ -893,7 +893,12 @@
         await loadGroups();
       } catch (error) {
         console.error('Kural kaydedilirken hata:', error);
-        showToast(error.message || 'Kural kaydedilirken hata oluştu', 'error');
+        const msg = error.message || '';
+        if (msg.toLowerCase().includes('duplicate') || msg.includes('uk_grup_sirket_brans')) {
+          showToast('Bu kural zaten oluşturulmuş. Aynı şirket ve branş kombinasyonu için yalnızca bir kural tanımlanabilir.', 'warning');
+        } else {
+          showToast(msg || 'Kural kaydedilirken hata oluştu', 'error');
+        }
       } finally {
         btn.classList.remove('btn-loading');
         btn.disabled = false;
