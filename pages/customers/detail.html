@@ -59,7 +59,13 @@
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Kişisel Bilgiler</h3>
-                <span class="badge badge-secondary" id="sahipTuruBadge">-</span>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                  <span class="badge badge-secondary" id="sahipTuruBadge">-</span>
+                  <button class="btn btn-sm btn-secondary" id="editCustomerBtn" onclick="openEditCustomerModal()" style="display:none;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Düzenle
+                  </button>
+                </div>
               </div>
               <div class="card-body">
                 <div class="customer-profile-header">
@@ -188,6 +194,41 @@
             </div>
           </div>
 
+          <!-- Araçlarım & Konutlarım -->
+          <div class="grid-layout grid-cols-2-responsive" style="margin-bottom:1.5rem;">
+            <!-- Araçlarım -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Araçlarım</h3>
+                <button class="btn btn-sm btn-secondary" onclick="openAracModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Araç Ekle
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="asset-list" id="aracList">
+                  <p class="empty-state" id="aracEmpty">Yükleniyor...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Konutlarım -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">Konutlarım</h3>
+                <button class="btn btn-sm btn-secondary" onclick="openKonutModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  Konut Ekle
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="asset-list" id="konutList">
+                  <p class="empty-state" id="konutEmpty">Yükleniyor...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Policy History -->
           <div class="card" style="margin-bottom: 1.5rem;">
             <div class="card-header">
@@ -232,47 +273,8 @@
                 <h3 class="card-title">Aktivite Geçmişi</h3>
               </div>
               <div class="card-body">
-                <div class="activity-timeline">
-                  <div class="timeline-item">
-                    <div class="timeline-marker emerald"></div>
-                    <div class="timeline-content">
-                      <p class="timeline-title">Sağlık poliçesi yenilendi</p>
-                      <p class="timeline-text">Yıllık sağlık sigortası poliçesi yenilendi.</p>
-                      <span class="timeline-date">2 gün önce</span>
-                    </div>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-marker cyan"></div>
-                    <div class="timeline-content">
-                      <p class="timeline-title">Ödeme alındı</p>
-                      <p class="timeline-text">18.500 TL tutarında ödeme tahsil edildi.</p>
-                      <span class="timeline-date">2 gün önce</span>
-                    </div>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-marker amber"></div>
-                    <div class="timeline-content">
-                      <p class="timeline-title">Yenileme hatırlatması gönderildi</p>
-                      <p class="timeline-text">İşyeri sigortası için SMS gönderildi.</p>
-                      <span class="timeline-date">5 gün önce</span>
-                    </div>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-marker violet"></div>
-                    <div class="timeline-content">
-                      <p class="timeline-title">Telefon görüşmesi</p>
-                      <p class="timeline-text">Kasko hasarı hakkında bilgi verildi.</p>
-                      <span class="timeline-date">1 hafta önce</span>
-                    </div>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-marker cyan"></div>
-                    <div class="timeline-content">
-                      <p class="timeline-title">Konut poliçesi oluşturuldu</p>
-                      <p class="timeline-text">Yeni konut sigortası poliçesi düzenlendi.</p>
-                      <span class="timeline-date">2 hafta önce</span>
-                    </div>
-                  </div>
+                <div class="activity-timeline" id="activityTimeline">
+                  <p class="empty-state">Yükleniyor...</p>
                 </div>
               </div>
             </div>
@@ -299,11 +301,11 @@
     </main>
   </div>
 
-  <!-- Not Ekle Modal -->
+  <!-- Not Ekle/Düzenle Modal -->
   <div class="modal-overlay" id="noteModal">
     <div class="modal" style="max-width:480px;">
       <div class="modal-header">
-        <h3 class="modal-title">Not Ekle</h3>
+        <h3 class="modal-title" id="noteModalTitle">Not Ekle</h3>
         <button class="modal-close" onclick="closeNoteModal()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -325,6 +327,245 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeNoteModal()">İptal</button>
         <button class="btn btn-primary" id="noteSaveBtn" onclick="saveNote()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/>
+          </svg>
+          Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Müşteri Düzenle Modal -->
+  <div class="modal-overlay" id="editCustomerModal">
+    <div class="modal" style="max-width:640px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Müşteri Bilgilerini Düzenle</h3>
+        <button class="modal-close" onclick="closeEditCustomerModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="edit-customer-grid">
+          <div class="form-group">
+            <label class="form-label">Adı</label>
+            <input type="text" class="form-input" id="editAdi" placeholder="Adı">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Soyadı</label>
+            <input type="text" class="form-input" id="editSoyadi" placeholder="Soyadı">
+          </div>
+          <div class="form-group">
+            <label class="form-label">TC Kimlik No</label>
+            <input type="text" class="form-input" id="editTcKimlikNo" placeholder="TC Kimlik No" maxlength="11">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Vergi No</label>
+            <input type="text" class="form-input" id="editVergiNo" placeholder="Vergi No" maxlength="10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Doğum Tarihi</label>
+            <input type="date" class="form-input" id="editDogumTarihi">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cinsiyet</label>
+            <select class="form-input" id="editCinsiyet">
+              <option value="">Seçiniz</option>
+              <option value="Erkek">Erkek</option>
+              <option value="Kadın">Kadın</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">GSM</label>
+            <input type="text" class="form-input" id="editGsm" placeholder="05XX XXX XX XX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GSM 2</label>
+            <input type="text" class="form-input" id="editGsm2" placeholder="05XX XXX XX XX">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Telefon</label>
+            <input type="text" class="form-input" id="editTelefon" placeholder="Telefon">
+          </div>
+          <div class="form-group">
+            <label class="form-label">E-posta</label>
+            <input type="email" class="form-input" id="editEmail" placeholder="E-posta">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Meslek</label>
+            <input type="text" class="form-input" id="editMeslek" placeholder="Meslek">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Baba Adı</label>
+            <input type="text" class="form-input" id="editBabaAdi" placeholder="Baba Adı">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Boy (cm)</label>
+            <input type="number" class="form-input" id="editBoy" placeholder="175" min="50" max="250">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kilo (kg)</label>
+            <input type="number" class="form-input" id="editKilo" placeholder="70" min="20" max="300">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Yaşadığı İl</label>
+            <input type="text" class="form-input" id="editYasadigiIl" placeholder="İl">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Yaşadığı İlçe</label>
+            <input type="text" class="form-input" id="editYasadigiIlce" placeholder="İlçe">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label">Adres</label>
+            <textarea class="form-input" id="editAdres" rows="2" placeholder="Adres" style="resize:vertical;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeEditCustomerModal()">İptal</button>
+        <button class="btn btn-primary" id="editCustomerSaveBtn" onclick="saveCustomerEdit()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/>
+          </svg>
+          Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Araç Ekle/Düzenle Modal -->
+  <div class="modal-overlay" id="aracModal">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="aracModalTitle">Araç Ekle</h3>
+        <button class="modal-close" onclick="closeAracModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="edit-customer-grid">
+          <div class="form-group">
+            <label class="form-label">Plaka *</label>
+            <input type="text" class="form-input" id="aracPlaka" placeholder="34ABC123" style="text-transform:uppercase;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Model Yılı</label>
+            <input type="text" class="form-input" id="aracModelYili" placeholder="2020" maxlength="4">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Marka Kodu</label>
+            <input type="text" class="form-input" id="aracMarkaKodu" placeholder="FORD">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tip Kodu</label>
+            <input type="text" class="form-input" id="aracTipKodu" placeholder="FOCUS">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Araç Cins Kodu</label>
+            <input type="text" class="form-input" id="aracCinsKodu" placeholder="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tescil Seri No</label>
+            <input type="text" class="form-input" id="aracTescilSeriNo" placeholder="AB123456">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Motor No</label>
+            <input type="text" class="form-input" id="aracMotorNo" placeholder="Motor numarası">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Şasi No</label>
+            <input type="text" class="form-input" id="aracSasiNo" placeholder="Şasi numarası">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeAracModal()">İptal</button>
+        <button class="btn btn-primary" id="aracSaveBtn" onclick="saveArac()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/>
+          </svg>
+          Kaydet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Konut Ekle/Düzenle Modal -->
+  <div class="modal-overlay" id="konutModal">
+    <div class="modal" style="max-width:560px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="konutModalTitle">Konut Ekle</h3>
+        <button class="modal-close" onclick="closeKonutModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="edit-customer-grid">
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label">Tanım</label>
+            <input type="text" class="form-input" id="konutTanim" placeholder="Ör: Kadıköy Evim">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bina m² *</label>
+            <input type="number" class="form-input" id="konutBinaM2" placeholder="120" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">İnşaat Yılı *</label>
+            <input type="number" class="form-input" id="konutInsaatYili" placeholder="2005" min="1900" max="2030">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Yapı Tarzı *</label>
+            <select class="form-input" id="konutYapiTarzi">
+              <option value="">Seçiniz</option>
+              <option value="Betonarme">Betonarme</option>
+              <option value="Çelik">Çelik</option>
+              <option value="Yığma Kargir">Yığma Kargir</option>
+              <option value="Yığma Yarı Kargir">Yığma Yarı Kargir</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kullanım Şekli *</label>
+            <select class="form-input" id="konutKullanimSekli">
+              <option value="">Seçiniz</option>
+              <option value="Mesken">Mesken</option>
+              <option value="Ticarethane">Ticarethane</option>
+              <option value="Diğer">Diğer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Toplam Kat Sayısı</label>
+            <input type="number" class="form-input" id="konutToplamKat" placeholder="5" min="1" max="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bulunduğu Kat</label>
+            <input type="text" class="form-input" id="konutBulunduguKat" placeholder="3">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Adres Kodu</label>
+            <input type="text" class="form-input" id="konutAdresKodu" placeholder="34001">
+          </div>
+          <div class="form-group">
+            <label class="form-label">İl</label>
+            <input type="text" class="form-input" id="konutIl" placeholder="İstanbul">
+          </div>
+          <div class="form-group">
+            <label class="form-label">İlçe</label>
+            <input type="text" class="form-input" id="konutIlce" placeholder="Kadıköy">
+          </div>
+          <div class="form-group" style="grid-column: span 2;">
+            <label class="form-label">Adres</label>
+            <textarea class="form-input" id="konutAdres" rows="2" placeholder="Adres" style="resize:vertical;"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeKonutModal()">İptal</button>
+        <button class="btn btn-primary" id="konutSaveBtn" onclick="saveKonut()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
             <polyline points="17,21 17,13 7,13 7,21"/><polyline points="7,3 7,8 15,8"/>
@@ -624,6 +865,80 @@
       font-size: 0.875rem;
     }
 
+    /* ── Asset Cards (Araçlarım / Konutlarım) ── */
+    .asset-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .asset-item {
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-radius: 0.5rem;
+      border-left: 3px solid #6366f1;
+      position: relative;
+    }
+    .asset-item.vehicle { border-left-color: #00d4ff; }
+    .asset-item.building { border-left-color: #10b981; }
+    .asset-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .asset-title {
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .asset-title .badge {
+      font-size: 0.6875rem;
+      font-weight: 600;
+    }
+    .asset-details {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.375rem 1rem;
+    }
+    .asset-detail {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+    .asset-detail strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .asset-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .asset-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 0.375rem;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .asset-btn.edit:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: #6366f1;
+    }
+    .asset-btn.delete:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
     /* ── Form Check ── */
     .form-check {
       display: flex;
@@ -688,6 +1003,46 @@
     .timeline-date {
       font-size: 0.75rem;
       color: var(--text-muted);
+    }
+
+    /* ── Note Actions ── */
+    .note-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .note-edit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 0.375rem;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .note-edit:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: #6366f1;
+    }
+
+    /* ── Edit Customer Grid ── */
+    .edit-customer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 640px) {
+      .edit-customer-grid {
+        grid-template-columns: 1fr;
+      }
+      .edit-customer-grid .form-group[style*="span 2"] {
+        grid-column: span 1;
+      }
     }
 
     /* ── Helpers ── */
@@ -766,6 +1121,11 @@
     let customerId = null;
     let currentData = null;
     let chartBrans = null;
+    let editingNoteId = null;
+    let editingAracId = null;
+    let editingKonutId = null;
+    let araclar = [];
+    let konutlar = [];
 
     // ═══════════════════════════════════════════════
     // INIT
@@ -837,6 +1197,15 @@
       updatePoliceler(data.policeler);
       updateBransChart(data.bransDagilim);
       updateNotlar(data.notlar);
+
+      // Show edit button after data loads
+      const editBtn = document.getElementById('editCustomerBtn');
+      if (editBtn) editBtn.style.display = '';
+
+      // Load activity timeline + assets (non-blocking)
+      loadActivity();
+      loadAraclar();
+      loadKonutlar();
     }
 
     function updateCustomerInfo(m) {
@@ -1100,11 +1469,18 @@
               <span class="note-author">${n.onemliMi ? '&#9733; ' : ''}${escapeHtml(n.ekleyenAdi || 'Sistem')}</span>
               <span class="note-date">${formatDate(n.eklemeTarihi)}</span>
             </div>
-            <button class="note-delete" onclick="deleteNote(${n.id})" title="Notu sil">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-              </svg>
-            </button>
+            <div class="note-actions">
+              <button class="note-edit" onclick="openNoteModal(${n.id})" title="Notu düzenle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="note-delete" onclick="deleteNote(${n.id})" title="Notu sil">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <p class="note-text">${escapeHtml(n.icerik)}</p>
         </div>
@@ -1114,15 +1490,32 @@
     // ═══════════════════════════════════════════════
     // NOTES CRUD
     // ═══════════════════════════════════════════════
-    function openNoteModal() {
-      document.getElementById('noteIcerik').value = '';
-      document.getElementById('noteOnemli').checked = false;
+    function openNoteModal(noteId) {
+      editingNoteId = noteId || null;
+      const titleEl = document.getElementById('noteModalTitle');
+
+      if (editingNoteId && currentData && currentData.notlar) {
+        // Edit mode — find existing note and populate fields
+        const note = currentData.notlar.find(n => n.id === editingNoteId);
+        if (note) {
+          titleEl.textContent = 'Notu Düzenle';
+          document.getElementById('noteIcerik').value = note.icerik;
+          document.getElementById('noteOnemli').checked = note.onemliMi;
+        }
+      } else {
+        // Add mode
+        titleEl.textContent = 'Not Ekle';
+        document.getElementById('noteIcerik').value = '';
+        document.getElementById('noteOnemli').checked = false;
+      }
+
       document.getElementById('noteModal').classList.add('active');
       setTimeout(() => document.getElementById('noteIcerik').focus(), 100);
     }
 
     function closeNoteModal() {
       document.getElementById('noteModal').classList.remove('active');
+      editingNoteId = null;
     }
 
     async function saveNote() {
@@ -1134,22 +1527,58 @@
 
       const btn = document.getElementById('noteSaveBtn');
       btn.disabled = true;
+      const onemliMi = document.getElementById('noteOnemli').checked;
 
       try {
-        const result = await apiPost(`customers/${customerId}/notes`, {
-          icerik: icerik,
-          onemliMi: document.getElementById('noteOnemli').checked
-        });
-        if (result && result.success) {
-          closeNoteModal();
-          if (typeof showToast === 'function') showToast('Not eklendi.', 'success');
-          await loadData();
+        if (editingNoteId) {
+          // ── UPDATE existing note ──
+          const result = await apiPut(`customers/${customerId}/notes/${editingNoteId}`, {
+            icerik: icerik,
+            onemliMi: onemliMi
+          });
+          if (result && result.success) {
+            closeNoteModal();
+            if (typeof showToast === 'function') showToast('Not güncellendi.', 'success');
+            // Optimistic update
+            if (currentData && currentData.notlar) {
+              const idx = currentData.notlar.findIndex(n => n.id === editingNoteId);
+              if (idx !== -1) {
+                currentData.notlar[idx].icerik = icerik;
+                currentData.notlar[idx].onemliMi = onemliMi;
+              }
+              updateNotlar(currentData.notlar);
+            }
+          } else {
+            if (typeof showToast === 'function') showToast(result?.errorMessage || 'Not güncellenemedi.', 'error');
+          }
         } else {
-          if (typeof showToast === 'function') showToast(result?.errorMessage || 'Not eklenemedi.', 'error');
+          // ── ADD new note ──
+          const result = await apiPost(`customers/${customerId}/notes`, {
+            icerik: icerik,
+            onemliMi: onemliMi
+          });
+          if (result && result.success) {
+            closeNoteModal();
+            if (typeof showToast === 'function') showToast('Not eklendi.', 'success');
+            // Optimistic update — add to top of list
+            const user = APP_CONFIG.AUTH.getUser();
+            const newNote = {
+              id: result.notId,
+              icerik: icerik,
+              onemliMi: onemliMi,
+              ekleyenAdi: user ? user.name : '',
+              eklemeTarihi: new Date().toISOString()
+            };
+            if (!currentData.notlar) currentData.notlar = [];
+            currentData.notlar.unshift(newNote);
+            updateNotlar(currentData.notlar);
+          } else {
+            if (typeof showToast === 'function') showToast(result?.errorMessage || 'Not eklenemedi.', 'error');
+          }
         }
       } catch (err) {
-        console.error('Not eklenemedi:', err);
-        if (typeof showToast === 'function') showToast('Not eklenirken hata oluştu.', 'error');
+        console.error('Not kaydedilemedi:', err);
+        if (typeof showToast === 'function') showToast('Not kaydedilirken hata oluştu.', 'error');
       } finally {
         btn.disabled = false;
       }
@@ -1167,13 +1596,463 @@
         const result = await apiDelete(`customers/${customerId}/notes/${noteId}`);
         if (result && result.success) {
           if (typeof showToast === 'function') showToast('Not silindi.', 'success');
-          await loadData();
+          // Optimistic update — remove from list
+          if (currentData && currentData.notlar) {
+            currentData.notlar = currentData.notlar.filter(n => n.id !== noteId);
+            updateNotlar(currentData.notlar);
+          }
         } else {
           if (typeof showToast === 'function') showToast(result?.errorMessage || 'Not silinemedi.', 'error');
         }
       } catch (err) {
         console.error('Not silinemedi:', err);
         if (typeof showToast === 'function') showToast('Not silinirken hata oluştu.', 'error');
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // CUSTOMER EDIT
+    // ═══════════════════════════════════════════════
+    function openEditCustomerModal() {
+      if (!currentData || !currentData.musteri) return;
+      const m = currentData.musteri;
+
+      document.getElementById('editAdi').value = m.adi || '';
+      document.getElementById('editSoyadi').value = m.soyadi || '';
+      document.getElementById('editTcKimlikNo').value = m.tcKimlikNo || '';
+      document.getElementById('editVergiNo').value = m.vergiNo || '';
+      document.getElementById('editDogumTarihi').value = m.dogumTarihi ? m.dogumTarihi.substring(0, 10) : '';
+      document.getElementById('editCinsiyet').value = m.cinsiyet || '';
+      document.getElementById('editGsm').value = m.gsm || '';
+      document.getElementById('editGsm2').value = m.gsm2 || '';
+      document.getElementById('editTelefon').value = m.telefon || '';
+      document.getElementById('editEmail').value = m.email || '';
+      document.getElementById('editMeslek').value = m.meslek || '';
+      document.getElementById('editBabaAdi').value = m.babaAdi || '';
+      document.getElementById('editBoy').value = m.boy || '';
+      document.getElementById('editKilo').value = m.kilo || '';
+      document.getElementById('editYasadigiIl').value = m.yasadigiIl || '';
+      document.getElementById('editYasadigiIlce').value = m.yasadigiIlce || '';
+      document.getElementById('editAdres').value = m.adres || '';
+
+      document.getElementById('editCustomerModal').classList.add('active');
+    }
+
+    function closeEditCustomerModal() {
+      document.getElementById('editCustomerModal').classList.remove('active');
+    }
+
+    async function saveCustomerEdit() {
+      const btn = document.getElementById('editCustomerSaveBtn');
+      btn.disabled = true;
+
+      const data = {
+        adi: document.getElementById('editAdi').value.trim(),
+        soyadi: document.getElementById('editSoyadi').value.trim(),
+        tcKimlikNo: document.getElementById('editTcKimlikNo').value.trim(),
+        vergiNo: document.getElementById('editVergiNo').value.trim(),
+        dogumTarihi: document.getElementById('editDogumTarihi').value || null,
+        cinsiyet: document.getElementById('editCinsiyet').value,
+        gsm: document.getElementById('editGsm').value.trim(),
+        gsm2: document.getElementById('editGsm2').value.trim(),
+        telefon: document.getElementById('editTelefon').value.trim(),
+        email: document.getElementById('editEmail').value.trim(),
+        meslek: document.getElementById('editMeslek').value.trim(),
+        babaAdi: document.getElementById('editBabaAdi').value.trim(),
+        boy: document.getElementById('editBoy').value ? parseInt(document.getElementById('editBoy').value) : null,
+        kilo: document.getElementById('editKilo').value ? parseInt(document.getElementById('editKilo').value) : null,
+        yasadigiIl: document.getElementById('editYasadigiIl').value.trim(),
+        yasadigiIlce: document.getElementById('editYasadigiIlce').value.trim(),
+        adres: document.getElementById('editAdres').value.trim()
+      };
+
+      try {
+        const result = await apiPut(`customers/${customerId}`, data);
+        if (result && result.success) {
+          closeEditCustomerModal();
+          if (typeof showToast === 'function') showToast('Müşteri bilgileri güncellendi.', 'success');
+          // Optimistic update
+          Object.assign(currentData.musteri, data);
+          updateCustomerInfo(currentData.musteri);
+        } else {
+          if (typeof showToast === 'function') showToast(result?.errorMessage || 'Müşteri güncellenemedi.', 'error');
+        }
+      } catch (err) {
+        console.error('Müşteri güncellenemedi:', err);
+        if (typeof showToast === 'function') showToast('Müşteri güncellenirken hata oluştu.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // ACTIVITY TIMELINE
+    // ═══════════════════════════════════════════════
+    async function loadActivity() {
+      try {
+        const activities = await apiGet(`customers/${customerId}/activity?limit=20`);
+        renderActivity(activities || []);
+      } catch (err) {
+        console.error('Aktivite yüklenemedi:', err);
+        const el = document.getElementById('activityTimeline');
+        el.innerHTML = '<p class="empty-state">Aktivite yüklenemedi.</p>';
+      }
+    }
+
+    function renderActivity(activities) {
+      const el = document.getElementById('activityTimeline');
+
+      if (!activities || activities.length === 0) {
+        el.innerHTML = '<p class="empty-state">Henüz aktivite yok.</p>';
+        return;
+      }
+
+      el.innerHTML = activities.map(a => `
+        <div class="timeline-item">
+          <div class="timeline-marker ${escapeHtml(a.color || 'cyan')}"></div>
+          <div class="timeline-content">
+            <p class="timeline-title">${escapeHtml(a.title)}</p>
+            <p class="timeline-text">${escapeHtml(a.description)}</p>
+            <span class="timeline-date">${getRelativeDate(a.tarih)}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getRelativeDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return '';
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const target = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const diffDays = Math.floor((today - target) / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) return `${Math.abs(diffDays)} gün sonra`;
+      if (diffDays === 0) return 'Bugün';
+      if (diffDays === 1) return 'Dün';
+      if (diffDays < 7) return `${diffDays} gün önce`;
+      if (diffDays < 14) return '1 hafta önce';
+      if (diffDays < 30) return `${Math.floor(diffDays / 7)} hafta önce`;
+      if (diffDays < 60) return '1 ay önce';
+      if (diffDays < 365) return `${Math.floor(diffDays / 30)} ay önce`;
+      return formatDate(dateStr);
+    }
+
+    // ═══════════════════════════════════════════════
+    // ARAÇLARIM (VEHICLES)
+    // ═══════════════════════════════════════════════
+    async function loadAraclar() {
+      try {
+        araclar = await apiGet(`customers/${customerId}/vehicles`) || [];
+        renderAraclar();
+      } catch (err) {
+        console.error('Araçlar yüklenemedi:', err);
+        document.getElementById('aracList').innerHTML = '<p class="empty-state">Araçlar yüklenemedi.</p>';
+      }
+    }
+
+    function renderAraclar() {
+      const list = document.getElementById('aracList');
+      if (!araclar || araclar.length === 0) {
+        list.innerHTML = '<p class="empty-state">Henüz araç eklenmemiş.</p>';
+        return;
+      }
+      list.innerHTML = araclar.map(a => {
+        const title = a.plaka || 'Plakasız';
+        const subtitle = [a.markaKodu, a.tipKodu, a.modelYili].filter(Boolean).join(' ');
+        const details = [];
+        if (a.motorNo) details.push(`Motor: <strong>${escapeHtml(a.motorNo)}</strong>`);
+        if (a.sasiNo) details.push(`Şasi: <strong>${escapeHtml(a.sasiNo)}</strong>`);
+        if (a.tescilSeriNo) details.push(`Tescil: <strong>${escapeHtml(a.tescilSeriNo)}</strong>`);
+        if (a.aracCinsKodu) details.push(`Cins: <strong>${escapeHtml(a.aracCinsKodu)}</strong>`);
+
+        return `<div class="asset-item vehicle">
+          <div class="asset-header">
+            <div class="asset-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4a2 2 0 012 2v6a2 2 0 01-2 2h-1"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              ${escapeHtml(title)}
+              ${subtitle ? `<span class="badge badge-secondary">${escapeHtml(subtitle)}</span>` : ''}
+            </div>
+            <div class="asset-actions">
+              <button class="asset-btn edit" onclick="openAracModal(${a.id})" title="Düzenle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="asset-btn delete" onclick="deleteArac(${a.id})" title="Sil">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+          ${details.length > 0 ? `<div class="asset-details">${details.map(d => `<div class="asset-detail">${d}</div>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function openAracModal(aracId) {
+      editingAracId = aracId || null;
+      const titleEl = document.getElementById('aracModalTitle');
+
+      if (editingAracId) {
+        const a = araclar.find(x => x.id === editingAracId);
+        if (a) {
+          titleEl.textContent = 'Aracı Düzenle';
+          document.getElementById('aracPlaka').value = a.plaka || '';
+          document.getElementById('aracModelYili').value = a.modelYili || '';
+          document.getElementById('aracMarkaKodu').value = a.markaKodu || '';
+          document.getElementById('aracTipKodu').value = a.tipKodu || '';
+          document.getElementById('aracCinsKodu').value = a.aracCinsKodu || '';
+          document.getElementById('aracTescilSeriNo').value = a.tescilSeriNo || '';
+          document.getElementById('aracMotorNo').value = a.motorNo || '';
+          document.getElementById('aracSasiNo').value = a.sasiNo || '';
+        }
+      } else {
+        titleEl.textContent = 'Araç Ekle';
+        ['aracPlaka','aracModelYili','aracMarkaKodu','aracTipKodu','aracCinsKodu','aracTescilSeriNo','aracMotorNo','aracSasiNo'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
+      }
+      document.getElementById('aracModal').classList.add('active');
+    }
+
+    function closeAracModal() {
+      document.getElementById('aracModal').classList.remove('active');
+      editingAracId = null;
+    }
+
+    async function saveArac() {
+      const plaka = document.getElementById('aracPlaka').value.trim();
+      if (!plaka) {
+        if (typeof showToast === 'function') showToast('Plaka zorunludur.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('aracSaveBtn');
+      btn.disabled = true;
+
+      const data = {
+        plaka: plaka,
+        modelYili: document.getElementById('aracModelYili').value.trim() || null,
+        markaKodu: document.getElementById('aracMarkaKodu').value.trim() || null,
+        tipKodu: document.getElementById('aracTipKodu').value.trim() || null,
+        aracCinsKodu: document.getElementById('aracCinsKodu').value.trim() || null,
+        tescilSeriNo: document.getElementById('aracTescilSeriNo').value.trim() || null,
+        motorNo: document.getElementById('aracMotorNo').value.trim() || null,
+        sasiNo: document.getElementById('aracSasiNo').value.trim() || null
+      };
+
+      try {
+        if (editingAracId) {
+          const result = await apiPut(`customers/${customerId}/vehicles/${editingAracId}`, data);
+          if (result && result.success) {
+            closeAracModal();
+            if (typeof showToast === 'function') showToast('Araç güncellendi.', 'success');
+            const idx = araclar.findIndex(a => a.id === editingAracId);
+            if (idx !== -1) Object.assign(araclar[idx], data);
+            renderAraclar();
+          } else {
+            if (typeof showToast === 'function') showToast(result?.errorMessage || 'Araç güncellenemedi.', 'error');
+          }
+        } else {
+          const result = await apiPost(`customers/${customerId}/vehicles`, data);
+          if (result && result.success) {
+            closeAracModal();
+            if (typeof showToast === 'function') showToast('Araç eklendi.', 'success');
+            araclar.unshift({ id: result.aracId, ...data, eklemeTarihi: new Date().toISOString() });
+            renderAraclar();
+          } else {
+            if (typeof showToast === 'function') showToast(result?.errorMessage || 'Araç eklenemedi.', 'error');
+          }
+        }
+      } catch (err) {
+        console.error('Araç kaydedilemedi:', err);
+        if (typeof showToast === 'function') showToast('Araç kaydedilirken hata oluştu.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteArac(aracId) {
+      if (typeof showConfirm === 'function') {
+        const confirmed = await showConfirm('Bu aracı silmek istediğinize emin misiniz?');
+        if (!confirmed) return;
+      } else {
+        if (!confirm('Bu aracı silmek istediğinize emin misiniz?')) return;
+      }
+
+      try {
+        const result = await apiDelete(`customers/${customerId}/vehicles/${aracId}`);
+        if (result && result.success) {
+          if (typeof showToast === 'function') showToast('Araç silindi.', 'success');
+          araclar = araclar.filter(a => a.id !== aracId);
+          renderAraclar();
+        } else {
+          if (typeof showToast === 'function') showToast(result?.errorMessage || 'Araç silinemedi.', 'error');
+        }
+      } catch (err) {
+        console.error('Araç silinemedi:', err);
+        if (typeof showToast === 'function') showToast('Araç silinirken hata oluştu.', 'error');
+      }
+    }
+
+    // ═══════════════════════════════════════════════
+    // KONUTLARIM (BUILDINGS)
+    // ═══════════════════════════════════════════════
+    async function loadKonutlar() {
+      try {
+        konutlar = await apiGet(`customers/${customerId}/buildings`) || [];
+        renderKonutlar();
+      } catch (err) {
+        console.error('Konutlar yüklenemedi:', err);
+        document.getElementById('konutList').innerHTML = '<p class="empty-state">Konutlar yüklenemedi.</p>';
+      }
+    }
+
+    function renderKonutlar() {
+      const list = document.getElementById('konutList');
+      if (!konutlar || konutlar.length === 0) {
+        list.innerHTML = '<p class="empty-state">Henüz konut eklenmemiş.</p>';
+        return;
+      }
+      list.innerHTML = konutlar.map(k => {
+        const title = k.tanim || [k.il, k.ilce].filter(Boolean).join(', ') || 'İsimsiz Konut';
+        const badges = [];
+        if (k.yapiTarzi) badges.push(k.yapiTarzi);
+        if (k.kullanimSekli) badges.push(k.kullanimSekli);
+        const details = [];
+        if (k.binaM2) details.push(`m²: <strong>${k.binaM2}</strong>`);
+        if (k.insaatYili) details.push(`İnşaat: <strong>${k.insaatYili}</strong>`);
+        if (k.toplamKatSayisi) details.push(`Kat: <strong>${k.toplamKatSayisi}</strong>`);
+        if (k.bulunduguKat) details.push(`Daire Katı: <strong>${escapeHtml(k.bulunduguKat)}</strong>`);
+        if (k.adresKodu) details.push(`Adres Kodu: <strong>${escapeHtml(k.adresKodu)}</strong>`);
+        if (k.il && k.ilce) details.push(`Konum: <strong>${escapeHtml(k.ilce)}, ${escapeHtml(k.il)}</strong>`);
+
+        return `<div class="asset-item building">
+          <div class="asset-header">
+            <div class="asset-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M9 17h1"/></svg>
+              ${escapeHtml(title)}
+              ${badges.map(b => `<span class="badge badge-secondary">${escapeHtml(b)}</span>`).join('')}
+            </div>
+            <div class="asset-actions">
+              <button class="asset-btn edit" onclick="openKonutModal(${k.id})" title="Düzenle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="asset-btn delete" onclick="deleteKonut(${k.id})" title="Sil">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+          ${details.length > 0 ? `<div class="asset-details">${details.map(d => `<div class="asset-detail">${d}</div>`).join('')}</div>` : ''}
+        </div>`;
+      }).join('');
+    }
+
+    function openKonutModal(konutId) {
+      editingKonutId = konutId || null;
+      const titleEl = document.getElementById('konutModalTitle');
+      const fields = ['konutTanim','konutBinaM2','konutInsaatYili','konutYapiTarzi','konutKullanimSekli','konutToplamKat','konutBulunduguKat','konutAdresKodu','konutIl','konutIlce','konutAdres'];
+
+      if (editingKonutId) {
+        const k = konutlar.find(x => x.id === editingKonutId);
+        if (k) {
+          titleEl.textContent = 'Konutu Düzenle';
+          document.getElementById('konutTanim').value = k.tanim || '';
+          document.getElementById('konutBinaM2').value = k.binaM2 || '';
+          document.getElementById('konutInsaatYili').value = k.insaatYili || '';
+          document.getElementById('konutYapiTarzi').value = k.yapiTarzi || '';
+          document.getElementById('konutKullanimSekli').value = k.kullanimSekli || '';
+          document.getElementById('konutToplamKat').value = k.toplamKatSayisi || '';
+          document.getElementById('konutBulunduguKat').value = k.bulunduguKat || '';
+          document.getElementById('konutAdresKodu').value = k.adresKodu || '';
+          document.getElementById('konutIl').value = k.il || '';
+          document.getElementById('konutIlce').value = k.ilce || '';
+          document.getElementById('konutAdres').value = k.adres || '';
+        }
+      } else {
+        titleEl.textContent = 'Konut Ekle';
+        fields.forEach(id => {
+          const el = document.getElementById(id);
+          if (el.tagName === 'SELECT') el.selectedIndex = 0;
+          else el.value = '';
+        });
+      }
+      document.getElementById('konutModal').classList.add('active');
+    }
+
+    function closeKonutModal() {
+      document.getElementById('konutModal').classList.remove('active');
+      editingKonutId = null;
+    }
+
+    async function saveKonut() {
+      const btn = document.getElementById('konutSaveBtn');
+      btn.disabled = true;
+
+      const data = {
+        tanim: document.getElementById('konutTanim').value.trim() || null,
+        binaM2: document.getElementById('konutBinaM2').value ? parseInt(document.getElementById('konutBinaM2').value) : null,
+        insaatYili: document.getElementById('konutInsaatYili').value ? parseInt(document.getElementById('konutInsaatYili').value) : null,
+        yapiTarzi: document.getElementById('konutYapiTarzi').value || null,
+        toplamKatSayisi: document.getElementById('konutToplamKat').value ? parseInt(document.getElementById('konutToplamKat').value) : null,
+        bulunduguKat: document.getElementById('konutBulunduguKat').value.trim() || null,
+        kullanimSekli: document.getElementById('konutKullanimSekli').value || null,
+        adresKodu: document.getElementById('konutAdresKodu').value.trim() || null,
+        il: document.getElementById('konutIl').value.trim() || null,
+        ilce: document.getElementById('konutIlce').value.trim() || null,
+        adres: document.getElementById('konutAdres').value.trim() || null
+      };
+
+      try {
+        if (editingKonutId) {
+          const result = await apiPut(`customers/${customerId}/buildings/${editingKonutId}`, data);
+          if (result && result.success) {
+            closeKonutModal();
+            if (typeof showToast === 'function') showToast('Konut güncellendi.', 'success');
+            const idx = konutlar.findIndex(k => k.id === editingKonutId);
+            if (idx !== -1) Object.assign(konutlar[idx], data);
+            renderKonutlar();
+          } else {
+            if (typeof showToast === 'function') showToast(result?.errorMessage || 'Konut güncellenemedi.', 'error');
+          }
+        } else {
+          const result = await apiPost(`customers/${customerId}/buildings`, data);
+          if (result && result.success) {
+            closeKonutModal();
+            if (typeof showToast === 'function') showToast('Konut eklendi.', 'success');
+            konutlar.unshift({ id: result.konutId, ...data, eklemeTarihi: new Date().toISOString() });
+            renderKonutlar();
+          } else {
+            if (typeof showToast === 'function') showToast(result?.errorMessage || 'Konut eklenemedi.', 'error');
+          }
+        }
+      } catch (err) {
+        console.error('Konut kaydedilemedi:', err);
+        if (typeof showToast === 'function') showToast('Konut kaydedilirken hata oluştu.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteKonut(konutId) {
+      if (typeof showConfirm === 'function') {
+        const confirmed = await showConfirm('Bu konutu silmek istediğinize emin misiniz?');
+        if (!confirmed) return;
+      } else {
+        if (!confirm('Bu konutu silmek istediğinize emin misiniz?')) return;
+      }
+
+      try {
+        const result = await apiDelete(`customers/${customerId}/buildings/${konutId}`);
+        if (result && result.success) {
+          if (typeof showToast === 'function') showToast('Konut silindi.', 'success');
+          konutlar = konutlar.filter(k => k.id !== konutId);
+          renderKonutlar();
+        } else {
+          if (typeof showToast === 'function') showToast(result?.errorMessage || 'Konut silinemedi.', 'error');
+        }
+      } catch (err) {
+        console.error('Konut silinemedi:', err);
+        if (typeof showToast === 'function') showToast('Konut silinirken hata oluştu.', 'error');
       }
     }
 
