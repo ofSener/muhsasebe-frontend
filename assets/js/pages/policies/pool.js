@@ -3353,11 +3353,11 @@
       // HTML içeriğini oluştur
       const rowsHtml = paginatedData.map(p => {
         return `
-        <tr class="${selectedPolicies.has(p.id) ? 'selected' : ''}" data-id="${p.id}" onclick="handleRowClick(event, ${p.id})">
-          <td>
+        <tr class="data-row ${selectedPolicies.has(p.id) ? 'selected' : ''}" data-id="${p.id}" onclick="handleRowClick(event, ${p.id})">
+          <td data-label="">
             <input type="checkbox" ${selectedPolicies.has(p.id) ? 'checked' : ''}>
           </td>
-          <td>
+          <td data-label="Police No">
             <span class="clickable-link font-mono" style="font-weight: 600;" onclick="event.stopPropagation(); openPolicyDrive('${p.policyNo}')" title="Google Drive'da aç">
               ${p.policyNo}
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -3367,19 +3367,19 @@
               </svg>
             </span>
           </td>
-          <td>
+          <td data-label="Musteri">
             <div class="cell-main clickable-customer" onclick="event.stopPropagation(); openCustomerModal('${p.customer}', ${p.id})">${p.customer}</div>
           </td>
-          <td>
+          <td data-label="Tur">
             <span class="policy-type-badge ${p.typeClass}">${p.type}</span>
           </td>
-          <td>
+          <td data-label="Net Prim">
             <span class="font-mono font-semibold">${p.netPremium.toLocaleString('tr-TR')} TL</span>
           </td>
-          <td>
+          <td data-label="Brut Prim">
             <span class="font-mono font-semibold">${p.grossPremium.toLocaleString('tr-TR')} TL</span>
           </td>
-          <td>
+          <td data-label="Uretici">
             <div class="producer-cell">
               <div class="producer-avatar ${p.producerColor}">${p.producerInitials}</div>
               <div class="producer-info">
@@ -3388,10 +3388,10 @@
               </div>
             </div>
           </td>
-          <td>
+          <td data-label="Tarih">
             <span class="cell-sub">${p.dateFormatted}</span>
           </td>
-          <td onclick="event.stopPropagation()">
+          <td data-label="" onclick="event.stopPropagation()">
             <div class="table-actions">
               <button class="action-btn view-btn" onclick="viewPolicy(${p.id})" title="Görüntüle">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

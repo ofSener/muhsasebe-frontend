@@ -71,7 +71,8 @@
       '.ac-dt-loading{padding:3rem 1rem;text-align:center;color:var(--text-muted,#94a3b8);font-size:.85rem;}' +
       '.ac-dt-footer{padding:.75rem 1rem;border-top:1px solid var(--border-color,rgba(99,102,241,.12));}' +
       '.ac-dt-currency{font-family:"SF Mono","Fira Code",monospace;font-weight:500;white-space:nowrap;}' +
-      '.ac-dt-date{white-space:nowrap;}';
+      '.ac-dt-date{white-space:nowrap;}' +
+      '@media(max-width:768px){.ac-dt-toolbar{flex-direction:column;align-items:stretch;gap:.5rem}.ac-dt-search{min-width:100%;width:100%}}';
     document.head.appendChild(s);
   }
 
@@ -139,6 +140,7 @@
 
     var searchable = opts.searchable !== false;
     var selectable = opts.selectable === true;
+    var mobileCards = opts.mobileCards !== false; // Default: true — enables card view on mobile
     var emptyMessage = opts.emptyMessage || 'Kayit bulunamadi.';
 
     // -- Build DOM --
@@ -269,7 +271,7 @@
         return;
       }
 
-      var html = '<table class="ac-dt-table"><thead><tr>';
+      var html = '<table class="ac-dt-table"' + (mobileCards ? ' data-mobile-cards' : '') + '><thead><tr>';
 
       // Select-all checkbox
       if (selectable) {
@@ -302,7 +304,7 @@
         html += '<tr data-idx="' + globalIdx + '"' + rowClass + '>';
 
         if (selectable) {
-          html += '<td><input type="checkbox"' + (selected[globalIdx] ? ' checked' : '') + '></td>';
+          html += '<td data-label=""><input type="checkbox"' + (selected[globalIdx] ? ' checked' : '') + '></td>';
         }
 
         for (var ci = 0; ci < columns.length; ci++) {
@@ -323,7 +325,8 @@
             cellHtml = value != null ? escapeText(String(value)) : '-';
           }
 
-          html += '<td>' + cellHtml + '</td>';
+          var colLabel = columns[ci].label || columns[ci].key;
+          html += '<td data-label="' + escapeText(colLabel) + '">' + cellHtml + '</td>';
         }
 
         html += '</tr>';

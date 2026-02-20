@@ -215,6 +215,35 @@
   }
 
   // ---------------------------------------------------------------
+  // Table overflow detection for mobile scroll indicator
+  // ---------------------------------------------------------------
+
+  function checkOverflow(el) {
+    if (el.scrollWidth > el.clientWidth) {
+      el.classList.add('has-overflow');
+    } else {
+      el.classList.remove('has-overflow');
+    }
+  }
+
+  function initTableOverflowDetection() {
+    var containers = document.querySelectorAll('.table-container, .table-wrapper');
+    for (var i = 0; i < containers.length; i++) {
+      checkOverflow(containers[i]);
+    }
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        var c = document.querySelectorAll('.table-container, .table-wrapper');
+        for (var j = 0; j < c.length; j++) checkOverflow(c[j]);
+      }, 250);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initTableOverflowDetection);
+
+  // ---------------------------------------------------------------
   // Export to namespace
   // ---------------------------------------------------------------
 
@@ -229,7 +258,8 @@
     formatDate: formatDate,
     formatPercent: formatPercent,
     uid: uid,
-    debounce: debounce
+    debounce: debounce,
+    initTableOverflowDetection: initTableOverflowDetection
   };
 
 })();

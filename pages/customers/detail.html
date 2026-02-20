@@ -1112,6 +1112,21 @@
     .toggle-switch input:checked + .toggle-slider::before {
       transform: translateX(16px);
     }
+
+    @media (max-width: 768px) {
+      .customer-profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+      }
+      .customer-detail-grid {
+        grid-template-columns: 1fr !important;
+      }
+      .info-grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
   </style>
 
   <script>

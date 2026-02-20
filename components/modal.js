@@ -51,7 +51,8 @@
       '.ac-modal-close{background:none;border:none;cursor:pointer;padding:4px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-muted,#94a3b8);transition:all .15s ease;}' +
       '.ac-modal-close:hover{background:rgba(239,68,68,.15);color:#ef4444;}' +
       '.ac-modal-body{padding:1.25rem 1.5rem;overflow-y:auto;color:var(--text-secondary,#c7d2fe);font-size:.9rem;line-height:1.6;}' +
-      '.ac-modal-footer{display:flex;justify-content:flex-end;gap:.75rem;padding:1rem 1.5rem;border-top:1px solid var(--border-color,rgba(99,102,241,.15));}';
+      '.ac-modal-footer{display:flex;justify-content:flex-end;gap:.75rem;padding:1rem 1.5rem;border-top:1px solid var(--border-color,rgba(99,102,241,.15));}' +
+      '@media(max-width:480px){.ac-modal{width:100%!important;max-width:100%!important;min-height:100vh;border-radius:0;margin:0}.ac-modal-body{max-height:calc(100vh - 130px);overflow-y:auto;-webkit-overflow-scrolling:touch}}';
     document.head.appendChild(style);
   }
 

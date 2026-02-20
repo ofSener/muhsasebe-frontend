@@ -1,0 +1,349 @@
+/* ============================================================
+   IHSAN AI - Mobile Responsiveness
+   Central mobile breakpoints for all 26 pages.
+   Imported via main.css — all pages benefit automatically.
+   ============================================================ */
+
+/* --- A: DataTable Mobile Card View --- */
+@media (max-width: 768px) {
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] thead {
+    display: none;
+  }
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] tbody tr {
+    display: block;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    background: var(--bg-surface, #1e293b);
+    border: 1px solid var(--border-subtle, rgba(99,102,241,.12));
+    border-radius: var(--radius-md, 10px);
+    box-shadow: var(--card-shadow);
+    position: relative;
+  }
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] tbody tr:hover {
+    background: var(--bg-elevated, rgba(99,102,241,.05));
+  }
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] tbody tr.selected {
+    border-color: var(--primary, #6366f1);
+    background: var(--primary-glow, rgba(99,102,241,.12));
+  }
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border: none;
+    border-bottom: 1px solid var(--border-subtle, rgba(99,102,241,.08));
+  }
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] tbody td:last-child {
+    border-bottom: none;
+    padding-top: 0.75rem;
+    justify-content: flex-end;
+  }
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-muted, #94a3b8);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    margin-right: 1rem;
+  }
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] tbody td:last-child::before {
+    display: none;
+  }
+  /* Checkbox column in card mode */
+  .ac-dt-table-wrap .ac-dt-table[data-mobile-cards] tbody td:first-child:has(input[type="checkbox"]) {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    border: none;
+    padding: 0;
+  }
+}
+
+/* --- B: DataTable Toolbar Mobile --- */
+@media (max-width: 768px) {
+  .ac-dt-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .ac-dt-search {
+    min-width: 100%;
+    width: 100%;
+  }
+}
+
+/* --- C: FilterBar Mobile --- */
+@media (max-width: 768px) {
+  .ac-fb {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .ac-fb-group {
+    width: 100%;
+  }
+  .ac-fb-input, .ac-fb-select {
+    min-width: 100%;
+    width: 100%;
+  }
+  .ac-fb-daterange {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .ac-fb-daterange input {
+    width: 100%;
+  }
+  .ac-fb-actions {
+    margin-left: 0;
+    width: 100%;
+    justify-content: stretch;
+  }
+  .ac-fb-actions .ac-fb-btn {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+/* --- D: Modal Full-Screen (Small Phones) --- */
+@media (max-width: 480px) {
+  .ac-modal-overlay .ac-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
+  .ac-modal-overlay .ac-modal .ac-modal-body {
+    max-height: calc(100vh - 130px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ac-modal-overlay .ac-modal .ac-modal-header {
+    padding: 1rem;
+  }
+  .ac-modal-overlay .ac-modal .ac-modal-footer {
+    padding: 1rem;
+  }
+  /* Page-level modals */
+  .modal-overlay .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100vh;
+    margin: 0;
+    border-radius: 0;
+  }
+  .modal-overlay .modal .modal-body {
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* --- E: Floating Action Box (Bottom Sheet) --- */
+@media (max-width: 768px) {
+  .floating-action-box {
+    position: fixed !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    transform: translateY(100%) !important;
+    border-radius: 16px 16px 0 0 !important;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    padding: 1rem !important;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2) !important;
+  }
+  .floating-action-box.active,
+  .floating-action-box[style*="display: flex"],
+  .floating-action-box[style*="display:flex"] {
+    transform: translateY(0) !important;
+  }
+  .floating-action-box .action-buttons {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .floating-action-box .action-buttons .btn {
+    flex: 1;
+    min-width: calc(50% - 0.25rem);
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* --- F: Expanded Row Content --- */
+@media (max-width: 768px) {
+  .expanded-content {
+    padding: 0.75rem !important;
+  }
+  .expanded-content .info-grid,
+  .expanded-content .grid-2,
+  .expanded-content .grid-3,
+  .expanded-content .form-grid-2,
+  .expanded-content .form-grid-3 {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --- G: Permission Bar --- */
+@media (max-width: 768px) {
+  .permission-bar {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem !important;
+  }
+  .permission-bar .permission-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* --- H: Page Header Extended (captured, pool, renewals) --- */
+@media (max-width: 768px) {
+  .page-header-extended .page-header-top {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  .page-header-extended .page-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .page-header-extended .page-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .page-header-filter {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .date-pills {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 0.5rem;
+  }
+}
+
+/* --- I: Chart Container (Small Phones) --- */
+@media (max-width: 480px) {
+  .chart-container,
+  .chart-container.small,
+  .chart-container.large,
+  [id$="Chart"],
+  .chart-card .card-body > div {
+    min-height: 180px;
+    height: auto !important;
+    max-height: 250px;
+  }
+}
+
+/* --- J: Table Scroll Indicator --- */
+@media (max-width: 768px) {
+  .table-container,
+  .table-wrapper,
+  .ac-dt-table-wrap {
+    position: relative;
+  }
+  .table-container::after,
+  .table-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 20px;
+    background: linear-gradient(to right, transparent, var(--bg-surface, #fff));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .table-container.has-overflow::after,
+  .table-wrapper.has-overflow::after {
+    opacity: 1;
+  }
+}
+
+/* --- K: Pagination Mobile --- */
+@media (max-width: 480px) {
+  .ac-pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .ac-pagination-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* --- L: Multi-Select Dropdown Touch --- */
+@media (hover: none) and (pointer: coarse) {
+  .multi-select .multi-select-dropdown {
+    max-height: 50vh;
+    -webkit-overflow-scrolling: touch;
+  }
+  .multi-select .multi-select-item {
+    padding: 0.75rem;
+    min-height: 44px;
+  }
+  .multi-select .multi-select-search input {
+    min-height: 44px;
+    font-size: 16px; /* iOS zoom prevention */
+  }
+}
+
+/* --- M: Wizard Mobile --- */
+@media (max-width: 480px) {
+  .wizard-steps {
+    justify-content: center;
+  }
+  .wizard-step .step-number {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+  .wizard-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .wizard-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* --- N: Permission Settings Grid --- */
+@media (max-width: 768px) {
+  .permission-basics {
+    grid-template-columns: 1fr !important;
+  }
+  .permissions-grid .permission-group {
+    padding: 1rem;
+  }
+  .permission-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* --- O: iOS Input Zoom Prevention --- */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="date"],
+  input[type="tel"],
+  select,
+  textarea {
+    font-size: 16px; /* iOS zooms on inputs smaller than 16px */
+  }
+}

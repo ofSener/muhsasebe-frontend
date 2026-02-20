@@ -1512,6 +1512,19 @@
       .rn-selection-bar { flex-direction: column; text-align: center; }
       .rn-selection-actions { justify-content: center; flex-wrap: wrap; }
     }
+
+    @media (max-width: 768px) {
+      .rn-toolbar {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .rn-toolbar > * {
+        width: 100%;
+      }
+      .rn-connection-indicator {
+        justify-content: center;
+      }
+    }
   </style>
 
   <!-- Popover portal: outside .app-container to avoid stacking context issues -->

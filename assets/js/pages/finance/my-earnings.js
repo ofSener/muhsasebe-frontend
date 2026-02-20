@@ -237,16 +237,16 @@
 
       tbody.innerHTML = details.map(d => `
         <tr>
-          <td>${formatDate(d.tarih)}</td>
-          <td><span class="font-mono" style="font-size: 0.8125rem;">${d.policeNo}</span></td>
-          <td>${d.musteriAdi}</td>
-          <td>${d.sigortaSirketi}</td>
-          <td><span class="badge badge-primary">${d.sigortaTuru}</span></td>
-          <td class="text-right font-mono">${formatCurrency(d.netPrim)}</td>
-          <td class="text-right font-mono">${formatCurrency(d.sirketKomisyonu)}</td>
-          <td class="text-right font-mono">%${d.komisyonOrani}</td>
-          <td class="text-right font-mono" style="font-weight: 600; color: var(--success);">${formatCurrency(d.kazanc)}</td>
-          <td><span class="badge ${d.odemeDurumu === 'Odendi' ? 'badge-success' : 'badge-warning'}">${d.odemeDurumu}</span></td>
+          <td data-label="Tarih">${formatDate(d.tarih)}</td>
+          <td data-label="Police No"><span class="font-mono" style="font-size: 0.8125rem;">${d.policeNo}</span></td>
+          <td data-label="Musteri">${d.musteriAdi}</td>
+          <td data-label="Sirket">${d.sigortaSirketi}</td>
+          <td data-label="Tur"><span class="badge badge-primary">${d.sigortaTuru}</span></td>
+          <td data-label="Net Prim" class="text-right font-mono">${formatCurrency(d.netPrim)}</td>
+          <td data-label="Sirket Komis." class="text-right font-mono">${formatCurrency(d.sirketKomisyonu)}</td>
+          <td data-label="Komis. Orani" class="text-right font-mono">%${d.komisyonOrani}</td>
+          <td data-label="Kazanc" class="text-right font-mono" style="font-weight: 600; color: var(--success);">${formatCurrency(d.kazanc)}</td>
+          <td data-label="Odeme"><span class="badge ${d.odemeDurumu === 'Odendi' ? 'badge-success' : 'badge-warning'}">${d.odemeDurumu}</span></td>
         </tr>
       `).join('');
     }

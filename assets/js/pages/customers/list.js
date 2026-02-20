@@ -113,7 +113,7 @@
 
         return `
           <tr data-id="${customer.id}">
-            <td>
+            <td data-label="Ad Soyad">
               <div class="flex items-center gap-3">
                 <div class="avatar avatar-sm ${avatarColor}">${initials}</div>
                 <div>
@@ -122,15 +122,15 @@
                 </div>
               </div>
             </td>
-            <td><span class="font-mono" style="font-size: 0.8125rem; letter-spacing: 0.02em;">${escapeHtml(tcVkn)}</span></td>
-            <td>
+            <td data-label="TC/VKN"><span class="font-mono" style="font-size: 0.8125rem; letter-spacing: 0.02em;">${escapeHtml(tcVkn)}</span></td>
+            <td data-label="Iletisim">
               <div class="cell-main">${escapeHtml(customer.gsm || '-')}</div>
               <div class="cell-sub">${escapeHtml(customer.email || '-')}</div>
             </td>
-            <td><span class="badge ${isKurumsal ? 'badge-neutral' : 'badge-info'}">${isKurumsal ? 'Kurumsal' : 'Bireysel'}</span></td>
-            <td><span class="police-count-badge ${policeSayisi > 0 ? 'has-policy' : 'no-policy'}">${policeSayisi}</span></td>
-            <td><span class="font-mono customer-prim ${toplamPrim === 0 ? 'zero' : ''}">${primFormatted}</span></td>
-            <td>
+            <td data-label="Tur"><span class="badge ${isKurumsal ? 'badge-neutral' : 'badge-info'}">${isKurumsal ? 'Kurumsal' : 'Bireysel'}</span></td>
+            <td data-label="Police"><span class="police-count-badge ${policeSayisi > 0 ? 'has-policy' : 'no-policy'}">${policeSayisi}</span></td>
+            <td data-label="Toplam Prim"><span class="font-mono customer-prim ${toplamPrim === 0 ? 'zero' : ''}">${primFormatted}</span></td>
+            <td data-label="">
               <div class="table-actions">
                 <a href="detail.html?id=${customer.id}" class="btn btn-icon btn-ghost" title="Detay">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>

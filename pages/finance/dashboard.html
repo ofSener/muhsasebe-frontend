@@ -390,6 +390,43 @@
     .text-muted { color: var(--text-muted); }
     .font-semibold { font-weight: 600; }
     .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+    @media (max-width: 768px) {
+      .btn-group {
+        flex-wrap: wrap;
+      }
+      .btn-group .btn {
+        flex: 1;
+        min-width: calc(50% - 0.25rem);
+        text-align: center;
+        justify-content: center;
+      }
+      .comparison-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .comparison-value {
+        text-align: left;
+      }
+      .alert-item {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .date-range-picker {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .comparison-stats {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-group .btn {
+        min-width: 100%;
+      }
+    }
   </style>
   <script src="../../components/base.js"></script>
   <script src="../../components/toast.js"></script>

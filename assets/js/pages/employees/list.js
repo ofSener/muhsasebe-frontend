@@ -290,7 +290,7 @@
 
         return `
           <tr class="${rowClass}" data-employee-id="${k.id}">
-            <td>
+            <td data-label="Ad Soyad">
               <div class="flex items-center gap-3">
                 <div class="${avatarStyle}">${initials}</div>
                 <div>
@@ -299,13 +299,13 @@
                 </div>
               </div>
             </td>
-            <td class="${isActive ? '' : 'text-muted'}">${k.email || '-'}</td>
-            <td class="font-mono ${isActive ? '' : 'text-muted'}">${telefon}</td>
-            <td>${yetkiCell}</td>
-            <td>${durumBadge}</td>
-            <td class="font-semibold font-mono ${isActive ? '' : 'text-muted'}">${k.policeSayisi || 0}</td>
-            <td class="text-muted">${kayitTarihi}</td>
-            <td>
+            <td data-label="E-posta" class="${isActive ? '' : 'text-muted'}">${k.email || '-'}</td>
+            <td data-label="Telefon" class="font-mono ${isActive ? '' : 'text-muted'}">${telefon}</td>
+            <td data-label="Yetki">${yetkiCell}</td>
+            <td data-label="Durum">${durumBadge}</td>
+            <td data-label="Police" class="font-semibold font-mono ${isActive ? '' : 'text-muted'}">${k.policeSayisi || 0}</td>
+            <td data-label="Kayit" class="text-muted">${kayitTarihi}</td>
+            <td data-label="">
               <div class="action-buttons">
                 ${isActive ? `
                   <button class="btn-icon" title="Karta Git" onclick="goToEmployeeCard(${k.id})">
