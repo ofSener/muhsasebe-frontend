@@ -169,6 +169,8 @@ async function loadData() {
         bitisTarihi: item.bitisTarihi, brutPrim: item.brutPrim, netPrim: item.netPrim,
         sigortaliAdi: item.sigortaliAdi, cepTelefonu: item.cepTelefonu, yenilemeDurumu: item.yenilemeDurumu,
         tcKimlikNo: item.tcKimlikNo, vergiNo: item.vergiNo, musteriId: item.musteriId,
+        dogumTarihi: item.dogumTarihi, musteriGsm: item.musteriGsm, musteriEmail: item.musteriEmail,
+        musteriAdres: item.musteriAdres, musteriIl: item.musteriIl, musteriIlce: item.musteriIlce,
         sonWebQueryId: item.sonWebQueryId, sonSorguProductCode: item.sonSorguProductCode, sonSorguTarihi: item.sonSorguTarihi
       }));
       filteredPolicies = [...allPolicies];
@@ -191,6 +193,8 @@ async function loadCompletedPolicies() {
         bitisTarihi: item.bitisTarihi, brutPrim: item.brutPrim, netPrim: item.netPrim,
         sigortaliAdi: item.sigortaliAdi, cepTelefonu: item.cepTelefonu, yenilemeDurumu: item.yenilemeDurumu,
         tcKimlikNo: item.tcKimlikNo, vergiNo: item.vergiNo, musteriId: item.musteriId,
+        dogumTarihi: item.dogumTarihi, musteriGsm: item.musteriGsm, musteriEmail: item.musteriEmail,
+        musteriAdres: item.musteriAdres, musteriIl: item.musteriIl, musteriIlce: item.musteriIlce,
         sonWebQueryId: item.sonWebQueryId, sonSorguProductCode: item.sonSorguProductCode, sonSorguTarihi: item.sonSorguTarihi
       }));
       const tc = document.getElementById('tabCountCompleted');
@@ -470,7 +474,8 @@ function renderDetailPanel(policy) {
   const quoteTypeLabel = quoteType ? QUOTE_TYPE_LABELS[quoteType] : null;
   const warnings = [];
   if (!policy.tcKimlikNo && !policy.vergiNo) warnings.push({ type: 'warn', text: 'TC/VKN eksik' });
-  if (!policy.cepTelefonu) warnings.push({ type: 'info', text: 'Telefon yok' });
+  if (!policy.cepTelefonu && !policy.musteriGsm) warnings.push({ type: 'info', text: 'Telefon yok' });
+  if (!policy.dogumTarihi) warnings.push({ type: 'info', text: 'Dogum tarihi yok' });
   if (!quoteType) warnings.push({ type: 'warn', text: 'Teklif destegi yok' });
   if (policy.tcKimlikNo || policy.vergiNo) warnings.push({ type: 'ok', text: policy.tcKimlikNo ? 'TC mevcut' : 'VKN mevcut' });
   const currentState = RENEWAL_STATES[policy.yenilemeDurumu] || RENEWAL_STATES[0];
@@ -491,7 +496,8 @@ function renderDetailPanel(policy) {
   // === TAB 1: Bilgi ===
   let tabInfo = '<div class="rn-detail-tab-panel active" data-tab-panel="info">';
   // Customer + Policy in one compact grid
-  tabInfo += `<div class="rn-detail-grid"><div><div class="rn-detail-label">Ad Soyad</div><div class="rn-detail-value">${escapeHtml(policy.sigortaliAdi || '-')}</div></div><div><div class="rn-detail-label">Telefon</div><div class="rn-detail-value mono">${policy.cepTelefonu ? formatPhone(policy.cepTelefonu) : '<span style="color:var(--warning);">Eksik</span>'}</div></div><div><div class="rn-detail-label">TC Kimlik No</div><div class="rn-detail-value mono">${policy.tcKimlikNo ? escapeHtml(policy.tcKimlikNo) : '<span style="color:var(--warning);">Eksik</span>'}</div></div><div><div class="rn-detail-label">Plaka</div><div class="rn-detail-value mono">${escapeHtml(policy.plaka || '-')}</div></div><div><div class="rn-detail-label">Police No</div><div class="rn-detail-value mono">${escapeHtml(policy.policeNumarasi || '-')}</div></div><div><div class="rn-detail-label">Vergi No</div><div class="rn-detail-value mono">${policy.vergiNo || '<span style="color:var(--text-dim);">-</span>'}</div></div><div><div class="rn-detail-label">Baslangic</div><div class="rn-detail-value">${formatDate(policy.baslangicTarihi)}</div></div><div><div class="rn-detail-label">Bitis</div><div class="rn-detail-value" style="color:${urgencyColor};font-weight:700;">${formatDate(policy.bitisTarihi)}</div></div><div><div class="rn-detail-label">Brut Prim</div><div class="rn-detail-value mono" style="color:var(--primary);">${formatCurrency(policy.brutPrim)}</div></div><div><div class="rn-detail-label">Net Prim</div><div class="rn-detail-value mono">${formatCurrency(policy.netPrim)}</div></div></div>`;
+  const displayPhone = policy.cepTelefonu || policy.musteriGsm;
+  tabInfo += `<div class="rn-detail-grid"><div><div class="rn-detail-label">Ad Soyad</div><div class="rn-detail-value">${escapeHtml(policy.sigortaliAdi || '-')}</div></div><div><div class="rn-detail-label">Telefon</div><div class="rn-detail-value mono">${displayPhone ? formatPhone(displayPhone) : '<span style="color:var(--warning);">Eksik</span>'}</div></div><div><div class="rn-detail-label">TC Kimlik No</div><div class="rn-detail-value mono">${policy.tcKimlikNo ? escapeHtml(policy.tcKimlikNo) : '<span style="color:var(--warning);">Eksik</span>'}</div></div><div><div class="rn-detail-label">Vergi No</div><div class="rn-detail-value mono">${policy.vergiNo ? escapeHtml(policy.vergiNo) : '<span style="color:var(--text-dim);">-</span>'}</div></div><div><div class="rn-detail-label">Dogum Tarihi</div><div class="rn-detail-value">${policy.dogumTarihi ? formatDate(policy.dogumTarihi) : '<span style="color:var(--text-dim);">-</span>'}</div></div><div><div class="rn-detail-label">Plaka</div><div class="rn-detail-value mono">${escapeHtml(policy.plaka || '-')}</div></div><div><div class="rn-detail-label">Police No</div><div class="rn-detail-value mono">${escapeHtml(policy.policeNumarasi || '-')}</div></div><div><div class="rn-detail-label">Bitis</div><div class="rn-detail-value" style="color:${urgencyColor};font-weight:700;">${formatDate(policy.bitisTarihi)}</div></div><div><div class="rn-detail-label">Brut Prim</div><div class="rn-detail-value mono" style="color:var(--primary);">${formatCurrency(policy.brutPrim)}</div></div><div><div class="rn-detail-label">Net Prim</div><div class="rn-detail-value mono">${formatCurrency(policy.netPrim)}</div></div>${policy.musteriEmail ? `<div><div class="rn-detail-label">Email</div><div class="rn-detail-value" style="font-size:0.6875rem;">${escapeHtml(policy.musteriEmail)}</div></div>` : ''}${policy.musteriIl ? `<div><div class="rn-detail-label">Sehir</div><div class="rn-detail-value">${escapeHtml(policy.musteriIl)}${policy.musteriIlce ? ' / ' + escapeHtml(policy.musteriIlce) : ''}</div></div>` : ''}</div>`;
   // Warnings inline
   if (warnings.length > 0) {
     tabInfo += '<div style="display:flex;flex-wrap:wrap;gap:0.25rem;margin-top:0.5rem;">';
@@ -773,9 +779,72 @@ async function createQuote(policyId) {
       if (r && r.success) { policy.musteriId = r.customerId; showToast(`${r.isNew ? 'Musteri karti olusturuldu' : 'Mevcut musteri karti baglandi'}: ${r.customerName || ''}`, 'success'); }
     } catch (err) { console.error('Ensure customer error:', err); }
   }
+  // Araç bazlı tekliflerde eksik bilgi kontrolü — popup ile sor
+  const isVehicle = ['traffic', 'casco', 'imm'].includes(quoteType);
+  if (isVehicle) {
+    const missing = [];
+    if (!policy.dogumTarihi) missing.push('dogumTarihi');
+    if (!policy.cepTelefonu && !policy.musteriGsm) missing.push('telefon');
+    if (missing.length > 0) { openMissingInfoModal(policy, quoteType, missing); return; }
+  }
   proceedWithQuote(policy, quoteType);
 }
 function splitName(fullName) { if (!fullName) return { adi: null, soyadi: null }; const p = fullName.trim().split(/\s+/); if (p.length <= 1) return { adi: p[0] || null, soyadi: null }; return { adi: p.slice(0, -1).join(' '), soyadi: p[p.length - 1] }; }
+
+// ============================================================
+//  14b. MISSING INFO MODAL (Eksik müşteri bilgileri popup)
+// ============================================================
+let _missingInfoContext = null;
+function openMissingInfoModal(policy, quoteType, missingFields) {
+  _missingInfoContext = { policy, quoteType, missingFields };
+  const modal = document.getElementById('missingInfoModal');
+  document.getElementById('missingInfoSubtitle').textContent = `${policy.sigortaliAdi || 'Isimsiz'}${policy.plaka ? ' | ' + policy.plaka : ''}`;
+  let fieldsHtml = '';
+  if (missingFields.includes('dogumTarihi')) {
+    fieldsHtml += `<div class="modal-field" style="margin-top:1rem;"><label class="modal-label">Dogum Tarihi</label><input type="date" id="missingDogumTarihi" class="modal-input"></div>`;
+  }
+  if (missingFields.includes('telefon')) {
+    fieldsHtml += `<div class="modal-field" style="margin-top:0.75rem;"><label class="modal-label">Cep Telefonu</label><input type="text" id="missingTelefon" class="modal-input" placeholder="5XX XXX XX XX" maxlength="11" inputmode="numeric"></div>`;
+  }
+  document.getElementById('missingInfoFields').innerHTML = fieldsHtml;
+  modal.classList.add('show');
+  const firstInput = modal.querySelector('input'); if (firstInput) setTimeout(() => firstInput.focus(), 100);
+}
+function closeMissingInfoModal() { document.getElementById('missingInfoModal').classList.remove('show'); _missingInfoContext = null; }
+async function submitWithMissingInfo(saveToCustomer) {
+  if (!_missingInfoContext) return;
+  const { policy, quoteType, missingFields } = _missingInfoContext;
+  const btn = document.getElementById('btnSaveMissing');
+  btn.disabled = true; btn.textContent = 'Kaydediliyor...';
+  try {
+    // Girilen değerleri topla
+    const dogumEl = document.getElementById('missingDogumTarihi');
+    const telEl = document.getElementById('missingTelefon');
+    const dogum = dogumEl ? dogumEl.value : null;
+    const tel = telEl ? telEl.value.trim() : null;
+
+    // Müşteri kartına kaydet
+    if (saveToCustomer && policy.musteriId) {
+      const updateData = {};
+      if (dogum) updateData.dogumTarihi = dogum;
+      if (tel) updateData.gsm = tel;
+      if (Object.keys(updateData).length > 0) {
+        try {
+          const r = await apiPut(`customers/${policy.musteriId}`, updateData);
+          if (r && r.success) {
+            if (dogum) policy.dogumTarihi = dogum;
+            if (tel) { policy.musteriGsm = tel; if (!policy.cepTelefonu) policy.cepTelefonu = tel; }
+            showToast('Musteri bilgileri guncellendi', 'success');
+          } else { showToast(r?.errorMessage || 'Musteri guncelenemedi', 'warning'); }
+        } catch (err) { console.error('Customer update error:', err); }
+      }
+    }
+    closeMissingInfoModal();
+    proceedWithQuote(policy, quoteType);
+  } catch (error) { console.error('Missing info submit error:', error); showToast('Hata olustu', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Kaydet ve Teklif Calis'; }
+}
+
 function proceedWithQuote(policy, quoteType) {
   currentQuotePolicyId = policy.id; currentQuoteType = quoteType;
   const ef = NEEDS_EXTRA_FORM[quoteType];

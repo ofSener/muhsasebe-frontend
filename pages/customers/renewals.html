@@ -503,6 +503,36 @@
     </div>
   </div>
 
+  <!-- ====== Eksik Bilgi Modal (Araç bazlı teklifler) ====== -->
+  <div class="modal" id="missingInfoModal">
+    <div class="modal-overlay"></div>
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <div>
+          <h3>Eksik Bilgiler</h3>
+          <p id="missingInfoSubtitle" style="font-size:0.8125rem;color:var(--text-secondary);margin:0.25rem 0 0 0;"></p>
+        </div>
+        <button class="modal-close" onclick="closeMissingInfoModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="tc-assign-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;flex-shrink:0;color:var(--info);">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <span>Teklif için bazı bilgiler eksik. Doldurup devam edebilir veya eksik bilgilerle teklif alabilirsiniz.</span>
+        </div>
+        <div id="missingInfoFields"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal btn-outline" onclick="closeMissingInfoModal()">Iptal</button>
+        <button class="btn-modal btn-outline" id="btnSkipMissing" onclick="submitWithMissingInfo(false)">Eksik Bilgilerle Devam Et</button>
+        <button class="btn-modal btn-primary" id="btnSaveMissing" onclick="submitWithMissingInfo(true)">Kaydet ve Teklif Calis</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ====== DASK/Konut Extra Info Modal ====== -->
   <div class="modal" id="daskHouseFormModal">
     <div class="modal-overlay"></div>
