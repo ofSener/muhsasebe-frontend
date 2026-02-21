@@ -1344,4 +1344,272 @@
     // Sayfa yuklendiginde calisanlari da yukle
     document.addEventListener('DOMContentLoaded', function() {
       loadEmployees();
+
+      // Toplu Atama butonu
+      const bulkBtn = document.getElementById('bulkAssignBtn');
+      if (bulkBtn) {
+        bulkBtn.addEventListener('click', openBulkAssignModal);
+      }
     });
+
+    // ==================== TOPLU ATAMA ====================
+
+    let bulkSelectedEmployees = new Set();
+    let bulkFilteredEmployees = [];
+
+    function openBulkAssignModal() {
+      bulkSelectedEmployees.clear();
+      document.getElementById('bulkPermissionId').value = '';
+      document.getElementById('bulkPermissionLabel').textContent = '-- Yetki Seçin --';
+      document.getElementById('bulkEmployeeSearch').value = '';
+      document.getElementById('bulkSelectAllCheckbox').checked = false;
+      document.getElementById('bulkPermissionPanel').classList.remove('open');
+
+      // Yetki dropdown listesini doldur
+      renderBulkPermissionList();
+
+      // Şube filtresini doldur
+      populateBulkBranchFilter();
+
+      // Çalışan listesini render et
+      filterBulkEmployees();
+
+      // Modalı göster (.active class ile - components.css opacity/visibility kullanıyor)
+      document.getElementById('bulkAssignModal').classList.add('active');
+    }
+
+    function closeBulkAssignModal() {
+      document.getElementById('bulkAssignModal').classList.remove('active');
+      document.getElementById('bulkPermissionPanel')?.classList.remove('open');
+      bulkSelectedEmployees.clear();
+    }
+
+    // Yetki dropdown
+    function toggleBulkPermissionDropdown() {
+      const panel = document.getElementById('bulkPermissionPanel');
+      panel.classList.toggle('open');
+      if (panel.classList.contains('open')) {
+        document.getElementById('bulkPermissionSearch').value = '';
+        renderBulkPermissionList();
+        setTimeout(() => document.getElementById('bulkPermissionSearch').focus(), 50);
+      }
+    }
+
+    function renderBulkPermissionList() {
+      const container = document.getElementById('bulkPermissionList');
+      const search = (document.getElementById('bulkPermissionSearch')?.value || '').toLowerCase();
+      const selectedId = document.getElementById('bulkPermissionId').value;
+
+      let filtered = allPermissions;
+      if (search) {
+        filtered = filtered.filter(p => (p.yetkiAdi || '').toLowerCase().includes(search));
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div style="padding: 0.75rem; text-align: center; color: var(--text-muted); font-size: 0.8125rem;">Yetki bulunamadı</div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(p => `
+        <div class="bulk-dropdown-item ${p.id == selectedId ? 'selected' : ''}" onclick="selectBulkPermission(${p.id}, '${(p.yetkiAdi || '').replace(/'/g, "\\'")}')">
+          ${p.yetkiAdi || 'İsimsiz Yetki'}
+        </div>
+      `).join('');
+    }
+
+    function filterBulkPermissions() {
+      renderBulkPermissionList();
+    }
+
+    function selectBulkPermission(id, name) {
+      document.getElementById('bulkPermissionId').value = id;
+      document.getElementById('bulkPermissionLabel').textContent = name;
+      document.getElementById('bulkPermissionPanel').classList.remove('open');
+    }
+
+    // Dropdown dışına tıklayınca kapat
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#bulkPermissionDropdown')) {
+        document.getElementById('bulkPermissionPanel')?.classList.remove('open');
+      }
+    });
+
+    // Şube filtresi
+    function populateBulkBranchFilter() {
+      const select = document.getElementById('bulkBranchFilter');
+      select.innerHTML = '<option value="">Tüm Şubeler</option>';
+
+      // Çalışanlardan unique şube isimlerini çıkar
+      const branchMap = new Map();
+      allEmployees.forEach(emp => {
+        if (emp.subeId && emp.subeAdi) {
+          branchMap.set(emp.subeId, emp.subeAdi);
+        }
+      });
+
+      branchMap.forEach((name, id) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = name;
+        select.appendChild(opt);
+      });
+    }
+
+    // Çalışan listesi filtrele ve render et
+    function filterBulkEmployees() {
+      const search = (document.getElementById('bulkEmployeeSearch')?.value || '').toLowerCase();
+      const branchId = document.getElementById('bulkBranchFilter')?.value;
+
+      bulkFilteredEmployees = allEmployees.filter(emp => {
+        // Aktif olmayan çalışanları atla
+        if (emp.aktif !== true && emp.aktif !== 1) return false;
+
+        // Şube filtresi
+        if (branchId && emp.subeId != branchId) return false;
+
+        // Arama filtresi
+        if (search) {
+          const fullName = `${emp.adi || ''} ${emp.soyadi || ''}`.toLowerCase();
+          const email = (emp.email || '').toLowerCase();
+          return fullName.includes(search) || email.includes(search);
+        }
+        return true;
+      });
+
+      renderBulkEmployeeList();
+      updateBulkSelectAllState();
+    }
+
+    function renderBulkEmployeeList() {
+      const container = document.getElementById('bulkEmployeeList');
+
+      if (bulkFilteredEmployees.length === 0) {
+        container.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.8125rem;">Çalışan bulunamadı</div>';
+        return;
+      }
+
+      const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316'];
+
+      container.innerHTML = bulkFilteredEmployees.map((emp, idx) => {
+        const name = `${emp.adi || ''} ${emp.soyadi || ''}`.trim() || 'İsimsiz';
+        const initials = ((emp.adi || '')[0] || '') + ((emp.soyadi || '')[0] || '');
+        const isSelected = bulkSelectedEmployees.has(emp.id);
+        const currentPerm = allPermissions.find(p => p.id === emp.muhasebeYetkiId);
+        const currentPermName = currentPerm?.yetkiAdi || '-';
+        const color = colors[idx % colors.length];
+        const detail = [emp.email, emp.subeAdi].filter(Boolean).join(' · ');
+
+        return `
+          <div class="bulk-employee-item ${isSelected ? 'selected' : ''}" onclick="toggleBulkEmployee(${emp.id})">
+            <input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleBulkEmployee(${emp.id})">
+            <div class="bulk-emp-avatar" style="background: ${color};">${initials.toUpperCase()}</div>
+            <div class="bulk-emp-info">
+              <div class="bulk-emp-name">${name}</div>
+              <div class="bulk-emp-detail">${detail || '-'}</div>
+            </div>
+            <div class="bulk-emp-current-perm">${currentPermName}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleBulkEmployee(empId) {
+      if (bulkSelectedEmployees.has(empId)) {
+        bulkSelectedEmployees.delete(empId);
+      } else {
+        bulkSelectedEmployees.add(empId);
+      }
+      renderBulkEmployeeList();
+      updateBulkSelectAllState();
+    }
+
+    function toggleBulkSelectAll() {
+      const allIds = bulkFilteredEmployees.map(e => e.id);
+      const allSelected = allIds.length > 0 && allIds.every(id => bulkSelectedEmployees.has(id));
+
+      if (allSelected) {
+        allIds.forEach(id => bulkSelectedEmployees.delete(id));
+      } else {
+        allIds.forEach(id => bulkSelectedEmployees.add(id));
+      }
+
+      renderBulkEmployeeList();
+      updateBulkSelectAllState();
+    }
+
+    function updateBulkSelectAllState() {
+      const checkbox = document.getElementById('bulkSelectAllCheckbox');
+      const countEl = document.getElementById('bulkSelectCount');
+      const allIds = bulkFilteredEmployees.map(e => e.id);
+      const selectedInView = allIds.filter(id => bulkSelectedEmployees.has(id)).length;
+      const allSelected = allIds.length > 0 && selectedInView === allIds.length;
+
+      if (checkbox) checkbox.checked = allSelected;
+      if (countEl) countEl.textContent = `${bulkSelectedEmployees.size} / ${bulkFilteredEmployees.length}`;
+    }
+
+    async function submitBulkAssign() {
+      const permissionId = document.getElementById('bulkPermissionId').value;
+
+      if (!permissionId) {
+        showToast('Lütfen bir yetki seçin', 'warning');
+        return;
+      }
+
+      if (bulkSelectedEmployees.size === 0) {
+        showToast('Lütfen en az bir çalışan seçin', 'warning');
+        return;
+      }
+
+      const permName = allPermissions.find(p => p.id == permissionId)?.yetkiAdi || 'Seçili Yetki';
+
+      const confirmed = await showConfirmDialog({
+        title: 'Toplu Yetki Atama',
+        message: `${bulkSelectedEmployees.size} çalışana "${permName}" yetkisi atanacak. Devam etmek istiyor musunuz?`,
+        confirmText: 'Ata',
+        cancelText: 'Vazgeç',
+        variant: 'success'
+      });
+      if (!confirmed) return;
+
+      const btn = document.getElementById('bulkAssignSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span>Atanıyor...</span>';
+
+      try {
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const empId of bulkSelectedEmployees) {
+          try {
+            await apiPut(`kullanicilar/${empId}/permission`, { yetkiId: parseInt(permissionId) });
+            successCount++;
+          } catch (e) {
+            failCount++;
+            console.error(`Çalışan ${empId} yetkisi atanamadı:`, e);
+          }
+        }
+
+        if (failCount > 0) {
+          showToast(`${successCount} çalışana yetki atandı, ${failCount} başarısız`, 'warning');
+        } else {
+          showToast(`${successCount} çalışana yetki başarıyla atandı`, 'success');
+        }
+
+        closeBulkAssignModal();
+
+        // Yetki cache'ini temizle
+        APP_CONFIG.PERMISSIONS.invalidate();
+
+        // Verileri yenile
+        await loadEmployees();
+        if (selectedPermissionId) {
+          await loadEmployeesWithPermission();
+        }
+      } catch (error) {
+        showToast('Toplu atama sırasında hata oluştu: ' + error.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Yetkiyi Ata`;
+      }
+    }

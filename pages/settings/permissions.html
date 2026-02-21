@@ -59,6 +59,15 @@
             <p class="page-subtitle">Çalışanların sayfa erişim yetkilerini yönetin.</p>
           </div>
           <div class="page-actions">
+            <button class="btn btn-primary" id="bulkAssignBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              Toplu Atama
+            </button>
             <button class="btn btn-danger" id="deletePermission">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -582,6 +591,74 @@
         <div style="margin-top: 1rem; text-align: right;">
           <button class="btn btn-primary" onclick="assignSelectedEmployee()">Yetki Ata</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Assignment Modal -->
+  <div class="modal-overlay" id="bulkAssignModal">
+    <div class="modal-content" style="max-width: 600px; max-height: 85vh;">
+      <div class="modal-header">
+        <h3>Toplu Yetki Atama</h3>
+        <button class="modal-close" onclick="closeBulkAssignModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 1rem 1.5rem;">
+        <!-- Yetki Seçimi -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Atanacak Yetki</label>
+          <div class="bulk-permission-dropdown" id="bulkPermissionDropdown">
+            <div class="bulk-dropdown-trigger" onclick="toggleBulkPermissionDropdown()">
+              <span id="bulkPermissionLabel">-- Yetki Seçin --</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+            <div class="bulk-dropdown-panel" id="bulkPermissionPanel">
+              <input type="text" class="form-input" id="bulkPermissionSearch" placeholder="Yetki ara..." oninput="filterBulkPermissions()" style="margin-bottom: 0.5rem; padding: 0.5rem 0.75rem; font-size: 0.8125rem;">
+              <div class="bulk-dropdown-list" id="bulkPermissionList">
+                <!-- JS ile doldurulacak -->
+              </div>
+            </div>
+          </div>
+          <input type="hidden" id="bulkPermissionId" value="">
+        </div>
+
+        <!-- Şube Filtresi -->
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label">Şube Filtresi</label>
+          <select class="form-select" id="bulkBranchFilter" onchange="filterBulkEmployees()" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;">
+            <option value="">Tüm Şubeler</option>
+          </select>
+        </div>
+
+        <!-- Çalışan Arama -->
+        <div class="form-group" style="margin-bottom: 0.5rem;">
+          <label class="form-label">Çalışanlar</label>
+          <input type="text" class="form-input" id="bulkEmployeeSearch" placeholder="Çalışan ara..." oninput="filterBulkEmployees()" style="padding: 0.5rem 0.75rem; font-size: 0.8125rem;">
+        </div>
+
+        <!-- Hepsini Seç -->
+        <div class="bulk-select-all" id="bulkSelectAllRow">
+          <label class="bulk-select-all-label" onclick="toggleBulkSelectAll()">
+            <input type="checkbox" id="bulkSelectAllCheckbox" class="form-checkbox">
+            <span>Hepsini Seç</span>
+            <span class="bulk-select-count" id="bulkSelectCount">0 / 0</span>
+          </label>
+        </div>
+
+        <!-- Çalışan Listesi -->
+        <div class="bulk-employee-list" id="bulkEmployeeList">
+          <!-- JS ile doldurulacak -->
+        </div>
+      </div>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; padding: 1rem 1.5rem; border-top: 1px solid var(--border-subtle);">
+        <button class="btn btn-secondary" onclick="closeBulkAssignModal()">İptal</button>
+        <button class="btn btn-primary" id="bulkAssignSubmitBtn" onclick="submitBulkAssign()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Yetkiyi Ata
+        </button>
       </div>
     </div>
   </div>
@@ -1948,6 +2025,168 @@
     .permission-select.changed {
       border-color: #f59e0b;
       background: rgba(245, 158, 11, 0.1);
+    }
+
+    /* Bulk Assign Modal */
+    .bulk-permission-dropdown {
+      position: relative;
+    }
+    .bulk-dropdown-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border-default);
+      border-radius: 0.5rem;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .bulk-dropdown-trigger:hover {
+      border-color: var(--primary);
+    }
+    .bulk-dropdown-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 0.5rem;
+      padding: 0.5rem;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .bulk-dropdown-panel.open {
+      display: block;
+    }
+    .bulk-dropdown-list {
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .bulk-dropdown-item {
+      padding: 0.5rem 0.625rem;
+      border-radius: 0.375rem;
+      font-size: 0.8125rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .bulk-dropdown-item:hover {
+      background: var(--bg-elevated);
+    }
+    .bulk-dropdown-item.selected {
+      background: rgba(99, 102, 241, 0.12);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .bulk-select-all {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 0.25rem;
+    }
+    .bulk-select-all-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      user-select: none;
+    }
+    .bulk-select-all-label input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 16px;
+      height: 16px;
+    }
+    .bulk-select-count {
+      margin-left: auto;
+      font-weight: 500;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .bulk-employee-list {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--border-subtle);
+      border-radius: 0.5rem;
+    }
+    .bulk-employee-item {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.625rem 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background 0.15s;
+      font-size: 0.8125rem;
+    }
+    .bulk-employee-item:last-child {
+      border-bottom: none;
+    }
+    .bulk-employee-item:hover {
+      background: var(--bg-elevated);
+    }
+    .bulk-employee-item.selected {
+      background: rgba(99, 102, 241, 0.08);
+    }
+    .bulk-employee-item input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 15px;
+      height: 15px;
+      flex-shrink: 0;
+    }
+    .bulk-emp-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      flex-shrink: 0;
+    }
+    .bulk-emp-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .bulk-emp-name {
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bulk-emp-detail {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .bulk-emp-current-perm {
+      font-size: 0.6875rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-subtle);
     }
   </style>
   <script src="../../components/base.js"></script>

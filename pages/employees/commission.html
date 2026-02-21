@@ -803,6 +803,23 @@
       border-radius: var(--radius-md);
     }
 
+    .select-all-row {
+      border: 1px solid var(--border-subtle);
+      border-bottom: none;
+      border-radius: var(--radius-md) var(--radius-md) 0 0;
+      margin-top: 0.5rem;
+      background: var(--bg-secondary);
+    }
+
+    .select-all-row + .member-selector-list {
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      margin-top: 0;
+    }
+
+    .select-all-row .member-selector-item {
+      border-bottom: none;
+    }
+
     .member-selector-item {
       display: flex;
       align-items: center;
@@ -1400,6 +1417,18 @@
             <input type="text" class="form-input" id="memberSearchInput" placeholder="Çalışan ara..." oninput="filterMembers()">
           </div>
         </div>
+        <div class="select-all-row" id="memberSelectAllRow">
+          <div class="member-selector-item" onclick="toggleSelectAllMembers()" id="memberSelectAllItem">
+            <div class="checkbox">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="member-info">
+              <div class="member-name" style="font-weight: 600;">Hepsini Seç</div>
+            </div>
+          </div>
+        </div>
         <div class="member-selector-list" id="memberSelectorList">
           <!-- Members will be loaded here -->
         </div>
@@ -1438,6 +1467,18 @@
               <line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
             <input type="text" class="form-input" id="branchSearchInput" placeholder="Şube ara..." oninput="filterBranches()">
+          </div>
+        </div>
+        <div class="select-all-row" id="branchSelectAllRow">
+          <div class="member-selector-item" onclick="toggleSelectAllBranches()" id="branchSelectAllItem">
+            <div class="checkbox">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="member-info">
+              <div class="member-name" style="font-weight: 600;">Hepsini Seç</div>
+            </div>
           </div>
         </div>
         <div class="member-selector-list" id="branchSelectorList">

@@ -710,6 +710,7 @@
       selectedMembers.clear();
       document.getElementById('memberSearchInput').value = '';
       renderMemberSelector();
+      updateMemberSelectAllState();
       document.getElementById('memberSelectorModal').classList.add('active');
     }
 
@@ -722,6 +723,7 @@
       selectedBranches.clear();
       document.getElementById('branchSearchInput').value = '';
       renderBranchSelector();
+      updateBranchSelectAllState();
       document.getElementById('branchSelectorModal').classList.add('active');
     }
 
@@ -936,10 +938,66 @@
         selectedMembers.add(employeeId);
       }
       renderMemberSelector();
+      updateMemberSelectAllState();
+    }
+
+    function toggleSelectAllMembers() {
+      const searchTerm = document.getElementById('memberSearchInput').value.toLowerCase();
+      const currentMemberIds = new Set((currentGroup?.uyeler || []).map(m => m.uyeId));
+      let availableEmployees = allEmployees.filter(emp => !currentMemberIds.has(emp.id));
+
+      if (searchTerm) {
+        availableEmployees = availableEmployees.filter(emp => {
+          const fullName = `${emp.adi || ''} ${emp.soyadi || ''}`.toLowerCase();
+          const email = (emp.email || '').toLowerCase();
+          return fullName.includes(searchTerm) || email.includes(searchTerm);
+        });
+      }
+
+      const visibleIds = availableEmployees.map(e => e.id);
+      const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedMembers.has(id));
+
+      if (allSelected) {
+        visibleIds.forEach(id => selectedMembers.delete(id));
+      } else {
+        visibleIds.forEach(id => selectedMembers.add(id));
+      }
+
+      renderMemberSelector();
+      updateMemberSelectAllState();
+    }
+
+    function updateMemberSelectAllState() {
+      const item = document.getElementById('memberSelectAllItem');
+      const row = document.getElementById('memberSelectAllRow');
+      if (!item || !row) return;
+
+      const searchTerm = document.getElementById('memberSearchInput').value.toLowerCase();
+      const currentMemberIds = new Set((currentGroup?.uyeler || []).map(m => m.uyeId));
+      let availableEmployees = allEmployees.filter(emp => !currentMemberIds.has(emp.id));
+
+      if (searchTerm) {
+        availableEmployees = availableEmployees.filter(emp => {
+          const fullName = `${emp.adi || ''} ${emp.soyadi || ''}`.toLowerCase();
+          const email = (emp.email || '').toLowerCase();
+          return fullName.includes(searchTerm) || email.includes(searchTerm);
+        });
+      }
+
+      if (availableEmployees.length === 0) {
+        row.style.display = 'none';
+        return;
+      }
+
+      row.style.display = '';
+      const visibleIds = availableEmployees.map(e => e.id);
+      const allSelected = visibleIds.every(id => selectedMembers.has(id));
+      item.classList.toggle('selected', allSelected);
     }
 
     function filterMembers() {
       renderMemberSelector();
+      updateMemberSelectAllState();
     }
 
     async function addSelectedMembers() {
@@ -990,10 +1048,64 @@
         selectedBranches.add(branchId);
       }
       renderBranchSelector();
+      updateBranchSelectAllState();
+    }
+
+    function toggleSelectAllBranches() {
+      const searchTerm = document.getElementById('branchSearchInput').value.toLowerCase();
+      const currentBranchIds = new Set((currentGroup?.subeler || []).map(s => s.subeId));
+      let availableBranches = allSubeler.filter(sube => !currentBranchIds.has(sube.id));
+
+      if (searchTerm) {
+        availableBranches = availableBranches.filter(sube => {
+          const name = (sube.subeAdi || sube.name || '').toLowerCase();
+          return name.includes(searchTerm);
+        });
+      }
+
+      const visibleIds = availableBranches.map(s => s.id);
+      const allSelected = visibleIds.length > 0 && visibleIds.every(id => selectedBranches.has(id));
+
+      if (allSelected) {
+        visibleIds.forEach(id => selectedBranches.delete(id));
+      } else {
+        visibleIds.forEach(id => selectedBranches.add(id));
+      }
+
+      renderBranchSelector();
+      updateBranchSelectAllState();
+    }
+
+    function updateBranchSelectAllState() {
+      const item = document.getElementById('branchSelectAllItem');
+      const row = document.getElementById('branchSelectAllRow');
+      if (!item || !row) return;
+
+      const searchTerm = document.getElementById('branchSearchInput').value.toLowerCase();
+      const currentBranchIds = new Set((currentGroup?.subeler || []).map(s => s.subeId));
+      let availableBranches = allSubeler.filter(sube => !currentBranchIds.has(sube.id));
+
+      if (searchTerm) {
+        availableBranches = availableBranches.filter(sube => {
+          const name = (sube.subeAdi || sube.name || '').toLowerCase();
+          return name.includes(searchTerm);
+        });
+      }
+
+      if (availableBranches.length === 0) {
+        row.style.display = 'none';
+        return;
+      }
+
+      row.style.display = '';
+      const visibleIds = availableBranches.map(s => s.id);
+      const allSelected = visibleIds.every(id => selectedBranches.has(id));
+      item.classList.toggle('selected', allSelected);
     }
 
     function filterBranches() {
       renderBranchSelector();
+      updateBranchSelectAllState();
     }
 
     async function addSelectedBranches() {

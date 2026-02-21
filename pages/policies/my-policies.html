@@ -6,86 +6,1700 @@
   <title>Poliçelerim - IHSAN AI</title>
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+  <script src="../../assets/js/config.js"></script>
   <style>
-    /* Modal Styles */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(4px);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
+    /* ── KPI Summary Cards ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
     }
-    .modal-overlay.active {
-      display: flex;
-    }
-    .modal-content {
-      background: var(--card-bg);
-      border-radius: 1rem;
-      max-width: 800px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    }
-    .modal-header {
+
+    .kpi-card {
+      position: relative;
+      background: var(--bg-surface, #ffffff);
+      border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.2));
+      border-radius: 20px;
       padding: 1.5rem;
-      border-bottom: 1px solid var(--border-color);
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--card-shadow, 0 1px 3px rgba(0, 0, 0, 0.04));
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-default, rgba(148, 163, 184, 0.3));
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .kpi-card-bg {
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.12;
+      transition: opacity 0.3s ease;
+    }
+
+    .kpi-card:hover .kpi-card-bg { opacity: 0.2; }
+
+    .kpi-card.kpi-violet .kpi-card-bg { background: #8b5cf6; }
+    .kpi-card.kpi-violet .kpi-icon { background: rgba(139, 92, 246, 0.12); color: #7c3aed; }
+    .kpi-card.kpi-violet .kpi-value { color: #5b21b6; }
+    .kpi-card.kpi-violet:hover { border-color: rgba(139, 92, 246, 0.3); }
+
+    .kpi-card.kpi-emerald .kpi-card-bg { background: #10b981; }
+    .kpi-card.kpi-emerald .kpi-icon { background: rgba(16, 185, 129, 0.12); color: #059669; }
+    .kpi-card.kpi-emerald .kpi-value { color: #065f46; }
+    .kpi-card.kpi-emerald:hover { border-color: rgba(16, 185, 129, 0.3); }
+
+    .kpi-card.kpi-cyan .kpi-card-bg { background: #06b6d4; }
+    .kpi-card.kpi-cyan .kpi-icon { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
+    .kpi-card.kpi-cyan .kpi-value { color: #155e75; }
+    .kpi-card.kpi-cyan:hover { border-color: rgba(6, 182, 212, 0.3); }
+
+    .kpi-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-bottom: 1.25rem;
+      position: relative;
+      z-index: 1;
     }
-    .modal-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
+
+    .kpi-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
     }
-    .modal-close {
-      background: none;
-      border: none;
+
+    .kpi-card:hover .kpi-icon { transform: scale(1.05); }
+
+    .kpi-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .kpi-body {
+      position: relative;
+      z-index: 1;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 0.375rem;
+    }
+
+    .kpi-label {
+      font-size: 0.85rem;
+      color: var(--text-muted, #64748b);
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+      .kpi-value { font-size: 1.5rem; }
+    }
+
+    /* ── Captured Filters Bar ── */
+    .captured-filters {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg, 12px);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      box-shadow: var(--card-shadow);
+      position: relative;
+      overflow: visible;
+    }
+
+    .captured-filters::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--primary) 50%, transparent 100%);
+      animation: shimmer 3s ease-in-out infinite;
+      border-radius: var(--radius-lg, 12px) var(--radius-lg, 12px) 0 0;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    .captured-filter-row {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .captured-search {
+      position: relative;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .captured-search svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
       color: var(--text-muted);
-      cursor: pointer;
-      padding: 0.5rem;
-      border-radius: 0.5rem;
-      transition: all 0.2s;
     }
-    .modal-close:hover {
-      background: var(--hover-bg);
+
+    .captured-search input {
+      width: 100%;
+      padding: 0.625rem 1rem 0.625rem 2.5rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+    }
+
+    .captured-search input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    /* Custom Dropdown */
+    .custom-dropdown {
+      position: relative;
+    }
+
+    .dropdown-trigger {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.625rem 0.75rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 160px;
+    }
+
+    .dropdown-trigger:hover {
+      border-color: var(--primary);
+      background: var(--bg-elevated);
+    }
+
+    .dropdown-trigger svg:first-child {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .dropdown-trigger span {
+      flex: 1;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dropdown-arrow {
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .custom-dropdown.open .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-panel {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      width: 260px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: all 0.2s ease;
+    }
+
+    .custom-dropdown.open .dropdown-panel {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-search {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border-default);
+      background: var(--bg-primary);
+      border-radius: 12px 12px 0 0;
+    }
+
+    .dropdown-search svg {
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .dropdown-search input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 0.8rem;
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .dropdown-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .dropdown-list {
+      max-height: 240px;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+
+    .dropdown-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .dropdown-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .dropdown-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 3px;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.625rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.06);
       color: var(--text-primary);
     }
+
+    .dropdown-item.selected {
+      background: rgba(99, 102, 241, 0.12);
+      color: #818cf8;
+    }
+
+    .dropdown-item-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .dropdown-item-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Policy Type Badge */
+    .policy-type-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+
+    .policy-type-badge.kasko {
+      background: rgba(99, 102, 241, 0.15);
+      color: #6366f1;
+    }
+
+    .policy-type-badge.trafik {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+    }
+
+    .policy-type-badge.dask {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .policy-type-badge.saglik {
+      background: rgba(236, 72, 153, 0.15);
+      color: #ec4899;
+    }
+
+    .policy-type-badge.konut {
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+
+    /* Company Logo */
+    .company-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.65rem;
+      letter-spacing: -0.5px;
+      color: white;
+      background: linear-gradient(135deg, var(--primary, #6366f1), #8b5cf6);
+      flex-shrink: 0;
+      border: 2px solid #e2e8f0;
+    }
+
+    .company-logo img {
+      width: 100%;
+      height: 100%;
+      padding: 4px;
+      object-fit: contain;
+      background: white;
+      border-radius: 6px;
+    }
+
+    /* Producer Cell */
+    .producer-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .producer-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .producer-avatar.emerald { background: linear-gradient(135deg, #10b981, #059669); }
+    .producer-avatar.cyan { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+    .producer-avatar.violet { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .producer-avatar.amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+    .producer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.125rem;
+    }
+
+    .producer-name {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .producer-branch {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    /* Kesen Üye hover card */
+    .data-table tbody tr {
+      position: relative;
+    }
+
+    .data-table tbody tr:hover {
+      z-index: 10;
+    }
+
+    .kesen-uye-hover {
+      position: absolute;
+      left: 0;
+      bottom: calc(100% + 4px);
+      z-index: 9999;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.6rem 0.85rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.15s ease 0s, visibility 0s linear 0.15s;
+    }
+
+    .producer-cell:hover .kesen-uye-hover {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.15s ease 0.6s, visibility 0s linear 0.6s;
+    }
+
+    .kesen-uye-hover-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      color: #94a3b8 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.4rem;
+    }
+
+    .kesen-uye-hover-body {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .kesen-uye-hover .producer-name {
+      color: #1e293b !important;
+    }
+
+    .kesen-uye-hover .producer-branch {
+      color: #64748b !important;
+    }
+
+    /* Custom Tooltip */
+    [data-tooltip] {
+      position: relative;
+      cursor: pointer;
+    }
+
+    [data-tooltip]::before,
+    [data-tooltip]::after {
+      position: absolute;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    [data-tooltip]::before {
+      content: attr(data-tooltip);
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 0.75rem;
+      font-weight: 500;
+      white-space: nowrap;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px var(--border-light);
+      backdrop-filter: blur(8px);
+    }
+
+    [data-tooltip]::after {
+      content: '';
+      bottom: calc(100% + 4px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      border: 6px solid transparent;
+      border-top-color: var(--bg-primary);
+      filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
+    }
+
+    [data-tooltip]:hover::before,
+    [data-tooltip]:hover::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Acente No */
+    .acente-no {
+      position: relative;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      cursor: help;
+      padding: 0.25rem 0.5rem;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .acente-no:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    /* Clickable elements */
+    .clickable-customer {
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0.25rem 0.5rem;
+      margin: -0.25rem -0.5rem;
+      border-radius: 6px;
+      border-bottom: 1px dashed rgba(99, 102, 241, 0.3);
+      position: relative;
+    }
+
+    .clickable-customer::after {
+      content: '';
+      position: absolute;
+      right: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      background: var(--primary);
+      border-radius: 50%;
+      opacity: 0.6;
+    }
+
+    .clickable-customer:hover {
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+      border-bottom-color: var(--primary);
+    }
+
+    .clickable-customer:hover::after {
+      opacity: 1;
+      animation: pulse-dot 1s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { transform: translateY(-50%) scale(1); }
+      50% { transform: translateY(-50%) scale(1.3); }
+    }
+
+    .clickable-producer {
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0.125rem 0.375rem;
+      margin: -0.125rem -0.375rem;
+      border-radius: 4px;
+      border-bottom: 1px dashed rgba(99, 102, 241, 0.3);
+    }
+
+    .clickable-producer:hover {
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+      border-bottom-color: var(--primary);
+    }
+
+    .clickable-link {
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.25rem 0.5rem;
+      margin: -0.25rem -0.5rem;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.08);
+      border-bottom: 1px dashed rgba(99, 102, 241, 0.4);
+    }
+
+    .clickable-link:hover {
+      color: #fff;
+      background: var(--primary);
+      border-bottom-color: transparent;
+    }
+
+    .clickable-link svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0.6;
+      transition: all 0.2s ease;
+    }
+
+    .clickable-link:hover svg {
+      opacity: 1;
+    }
+
+    /* Table sort */
+    .data-table th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .data-table th.sortable:hover {
+      background: var(--bg-elevated);
+    }
+
+    .data-table th.sortable svg {
+      margin-left: 0.25rem;
+      opacity: 0.5;
+      vertical-align: middle;
+    }
+
+    .data-table th.sortable.asc svg path:first-child,
+    .data-table th.sortable.desc svg path:last-child {
+      opacity: 1;
+      stroke: var(--primary);
+    }
+
+    /* Policy Detail Modal */
+    .policy-detail-modal {
+      max-width: 560px;
+      background: linear-gradient(160deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .modal-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .policy-modal-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .policy-modal-icon svg {
+      width: 22px;
+      height: 22px;
+      color: #fff;
+    }
+
+    .modal-subtitle {
+      font-size: 0.75rem;
+      color: #a5b4fc;
+      font-weight: 500;
+      font-family: var(--font-mono, monospace);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(99, 102, 241, 0.2);
+      background: rgba(30, 27, 75, 0.5);
+    }
+
+    .policy-detail-content {
+      padding: 1.25rem 1.5rem;
+    }
+
+    .policy-detail-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%);
+      border: 1px solid rgba(129, 140, 248, 0.2);
+      border-radius: 14px;
+      margin-bottom: 1rem;
+    }
+
+    .policy-company-logo {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #312e81 0%, #3730a3 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #c7d2fe;
+      border: 1px solid rgba(129, 140, 248, 0.3);
+    }
+
+    .policy-company-logo img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    .policy-header-info {
+      flex: 1;
+    }
+
+    .policy-header-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #e0e7ff;
+      margin-bottom: 0.35rem;
+    }
+
+    .policy-header-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .policy-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .policy-detail-item {
+      background: linear-gradient(135deg, rgba(49, 46, 129, 0.6) 0%, rgba(55, 48, 163, 0.4) 100%);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 10px;
+      padding: 0.85rem;
+      transition: all 0.25s ease;
+    }
+
+    .policy-detail-item:hover {
+      background: linear-gradient(135deg, rgba(67, 56, 202, 0.5) 0%, rgba(79, 70, 229, 0.3) 100%);
+      border-color: rgba(129, 140, 248, 0.4);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+    }
+
+    .policy-detail-item.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .policy-detail-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #a5b4fc;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+
+    .policy-detail-value {
+      font-size: 0.9rem;
+      color: #e0e7ff;
+      font-weight: 500;
+    }
+
+    .policy-detail-value.mono {
+      font-family: var(--font-mono, monospace);
+      color: #fff;
+    }
+
+    .policy-prim-summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .policy-prim-summary .policy-prim-card:last-child {
+      grid-column: 1 / -1;
+    }
+
+    .policy-prim-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.15) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 14px;
+      padding: 1.1rem;
+      text-align: center;
+    }
+
+    .policy-prim-card.secondary {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(79, 70, 229, 0.15) 100%);
+      border-color: rgba(129, 140, 248, 0.3);
+    }
+
+    .policy-prim-card.tertiary {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.15) 100%);
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .policy-prim-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: rgba(224, 231, 255, 0.7);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+    }
+
+    .policy-prim-value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #34d399;
+      font-family: var(--font-mono, monospace);
+      white-space: nowrap;
+    }
+
+    .policy-prim-card.secondary .policy-prim-value {
+      color: #a5b4fc;
+    }
+
+    .policy-prim-card.tertiary .policy-prim-value {
+      color: #fbbf24;
+    }
+
+    /* Modal Styles - Apple Glass Effect */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(50px) saturate(200%);
+      -webkit-backdrop-filter: blur(50px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 28px;
+      width: 90%;
+      max-width: 440px;
+      max-height: 90vh;
+      overflow: hidden;
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        0 0 80px rgba(99, 102, 241, 0.15);
+      position: relative;
+    }
+
+    .modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+    }
+
+    .modal::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #f59e0b, #10b981);
+      border-radius: 0 0 2px 2px;
+      opacity: 0.8;
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255, 255, 255, 0.7);
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .modal-close:hover {
+      background: rgba(239, 68, 68, 0.3);
+      color: #fff;
+      transform: rotate(90deg);
+    }
+
     .modal-body {
       padding: 1.5rem;
+      overflow-y: auto;
+      max-height: calc(90vh - 80px);
     }
-    .detail-grid {
+
+    /* Glass card content overrides */
+    .modal .customer-card-found,
+    .modal .customer-not-found,
+    .modal .info-card {
+      color: #fff;
+    }
+
+    .modal .customer-card-found h4,
+    .modal .customer-not-found h4,
+    .modal .info-card-details h4 {
+      color: #fff;
+    }
+
+    .modal .customer-tc,
+    .modal .customer-not-found p,
+    .modal .info-card-details p {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .modal .customer-avatar-large {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.7), rgba(139, 92, 246, 0.7));
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .modal .customer-stats {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal .info-card-stats .info-stat-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .modal .customer-stat-value,
+    .modal .info-stat-value {
+      color: #fff;
+    }
+
+    .modal .customer-stat-label,
+    .modal .info-stat-label {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .modal .badge-success {
+      background: rgba(16, 185, 129, 0.25);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .modal .empty-icon {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .modal .modal-actions .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .modal .modal-actions .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .modal .modal-actions .btn-primary {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8));
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    .modal .modal-actions .btn-primary:hover {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.95), rgba(139, 92, 246, 0.95));
+      transform: translateY(-1px);
+    }
+
+    .modal .info-card-avatar {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    /* Customer Card in Modal */
+    .customer-card-found {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .customer-card-found .customer-avatar-large {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      margin: 0 auto 1rem;
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+    }
+
+    .customer-card-found h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .customer-card-found .customer-tc {
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 1rem;
+    }
+
+    .customer-stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin: 1rem 0;
+      padding: 1rem;
+      background: var(--bg-elevated);
+      border-radius: 12px;
     }
-    .detail-item {
+
+    .customer-stat {
+      text-align: center;
+    }
+
+    .customer-stat-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .customer-stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .customer-not-found {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .customer-not-found .empty-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+    }
+
+    .customer-not-found h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .customer-not-found p {
+      font-size: 0.85rem;
+      margin: 0 0 1.5rem 0;
+    }
+
+    /* Producer/Branch Info */
+    .info-card {
+      padding: 1rem;
+    }
+
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .info-card-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .info-card-details h4 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .info-card-details p {
+      font-size: 0.85rem;
+      margin: 0;
+    }
+
+    .info-card-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .info-stat-item {
+      padding: 0.875rem;
+      background: var(--bg-elevated);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .info-stat-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .info-stat-label {
+      font-size: 0.7rem;
+      margin-top: 0.125rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .modal-actions .btn {
+      flex: 1;
+    }
+
+    /* Edit Policy Modal Form Styles */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
     }
-    .detail-label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .form-control {
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .form-control.mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    select.form-control {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.5)' stroke-width='2'%3E%3Cpolyline points='6,9 12,15 18,9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2.5rem;
+    }
+
+    select.form-control option {
+      background: #1a1a2e;
+      color: #fff;
+    }
+
+    /* Pagination Controls */
+    .pagination-controls {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .page-size-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-size-selector label {
+      font-size: 0.8rem;
       color: var(--text-muted);
-      font-weight: 500;
     }
-    .detail-value {
-      font-size: 0.9375rem;
+
+    .page-size-selector select {
+      padding: 0.35rem 0.6rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-card);
       color: var(--text-primary);
-      font-weight: 500;
+      font-size: 0.8rem;
+      cursor: pointer;
     }
-    .detail-value.large {
-      font-size: 1.125rem;
+
+    .page-size-selector select:hover {
+      border-color: var(--primary);
+    }
+
+    .page-navigation {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .page-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .page-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .page-numbers {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .page-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 0.5rem;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .page-number:hover {
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--primary);
+    }
+
+    .page-number.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .page-ellipsis {
+      color: var(--text-muted);
+      padding: 0 0.25rem;
+    }
+
+    .table-footer-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .table-info {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Zeyil Table */
+    .zeyil-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .zeyil-table th {
+      padding: 0.5rem 0.75rem;
+      text-align: left;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: rgba(255, 255, 255, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .zeyil-table td {
+      padding: 0.5rem 0.75rem;
+      color: rgba(255, 255, 255, 0.85);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .zeyil-table tr.current-row {
+      background: rgba(99, 102, 241, 0.15);
+      border-left: 3px solid #6366f1;
+    }
+
+    .zeyil-table tr.current-row td {
       font-weight: 600;
+      color: #fff;
+    }
+
+    .zeyil-no-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.125rem 0.5rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      font-family: var(--font-mono, monospace);
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border-radius: 4px;
+    }
+
+    /* Clear filter button - icon only */
+    .clear-filter-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      background: transparent;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .clear-filter-btn:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    /* ── Date Pills ── */
+    .date-pills {
+      display: flex;
+      flex: 1;
+      justify-content: center;
+      gap: 0;
+      background: var(--bg-elevated);
+      border-radius: 999px;
+      padding: 4px;
+      border: 1px solid var(--border-subtle, var(--border-color));
+    }
+
+    .date-pill {
+      flex: 1;
+      padding: 0.4rem 0.85rem;
+      border: none;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      font-family: var(--font-sans, inherit);
+      text-align: center;
+    }
+
+    .date-pill:hover {
+      color: var(--text-primary);
+      background: var(--bg-surface, rgba(0,0,0,0.04));
+    }
+
+    .date-pill.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+
+    /* Range Pill */
+    .date-pill-range {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+    }
+
+    .date-pill-range svg {
+      flex-shrink: 0;
+    }
+
+    .date-pill-range input {
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: var(--font-sans, inherit);
+      width: 3.2em;
+      padding: 0;
+      outline: none;
+      cursor: pointer;
+      transition: width 0.2s ease;
+    }
+
+    .date-pill-range.active input {
+      width: 130px;
+    }
+
+    .date-pill-range input::placeholder {
+      color: inherit;
+      opacity: 0.8;
+    }
+
+    .date-pill-range.active input::placeholder {
+      color: white;
+      opacity: 0.85;
+    }
+
+    /* ── Filter Drawer Mode ── */
+    .captured-filters.drawer-mode {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(100%);
+      width: 340px;
+      background: var(--bg-surface, #ffffff);
+      max-height: calc(100vh - 2rem);
+      margin: 0;
+      padding: 1.25rem;
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-color, #e2e8f0);
+      border-radius: 16px 0 0 16px;
+      box-shadow: -8px 0 30px rgba(0, 0, 0, 0.12);
+      z-index: 999;
+      overflow-y: auto;
+      overflow-x: hidden;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .captured-filters.drawer-mode.drawer-open {
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .captured-filters.drawer-mode .captured-filter-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .captured-filters.drawer-mode .captured-search {
+      min-width: unset;
+    }
+
+    .captured-filters.drawer-mode .custom-dropdown {
+      width: 100%;
+    }
+
+    .captured-filters.drawer-mode .dropdown-trigger {
+      min-width: unset;
+      width: 100%;
+    }
+
+    .captured-filters.drawer-mode .date-pills {
+      flex-wrap: wrap;
+      border-radius: 12px;
+      gap: 4px;
+    }
+
+    .captured-filters.drawer-mode .date-pill {
+      flex: 1 1 calc(50% - 4px);
+      justify-content: center;
+      text-align: center;
+    }
+
+    /* ── Filter Drawer Toggle Tab ── */
+    .filter-drawer-toggle {
+      position: fixed;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%) translateX(100%);
+      z-index: 998;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 0.55rem 0.65rem 0.7rem;
+      background: linear-gradient(135deg, var(--primary, #6366f1) 0%, #4f46e5 100%);
+      color: white;
+      border: none;
+      border-radius: 12px 0 0 12px;
+      cursor: pointer;
+      box-shadow: -4px 2px 16px rgba(99, 102, 241, 0.3);
+      writing-mode: vertical-lr;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s ease;
+    }
+
+    .filter-drawer-toggle svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .filter-drawer-toggle.visible {
+      transform: translateY(-50%) translateX(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .filter-drawer-toggle:hover {
+      padding-right: 0.75rem;
+      box-shadow: -6px 2px 24px rgba(99, 102, 241, 0.4);
+    }
+
+    .filter-drawer-toggle.active {
+      background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+      border-radius: 0;
+      right: 340px;
+      transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s ease;
+    }
+
+    /* ── Drawer Backdrop ── */
+    .filter-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      z-index: 998;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .filter-drawer-backdrop.visible {
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .captured-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .captured-search {
+        min-width: unset;
+      }
+
+      .dropdown-trigger {
+        min-width: unset;
+        width: 100%;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .policy-prim-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Modal içi input placeholder renkleri (glass arka plan) */
+    .modal #customerSearchInput::placeholder,
+    .modal #producerSearchInput::placeholder {
+      color: rgba(255, 255, 255, 0.45);
     }
   </style>
 </head>
@@ -134,146 +1748,483 @@
       <div class="page-wrapper">
         <!-- Page Content -->
         <div class="page-content">
-        <div class="page-header">
-          <div>
-            <h1 class="page-title">Poliçelerim</h1>
-            <p class="page-subtitle">Tüm poliçelerinizi görüntüleyin ve yönetin</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-secondary" onclick="exportToExcel()" title="Excel olarak indir">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                <polyline points="7,10 12,15 17,10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Excel İndir
-            </button>
-          </div>
-        </div>
-
-        <!-- Filters -->
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="flex flex-wrap gap-3 items-center">
-              <div class="form-group filter-group-flex">
-                <select class="form-select" id="filterPoliceTipi" onchange="applyFilters()">
-                  <option value="">Tüm Poliçe Tipleri</option>
-                  <option value="kasko">Kasko</option>
-                  <option value="trafik">Trafik</option>
-                  <option value="dask">DASK</option>
-                  <option value="saglik">Sağlık</option>
-                  <option value="konut">Konut</option>
-                  <option value="isyeri">İşyeri</option>
-                </select>
-              </div>
-              <div class="form-group filter-group-flex">
-                <select class="form-select" id="filterDurum" onchange="applyFilters()">
-                  <option value="">Tüm Durumlar</option>
-                  <option value="0">Beklemede</option>
-                  <option value="1">Onaylı</option>
-                  <option value="2">Reddedildi</option>
-                </select>
-              </div>
-              <div class="form-group filter-group-flex">
-                <input type="text" class="form-input" id="filterStartDate" placeholder="Başlangıç Tarihi">
-              </div>
-              <div class="form-group filter-group-flex">
-                <input type="text" class="form-input" id="filterEndDate" placeholder="Bitiş Tarihi">
-              </div>
-              <div class="form-group filter-group-flex">
-                <input type="text" class="form-input" id="filterSearch" placeholder="Poliçe No veya Plaka Ara..." onkeyup="handleSearchKeyup(event)">
-              </div>
-              <button class="btn btn-secondary" onclick="applyFilters()">
+          <div class="page-header">
+            <div>
+              <h1 class="page-title">Poliçelerim</h1>
+              <p class="page-subtitle">Tüm poliçelerinizi görüntüleyin ve yönetin</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-secondary" onclick="exportToExcel()" title="Excel olarak indir">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="7,10 12,15 17,10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Ara
+                Excel İndir
               </button>
-              <button class="btn btn-secondary" onclick="clearFilters()">
+            </div>
+          </div>
+
+          <!-- KPI Summary Cards -->
+          <div class="kpi-grid">
+            <!-- Toplam Brüt Prim -->
+            <div class="kpi-card kpi-violet">
+              <div class="kpi-card-bg"></div>
+              <div class="kpi-header">
+                <div class="kpi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                    <path d="M15 8h-4c-1.1 0-2 .9-2 2s.9 2 2 2h2c1.1 0 2 .9 2 2s-.9 2-2 2H9"/>
+                    <path d="M12 6v2"/><path d="M12 16v2"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-value" id="kpiBrutPrim">0 TL</div>
+                <div class="kpi-label">Toplam Brüt Prim</div>
+              </div>
+            </div>
+
+            <!-- Toplam Komisyon -->
+            <div class="kpi-card kpi-emerald">
+              <div class="kpi-card-bg"></div>
+              <div class="kpi-header">
+                <div class="kpi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-value" id="kpiKomisyon">0 TL</div>
+                <div class="kpi-label">Toplam Komisyon</div>
+              </div>
+            </div>
+
+            <!-- Poliçe Adeti -->
+            <div class="kpi-card kpi-cyan">
+              <div class="kpi-card-bg"></div>
+              <div class="kpi-header">
+                <div class="kpi-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="kpi-body">
+                <div class="kpi-value" id="kpiPoliceAdet">0</div>
+                <div class="kpi-label">Poliçe Adeti</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div id="filtersSentinel" style="height:0;"></div>
+          <div class="captured-filters" id="filtersCard">
+            <!-- Row 1: Search + Dropdowns + Clear -->
+            <div class="captured-filter-row">
+              <div class="captured-search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path d="M21 21l-4.35-4.35"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Poliçe no, plaka, müşteri ara..." onkeyup="handleSearchKeyup(event)">
+              </div>
+              <div class="custom-dropdown" id="producerDropdown">
+                <button class="dropdown-trigger" onclick="toggleProducerDropdown(event)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                  <span id="producerFilterText">Tüm Prodüktörler</span>
+                  <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6,9 12,15 18,9"/>
+                  </svg>
+                </button>
+                <div class="dropdown-panel" id="producerPanel">
+                  <div class="dropdown-search">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="producerSearchInput" placeholder="Prodüktör ara..." oninput="filterProducerList()">
+                  </div>
+                  <div class="dropdown-list" id="producerList"></div>
+                </div>
+              </div>
+              <input type="hidden" id="producerFilter" value="">
+              <div class="custom-dropdown" id="branchDropdown">
+                <button class="dropdown-trigger" onclick="toggleBranchDropdown(event)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <polyline points="9,22 9,12 15,12 15,22"/>
+                  </svg>
+                  <span id="branchFilterText">Tüm Şubeler</span>
+                  <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6,9 12,15 18,9"/>
+                  </svg>
+                </button>
+                <div class="dropdown-panel" id="branchPanel">
+                  <div class="dropdown-search">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="branchSearchInput" placeholder="Şube ara..." oninput="filterBranchList()">
+                  </div>
+                  <div class="dropdown-list" id="branchList"></div>
+                </div>
+              </div>
+              <input type="hidden" id="branchFilter" value="">
+              <div class="custom-dropdown" id="companyDropdown">
+                <button class="dropdown-trigger" onclick="toggleCompanyDropdown(event)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                    <path d="M16 3h-8a2 2 0 00-2 2v2h12V5a2 2 0 00-2-2z"/>
+                  </svg>
+                  <span id="companyFilterText">Tüm Şirketler</span>
+                  <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6,9 12,15 18,9"/>
+                  </svg>
+                </button>
+                <div class="dropdown-panel" id="companyPanel">
+                  <div class="dropdown-search">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="companySearchInput" placeholder="Şirket ara..." oninput="filterCompanyList()">
+                  </div>
+                  <div class="dropdown-list" id="companyList"></div>
+                </div>
+              </div>
+              <input type="hidden" id="companyFilter" value="">
+              <div class="custom-dropdown" id="insuranceTypeDropdown">
+                <button class="dropdown-trigger" onclick="toggleInsuranceTypeDropdown(event)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  </svg>
+                  <span id="insuranceTypeFilterText">Tüm Ürünler</span>
+                  <svg class="dropdown-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6,9 12,15 18,9"/>
+                  </svg>
+                </button>
+                <div class="dropdown-panel" id="insuranceTypePanel">
+                  <div class="dropdown-search">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/>
+                      <path d="M21 21l-4.35-4.35"/>
+                    </svg>
+                    <input type="text" id="insuranceTypeSearchInput" placeholder="Ürün tipi ara..." oninput="filterInsuranceTypeList()">
+                  </div>
+                  <div class="dropdown-list" id="insuranceTypeList"></div>
+                </div>
+              </div>
+              <input type="hidden" id="insuranceTypeFilter" value="">
+              <button class="clear-filter-btn" onclick="clearFilters()" title="Filtreleri Temizle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
-                Temizle
               </button>
             </div>
-          </div>
-        </div>
-
-        <!-- Table -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">Poliçe Listesi</h3>
-            <span class="badge badge-neutral" id="totalCount">Yükleniyor...</span>
-          </div>
-          <div class="table-container">
-            <table class="data-table mobile-cards">
-              <thead>
-                <tr>
-                  <th>Poliçe No</th>
-                  <th>Plaka</th>
-                  <th>Sigorta Şirketi</th>
-                  <th>Tip</th>
-                  <th>Prodüktör</th>
-                  <th>Şube</th>
-                  <th>Başlangıç</th>
-                  <th>Bitiş</th>
-                  <th>Brüt Prim</th>
-                  <th>Komisyon</th>
-                  <th>Durum</th>
-                  <th>İşlemler</th>
-                </tr>
-              </thead>
-              <tbody id="policyTableBody">
-                <tr>
-                  <td colspan="12" style="text-align: center; padding: 2rem;">
-                    <div class="loading-spinner"></div>
-                    Yükleniyor...
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="card-footer">
-            <div class="flex items-center justify-between">
-              <span class="text-muted" id="tableInfo">-</span>
-              <div class="flex gap-2" id="pagination"></div>
+            <!-- Row 2: Date Pills -->
+            <div class="date-pills" id="datePills" style="margin-top: 0.75rem;">
+              <button class="date-pill" onclick="setQuickDate('today', this)">Bugün</button>
+              <button class="date-pill" onclick="setQuickDate('yesterday', this)">Dün</button>
+              <button class="date-pill" onclick="setQuickDate('week', this)">Bu Hafta</button>
+              <button class="date-pill" onclick="setQuickDate('month', this)">Bu Ay</button>
+              <button class="date-pill" onclick="setQuickDate('year', this)">Bu Yıl</button>
+              <button class="date-pill" onclick="setQuickDate('last30', this)">Son 30 Gün</button>
+              <button class="date-pill" onclick="setQuickDate('last365', this)">Son 365 Gün</button>
+              <label class="date-pill date-pill-range" id="rangePill">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input type="text" id="dateRangeFilter" placeholder="Özel" readonly>
+              </label>
             </div>
           </div>
-        </div>
+          <!-- Filter Drawer Toggle + Backdrop -->
+          <button class="filter-drawer-toggle" id="filterDrawerToggle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"/>
+            </svg>
+            Filtre
+          </button>
+          <div class="filter-drawer-backdrop" id="filterDrawerBackdrop"></div>
+
+          <!-- Table -->
+          <div class="card" style="overflow: visible;">
+            <div class="card-header">
+              <h3 class="card-title">Poliçe Listesi</h3>
+              <span class="badge badge-neutral" id="totalCount">Yükleniyor...</span>
+            </div>
+            <div class="card-body" style="padding: 0; overflow: visible;">
+              <div class="table-container" style="overflow: visible;">
+                <table class="data-table mobile-cards" id="policyTable">
+                  <thead>
+                    <tr>
+                      <th style="width: 50px;">Şirket</th>
+                      <th>Poliçe No</th>
+                      <th>Müşteri</th>
+                      <th>Tip</th>
+                      <th class="sortable" data-sort="grossPremium" onclick="sortTable('grossPremium')">
+                        Brüt Prim
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M7 15l5 5 5-5"/>
+                          <path d="M7 9l5-5 5 5"/>
+                        </svg>
+                      </th>
+                      <th class="sortable" data-sort="producer" onclick="sortTable('producer')">
+                        Prodüktör / Temsilci
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M7 15l5 5 5-5"/>
+                          <path d="M7 9l5-5 5 5"/>
+                        </svg>
+                      </th>
+                      <th>Acente No</th>
+                      <th class="sortable" data-sort="startDate" onclick="sortTable('startDate')">
+                        Başlangıç
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M7 15l5 5 5-5"/>
+                          <path d="M7 9l5-5 5 5"/>
+                        </svg>
+                      </th>
+                      <th class="sortable" data-sort="endDate" onclick="sortTable('endDate')">
+                        Bitiş
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M7 15l5 5 5-5"/>
+                          <path d="M7 9l5-5 5 5"/>
+                        </svg>
+                      </th>
+                      <th>Komisyon</th>
+                      <th style="width: 120px;">İşlemler</th>
+                    </tr>
+                  </thead>
+                  <tbody id="policyTableBody">
+                    <tr>
+                      <td colspan="11" style="text-align: center; padding: 2rem;">
+                        <div class="loading-spinner"></div>
+                        Yükleniyor...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="table-footer-right" style="width: 100%; justify-content: flex-end;">
+                <div class="pagination-controls">
+                  <div class="page-size-selector">
+                    <label>Sayfa başına:</label>
+                    <select id="pageSizeSelect" onchange="changePageSize(this.value)">
+                      <option value="10">10</option>
+                      <option value="20" selected>20</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </div>
+                  <span class="table-info" id="tableInfo">-</span>
+                  <div class="page-navigation">
+                    <button class="page-btn" id="prevPageBtn" onclick="prevPage()" disabled>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                      </svg>
+                    </button>
+                    <span class="page-numbers" id="pageNumbers"></span>
+                    <button class="page-btn" id="nextPageBtn" onclick="nextPage()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- Policy Detail Modal -->
-  <div class="modal-overlay" id="policyModal">
-    <div class="modal-content">
+  <!-- Customer Modal -->
+  <div class="modal-overlay" id="customerModal">
+    <div class="modal">
       <div class="modal-header">
-        <h2 class="modal-title">Poliçe Detayları</h2>
-        <button class="modal-close" onclick="closeModal()">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
+        <h3 class="modal-title">Müşteri Kartı</h3>
+        <button class="modal-close" onclick="closeCustomerModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
         </button>
       </div>
-      <div class="modal-body">
-        <div class="detail-grid" id="modalContent">
-          <!-- Content will be injected here -->
+      <div class="modal-body" id="customerModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Producer Modal -->
+  <div class="modal-overlay" id="producerModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Prodüktör Bilgisi</h3>
+        <button class="modal-close" onclick="closeProducerModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="producerModalBody"></div>
+    </div>
+  </div>
+
+  <!-- Policy Detail Modal -->
+  <div class="modal-overlay" id="policyDetailModal">
+    <div class="modal policy-detail-modal">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="policy-modal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="modal-title">Poliçe Detayı</h3>
+            <span class="modal-subtitle" id="policyModalSubtitle">-</span>
+          </div>
         </div>
+        <button class="modal-close" onclick="closePolicyDetailModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="policyDetailModalBody"></div>
+      <div class="modal-footer" id="policyDetailModalFooter">
+        <button class="btn btn-secondary" onclick="closePolicyDetailModal()">Kapat</button>
+        <button class="btn btn-primary" id="policyModalEditBtn" onclick="">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Düzenle
+        </button>
+        <button class="btn btn-secondary" id="policyModalZeyilBtn" onclick="">
+          Zeyilleri Gör
+        </button>
       </div>
     </div>
   </div>
 
-  <script src="../../assets/js/config.js"></script>
+  <!-- Edit Policy Modal -->
+  <div class="modal-overlay" id="editPolicyModal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Poliçe Düzenle</h3>
+        <button class="modal-close" onclick="closeEditPolicyModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="editPolicyModalBody">
+        <form id="editPolicyForm" onsubmit="saveEditedPolicy(event)">
+          <input type="hidden" id="editPolicyId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Poliçe No</label>
+              <input type="text" class="form-control mono" id="editPolicyNo" maxlength="25">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Plaka</label>
+              <input type="text" class="form-control mono" id="editPlaka">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Poliçe Tipi</label>
+              <select class="form-control" id="editType"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tanzim Tarihi</label>
+              <input type="date" class="form-control" id="editDate">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Başlangıç</label>
+              <input type="date" class="form-control" id="editStartDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Bitiş</label>
+              <input type="date" class="form-control" id="editEndDate">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Net Prim (TL)</label>
+              <input type="number" step="0.01" class="form-control mono" id="editNetPremium">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Brüt Prim (TL)</label>
+              <input type="number" step="0.01" class="form-control mono" id="editGrossPremium">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prodüktör</label>
+              <select class="form-control" id="editProducer"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kesen Üye</label>
+              <select class="form-control" id="editKesenUye"></select>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeEditPolicyModal()">İptal</button>
+            <button type="submit" class="btn btn-primary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17,21 17,13 7,13 7,21"/>
+                <polyline points="7,3 7,8 15,8"/>
+              </svg>
+              Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zeyil History Modal -->
+  <div class="modal-overlay" id="zeyilModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Zeyil Geçmişi</h3>
+        <button class="modal-close" onclick="closeZeyilModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="zeyilModalBody"></div>
+    </div>
+  </div>
+
   <script src="../../assets/js/app.js"></script>
   <script src="../../components/base.js"></script>
   <script src="../../components/toast.js"></script>
   <script src="../../components/modal.js"></script>
   <script src="../../components/sidebar.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <script src="../../assets/js/pages/policies/my-policies.js"></script>
